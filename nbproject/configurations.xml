@@ -51,6 +51,16 @@
         <makeCustomizationEnableLongLines>false</makeCustomizationEnableLongLines>
         <makeCustomizationNormalizeHexFile>false</makeCustomizationNormalizeHexFile>
       </makeCustomizationType>
+      <C30>
+      </C30>
+      <C30-AS>
+      </C30-AS>
+      <C30-LD>
+      </C30-LD>
+      <C30Global>
+      </C30Global>
+      <ICD3PlatformTool>
+      </ICD3PlatformTool>
     </conf>
   </confs>
 </configurationDescriptor>
