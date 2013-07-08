@@ -17,6 +17,7 @@
 #include "FullInitialize.h"
 #include "lcd.h"
 #include "delay.h"
+#include "3DMGX1.h"
 
 //Perform random clock things that came with the Sample Code (Keep in code)
 _FOSCSEL(FNOSC_FRC);			// Internal FRC oscillator
