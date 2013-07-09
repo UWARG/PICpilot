@@ -22,13 +22,13 @@ int t2[9];            // each input channel
 short checkic[9];     // flag bit
 int icTimeDiff[9];
 
-int batt = 0;
-int thro = 0;     // easy use variable names for icTime Differences
-int roll  = 0;
-int pitch = 0;
-int yaw = 0;
-int gear = 0;
-int aux1 = 0;
+int Batt = 0;
+int Throttle = 0;     // easy use variable names for icTime Differences
+int Roll  = 0;
+int Pitch = 0;
+int Yaw = 0;
+int Gear = 0;
+int Aux1 = 0;
 
 
 
@@ -209,17 +209,16 @@ void initInputCapture()     // Capture Interrupt Service Routine
 }
 
 
-
 // easy use variable names for icTime Differences
 void init_EasyVarNames()
 {
-    batt = icTimeDiff[1];
-    thro = icTimeDiff[2];
-    roll  = icTimeDiff[3];
-    pitch = icTimeDiff[4];
-    yaw = icTimeDiff[5];
-    gear = icTimeDiff[6];
-    aux1 = icTimeDiff[7];
+    Batt = icTimeDiff[1];
+    Throttle = icTimeDiff[2];
+    Roll  = icTimeDiff[3];
+    Pitch = icTimeDiff[4];
+    Yaw = icTimeDiff[5];
+    Gear = icTimeDiff[6];
+    Aux1 = icTimeDiff[7];
 }
 
 // initialize function

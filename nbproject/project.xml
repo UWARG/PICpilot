@@ -6,9 +6,9 @@
             <name>Autopilot</name>
             <creation-uuid>c6d2d596-3045-4e81-8f16-85ce9781baff</creation-uuid>
             <make-project-type>0</make-project-type>
-            <c-extensions/>
+            <c-extensions>c</c-extensions>
             <cpp-extensions/>
-            <header-extensions/>
+            <header-extensions>h</header-extensions>
             <sourceEncoding>ISO-8859-1</sourceEncoding>
             <make-dep-projects/>
         </data>
