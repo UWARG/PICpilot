@@ -217,3 +217,48 @@ int main()
     }
     return (EXIT_SUCCESS);
 }
+
+
+/*****************************************************************************
+ *****************************************************************************
+
+                             STABILIZATION CODE
+
+ *****************************************************************************
+ *****************************************************************************
+
+//Servo scale factor is used in converting deg/s rotation input into output compare values
+const float SERVO_SCALE_FACTOR = -(UPPER_PWM-MIDDLE_PWM)/45;
+
+int controlSignal(float setpoint, float output, float gain) {
+    int control = SERVO_SCALE_FACTOR*(setpoint-output)*gain + MIDDLE_PWM;
+    return control;
+}
+
+int main() {
+
+    // Setpoints (From radio transmitter or autopilot)
+    float sp_RollRate;
+    float sp_YawRate;
+    float sp_PitchRate;
+
+    // System outputs (get from IMU)
+    float imu_RollRate;
+    float imu_PitchRate;
+    float imu_YawRate;
+
+    // Derivative Gains (Set for desired pwm servo pulse width)
+    float kd_Roll;
+    float kd_Pitch;
+    float kd_Yaw;
+
+    // Control Signals (Output compare value)
+    int control_Roll = (sp_RollRate, imu_RollRate, kd_Roll);
+    int control_Pitch = (sp_PitchRate, imu_PitchRate, kd_Pitch);
+    int control_Yaw = (sp_YawRate, imu_YawRate, kd_Yaw);
+
+}
+
+ *****************************************************************************
+ *****************************************************************************
+ ******************************************************************************/
