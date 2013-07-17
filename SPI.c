@@ -53,8 +53,10 @@ void InitSPI(){
     //Enable SPI
     SPI1STATbits.SPIEN = 1;
 
-    //Then write
+    //Then write to the SPI1BUF
 
 }
+void sendData(char command){
 
+}
 
