@@ -1,5 +1,13 @@
 
 #include "3DMGX1.h"
+//Include Libraries
+#include <stdio.h>
+#include <stdlib.h>
+#include <p33FJ256GP710A.h>
+#include <string.h>
+//Include the Full Initialization Header File
+#include "UART2.h"
+#include "delay.h"
 
 /*
  * File:   3DMGX1.c
@@ -13,6 +21,9 @@
  *
  */
 
+const int messageSize[] = {0,23,23,23,13,13,6,7,2,2,23,23,31,11,11,5,7,5,31,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,11,0,5,7,7,0,0,0,0,0,0,0,23,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,23,11};
+
+
 int test = 0;
 unsigned char IMU_Receive[23];
 int IMU_ReceiveCount = 0;
@@ -24,6 +35,7 @@ int gotGainScales = 0;
 int initializing = 0;
 
 struct IMU model;
+double vector[3];
 
 void __attribute__ ((interrupt, no_auto_psv)) _U2RXInterrupt(void)
 {
@@ -45,7 +57,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _U2RXInterrupt(void)
         {
             IMU_Receive[IMU_ReceiveCount++] = RegTest;
             IMU_Receive_Trigger = TRUE;
-            LATA = 8;
+            //LATA = 8;
         }
     }
 
@@ -58,12 +70,14 @@ void __attribute__ ((interrupt, no_auto_psv)) _U2RXInterrupt(void)
                 IMU_ReceiveCount = 0;
                 IMU_FullReceive = TRUE;
                 IMU_Receive_Trigger = FALSE;
+                //LATA = 0xFF;
             }
             else if (IMU_ReceiveCount == messageSize[IMU_CurrentCommand] - 1)
             {
                 IMU_ReceiveCount = 0;
                 IMU_FullReceive = TRUE;
                 IMU_Receive_Trigger = FALSE;
+                //LATA = 0xFF;
             }
             else
                 IMU_ReceiveCount++;
@@ -79,7 +93,7 @@ void __attribute__ ((interrupt, no_auto_psv)) _U2TXInterrupt(void)
     IFS1bits.U2TXIF = 0;
 }
 
-double calcEulerAngles()
+double* calcEulerAngles()
 {
 
     /*
@@ -94,10 +108,9 @@ double calcEulerAngles()
      * imuData[6] = Yaw LSB
      */
 
-	unsigned short sRoll, sPitch, sYaw, ttick, checkS, checkV;
+	unsigned short sRoll, sPitch, sYaw, ttick, checkS;
 	short ssRoll, ssPitch, ssYaw;
 	float align = ((float)360/(float)65536);
-        double vector[3];
 
         sRoll = (IMU_Receive[1]*256)+ IMU_Receive[2];  //Convert Roll to a 16 bit unsigned integer
         if(sRoll > 32767)                    //Check for rollover and adjust
@@ -120,8 +133,9 @@ double calcEulerAngles()
         vector[0] = (double)ssRoll*align;   //apply align == 360/65536
         vector[1] = (double)ssPitch*align;
         vector[2] = (double)ssYaw*align;
+        return &vector;
 }
-double calcAccelRate(){
+double* calcAccelRate(){
     //Acceleration defined in G's (9.81m/s^2)
      /*
      * Data provided from IMU_Receive in this specification:
@@ -138,7 +152,6 @@ double calcAccelRate(){
     //AccelGainScale is defined at EEPROM address #230
     float align = 32768000/ model.accelGainScale;
     unsigned short sAccelX,sAccelY,sAccelZ;
-    double vector[3];
 
     sAccelX = IMU_Receive[7] * 256 + IMU_Receive[8];
     if (sAccelX > 32767)
@@ -154,10 +167,9 @@ double calcAccelRate(){
     vector[1] = (double)sAccelY / align;
     vector[2] = (double)sAccelZ / align;
 
-    return vector;
-
+    return &vector;
 }
-double calcAngRate(){
+double* calcAngRate(){
     //Angular Velocity defined as Rad/Sec.
      /*
      * Data provided from IMU_Receive in this specification:
@@ -173,7 +185,7 @@ double calcAngRate(){
 
     float align = 32768000/ model.gyroGainScale;
     unsigned short sAngRateX, sAngRateY, sAngRateZ;
-    double vector[3];
+    
 
     sAngRateX = IMU_Receive[13] * 256 + IMU_Receive[14];
     if (sAngRateX > 32767)
@@ -189,18 +201,23 @@ double calcAngRate(){
     vector[1] = (double)sAngRateY / align;
     vector[2] = (double)sAngRateZ / align;
 
-    return vector;
+    return &vector;
 }
 
 
-int checkValidity(short data){
+int checkValidity(unsigned char* data){
     //Checks if last transmission was valid
-    int len = sizeof(data/2); //16 bit integer = 2 bytes
-    int gChecksum = data[len - 2] << 8 + data[len - 1];
-    int cChecksum = 0;
+    int len = messageSize[IMU_CurrentCommand];
+    int gChecksum;
+    gChecksum = (IMU_Receive[len - 2] *256) + IMU_Receive[len - 1];
+    int cChecksum;
     int i = 0;
-    for (i = 0; i < len - 2; i++){
-        cChecksum += data[i];
+    //Assumes each piece of data has a MSB and a LSB, excluding the header
+    cChecksum = IMU_Receive[0];
+    for (i = 1; i < len - 2; i+=2){
+        int msb = IMU_Receive[i];
+        int lsb = IMU_Receive[i+1];
+        cChecksum += (msb * 256) + lsb;
     }
     if (gChecksum == cChecksum){
         return 1;
@@ -210,9 +227,10 @@ int checkValidity(short data){
 }
 struct IMU getCurrentData(){
     //Check to ensure validity, otherwise don't update the valid data with invalid data
-    if (checkValidity(IMU_Receive)){
-        double temp;
-        temp = CalcEulerAngles();
+    
+    if (checkValidity(&IMU_Receive)){
+        double* temp;
+        temp = calcEulerAngles();
         model.roll = temp[0];
         model.pitch = temp[1];
         model.yaw = temp[2];
@@ -232,33 +250,41 @@ struct IMU getCurrentData(){
     return model;
 }
 
-void updateCurrentData(char command){
-    int i;
-    IMU_CurrentCommand = command[0];
-    for (i = 0; i < sizeof(command); i++){ //Char = 1 byte
-        U2TXREG = command[i];
-        while(U2STAbits.TRMT == 0);
-        U2STAbits.TRMT = 0;
-    }
+void updateCurrentData(char* command, int dataLength) {
+        int i;
+        IMU_CurrentCommand = command[0];
+        for (i = 0; i < dataLength; i++) { //Char = 1 byte
+            U2TXREG = command[i];
+            while (U2STAbits.TRMT == 0);
+            U2STAbits.TRMT = 0;
+        }
 }
 
 void init_3DMGX1(){
     //Somewhere here initialize Gain Scales -- NOT SURE THIS CODE WORKS (IE. is the interrupt triggered with 2 bytes of data?) -- Might freez up here
     initializing = 1;
-    char data = {sReadEEPROM, 230}; //AccelGainScale at 230
-    updateCurrentData(data);
-    while(IMU_FullReceive == FALSE);
+    char data1[] = {sReadEEPROM, 230}; //AccelGainScale at 230
+    while(IMU_FullReceive == FALSE){
+        Delay(Delay_1S_Cnt);
+        updateCurrentData(&data1,2);
+    }
+    
+    
     model.accelGainScale = IMU_Receive[0] * 256 + IMU_Receive[1];
+    //printf("%d",model.accelGainScale);
 
-
-    char data = {sReadEEPROM, 130}; //GyroGainScale at 130
-    updateCurrentData(data);
-    while(IMU_FullReceive == FALSE);
+    char data2[] = {sReadEEPROM, 130}; //GyroGainScale at 130
+    while(IMU_FullReceive == FALSE){
+        Delay(Delay_1S_Cnt);
+        updateCurrentData(&data2,2);
+    }
+    //while(IMU_FullReceive == FALSE);
     model.gyroGainScale = IMU_Receive[0] * 256 + IMU_Receive[1];
-
+    //printf("%d",model.gyroGainScale);
+    gotGainScales = TRUE;
 
 }
-int returnCommandData(){
+unsigned char* returnCommandData(){
     //Simply returns the data from the last command
-    return IMU_Receive;
+    return &IMU_Receive;
 }

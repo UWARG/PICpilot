@@ -34,7 +34,7 @@
 #define sDeviceSerialNumber 0xF1
 
 //external variables
-extern struct IMU
+struct IMU
 {
     double roll;		/* 32 bit signed Euler roll angle in degrees */
     double pitch;		/* 32 bit signed Euler pitch angle in degrees */
@@ -52,13 +52,13 @@ extern struct IMU
 };
 
 // The receieving message size for each command above, excluding the serial and firmware numbers, otherwise it is 5 bytes
-extern const int messageSize[] = (0,23,23,23,13,13,6,7,2,2,23,23,31,11,11,5,7,5,31,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,11,0,5,7,7,0,0,0,0,0,0,0,23,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,23,11);
+extern const int messageSize[];
 // List all function prototypes below:
-double calcEulerAngles();
-double calcAccelRate();
-int checkValidity(short data);
+double* calcEulerAngles();
+double* calcAccelRate();
+int checkValidity(unsigned char* data);
 struct IMU getCurrentData();
-void updateCurrentData(char command);
+void updateCurrentData(char* command, int dataLength);
 void init_3DMGX1();
-int returnCommandData();
+unsigned char* returnCommandData();
 

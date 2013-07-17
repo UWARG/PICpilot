@@ -38,38 +38,24 @@ int IMU_Valid = FALSE;
 int IMU_Receive_Trigger = FALSE;
 double IMU_Roll = 0, IMU_Pitch = 0, IMU_Yaw = 0;
 
-void __attribute__ ((interrupt, no_auto_psv)) _U2RXInterrupt(void)
-{
 
-    if (IMU_Receive_Trigger == FALSE)
-    {
-        int RegTest = 0;
-        RegTest = U2RXREG;
-        
-        if (RegTest == 14)
-        {
-            IMU_Receive[IMU_ReceiveCount] = RegTest;
-            IMU_ReceiveCount++;
-            IMU_Receive_Trigger = TRUE;
-        }
-    }
 
-    else if (IMU_Receive_Trigger == TRUE)
-    {
-            IMU_Receive[IMU_ReceiveCount] = U2RXREG;
-
-            if (IMU_ReceiveCount == 10)
-            {
-                IMU_ReceiveCount = 0;
-                IMU_FullReceive = TRUE;
-                IMU_Receive_Trigger = FALSE;
-            }
-            else
-                IMU_ReceiveCount++;
-
-    }
-        IFS1bits.U2RXIF = 0;
-}
+//    else if (IMU_Receive_Trigger == TRUE)
+//    {
+//            IMU_Receive[IMU_ReceiveCount] = U2RXREG;
+//
+//            if (IMU_ReceiveCount == 10)
+//            {
+//                IMU_ReceiveCount = 0;
+//                IMU_FullReceive = TRUE;
+//                IMU_Receive_Trigger = FALSE;
+//            }
+//            else
+//                IMU_ReceiveCount++;
+//
+//    }
+//        IFS1bits.U2RXIF = 0;
+//}
 
 void __attribute__ ((interrupt, no_auto_psv)) _U2TXInterrupt(void)
 {
@@ -122,20 +108,33 @@ int main()
 
     LATA = 1;
 
-    U2TXREG = 0x10;
-    while(U2STAbits.TRMT == 0);
-    U2STAbits.TRMT = 0;
-
-    U2TXREG = 0x00;
-    while(U2STAbits.TRMT == 0);
-    U2STAbits.TRMT = 0;
-
-    U2TXREG = 0x0E;
-    while(U2STAbits.TRMT == 0);
-    U2STAbits.TRMT = 0;
-
+//    U2TXREG = 0x10;
+//    while(U2STAbits.TRMT == 0);
+//    U2STAbits.TRMT = 0;
+//
+//    U2TXREG = 0x00;
+//    while(U2STAbits.TRMT == 0);
+//    U2STAbits.TRMT = 0;
+//
+//    U2TXREG = 0x0E;
+//    while(U2STAbits.TRMT == 0);
+//    U2STAbits.TRMT = 0;
+    LATA = 2;
+    //init_3DMGX1();
+    
+    //struct IMU data;
+    init_3DMGX1();
+    struct IMU data;
     while(1)
     {
+
+
+        int command = sGyroEulerAngles;
+        updateCurrentData(&command,1);
+        data = getCurrentData();
+       // printf("%d",data.roll);
+        Delay(Delay_15mS_Cnt);
+        LATA = data.roll;
 
         //Calculate and Update the Input Values
         short ic;
