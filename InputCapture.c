@@ -210,15 +210,43 @@ void initInputCapture()     // Capture Interrupt Service Routine
 
 
 // easy use variable names for icTime Differences
-void init_EasyVarNames()
-{
-    Batt = icTimeDiff[1];
-    Throttle = icTimeDiff[2];
-    Roll  = icTimeDiff[3];
-    Pitch = icTimeDiff[4];
-    Yaw = icTimeDiff[5];
-    Gear = icTimeDiff[6];
-    Aux1 = icTimeDiff[7];
+//void init_EasyVarNames()
+//{
+//    Batt = icTimeDiff[1];
+//    Throttle = icTimeDiff[2];
+//    Roll  = icTimeDiff[3];        //ROLL
+//    Pitch = icTimeDiff[4];        //PITCH
+//    Yaw = icTimeDiff[5];          //YAW
+//    Gear = icTimeDiff[6];
+//    Aux1 = icTimeDiff[7];
+//}
+
+ int* getICValues(){
+            //Calculate and Update the Input Values
+
+        short ic;
+        for (ic = 1; ic <= 8; ic++)
+        {
+            //If knew data has been received on the given channel
+            if (checkic[ic] == 1)
+            {
+              //If the second time is greater than the first time then we have not met roll over
+              if(t2[ic] > t1[ic])
+              {
+                 icTimeDiff[ic] = (t2[ic] - t1[ic]);
+                 checkic[ic] = 0;
+              }
+              //Roll over has been made, therefore do math to find the time difference
+              //(Max time - t1) is the upper difference
+              //Adding the second time (time from 0) gives you the total time difference
+              else
+              {
+                 icTimeDiff[ic] = ((PR2 - t1[ic]) + t2[ic]);
+                 checkic[ic] = 0;
+              }
+            }
+        }
+        return icTimeDiff;
 }
 
 // initialize function
