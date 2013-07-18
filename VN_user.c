@@ -19,6 +19,7 @@
 #include "p33FJ256GP710.h"
 #include "VN_user.h"
 #include "VN_lib.h"
+#include "delay.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -173,29 +174,17 @@ void VN_Delay(unsigned long delay_uS){
    write your own. */
   //unsigned long i;
   //for(i=delay_uS*10; i--; );
+    delay_uS *= Delay_1mS_Cnt;
 
-	unsigned long i;
-	for (i=0; i<=delay_uS; i++)
-	{
-		asm("nop");
-		asm("nop");
-		asm("nop");
-		asm("nop");
-		asm("nop");
-		asm("nop");
-		asm("nop");
-		asm("nop");
-		asm("nop");
-		asm("nop");
-		asm("nop");
-		asm("nop");
-		asm("nop");
-		asm("nop");
-		asm("nop");
-		asm("nop");
-		asm("nop");
-		asm("nop");
-	}
+	temp_count = delay_uS +1;
+	asm volatile("outer1: dec _temp_count");
+	asm volatile("cp0 _temp_count");
+	asm volatile("bra z, done1");
+	asm volatile("do #1500, inner1" );
+	asm volatile("nop");
+	asm volatile("inner1: nop");
+	asm volatile("bra outer1");
+	asm volatile("done1:");
 
 }
 
