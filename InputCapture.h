@@ -18,3 +18,4 @@ void initInputCapture(void);
 void initIC(void);
 void init_t2(void);
 void init_EasyVarNames();
+int* getICValues();

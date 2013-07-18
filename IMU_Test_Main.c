@@ -16,6 +16,8 @@
 #include "FullInitialize.h"
 #include "delay.h"
 #include "VN100.h"
+#include "InputCapture.h"
+#include "OutputCompare.h"
 
 //Perform random clock things that came with the Sample Code (Keep in code)
 _FOSCSEL(FNOSC_FRC);			// Internal FRC oscillator
@@ -32,8 +34,6 @@ _FOSC(FCKSM_CSECMD & OSCIOFNC_OFF  & POSCMD_NONE);
 
 
 
-
-
  /*****************************************************************************
  *****************************************************************************
 
@@ -43,7 +43,7 @@ _FOSC(FCKSM_CSECMD & OSCIOFNC_OFF  & POSCMD_NONE);
  *****************************************************************************/
 
 //Servo scale factor is used in converting deg/s rotation input into output compare values
-const float SERVO_SCALE_FACTOR = -(UPPER_PWM-MIDDLE_PWM)/45;
+float SERVO_SCALE_FACTOR;
 
 int controlSignal(float setpoint, float output, float gain) {
     int control = SERVO_SCALE_FACTOR*(setpoint-output)*gain + MIDDLE_PWM;
@@ -57,6 +57,8 @@ int controlSignal(float setpoint, float output, float gain) {
 
 int main()
 {
+   SERVO_SCALE_FACTOR = -(UPPER_PWM-MIDDLE_PWM)/45;
+
     // Setpoints (From radio transmitter or autopilot)
     float sp_RollRate;
     float sp_YawRate;
@@ -92,10 +94,13 @@ int main()
 
  *****************************************************************************
  *****************************************************************************/
+        
+    int* icTimeDiff;
+    icTimeDiff = getICValues();
 
-        sp_RollRate = ;
-        sp_YawRate;
-        sp_PitchRate;
+    sp_RollRate = icTimeDiff[3];
+    sp_YawRate = icTimeDiff[5];
+    sp_PitchRate = icTimeDiff[4];
 
  /*****************************************************************************
  *****************************************************************************
@@ -125,5 +130,10 @@ int main()
 
  *****************************************************************************
  *****************************************************************************/
+    
+    //Double check ocPin
+    setPWM(3,control_Roll);
+    setPWM(4,control_Pitch);
+    setPWM(5,control_Yaw);
     }
 }

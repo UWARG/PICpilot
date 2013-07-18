@@ -16,7 +16,7 @@
 *******************************************************************************/
 
 /* Includes ------------------------------------------------------------------*/
-#include "p33FJ256GP710.h"
+#include "p33FJ256GP710A.h"
 #include "VN_user.h"
 #include "VN_lib.h"
 #include "delay.h"
@@ -175,6 +175,8 @@ void VN_Delay(unsigned long delay_uS){
   //unsigned long i;
   //for(i=delay_uS*10; i--; );
     delay_uS *= Delay_1mS_Cnt;
+
+    unsigned long temp_count;   //hack fix
 
 	temp_count = delay_uS +1;
 	asm volatile("outer1: dec _temp_count");

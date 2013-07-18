@@ -12,7 +12,7 @@
 
 
 short MSEC = 3125;
-short UPPER_PWM = (6250);
+short UPPER_PWM = 6250;
 short LOWER_PWM = 3125;
 short MIDDLE_PWM = 4688;
 

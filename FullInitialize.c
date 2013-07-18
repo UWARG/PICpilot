@@ -2,8 +2,6 @@
 //Include Header Files
 #include <p33FJ256GP710A.h>
 #include "Clock.h"
-#include "UART2.h"
-#include "lcd.h"
 
 void FullInit()
 {
@@ -13,7 +11,5 @@ void FullInit()
     TRISA = 0xFF00;
 
     InitClock();
-    InitUART2();
-    Init_LCD();
 
 }

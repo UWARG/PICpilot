@@ -176,7 +176,7 @@ typedef struct {
 
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
-void void VN100_initSPI();
+void VN100_initSPI();
 VN100_SPI_Packet* VN100_SPI_ReadRegister(unsigned char sensorID, unsigned char regID, unsigned char regWidth);
 VN100_SPI_Packet* VN100_SPI_WriteRegister(unsigned char sensorID, unsigned char regID, unsigned char regWidth, unsigned long* ptrWriteValues);
 VN100_SPI_Packet* VN100_SPI_GetModel(unsigned char sensorID, char* model);
