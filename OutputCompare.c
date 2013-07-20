@@ -16,6 +16,8 @@ short UPPER_PWM = 6250;
 short LOWER_PWM = 3125;
 short MIDDLE_PWM = 4688;
 
+char initializedOC;
+
 /*
  * 
  */
@@ -99,32 +101,30 @@ OC8CONbits.OCTSEL = 0; // Select Timer 2 as output compare time base
 OC8CONbits.OCM = 0b110; // Select the Output Compare mode (without fault protection)
 }
 
-void setPeriod(double time) ///////////////////FIX
+void setPeriod(double time) 
 {
 //    Time is input in milliseconds
 //    Using Timer 2:
-     int pScale = T2CONbits.TCKPS;
+     //int pScale = T2CONbits.TCKPS;
 
     //If the prescaler is too small, it is incremented, and the corresponding
     //period and PWM are altered.
-    if (time * MSEC > 0xFFFF)
-    {
-        pScale++;
-        T2CONbits.TCKPS = pScale;
-
-        MSEC /= 8;  //Divide the cycle/sec ratio by the prescaler
-
-        //Reinitialize all the variables
-        UPPER_PWM = MSEC * 2;
-        MIDDLE_PWM = MSEC * 1.5;
-        LOWER_PWM = MSEC;
-        init_oc();
-
-    }
+    //if (time * MSEC > 0xFFFF)
+    //{
+    //     pScale++;
+         T2CONbits.TCKPS = 0x01; //1:8 scaler
+         int nMSEC = MSEC/8;  //Divide the cycle/sec ratio by the prescaler
+  
+    //     //Reinitialize all the variables
+         UPPER_PWM = nMSEC * 2;
+         MIDDLE_PWM = nMSEC * 1.5;
+         LOWER_PWM = nMSEC;
+    //     init_oc(initializedOC);
+    // }
 
 
         //PR2 = (unsigned int)(10 * MSEC);
-     PR2 = (unsigned int)(time * MSEC);
+     PR2 = (unsigned int)(time * nMSEC);//3250;//(time * MSEC); //3250??
 
 }
 
@@ -165,22 +165,31 @@ void setPWM(int ocPin, int time)
     }
 }
 
-void init_oc(void)
+void init_oc(char OC)
 {
     //Initialize each of the 8 OCs
-    init_oc1();
-    init_oc2();
-    init_oc3();
-    init_oc4();
-    init_oc5();
-    init_oc6();
-    init_oc7();
-    init_oc8();
+    if (OC & 0b1)
+        init_oc1();
+    if (OC & 0b10)
+        init_oc2();
+    if (OC & 0b100)
+        init_oc3();
+    if (OC & 0b1000)
+        init_oc4();
+    if (OC & 0b10000)
+        init_oc5();
+    if (OC & 0b100000)
+        init_oc6();
+    if (OC & 0b1000000)
+        init_oc7();
+    if (OC & 0b10000000)
+        init_oc8();
 }
 
-void initOC(void){ //int argc, char** argv) {
-    init_oc();
+void initOC(char OC){ //int argc, char** argv) {
+    init_oc(OC);
     //Initialize timer2
-    init_t2();
+    initializedOC = OC;
+    //init_t2();
 
 }

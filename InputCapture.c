@@ -16,21 +16,11 @@
 //                  channel values (from IC1 - IC8)
 
 
-int t1[9];            // time one and time two capture for
-int t2[9];            // each input channel
+int t1[8];            // time one and time two capture for
+int t2[8];            // each input channel
 
-short checkic[9];     // flag bit
-int icTimeDiff[9];
-
-int Batt = 0;
-int Throttle = 0;     // easy use variable names for icTime Differences
-int Roll  = 0;
-int Pitch = 0;
-int Yaw = 0;
-int Gear = 0;
-int Aux1 = 0;
-
-
+short checkic[8];     // flag bit
+int icTimeDiff[8];
 
 // time calculation stored in an array
 void init_t2(void)    // Initialize and enable Timer2
@@ -54,11 +44,11 @@ void init_t2(void)    // Initialize and enable Timer2
 void __attribute__((__interrupt__,no_auto_psv)) _IC1Interrupt(void)
 {
     if (PORTDbits.RD8 == 1)    // if IC signal is goes 0 --> 1, set t1 equal to
-        t1[1]=IC1BUF;          // buffer value or else if signal goes 1 --> 0
+        t1[0]=IC1BUF;          // buffer value or else if signal goes 1 --> 0
     else                       // set t2 to buffer
     {
-        t2[1]=IC1BUF;
-        checkic[1] = 1;
+        t2[0]=IC1BUF;
+        checkic[0] = 1;
     }
     IFS0bits.IC1IF=0;
 }
@@ -67,11 +57,11 @@ void __attribute__((__interrupt__,no_auto_psv)) _IC1Interrupt(void)
 void __attribute__((__interrupt__,no_auto_psv)) _IC2Interrupt(void)
 {
     if (PORTDbits.RD9 == 1)
-        t1[2]=IC2BUF;
+        t1[1]=IC2BUF;
     else
     {
-        t2[2]=IC1BUF;
-        checkic[2] = 1;
+        t2[1]=IC2BUF;
+        checkic[1] = 1;
     }
     IFS0bits.IC2IF=0;
 }
@@ -80,11 +70,11 @@ void __attribute__((__interrupt__,no_auto_psv)) _IC2Interrupt(void)
 void __attribute__((__interrupt__,no_auto_psv)) _IC3Interrupt(void)
 {
     if (PORTDbits.RD10 == 1)
-        t1[3]=IC3BUF;
+        t1[2]=IC3BUF;
     else
     {
-        t2[3]=IC1BUF;
-        checkic[3] = 1;
+        t2[2]=IC3BUF;
+        checkic[2] = 1;
     }
     IFS2bits.IC3IF=0;
 }
@@ -93,11 +83,11 @@ void __attribute__((__interrupt__,no_auto_psv)) _IC3Interrupt(void)
 void __attribute__((__interrupt__,no_auto_psv)) _IC4Interrupt(void)
 {
     if (PORTDbits.RD11 == 1)
-        t1[4]=IC4BUF;
+        t1[3]=IC4BUF;
     else
     {
-        t2[4]=IC1BUF;
-        checkic[4] = 1;
+        t2[3]=IC4BUF;
+        checkic[3] = 1;
     }
     IFS2bits.IC4IF=0;
 }
@@ -106,11 +96,11 @@ void __attribute__((__interrupt__,no_auto_psv)) _IC4Interrupt(void)
 void __attribute__((__interrupt__,no_auto_psv)) _IC5Interrupt(void)
 {
     if (PORTDbits.RD12 == 1)
-        t1[5]=IC5BUF;
+        t1[4]=IC5BUF;
     else
     {
-        t2[5]=IC1BUF;
-        checkic[5] = 1;
+        t2[4]=IC5BUF;
+        checkic[4] = 1;
     }
     IFS2bits.IC5IF=0;
 }
@@ -119,11 +109,11 @@ void __attribute__((__interrupt__,no_auto_psv)) _IC5Interrupt(void)
 void __attribute__((__interrupt__,no_auto_psv)) _IC6Interrupt(void)
 {
     if (PORTDbits.RD13 == 1)
-        t1[6]=IC6BUF;
+        t1[5]=IC6BUF;
     else
     {
-        t2[6]=IC1BUF;
-        checkic[6] = 1;
+        t2[5]=IC6BUF;
+        checkic[5] = 1;
     }
     IFS2bits.IC6IF=0;
 }
@@ -132,11 +122,11 @@ void __attribute__((__interrupt__,no_auto_psv)) _IC6Interrupt(void)
 void __attribute__((__interrupt__,no_auto_psv)) _IC7Interrupt(void)
 {
     if (PORTDbits.RD14 == 1)
-        t1[7]=IC7BUF;
+        t1[6]=IC7BUF;
     else
     {
-        t2[7]=IC1BUF;
-        checkic[7] = 1;
+        t2[6]=IC7BUF;
+        checkic[6] = 1;
     }
     IFS1bits.IC7IF=0;
 }
@@ -145,67 +135,107 @@ void __attribute__((__interrupt__,no_auto_psv)) _IC7Interrupt(void)
 void __attribute__((__interrupt__,no_auto_psv)) _IC8Interrupt(void)
 {
     if (PORTDbits.RD15 == 1)
-        t1[8]=IC8BUF;
+        t1[7]=IC8BUF;
     else
     {
-        t2[8]=IC1BUF;
-        checkic[8] = 1;
+        t2[7]=IC8BUF;
+        checkic[7] = 1;
     }
     IFS1bits.IC8IF=0;
 }
 
 
-void initInputCapture()     // Capture Interrupt Service Routine
+void initInputCapture(char initIC)     // Capture Interrupt Service Routine
 {                           //    unsigned int timePeriod= 0;
-    IC1CONbits.ICM = 0b00; // Disable Input Capture 1 module
-    IC1CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
-    IC1CONbits.ICI = 0b00; // Interrupt on every capture event
-    IC1CONbits.ICM = 0b001; // Generate capture event on every Rising and Falling edge
+    if (initIC & 0b01){
+        IC1CONbits.ICM = 0b00; // Disable Input Capture 1 module
+        IC1CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
+        IC1CONbits.ICI = 0b00; // Interrupt on every capture event
+        IC1CONbits.ICM = 0b001; // Generate capture event on every Rising and Falling edge
 
-    IC2CONbits.ICM = 0b00; // Disable Input Capture 2 module
-    IC2CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
-    IC2CONbits.ICI = 0b00; // Interrupt on every capture event
-    IC2CONbits.ICM = 0b001; // Generate capture event on every Rising edge
+        // Enable Capture Interrupt And Timer2
+        IPC0bits.IC1IP = 1; // Setup IC1 interrupt priority level
+        IFS0bits.IC1IF = 0; // Clear IC1 Interrupt Status Flag
+        IEC0bits.IC1IE = 1; // Enable IC1 interrupt
+    }
+    if (initIC & 0b10){
+        IC2CONbits.ICM = 0b00; // Disable Input Capture 2 module
+        IC2CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
+        IC2CONbits.ICI = 0b00; // Interrupt on every capture event
+        IC2CONbits.ICM = 0b001; // Generate capture event on every Rising edge
 
-    IC3CONbits.ICM = 0b00; // Disable Input Capture 3 module
-    IC3CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
-    IC3CONbits.ICI = 0b00; // Interrupt on every capture event
-    IC3CONbits.ICM = 0b001; // Generate capture event on every Rising edge
+        // Enable Capture Interrupt And Timer2
+        IPC1bits.IC2IP = 1; // Setup IC1 interrupt priority level
+        IFS0bits.IC2IF = 0; // Clear IC1 Interrupt Status Flag
+        IEC0bits.IC2IE = 1; // Enable IC1 interrupt
+    }
+    if (initIC & 0b100){
+        IC3CONbits.ICM = 0b00; // Disable Input Capture 3 module
+        IC3CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
+        IC3CONbits.ICI = 0b00; // Interrupt on every capture event
+        IC3CONbits.ICM = 0b001; // Generate capture event on every Rising edge
 
-    IC4CONbits.ICM = 0b00; // Disable Input Capture 4 module
-    IC4CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
-    IC4CONbits.ICI = 0b00; // Interrupt on every capture event
-    IC4CONbits.ICM = 0b001; // Generate capture event on every Rising edge
+        // Enable Capture Interrupt And Timer2
+        IPC9bits.IC3IP = 1; // Setup IC1 interrupt priority level
+        IFS2bits.IC3IF = 0; // Clear IC1 Interrupt Status Flag
+        IEC2bits.IC3IE = 1; // Enable IC1 interrupt
+    }
+    if (initIC & 0b1000){
+        IC4CONbits.ICM = 0b00; // Disable Input Capture 4 module
+        IC4CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
+        IC4CONbits.ICI = 0b00; // Interrupt on every capture event
+        IC4CONbits.ICM = 0b001; // Generate capture event on every Rising edge
 
-    IC4CONbits.ICM = 0b00; // Disable Input Capture 5 module
-    IC4CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
-    IC4CONbits.ICI = 0b00; // Interrupt on every capture event
-    IC4CONbits.ICM = 0b001; // Generate capture event on every Rising edge
+        // Enable Capture Interrupt And Timer2
+        IPC9bits.IC4IP = 1; // Setup IC1 interrupt priority level
+        IFS2bits.IC4IF = 0; // Clear IC1 Interrupt Status Flag
+        IEC2bits.IC4IE = 1; // Enable IC1 interrupt
+    }
+    if (initIC & 0b10000){
+        IC5CONbits.ICM = 0b00; // Disable Input Capture 6 module
+        IC5CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
+        IC5CONbits.ICI = 0b00; // Interrupt on every capture event
+        IC5CONbits.ICM = 0b001; // Generate capture event on every Rising edge
 
-    IC5CONbits.ICM = 0b00; // Disable Input Capture 6 module
-    IC5CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
-    IC5CONbits.ICI = 0b00; // Interrupt on every capture event
-    IC5CONbits.ICM = 0b001; // Generate capture event on every Rising edge
+        // Enable Capture Interrupt And Timer2
+        IPC9bits.IC5IP = 1; // Setup IC1 interrupt priority level
+        IFS2bits.IC5IF = 0; // Clear IC1 Interrupt Status Flag
+        IEC2bits.IC5IE = 1; // Enable IC1 interrupt
+    }
+    if (initIC & 0b100000){
+        IC6CONbits.ICM = 0b00; // Disable Input Capture 7 module
+        IC6CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
+        IC6CONbits.ICI = 0b00; // Interrupt on every capture event
+        IC6CONbits.ICM = 0b001; // Generate capture event on every Rising edge
 
-    IC6CONbits.ICM = 0b00; // Disable Input Capture 7 module
-    IC6CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
-    IC6CONbits.ICI = 0b00; // Interrupt on every capture event
-    IC6CONbits.ICM = 0b001; // Generate capture event on every Rising edge
+        // Enable Capture Interrupt And Timer2
+        IPC10bits.IC6IP = 1; // Setup IC1 interrupt priority level
+        IFS2bits.IC6IF = 0; // Clear IC1 Interrupt Status Flag
+        IEC2bits.IC6IE = 1; // Enable IC1 interrupt
+    }
+    if (initIC & 0b1000000){
+        IC7CONbits.ICM = 0b00; // Disable Input Capture 8 module
+        IC7CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
+        IC7CONbits.ICI = 0b00; // Interrupt on every capture event
+        IC7CONbits.ICM = 0b001; // Generate capture event on every Rising edge
 
-    IC7CONbits.ICM = 0b00; // Disable Input Capture 8 module
-    IC7CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
-    IC7CONbits.ICI = 0b00; // Interrupt on every capture event
-    IC7CONbits.ICM = 0b001; // Generate capture event on every Rising edge
+        // Enable Capture Interrupt And Timer2
+        IPC5bits.IC7IP = 1; // Setup IC1 interrupt priority level
+        IFS1bits.IC7IF = 0; // Clear IC1 Interrupt Status Flag
+        IEC1bits.IC7IE = 1; // Enable IC1 interrupt
+    }
+    if (initIC & 0b10000000){
+        IC8CONbits.ICM = 0b00; // Disable Input Capture 9 module
+        IC8CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
+        IC8CONbits.ICI = 0b00; // Interrupt on every capture event
+        IC8CONbits.ICM = 0b001; // Generate capture event on every Rising edge
 
-    IC8CONbits.ICM = 0b00; // Disable Input Capture 9 module
-    IC8CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
-    IC8CONbits.ICI = 0b00; // Interrupt on every capture event
-    IC8CONbits.ICM = 0b001; // Generate capture event on every Rising edge
+        // Enable Capture Interrupt And Timer2
+        IPC5bits.IC8IP = 1; // Setup IC1 interrupt priority level
+        IFS1bits.IC8IF = 0; // Clear IC1 Interrupt Status Flag
+        IEC1bits.IC8IE = 1; // Enable IC1 interrupt
+    }
 
-    // Enable Capture Interrupt And Timer2
-    IPC0bits.IC1IP = 1; // Setup IC1 interrupt priority level
-    IFS0bits.IC1IF = 0; // Clear IC1 Interrupt Status Flag
-    IEC0bits.IC1IE = 1; // Enable IC1 interrupt
 }
 
 
@@ -225,7 +255,7 @@ void initInputCapture()     // Capture Interrupt Service Routine
             //Calculate and Update the Input Values
 
         short ic;
-        for (ic = 1; ic <= 8; ic++)
+        for (ic = 0; ic < 7; ic++)
         {
             //If knew data has been received on the given channel
             if (checkic[ic] == 1)
@@ -250,8 +280,8 @@ void initInputCapture()     // Capture Interrupt Service Routine
 }
 
 // initialize function
-void initIC()
+void initIC(char initIC)
 {
+    initInputCapture(initIC);
     init_t2();
-    initInputCapture();
 }

@@ -6,16 +6,16 @@
  */
 
 extern int icTimeDiff[];
-extern int t1[9];
-extern int t2[9];
+extern int t1[8];
+extern int t2[8];
 
-extern short checkic[9];
+extern short checkic[8];
 
 //function prototypes
 void delay (void);
-void initInputCapture(void);
+void initInputCapture(char initIC);
 //void initTimer(void);
-void initIC(void);
+void initIC(char initIC);
 void init_t2(void);
 void init_EasyVarNames();
 int* getICValues();

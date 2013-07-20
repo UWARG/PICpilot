@@ -13,10 +13,7 @@ extern short LOWER_PWM;
 extern short MIDDLE_PWM;
 
 //Defined registers for output compare
-#define motor1 OC1RS
-#define motor2 OC2RS
-#define motor3 OC3RS
-#define motor4 OC4RS
+//
 
 
 
@@ -153,7 +150,7 @@ void init_oc8(void);
  * Output: None.
  *
  *****************************************************************************/
-void init_oc(void);
+void init_oc(char OC);
 
 /*****************************************************************************
  * Function: init
@@ -168,7 +165,7 @@ void init_oc(void);
  * Output: None.
  *
  *****************************************************************************/
-void initOC(void);
+void initOC(char OC);
 
 /*****************************************************************************
  * Function: setPWM
@@ -185,7 +182,7 @@ void initOC(void);
  *
  *****************************************************************************/
 
-void setPWM(int ocPin, int percent);
+void setPWM(int ocPin, int time);
 
 /*****************************************************************************
  * Function: setPeriod

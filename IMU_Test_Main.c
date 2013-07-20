@@ -61,26 +61,32 @@ int main()
 
     // Setpoints (From radio transmitter or autopilot)
     float sp_RollRate;
-    float sp_YawRate;
     float sp_PitchRate;
+    float sp_ThrottleRate;
+    float sp_YawRate;
+    
 
     // System outputs (get from IMU)
     float imu_RollRate;
     float imu_PitchRate;
+    float imu_ThrottleRate;
     float imu_YawRate;
 
     // Derivative Gains (Set for desired pwm servo pulse width)
     float kd_Roll;
     float kd_Pitch;
+    float kd_Throttle;
     float kd_Yaw;
 
     // Control Signals (Output compare value)
     int control_Roll;
     int control_Pitch;
+    int control_Throttle;
     int control_Yaw;
 
-    initOC();
-    initIC();
+    initIC(0b1111);
+    initOC(0b1111);//Initialize only Output Compare 1,2,3 and 4
+    
     VN100_initSPI();
     
     LATA = 1;
@@ -98,9 +104,10 @@ int main()
     int* icTimeDiff;
     icTimeDiff = getICValues();
 
-    sp_RollRate = icTimeDiff[3];
-    sp_YawRate = icTimeDiff[5];
-    sp_PitchRate = icTimeDiff[4];
+    sp_RollRate = icTimeDiff[0];
+    sp_PitchRate = icTimeDiff[1];
+    sp_ThrottleRate = icTimeDiff[2];
+    sp_YawRate = icTimeDiff[3];
 
  /*****************************************************************************
  *****************************************************************************
@@ -109,7 +116,13 @@ int main()
 
  *****************************************************************************
  *****************************************************************************/
-      
+
+//        float rates[3];
+//        VN100_SPI_GetRates(0,&rates);
+//        //Outputs in order: Yaw,Pitch,Roll
+//        imu_RollRate = rates[0];
+//        imu_YawRate = rates[1];
+//        imu_PitchRate = rates[2];
 
 /*****************************************************************************
  *****************************************************************************
@@ -119,10 +132,13 @@ int main()
  *****************************************************************************
  *****************************************************************************/
     // Control Signals (Output compare value)
-    control_Roll = controlSignal(sp_RollRate, imu_RollRate, kd_Roll);
-    control_Pitch = controlSignal(sp_PitchRate, imu_PitchRate, kd_Pitch);
-    control_Yaw = controlSignal(sp_YawRate, imu_YawRate, kd_Yaw);
-
+//    control_Roll = controlSignal(sp_RollRate, imu_RollRate, kd_Roll);
+//    control_Pitch = controlSignal(sp_PitchRate, imu_PitchRate, kd_Pitch);
+//    control_Yaw = controlSignal(sp_YawRate, imu_YawRate, kd_Yaw);
+    control_Roll = sp_RollRate;
+    control_Pitch = sp_PitchRate;
+    control_Throttle = sp_ThrottleRate;
+    control_Yaw = sp_YawRate;
  /*****************************************************************************
  *****************************************************************************
 
@@ -132,8 +148,9 @@ int main()
  *****************************************************************************/
     
     //Double check ocPin
-    setPWM(3,control_Roll);
-    setPWM(4,control_Pitch);
-    setPWM(5,control_Yaw);
+    setPWM(1,control_Roll);
+    setPWM(2,control_Pitch);
+    setPWM(3,control_Throttle);
+    setPWM(4,control_Yaw);
     }
 }
