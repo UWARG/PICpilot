@@ -5,10 +5,12 @@
  * Created on June 15, 2013, 3:40 PM
  */ 
 
+#define DEBUG 1 //Debug Mode = 1
+
 //Include Libraries
 #include <stdio.h>
 #include <stdlib.h>
-#include <p33FJ256GP710A.h>
+#include <p33FJ256GP710.h>
 #include <string.h>
 
 //Include the Full Initialization Header File
@@ -19,6 +21,10 @@
 #include "InputCapture.h"
 #include "OutputCompare.h"
 
+//For Testing/Debugging:
+#if DEBUG
+#include "UART1.h"
+#endif
 //Perform random clock things that came with the Sample Code (Keep in code)
 _FOSCSEL(FNOSC_FRC);			// Internal FRC oscillator
 _FOSC(FCKSM_CSECMD & OSCIOFNC_OFF  & POSCMD_NONE);
@@ -57,6 +63,13 @@ int controlSignal(float setpoint, float output, float gain) {
 
 int main()
 {
+    //Debug Mode:
+    if (DEBUG){
+        InitUART1();
+    }
+
+
+
    SERVO_SCALE_FACTOR = -(UPPER_PWM-MIDDLE_PWM)/45;
 
     // Setpoints (From radio transmitter or autopilot)
@@ -91,8 +104,13 @@ int main()
     
     LATA = 1;
 
+
+
     while(1)
     {
+        if (DEBUG){
+            UART1_SendString("Hi My Name is CHRIS");
+        }
  /*****************************************************************************
  *****************************************************************************
 
@@ -146,6 +164,9 @@ int main()
 
  *****************************************************************************
  *****************************************************************************/
+    if (DEBUG){
+        control_Roll = 0x171;//0x02E3 = 1.5us;
+    }
     
     //Double check ocPin
     setPWM(1,control_Roll);

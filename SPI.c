@@ -1,4 +1,4 @@
-#include <p33FJ256GP710A.h>
+#include <p33FJ256GP710.h>
 /*
  * File:   SPI.c
  * Author: Chris Hajduk

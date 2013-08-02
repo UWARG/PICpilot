@@ -1,6 +1,6 @@
 
 //Include Header Files
-#include <p33FJ256GP710A.h>
+#include <p33FJ256GP710.h>
 #include "Clock.h"
 
 void FullInit()

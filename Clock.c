@@ -1,6 +1,6 @@
 
 #include "Clock.h"
-#include <p33FJ256GP710A.h>
+#include <p33FJ256GP710.h>
 
 void InitClock()
 {
