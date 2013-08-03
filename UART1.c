@@ -28,16 +28,16 @@ void InitUART1()
         //***NOTE That Mitch Changed this code and the Baud Rate can be automatically calculated at the top
 	// Load a value into Baud Rate Generator.  Example is for 9600.
 	// See section 19.3.1 of datasheet.
-	//  U2BRG = (Fcy/(16*BaudRate))-1
-	//  U2BRG = (37M/(16*9600))-1
-	//  U2BRG = 240
+	//  U1BRG = (Fcy/(16*BaudRate))-1
+	//  U1BRG = (3.7M/(16*9600))-1
+	//  U1BRG = 23
 
         //UART Baud Rate Calculated Values...
-        //9600 = 240
-        //19200 = 120
-        //38400 = 60
-        //115200 = 20
-        U1BRG = 60;//Baud_Rate;	// 40Mhz osc, ___ Baud
+        //9600 = 23
+        //19200 = 11
+        //38400 = 5
+        //115200 = 1
+        U1BRG = 1;//Baud_Rate;	// 40Mhz osc, ___ Baud
 
 	// Load all values in for U1STA SFR
 	U1STAbits.UTXISEL1 = 0;	//Bit15 Int when Char is transferred (1/2 config!)

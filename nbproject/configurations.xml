@@ -8,13 +8,14 @@
       <itemPath>delay.h</itemPath>
       <itemPath>FullInitialize.h</itemPath>
       <itemPath>lcd.h</itemPath>
-      <itemPath>OutputCompare.h</itemPath>
       <itemPath>InputCapture.h</itemPath>
+      <itemPath>OutputCompare.h</itemPath>
+      <itemPath>VN_user.h</itemPath>
+      <itemPath>VN_type.h</itemPath>
       <itemPath>VN100.h</itemPath>
+      <itemPath>UART1.h</itemPath>
       <itemPath>VN_lib.h</itemPath>
       <itemPath>VN_math.h</itemPath>
-      <itemPath>VN_type.h</itemPath>
-      <itemPath>VN_user.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -27,9 +28,10 @@
       <itemPath>delay.c</itemPath>
       <itemPath>FullInitialize.c</itemPath>
       <itemPath>IMU_Test_Main.c</itemPath>
-      <itemPath>OutputCompare.c</itemPath>
       <itemPath>InputCapture.c</itemPath>
+      <itemPath>OutputCompare.c</itemPath>
       <itemPath>SPI.c</itemPath>
+      <itemPath>UART1.c</itemPath>
       <itemPath>VN100.c</itemPath>
       <itemPath>VN_lib.c</itemPath>
       <itemPath>VN_math.c</itemPath>
@@ -40,14 +42,13 @@
                    projectFiles="false">
       <itemPath>Makefile</itemPath>
     </logicalFolder>
-    <itemPath>Makefile</itemPath>
   </logicalFolder>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
     <conf name="default" type="2">
       <toolsSet>
         <developmentServer>localhost</developmentServer>
-        <targetDevice>dsPIC33FJ256GP710A</targetDevice>
+        <targetDevice>dsPIC33FJ256GP710</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
         <platformTool>ICD3PlatformTool</platformTool>

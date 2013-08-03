@@ -134,14 +134,22 @@ int main()
 
  *****************************************************************************
  *****************************************************************************/
+        if (DEBUG){
+            UART1_SendString("Test 1");
+            //U1TXREG = imu_RollRate;
+        }
 
-//        float rates[3];
-//        VN100_SPI_GetRates(0,&rates);
-//        //Outputs in order: Yaw,Pitch,Roll
-//        imu_RollRate = rates[0];
-//        imu_YawRate = rates[1];
-//        imu_PitchRate = rates[2];
+        float rates[3];
+        VN100_SPI_GetRates(0,&rates);
+        //Outputs in order: Yaw,Pitch,Roll
+        imu_RollRate = rates[0];
+        imu_YawRate = rates[1];
+        imu_PitchRate = rates[2];
 
+        if (DEBUG){
+            UART1_SendString("   I GOT HERE   ");
+            //U1TXREG = imu_RollRate;
+        }
 /*****************************************************************************
  *****************************************************************************
 
