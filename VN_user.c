@@ -79,34 +79,23 @@ unsigned long VN_SPI_SendReceive(unsigned long data){
 /* User code to send out 4 bytes over SPI goes here */
   unsigned long i;
   unsigned long ret = 0;
-  UART1_SendString("Test 71");
     /* Wait for SPI1 Tx buffer empty */
     //while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
   	while (SPI2STATbits.SPITBF){;}
 
-//  while(1)
-//  {
-//      UART1_SendString("Start");
-//      SPI2BUF = 0xAA;   //VN_BYTE4(data);
-//      while (SPI2STATbits.SPITBF);
-//      UART1_SendString("End");
-//  }
     /* Send SPI1 requests */
     //SPI_I2S_SendData(SPI1, VN_BYTE(data, i));
 	SPI2BUF = VN_BYTE4(data);
         while (SPI2STATbits.SPITBF);
-UART1_SendString("Test 72");
+
     /* Wait for response from VN-100 */
     //while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET);
-UART1_SendString("Test 720");
   	while (!SPI2STATbits.SPIRBF){;}
-UART1_SendString("Test 721");
     /* Save received data in buffer */
     //ret |= ((unsigned long)SPI_I2S_ReceiveData(SPI1) << (8*i));
 	ret |= ((unsigned long)SPI2BUF << (0));
 
   	while (SPI2STATbits.SPITBF){;}
-UART1_SendString("Test 722");
     /* Send SPI1 requests */
     //SPI_I2S_SendData(SPI1, VN_BYTE(data, i));
 	SPI2BUF = VN_BYTE3(data);
@@ -114,13 +103,11 @@ UART1_SendString("Test 722");
     /* Wait for response from VN-100 */
     //while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET);
   	while (!SPI2STATbits.SPIRBF){;}
-UART1_SendString("Test 723");
     /* Save received data in buffer */
     //ret |= ((unsigned long)SPI_I2S_ReceiveData(SPI1) << (8*i));
 	ret |= ((unsigned long)SPI2BUF << (8));
 
   	while (SPI2STATbits.SPITBF){;}
-UART1_SendString("Test 73");
     /* Send SPI1 requests */
     //SPI_I2S_SendData(SPI1, VN_BYTE(data, i));
 	SPI2BUF = VN_BYTE2(data);
@@ -142,7 +129,6 @@ UART1_SendString("Test 73");
     /* Wait for response from VN-100 */
     //while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET);
   	while (!SPI2STATbits.SPIRBF){;}
-UART1_SendString("Test 74");
     /* Save received data in buffer */
     //ret |= ((unsigned long)SPI_I2S_ReceiveData(SPI1) << (8*i));
 	ret |= ((unsigned long)SPI2BUF << (24));
@@ -181,21 +167,7 @@ void VN_Delay(unsigned long delay_uS){
    for your processor.  Many compilers will have their own delay routines
    so make sure you check your compiler documentation before attempting to
    write your own. */
-  //unsigned long i;
-  //for(i=delay_uS*10; i--; );
-    delay_uS *= Delay_1mS_Cnt;
-
-    unsigned long temp_count;   //hack fix
-
-	temp_count = delay_uS +1;
-	asm volatile("outer1: dec _temp_count");
-	asm volatile("cp0 _temp_count");
-	asm volatile("bra z, done1");
-	asm volatile("do #1500, inner1" );
-	asm volatile("nop");
-	asm volatile("inner1: nop");
-	asm volatile("bra outer1");
-	asm volatile("done1:");
+    Delay_Us(delay_uS * 100);
 
 }
 

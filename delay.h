@@ -4,7 +4,10 @@
 void Delay( unsigned int delay_count );
 void Delay_Us( unsigned int delayUs_count );
 
-#define Delay200uS_count  (Fcy * 0.0002) / 1080
+//Used with Delay_Us()
+#define Delay1uS_count  (Fcy * 0.0001) / 1080
+
+//Used with Delay()
 #define Delay_1mS_Cnt	  (Fcy * 0.001) / 2950
 #define Delay_2mS_Cnt	  (Fcy * 0.002) / 2950
 #define Delay_5mS_Cnt	  (Fcy * 0.005) / 2950
