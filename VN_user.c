@@ -83,10 +83,25 @@ unsigned long VN_SPI_SendReceive(unsigned long data){
     //while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
   	while (SPI2STATbits.SPITBF){;}
 
+  short temp;
+  temp = SPI2BUF;
+//  while(1)
+//  {
+////      if (SPI2STATbits.SPIROV == 1)
+////      {
+////          UART1_SendString("SPI Receive OVERFLOWED");
+////      }
+//        temp = SPI2BUF;
+//      UART1_SendString("Startt");
+//      SPI2BUF = VN_BYTE4(data);
+//      //while (SPI2STATbits.SPITBF);
+//      UART1_SendString("Endd");
+//  }
+
     /* Send SPI1 requests */
     //SPI_I2S_SendData(SPI1, VN_BYTE(data, i));
 	SPI2BUF = VN_BYTE4(data);
-        while (SPI2STATbits.SPITBF);
+        while (SPI2STATbits.SPITBF){;}
 
     /* Wait for response from VN-100 */
     //while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET);

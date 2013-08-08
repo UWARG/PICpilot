@@ -68,7 +68,55 @@ int main()
         InitUART1();
     }
 
+    if(RCONbits.TRAPR == 1){
+        UART1_SendString("TRAP Reset Occurred");
+        RCONbits.TRAPR = 0;
+    }
 
+        if(RCONbits.IOPUWR == 1){
+        UART1_SendString("Illegal Opcode Reset Occurred");
+        RCONbits.IOPUWR = 0;
+    }
+
+        if(RCONbits.VREGS == 1){
+        UART1_SendString("Voltage Reg Reset Occurred");
+         RCONbits.VREGS = 0;
+    }
+
+        if(RCONbits.EXTR == 1){
+        UART1_SendString("External Reset Occurred");
+         RCONbits.EXTR = 0;
+    }
+
+        if(RCONbits.SWR == 1){
+        UART1_SendString("Software Reset Occurred");
+        RCONbits.SWR = 0;
+    }
+
+        if(RCONbits.WDTO == 1){
+        UART1_SendString("Software WDT Reset Occurred");
+        RCONbits.WDTO = 0;
+    }
+
+            if(RCONbits.SLEEP == 1){
+        UART1_SendString("Sleep Mode Reset Occurred");
+        RCONbits.SLEEP = 0;
+    }
+
+            if(RCONbits.IDLE == 1){
+        UART1_SendString("Idle Mode Reset Occurred");
+        RCONbits.IDLE = 0;
+    }
+
+            if(RCONbits.BOR == 1){
+        UART1_SendString("Brown Out Reset Occurred");
+        RCONbits.BOR = 0;
+    }
+
+            if(RCONbits.POR == 1){
+        UART1_SendString("Power On Reset Occurred");
+        RCONbits.POR = 0;
+    }
 
    SERVO_SCALE_FACTOR = -(UPPER_PWM-MIDDLE_PWM)/45;
 
@@ -101,14 +149,13 @@ int main()
     initOC(0b1111);//Initialize only Output Compare 1,2,3 and 4
     
     VN100_initSPI();
-    
-    LATA = 1;
 
-
+    UART1_SendString("START OF CODE BEFORE WHILE");
 
     while(1)
     {
         if (DEBUG){
+            UART1_SendString("Hi My Name is Mitch");
             //UART1_SendString("Hi My Name is CHRIS");
         }
  /*****************************************************************************
@@ -139,7 +186,7 @@ int main()
             //U1TXREG = imu_RollRate;
         }
 
-        float rates[3];
+        double rates[3];
         VN100_SPI_GetRates(0,&rates);
         //Outputs in order: Yaw,Pitch,Roll
         imu_RollRate = rates[0];
@@ -147,7 +194,11 @@ int main()
         imu_PitchRate = rates[2];
 
         if (DEBUG){
-            
+            UART1_SendString("Rates");
+            char str[20];
+            sprintf(str, "%f", rates[0]);
+            UART1_SendString(str);
+            //UART1_SendStringNum("Rate[0]", rates[0]);
             U1TXREG = rates[0];
             while(U1STAbits.TRMT == 0);
             U1STAbits.TRMT = 0;

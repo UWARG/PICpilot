@@ -55,13 +55,13 @@ void VN100_initSPI(){
     IFS2bits.SPI2IF = 0; //Clear interrupt flag
     IEC2bits.SPI2IE = 0; //Disable interrupt (so it doesnt mess with this initialization)
     //Continue module operation in idle mode
-    SPI2STATbits.SPISIDL = 0;
+    //SPI2STATbits.SPISIDL = 0; commented out as it does not exist in Trevor's past code
     //SPI clock controlled by this module
     SPI2CON1bits.DISSCK = 0;
     //Output pins are controlled by this module
     SPI2CON1bits.DISSDO = 0;
     //16/8 bit communication mode (1/0)
-    SPI2CON1bits.MODE16 = 1; //8
+    SPI2CON1bits.MODE16 = 0; //8
     //Master mode(1)/Slave mode(0)
     SPI2CON1bits.MSTEN = 1; //MASTER
     //Sample Phase (end/middle)
@@ -69,16 +69,17 @@ void VN100_initSPI(){
     //Clock Edge Select
     SPI2CON1bits.CKE = 0; //Output data changes from idle state to active clock state (1 is the opposite)
     //Clock Polarity
-    SPI2CON1bits.CKP = 0; //Idle clock state is high, active clock state is low
+    SPI2CON1bits.CKP = 1; //Idle clock state is high, active clock state is low
     //Secondary Prescale (The prescale of the prescale)(3 bits)
-    SPI2CON1bits.SPRE = 0b010; //8:1 prescale
+    SPI2CON1bits.SPRE = 0b110; //8:1 prescale
     //Primart Prescale (The prescale of the clock) (2 bits)
-    SPI2CON1bits.PPRE = 0; //64:1 prescale
+    SPI2CON1bits.PPRE = 0b10; //64:1 prescale
 
     //Then enable interrupts
     IFS2bits.SPI2IF = 0; //Clear interrupt flag
     IEC2bits.SPI2IE = 0; //Disable interrupt
 
+    SPI2STATbits.SPIROV = 1;
     //Enable SPI
     SPI2STATbits.SPIEN = 1;
 }
@@ -96,7 +97,7 @@ VN100_SPI_Packet* VN100_SPI_ReadRegister(unsigned char sensorID, unsigned char r
 
   unsigned long i;
   /* Pull SS line low to start transaction*/
-  VN_SPI_SetSS(sensorID, VN_PIN_LOW);
+  VN_SPI_SetSS(sensorID, VN_PIN_HIGH);
   /* Send request */
   VN_SPI_SendReceive(VN_BYTES2WORD(0, 0, regID, VN100_CmdID_ReadRegister));
   VN_SPI_SendReceive(0);
@@ -744,9 +745,15 @@ VN100_SPI_Packet* VN100_SPI_GetRates(unsigned char sensorID, float* rates){
   /* Read register */
   VN100_SPI_ReadRegister(sensorID, VN100_REG_GYR, 3);
   /* Get Angular Rates */
+  UART1_SendString("Test 1");
   for(i=0;i<3;i++){
     rates[i] = VN_SPI_LastReceivedPacket.Data[i].Float;
+    char str[20];
+    float val = 123456.789;
+    sprintf(str, "%f", rates[i]);
+    UART1_SendString(str);
   }
+   UART1_SendString("Test 2");
   /* Return pointer to SPI packet */
   return &VN_SPI_LastReceivedPacket;
 }

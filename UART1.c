@@ -93,5 +93,28 @@ void UART1_SendString(char *s)
         s++;
         //Delay10TCYx(250);
     }while(*s != 0);
+
+          UART1_SendChar('\n');
 }
 
+//void UART1_SendStringNum(char *s, double value)
+//{
+//    do
+//    {
+//        UART1_SendChar(*s);
+//        s++;
+//        //Delay10TCYx(250);
+//    }while(*s != 0);
+//
+//    char str[20];
+//    sprintf(str, "%f", value);
+//
+//    do
+//    {
+//        UART1_SendChar(*str);
+//        str++;
+//        //Delay10TCYx(250);
+//    }while(*str != 0);
+//
+//          UART1_SendChar('\n');
+//}
