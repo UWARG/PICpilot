@@ -155,7 +155,7 @@ int main()
     while(1)
     {
         if (DEBUG){
-            UART1_SendString("Hi My Name is Mitch");
+           //UART1_SendString("Hi My Name is Mitch");
             //UART1_SendString("Hi My Name is CHRIS");
         }
  /*****************************************************************************
@@ -186,7 +186,7 @@ int main()
             //U1TXREG = imu_RollRate;
         }
 
-        double rates[3];
+        float rates[3];
         VN100_SPI_GetRates(0,&rates);
         //Outputs in order: Yaw,Pitch,Roll
         imu_RollRate = rates[0];
@@ -194,14 +194,20 @@ int main()
         imu_PitchRate = rates[2];
 
         if (DEBUG){
-            UART1_SendString("Rates");
+            float YPR[3];
+            VN100_SPI_GetYPR(0,&YPR[0],&YPR[1],&YPR[2]);
+            //UART1_SendString("Mag Heading");
             char str[20];
-            sprintf(str, "%f", rates[0]);
+            sprintf(str, "%f", YPR[0]);
+            UART1_SendString(str);
+                        sprintf(str, "%f", YPR[1]);
+            UART1_SendString(str);
+                        sprintf(str, "%f", YPR[2]);
             UART1_SendString(str);
             //UART1_SendStringNum("Rate[0]", rates[0]);
-            U1TXREG = rates[0];
-            while(U1STAbits.TRMT == 0);
-            U1STAbits.TRMT = 0;
+//            U1TXREG = YPR[0];
+//            while(U1STAbits.TRMT == 0);
+//            U1STAbits.TRMT = 0;
         }
 /*****************************************************************************
  *****************************************************************************

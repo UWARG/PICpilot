@@ -82,6 +82,8 @@ void VN100_initSPI(){
     SPI2STATbits.SPIROV = 1;
     //Enable SPI
     SPI2STATbits.SPIEN = 1;
+
+    TRISGbits.TRISG9 = 0;
 }
 /*******************************************************************************
 * Function Name  : VN100_SPI_ReadRegister(unsigned char sensorID, unsigned char regID, unsigned char regWidth)
@@ -97,7 +99,7 @@ VN100_SPI_Packet* VN100_SPI_ReadRegister(unsigned char sensorID, unsigned char r
 
   unsigned long i;
   /* Pull SS line low to start transaction*/
-  VN_SPI_SetSS(sensorID, VN_PIN_HIGH);
+  VN_SPI_SetSS(sensorID, VN_PIN_LOW);
   /* Send request */
   VN_SPI_SendReceive(VN_BYTES2WORD(0, 0, regID, VN100_CmdID_ReadRegister));
   VN_SPI_SendReceive(0);
@@ -115,7 +117,7 @@ VN100_SPI_Packet* VN100_SPI_ReadRegister(unsigned char sensorID, unsigned char r
 
   /* Pull SS line high to end SPI transaction */
   VN_SPI_SetSS(sensorID, VN_PIN_HIGH);  
-
+  VN_Delay(50);
 
   /* Return Error code */
   return &VN_SPI_LastReceivedPacket;  
@@ -745,15 +747,9 @@ VN100_SPI_Packet* VN100_SPI_GetRates(unsigned char sensorID, float* rates){
   /* Read register */
   VN100_SPI_ReadRegister(sensorID, VN100_REG_GYR, 3);
   /* Get Angular Rates */
-  UART1_SendString("Test 1");
   for(i=0;i<3;i++){
     rates[i] = VN_SPI_LastReceivedPacket.Data[i].Float;
-    char str[20];
-    float val = 123456.789;
-    sprintf(str, "%f", rates[i]);
-    UART1_SendString(str);
   }
-   UART1_SendString("Test 2");
   /* Return pointer to SPI packet */
   return &VN_SPI_LastReceivedPacket;
 }
