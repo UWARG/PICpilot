@@ -182,7 +182,7 @@ void VN_Delay(unsigned long delay_uS){
    for your processor.  Many compilers will have their own delay routines
    so make sure you check your compiler documentation before attempting to
    write your own. */
-    Delay_Us(delay_uS * 100);
+    Delay_Us(delay_uS);
 
 }
 

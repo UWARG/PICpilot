@@ -6,6 +6,7 @@
  */ 
 
 #define DEBUG 1 //Debug Mode = 1
+#define STABILIZATION 1 //Stabilization Mode = 1
 
 //Include Libraries
 #include <stdio.h>
@@ -150,7 +151,9 @@ int main()
     
     VN100_initSPI();
 
-    UART1_SendString("START OF CODE BEFORE WHILE");
+    if (DEBUG){
+        UART1_SendString("START OF CODE BEFORE WHILE");
+    }
 
     while(1)
     {
@@ -174,6 +177,15 @@ int main()
     sp_ThrottleRate = icTimeDiff[2];
     sp_YawRate = icTimeDiff[3];
 
+    if (DEBUG){
+        //Mock Data
+        sp_RollRate = (float)(0x000);//0x171;//0x02E3 = 1.5us;
+        sp_PitchRate = (float)(0x000);
+        sp_ThrottleRate = (float)(0x000);
+        sp_YawRate = (float)(0x000);
+
+    }
+
  /*****************************************************************************
  *****************************************************************************
 
@@ -181,34 +193,34 @@ int main()
 
  *****************************************************************************
  *****************************************************************************/
-        if (DEBUG){
-           // UART1_SendString("Test 1");
-            //U1TXREG = imu_RollRate;
-        }
+    if (DEBUG){
+       // UART1_SendString("Test 1");
+        //U1TXREG = imu_RollRate;
+    }
 
-        float rates[3];
-        VN100_SPI_GetRates(0,&rates);
-        //Outputs in order: Yaw,Pitch,Roll
-        imu_RollRate = rates[0];
-        imu_YawRate = rates[1];
-        imu_PitchRate = rates[2];
+    float rates[3];
+    VN100_SPI_GetRates(0,&rates);
+    //Outputs in order: Roll,Pitch,Yaw
+    imu_RollRate = rates[0];
+    imu_PitchRate = rates[1];
+    imu_YawRate = rates[2];
 
-        if (DEBUG){
-            float YPR[3];
-            VN100_SPI_GetYPR(0,&YPR[0],&YPR[1],&YPR[2]);
-            //UART1_SendString("Mag Heading");
-            char str[20];
-            sprintf(str, "%f", YPR[0]);
-            UART1_SendString(str);
-                        sprintf(str, "%f", YPR[1]);
-            UART1_SendString(str);
-                        sprintf(str, "%f", YPR[2]);
-            UART1_SendString(str);
-            //UART1_SendStringNum("Rate[0]", rates[0]);
+    if (DEBUG){
+        //float YPR[3];
+       // VN100_SPI_GetYPR(0,&YPR[0],&YPR[1],&YPR[2]);
+        UART1_SendString("Vector Nav Rates");
+        char str[20];
+        sprintf(str, "%f", rates[0]);
+        UART1_SendString(str);
+                    sprintf(str, "%f", rates[1]);
+        UART1_SendString(str);
+                    sprintf(str, "%f", rates[2]);
+        UART1_SendString(str);
+//        UART1_SendStringNum("Rate[0]", rates[0]);
 //            U1TXREG = YPR[0];
 //            while(U1STAbits.TRMT == 0);
 //            U1STAbits.TRMT = 0;
-        }
+    }
 /*****************************************************************************
  *****************************************************************************
 
@@ -216,14 +228,23 @@ int main()
 
  *****************************************************************************
  *****************************************************************************/
+    
+    if (!STABILIZATION){
+        control_Roll = sp_RollRate + MIDDLE_PWM;
+        control_Pitch = sp_PitchRate + MIDDLE_PWM;
+        control_Yaw = sp_YawRate + MIDDLE_PWM;
+    }
+    else{
+        kd_Roll = 1;
+        kd_Pitch = 1;
+        kd_Yaw = 1;
+
     // Control Signals (Output compare value)
-//    control_Roll = controlSignal(sp_RollRate, imu_RollRate, kd_Roll);
-//    control_Pitch = controlSignal(sp_PitchRate, imu_PitchRate, kd_Pitch);
-//    control_Yaw = controlSignal(sp_YawRate, imu_YawRate, kd_Yaw);
-    control_Roll = sp_RollRate;
-    control_Pitch = sp_PitchRate;
+    control_Roll = controlSignal(sp_RollRate, imu_RollRate, kd_Roll);
+    control_Pitch = controlSignal(sp_PitchRate, imu_PitchRate, kd_Pitch);
+    control_Yaw = controlSignal(sp_YawRate, imu_YawRate, kd_Yaw);
     control_Throttle = sp_ThrottleRate;
-    control_Yaw = sp_YawRate;
+    }
  /*****************************************************************************
  *****************************************************************************
 
@@ -232,9 +253,22 @@ int main()
  *****************************************************************************
  *****************************************************************************/
     if (DEBUG){
-        control_Roll = 0x171;//0x02E3 = 1.5us;
+        //Mock Data
+//        control_Roll = 0x02E3;//0x171;//0x02E3 = 1.5us;
+//        control_Pitch = 0x02E3;
+//        control_Throttle = 0x000;
+//        control_Yaw = 0x02E3;
+
+        UART1_SendString("Output Rates");
+        char str[20];
+        sprintf(str, "%u", control_Roll);
+        UART1_SendString(str);
+                    sprintf(str, "%u", control_Pitch);
+        UART1_SendString(str);
+                    sprintf(str, "%u", control_Yaw);
+        UART1_SendString(str);
     }
-    
+
     //Double check ocPin
     setPWM(1,control_Roll);
     setPWM(2,control_Pitch);
