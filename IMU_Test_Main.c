@@ -5,7 +5,7 @@
  * Created on June 15, 2013, 3:40 PM
  */ 
 
-#define DEBUG 1 //Debug Mode = 1
+#define DEBUG 0 //Debug Mode = 1
 #define STABILIZATION 1 //Stabilization Mode = 1
 
 //Include Libraries
@@ -172,10 +172,14 @@ int main()
     int* icTimeDiff;
     icTimeDiff = getICValues();
 
-    sp_RollRate = icTimeDiff[0];
-    sp_PitchRate = icTimeDiff[1];
-    sp_ThrottleRate = icTimeDiff[2];
-    sp_YawRate = icTimeDiff[3];
+    //Mitch, this used to be -0.033; but I change the output compare, so this should now be 1:1. (You might still need a negative on the rollrate)
+    //Email me if you have problems or something. Don't text me, I won't have my phone for the next two weeks.
+    float sc_RollRate = 1;//-0.033;
+
+    sp_RollRate = (float)(icTimeDiff[0] - MIDDLE_PWM) * sc_RollRate;
+    sp_PitchRate = (float)(icTimeDiff[1] - MIDDLE_PWM) * sc_RollRate;
+    sp_ThrottleRate = (float)(icTimeDiff[2] - MIDDLE_PWM) * sc_RollRate;
+    sp_YawRate = (float)(icTimeDiff[3] - MIDDLE_PWM) * sc_RollRate;
 
     if (DEBUG){
         //Mock Data

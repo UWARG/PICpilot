@@ -11,10 +11,10 @@
 #include "InputCapture.h"
 
 
-short MSEC = 3941;
-short UPPER_PWM = 7882;
-short LOWER_PWM = 3941;
-short MIDDLE_PWM = 5911;//4688;
+short MSEC = 4688;
+short UPPER_PWM = 6250;//7882;
+short LOWER_PWM = 3125;//3941;
+short MIDDLE_PWM = 4688;//5911;
 
 char initializedOC;
 

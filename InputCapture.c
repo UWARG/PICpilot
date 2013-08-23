@@ -31,7 +31,7 @@ void init_t2(void)    // Initialize and enable Timer2
     T2CONbits.TCKPS = 0b01; // Select 1:8 Prescaler
     TMR2 = 0x00; // Clear timer register
     setPeriod(22.5);
-    //PR2 = MSEC * 10; // Load the period value = 10ms
+    //PR2 = MSEC * 22.5; // Load the period value = 22.5ms                        //
     IPC1bits.T2IP = 0x00; // Set Timer 2 Interrupt Priority Level
     IFS0bits.T2IF = 0; // Clear Timer 2 Interrupt Flag
     IEC0bits.T2IE = 0; // Disable Timer 2 interrupt
