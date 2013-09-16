@@ -5,8 +5,8 @@
  * Created on June 15, 2013, 3:40 PM
  */ 
 
-#define DEBUG 0 //Debug Mode = 1
-#define STABILIZATION 1 //Stabilization Mode = 1
+#define DEBUG 1 //Debug Mode = 1
+#define STABILIZATION 0 //Stabilization Mode = 1
 
 //Include Libraries
 #include <stdio.h>
@@ -122,10 +122,10 @@ int main()
    SERVO_SCALE_FACTOR = -(UPPER_PWM-MIDDLE_PWM)/45;
 
     // Setpoints (From radio transmitter or autopilot)
-    float sp_RollRate;
-    float sp_PitchRate;
-    float sp_ThrottleRate;
-    float sp_YawRate;
+    int sp_RollRate;
+    int sp_PitchRate;
+    int sp_ThrottleRate;
+    int sp_YawRate;
     
 
     // System outputs (get from IMU)
@@ -172,21 +172,25 @@ int main()
     int* icTimeDiff;
     icTimeDiff = getICValues();
 
-    //Mitch, this used to be -0.033; but I change the output compare, so this should now be 1:1. (You might still need a negative on the rollrate)
-    //Email me if you have problems or something. Don't text me, I won't have my phone for the next two weeks.
-    float sc_RollRate = 1;//-0.033;
-
-    sp_RollRate = (float)(icTimeDiff[0] - MIDDLE_PWM) * sc_RollRate;
-    sp_PitchRate = (float)(icTimeDiff[1] - MIDDLE_PWM) * sc_RollRate;
-    sp_ThrottleRate = (float)(icTimeDiff[2] - MIDDLE_PWM) * sc_RollRate;
-    sp_YawRate = (float)(icTimeDiff[3] - MIDDLE_PWM) * sc_RollRate;
+    sp_RollRate = (icTimeDiff[0] - MIDDLE_PWM);
+    sp_PitchRate = (icTimeDiff[1] - MIDDLE_PWM);
+    sp_ThrottleRate = (icTimeDiff[2]);
+    sp_YawRate = (icTimeDiff[3] - MIDDLE_PWM);
 
     if (DEBUG){
         //Mock Data
-        sp_RollRate = (float)(0x000);//0x171;//0x02E3 = 1.5us;
-        sp_PitchRate = (float)(0x000);
-        sp_ThrottleRate = (float)(0x000);
-        sp_YawRate = (float)(0x000);
+//        sp_RollRate = (float)(0x000);//0x171;//0x02E3 = 1.5us;
+//        sp_PitchRate = (float)(0x000);
+//        sp_ThrottleRate = (float)(0x000);
+//        sp_YawRate = (float)(0x000);
+        UART1_SendString("Input Rates");
+        char str[20];
+        sprintf(str, "%i", sp_RollRate);
+        UART1_SendString(str);
+                    sprintf(str, "%i", sp_PitchRate);
+        UART1_SendString(str);
+                    sprintf(str, "%i", sp_YawRate);
+        UART1_SendString(str);
 
     }
 
@@ -237,6 +241,7 @@ int main()
         control_Roll = sp_RollRate + MIDDLE_PWM;
         control_Pitch = sp_PitchRate + MIDDLE_PWM;
         control_Yaw = sp_YawRate + MIDDLE_PWM;
+        control_Throttle = sp_ThrottleRate;
     }
     else{
         kd_Roll = 1;
@@ -244,9 +249,9 @@ int main()
         kd_Yaw = 1;
 
     // Control Signals (Output compare value)
-    control_Roll = controlSignal(sp_RollRate, imu_RollRate, kd_Roll);
-    control_Pitch = controlSignal(sp_PitchRate, imu_PitchRate, kd_Pitch);
-    control_Yaw = controlSignal(sp_YawRate, imu_YawRate, kd_Yaw);
+    control_Roll = controlSignal(sp_RollRate/30, imu_RollRate, kd_Roll);
+    control_Pitch = controlSignal(sp_PitchRate/30, imu_PitchRate, kd_Pitch);
+    control_Yaw = controlSignal(sp_YawRate/30, imu_YawRate, kd_Yaw);
     control_Throttle = sp_ThrottleRate;
     }
  /*****************************************************************************

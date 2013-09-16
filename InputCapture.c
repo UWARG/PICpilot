@@ -30,8 +30,8 @@ void init_t2(void)    // Initialize and enable Timer2
     T2CONbits.TGATE = 0; // Disable Gated Timer mode
     T2CONbits.TCKPS = 0b01; // Select 1:8 Prescaler
     TMR2 = 0x00; // Clear timer register
-    setPeriod(22.5);
-    //PR2 = MSEC * 22.5; // Load the period value = 22.5ms                        //
+    setPeriod(20);
+    //PR2 = MSEC * 20; // Load the period value = 20ms                        //
     IPC1bits.T2IP = 0x00; // Set Timer 2 Interrupt Priority Level
     IFS0bits.T2IF = 0; // Clear Timer 2 Interrupt Flag
     IEC0bits.T2IE = 0; // Disable Timer 2 interrupt
@@ -238,26 +238,13 @@ void initInputCapture(char initIC)     // Capture Interrupt Service Routine
 
 }
 
-
-// easy use variable names for icTime Differences
-//void init_EasyVarNames()
-//{
-//    Batt = icTimeDiff[1];
-//    Throttle = icTimeDiff[2];
-//    Roll  = icTimeDiff[3];        //ROLL
-//    Pitch = icTimeDiff[4];        //PITCH
-//    Yaw = icTimeDiff[5];          //YAW
-//    Gear = icTimeDiff[6];
-//    Aux1 = icTimeDiff[7];
-//}
-
  int* getICValues(){
             //Calculate and Update the Input Values
 
         short ic;
-        for (ic = 0; ic < 7; ic++)
+        for (ic = 0; ic < 8; ic++)
         {
-            //If knew data has been received on the given channel
+            //If new data has been received on the given channel
             if (checkic[ic] == 1)
             {
               //If the second time is greater than the first time then we have not met roll over
@@ -273,6 +260,7 @@ void initInputCapture(char initIC)     // Capture Interrupt Service Routine
               {
                  icTimeDiff[ic] = ((PR2 - t1[ic]) + t2[ic]);
                  checkic[ic] = 0;
+
               }
             }
         }

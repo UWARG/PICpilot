@@ -11,10 +11,10 @@
 #include "InputCapture.h"
 
 
-short MSEC = 4688;
-short UPPER_PWM = 6250;//7882;
-short LOWER_PWM = 3125;//3941;
-short MIDDLE_PWM = 4688;//5911;
+short MSEC = 3766;//3125;
+short UPPER_PWM = 7532;//6250;//7882;
+short LOWER_PWM = 3766;//3125;//3941;
+short MIDDLE_PWM = 5649;//4687;//5911;
 
 char initializedOC;
 
@@ -113,18 +113,18 @@ void setPeriod(double time)
     //{
     //     pScale++;
          T2CONbits.TCKPS = 0x01; //1:8 scaler
-         int nMSEC = MSEC/8;  //Divide the cycle/sec ratio by the prescaler
+         MSEC /= 8;  //Divide the cycle/sec ratio by the prescaler
   
     //     //Reinitialize all the variables
-         UPPER_PWM = nMSEC * 2;
-         MIDDLE_PWM = nMSEC * 1.5;
-         LOWER_PWM = nMSEC;
+         UPPER_PWM = MSEC * 2;
+         MIDDLE_PWM = MSEC * 1.5;
+         LOWER_PWM = MSEC;
     //     init_oc(initializedOC);
     // }
 
 
         //PR2 = (unsigned int)(10 * MSEC);
-     PR2 = (unsigned int)(time * nMSEC);//3250;//(time * MSEC); //3250??
+     PR2 = (unsigned int)(time * MSEC);//3250;//(time * MSEC); //3250??
 
 }
 
