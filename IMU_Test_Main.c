@@ -57,6 +57,66 @@ int controlSignal(float setpoint, float output, float gain) {
     return control;
 }
 
+#define DERP
+#ifdef DERP // incomplete code below
+
+// add alias to above control function
+int (*PcontrolSignal)(float, float, float);
+
+//PcontrolSignal = controlSignal;
+
+// currently I and D terms assume march of time is constant -- TODO account for time in PID
+
+int PDcontrolSignal(float setpoint, float output, float p_gain, float d_gain, float last_value) {
+  int control = SERVO_SCALE_FACTOR*(setpoint-output)*p_gain + d_gain*(output-last_value) + MIDDLE_PWM;
+  return control;
+}
+
+// TODO add proper documentation
+// idea -- package all those parameters into a struct
+
+int PIDcontrolSignal(float setpoint, float output, float p_gain, float d_gain, float i_gain, float last_value, float *running_total) {
+  *running_total += last_value;
+  int control = SERVO_SCALE_FACTOR*(setpoint-output)*p_gain + d_gain*(output-last_value) + i_gain*(*running_total) + MIDDLE_PWM;
+  return control;
+}
+
+
+
+// simple filter, useful to clean up noise from sensors
+void median_filter(float *in, float *out, unsigned long size) {
+  char WINDOW_SIZE = 3; // currently hardcoded size, assumed 3 later in filter
+
+  float window[WINDOW_SIZE];
+
+  for (int i = 0; i < WINDOW_SIZE; i++) {
+    out[i] = window[i] = in[i];
+  }
+
+  for (int i = size-1; i >= size - WINDOW_SIZE/2; i--) {
+    out[i] = in[i];
+  }
+
+  for (unsigned long i = WINDOW_SIZE/2; i < size - WINDOW_SIZE/2; i++) {
+
+    // find median of window
+    float med;
+    if ( (window[0] - window[1]) * (window[2] - window[0]) >= 0) {
+      med = window[0];
+    } else if ( (window[1] - window[0] * (window[2] - window[1])) >= 0) {
+      med = window[1];
+    }
+    else {
+      med = window[2];
+    }
+
+    out[i] = med;
+    window[i%WINDOW_SIZE] = i+1; // update the window
+  }
+
+}
+
+#endif // hiding incomplete code -- #if 0
 
 /*****************************************************************************
  *****************************************************************************
