@@ -1,37 +1,37 @@
 #include "net.h"
 #include <stdlib.h>
 
-struct data_block *outBuffer
+struct telem_block *outBuffer
     [OUTBOUND_QUEUE_SIZE];
 int outbuff_start = 0;
 int outbuff_end = 0;
 
-struct data_block *inBuffer [INBOUND_QUEUE_SIZE];
+struct telem_block *inBuffer [INBOUND_QUEUE_SIZE];
 int inbuff_start = 0;
 int inbuff_end = 0;
 
 int maxSend = DEFAULT_SEND_LIMIT;
 
-// Send a data block
-int sendBlock(struct data_block *data) {
+// Send a telemetry block
+int sendBlock(struct telem_block *telem) {
     return 0;
 }
 
-// Create a zero initialized data block returns null if fails
-struct data_block *createDataBlock(void) {
-    struct data_block *data = malloc(sizeof(struct data_block));
-    return data;
+// Create a zero initialized telem block returns null if fails
+struct telem_block *createtelemetryBlock(void) {
+    struct telem_block *telemetry = malloc(sizeof(struct telem_block));
+    return telemetry;
 }
 
-// Destroy a dataBlock
-void destroyDataBlock(struct data_block *data) {
-    free( data);
+// Destroy a telemetryBlock
+void destroytelemetryBlock(struct telem_block *telemetry) {
+    free( telemetry);
 }
 
-// Add a data_block to the outbound data queue
+// Add a telem_block to the outbound telemetry queue
 // Returns the position in the queue or -1 if no room in queue
-int addToOutboundDataQueue(struct data_block *data) {
-    outBuffer[outbuff_end] = data;
+int addToOutboundtelemetryQueue(struct telem_block *telemetry) {
+    outBuffer[outbuff_end] = telemetry;
     outbuff_end++;
     outbuff_end = outbuff_end % OUTBOUND_QUEUE_SIZE;
 }
@@ -45,16 +45,16 @@ int getOutboundQueueLength(void) {
     }
 }
 
-// Clear all data blocks waiting to be sent
-int clearOutboundDataQueue(void) {
+// Clear all telem blocks waiting to be sent
+int clearOutboundtelemetryQueue(void) {
     int i = 0;
     for (i = 0; i < OUTBOUND_QUEUE_SIZE; i++) {
         outBuffer[i] = 0;
     }
 }
 
-// Send a block of data returns the number of blocks sent
-int sendData(struct data_block *data) {
+// Send a block of telemetry returns the number of blocks sent
+int sendtelemetry(struct telem_block *telemetry) {
     int blocks_sent;
     int failed_blocks = 0;
     int sent = 0;       // 1 - yes, 0 - no
@@ -70,16 +70,17 @@ int sendData(struct data_block *data) {
     }
 }
 
-// Get the maximum number of data blocks to send before returning
+// Get the maximum number of telem blocks to send before returning
 int getMaxSend(void) {
     return maxSend;
 }
 
-// Set the maximum number of data blocks to send before returning
+// Set the maximum number of telem blocks to send before returning
 void setMaxSend(int max) {
     maxSend = max;
 }
 
-// Pop next data_block from incoming buffer, null if no data
-struct data_block *popDataBlock(void) {
+// Pop next telem_block from incoming buffer, null if no telemetry
+struct telem_block *popTelemetryBlock(void) {
+    return (void *) 0;
 }
