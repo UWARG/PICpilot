@@ -1,5 +1,7 @@
 #include "net.h"
+#include "p33FJ256GP710.h"
 #include <stdlib.h>
+#include <string.h>
 
 struct telem_block *outBuffer
     [OUTBOUND_QUEUE_SIZE];
@@ -12,26 +14,25 @@ int inbuff_end = 0;
 
 int maxSend = DEFAULT_SEND_LIMIT;
 
-// Send a telemetry block
-int sendBlock(struct telem_block *telem) {
-    return 0;
+// Initialize the data link
+int initDataLink(void) {
 }
 
 // Create a zero initialized telem block returns null if fails
-struct telem_block *createtelemetryBlock(void) {
-    struct telem_block *telemetry = malloc(sizeof(struct telem_block));
-    return telemetry;
+struct telem_block *createTelemetryBlock(void) {
+    struct telem_block *telem = malloc(sizeof(struct telem_block));
+    return telem;
 }
 
 // Destroy a telemetryBlock
-void destroytelemetryBlock(struct telem_block *telemetry) {
-    free( telemetry);
+void destroyTelemetryBlock(struct telem_block *telem) {
+    free( telem);
 }
 
 // Add a telem_block to the outbound telemetry queue
 // Returns the position in the queue or -1 if no room in queue
-int addToOutboundtelemetryQueue(struct telem_block *telemetry) {
-    outBuffer[outbuff_end] = telemetry;
+int addToOutboundtelemetryQueue(struct telem_block *telem) {
+    outBuffer[outbuff_end] = telem;
     outbuff_end++;
     outbuff_end = outbuff_end % OUTBOUND_QUEUE_SIZE;
 }
@@ -46,7 +47,7 @@ int getOutboundQueueLength(void) {
 }
 
 // Clear all telem blocks waiting to be sent
-int clearOutboundtelemetryQueue(void) {
+int clearOutboundTelemetryQueue(void) {
     int i = 0;
     for (i = 0; i < OUTBOUND_QUEUE_SIZE; i++) {
         outBuffer[i] = 0;
@@ -54,7 +55,7 @@ int clearOutboundtelemetryQueue(void) {
 }
 
 // Send a block of telemetry returns the number of blocks sent
-int sendtelemetry(struct telem_block *telemetry) {
+int sendTelemetry(struct telem_block *telemetry) {
     int blocks_sent;
     int failed_blocks = 0;
     int sent = 0;       // 1 - yes, 0 - no
@@ -83,4 +84,48 @@ void setMaxSend(int max) {
 // Pop next telem_block from incoming buffer, null if no telemetry
 struct telem_block *popTelemetryBlock(void) {
     return (void *) 0;
+}
+
+// generate an api string into the given char array from the telem block
+// Does not check array length!
+int generateApiString(unsigned char *apiString,
+        struct telem_block *telem) {
+    // TODO: No need to re-init this every time.
+    int apiIndex = 0;
+    apiString[apiIndex] = 0x7E; apiIndex++;
+    apiString[apiIndex] = 0x00; apiIndex++;
+    apiString[apiIndex] = (char) (5+4+sizeof(struct telem_block)); apiIndex++;
+    apiString[apiIndex] = 0x01; apiIndex++;
+    apiString[apiIndex] = 0x00; apiIndex++;
+    apiString[apiIndex] = 0xCC; apiIndex++;
+    apiString[apiIndex] = 0xCC; apiIndex++;
+    apiString[apiIndex] = 0x01; apiIndex++;
+    // Set up api prefix
+    apiString[apiIndex] = '$';  apiIndex++;
+    apiString[apiIndex] = 'S';  apiIndex++;
+    apiString[apiIndex] = 'P';  apiIndex++;
+    apiString[apiIndex] = ',';  apiIndex++;
+
+    // I'M A WIZARD
+    char *telemStart = (char*) apiString[13];
+    memcpy(telemStart, telem, sizeof(struct telem_block));
+    apiString += sizeof(struct telem_block);
+
+    // TODO: Add additional telemetry block parameters to be sent here
+}
+
+// Send a telemetry block
+int sendBlock(struct telem_block *telem) {
+    unsigned char apiString[100];
+
+    int apiLength = generateApiString(apiString, telem);
+    int i;
+    for (i = 0; i < apiLength; i++) {
+        // Wait for data link to clear from previous send
+        while(U1STAbits.UTXBF == 1){;}
+        U1TXREG = apiString[i];
+    }
+    // Note: We send the last piece of data through UART and
+    // then forget about it. We assume it will get handled eventually
+    return 0;
 }
