@@ -66,7 +66,11 @@ int (*PcontrolSignal)(float, float, float);
 
 // contains
 typedef struct pid_data {
-    float p_gain, d_gain, i_gain, last_value, running_total;
+    float p_gain;
+    float d_gain;
+    float i_gain;
+    float last_value;
+    float running_total;
     
     
 } PIDdata;
@@ -75,20 +79,19 @@ typedef struct pid_data {
 // currently I and D terms assume march of time is constant -- TODO account for time in PID
 
 int PDcontrolSignal(float setpoint, float output, PIDdata pid) {
-  int control = SERVO_SCALE_FACTOR*(setpoint-output)*pid.p_gain +
-                (output-pid.last_value)*pid.d_gain + MIDDLE_PWM;
-  pid.last_value = output;
-  return control;
+  int out = SERVO_SCALE_FACTOR*((setpoint-output*pid.p_gain) + (output-pid.last_value)*pid.d_gain) + MIDDLE_PWM;
+  //pid.last_value = output;
+  return out;
 }
 
 // TODO add proper documentation
 
 int PIDcontrolSignal(float setpoint, float output, PIDdata pid) {
   pid.running_total += output;
-  int control = SERVO_SCALE_FACTOR*(setpoint-output)*pid.p_gain +
+  int out = SERVO_SCALE_FACTOR*((setpoint-output)*pid.p_gain +
                 (output-pid.last_value)*pid.d_gain +
-                (pid.running_total)*pid.i_gain + MIDDLE_PWM;
-  return control;
+                (pid.running_total)*pid.i_gain) + MIDDLE_PWM;
+  return out;
 }
 
 
@@ -99,11 +102,12 @@ void median_filter(float *in, float *out, unsigned long size) {
 
   float window[WINDOW_SIZE];
 
-  for (int i = size-1; i >= size - WINDOW_SIZE/2; i--) {
+  int i;
+  for (i = size-1; i >= size - WINDOW_SIZE/2; i--) {
     out[i] = in[i];
   }
 
-  for (unsigned long i = 0; i < size - WINDOW_SIZE/2; i++) {
+  for (i = 0; i < size - WINDOW_SIZE/2; i++) {
 
     // sneaky hack to find median of window -- warning, may overflow
     float med;
@@ -121,9 +125,9 @@ void median_filter(float *in, float *out, unsigned long size) {
     // update the window -- note, leaves mess at beginning
     window[i%WINDOW_SIZE] = i+1; 
   }
-
+  
   // cover up mess left above
-  for (int i = 0; i < WINDOW_SIZE/2; i++) {
+  for (i = 0; i < WINDOW_SIZE/2; i++) {
     out[i] = window[i] = in[i];
   }
 
@@ -235,8 +239,27 @@ int main()
     int control_Throttle;
     int control_Yaw;
 
+    PIDdata pid_roll;
+    pid_roll.p_gain = 0.1;
+    pid_roll.d_gain = 0.0001;
+    pid_roll.i_gain = 0.1;
+    pid_roll.last_value = 0;
+    pid_roll.running_total = 0;
 
-    
+    PIDdata pid_yaw;
+    pid_yaw.p_gain = 0.1;
+    pid_yaw.d_gain = 0.0001;
+    pid_yaw.i_gain = 0.1;
+    pid_yaw.last_value = 0;
+    pid_yaw.running_total = 0;
+
+    PIDdata pid_pitch;
+    pid_pitch.p_gain = 0.1;
+    pid_pitch.d_gain = 0.0001;
+    pid_pitch.i_gain = 0.1;
+    pid_pitch.last_value = 0;
+    pid_pitch.running_total = 0;
+
     VN100_initSPI();
 
     if (DEBUG){
@@ -311,15 +334,18 @@ int main()
         control_Throttle = sp_ThrottleRate;
     }
     else{
-        kd_Roll = 0;
-        kd_Pitch = 0;
-        kd_Yaw = 0;
-
-    // Control Signals (Output compare value)
-    control_Roll = controlSignal(sp_RollRate/SERVO_SCALE_FACTOR, imu_RollRate, kd_Roll);
-    control_Pitch = controlSignal(sp_PitchRate/SERVO_SCALE_FACTOR, imu_PitchRate, kd_Pitch);
-    control_Yaw = controlSignal(sp_YawRate/SERVO_SCALE_FACTOR, imu_YawRate, kd_Yaw);
-    control_Throttle = sp_ThrottleRate;
+        kd_Roll = 0.1;
+        kd_Pitch = 0.1;
+        kd_Yaw = 0.1;
+        
+        // Control Signals (Output compare value)
+        control_Roll = PDcontrolSignal(sp_RollRate/SERVO_SCALE_FACTOR, imu_RollRate, pid_roll);
+        control_Pitch = PDcontrolSignal(sp_PitchRate/SERVO_SCALE_FACTOR, imu_PitchRate, pid_pitch);
+        control_Yaw = PDcontrolSignal(sp_YawRate/SERVO_SCALE_FACTOR, imu_YawRate, pid_yaw);
+        //control_Roll = controlSignal(sp_RollRate/SERVO_SCALE_FACTOR, imu_RollRate, pid_roll.d_gain );// kd_Roll);
+        //control_Pitch = controlSignal(sp_PitchRate/SERVO_SCALE_FACTOR, imu_PitchRate, pid_pitch.d_gain );// kd_Pitch);
+        //control_Yaw = controlSignal(sp_YawRate/SERVO_SCALE_FACTOR, imu_YawRate, pid_yaw.d_gain );// kd_Yaw);
+        control_Throttle = sp_ThrottleRate;
     }
  /*****************************************************************************
  *****************************************************************************
