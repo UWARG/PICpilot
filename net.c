@@ -2,6 +2,7 @@
 #include "p33FJ256GP710.h"
 #include <stdlib.h>
 #include <string.h>
+#include "UART1.h"
 
 struct telem_block *outBuffer
     [OUTBOUND_QUEUE_SIZE];
@@ -106,11 +107,11 @@ int generateApiString(unsigned char *apiString,
     apiString[apiIndex] = 'P';  apiIndex++;
     apiString[apiIndex] = ',';  apiIndex++;
 
-    // I'M A WIZARD
+    // I'M A (N00b)WIZARD
     char *telemStart = (char*) apiString[13];
     memcpy(telemStart, telem, sizeof(struct telem_block));
-    apiString += sizeof(struct telem_block);
-
+    apiIndex += sizeof(struct telem_block);
+    return apiIndex;
     // TODO: Add additional telemetry block parameters to be sent here
 }
 
@@ -122,8 +123,9 @@ int sendBlock(struct telem_block *telem) {
     int i;
     for (i = 0; i < apiLength; i++) {
         // Wait for data link to clear from previous send
-        while(U1STAbits.UTXBF == 1){;}
-        U1TXREG = apiString[i];
+        while(U2STAbits.UTXBF == 1){;}
+        U2TXREG = apiString[i];
+        UART1_SendString("sending char");
     }
     // Note: We send the last piece of data through UART and
     // then forget about it. We assume it will get handled eventually

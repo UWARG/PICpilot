@@ -21,6 +21,8 @@
 #include "VN100.h"
 #include "InputCapture.h"
 #include "OutputCompare.h"
+#include "net.h"
+#include "UART2.h"
 
 //For Testing/Debugging:
 #if DEBUG
@@ -163,6 +165,7 @@ int main() {
     if (DEBUG) {
         InitUART1();
     }
+    InitUART2();
 
     if (RCONbits.TRAPR == 1) {
         UART1_SendString("TRAP Reset Occurred");
@@ -230,8 +233,12 @@ int main() {
     // System outputs (get from IMU)
     float imu_RollRate;
     float imu_PitchRate;
-    float imu_ThrottleRate;
     float imu_YawRate;
+
+    //IMU integration outputs
+    float imu_RollAngle;
+    float imu_PitchAngle;
+    float imu_YawAngle;
 
     // Derivative Gains (Set for desired pwm servo pulse width)
     float kd_Roll;
@@ -244,6 +251,10 @@ int main() {
     int control_Pitch;
     int control_Throttle;
     int control_Yaw;
+
+    long long timestamp = 0;
+    int t1 = 0;
+    int t2 = 0;
 
     //    PIDdata pid_roll;
     //    pid_roll.p_gain = 0.1;
@@ -265,6 +276,8 @@ int main() {
     //    pid_pitch.i_gain = 0.1;
     //    pid_pitch.last_value = 0;
     //    pid_pitch.running_total = 0;
+
+
 
     VN100_initSPI();
 
@@ -315,12 +328,29 @@ int main() {
          *****************************************************************************
          *****************************************************************************/
 
-        float rates[3];
-        VN100_SPI_GetRates(0, &rates);
-        //Outputs in order: Roll,Pitch,Yaw
-        imu_RollRate = rates[0];
-        imu_PitchRate = rates[1];
-        imu_YawRate = rates[2];
+        float imu_data[3];
+        float mountingFactor = -15.0;
+        VN100_SPI_GetRates(0, &imu_data);
+        //Outputs in order: Roll[0],Pitch[1],Yaw[2]
+        //But on the aircraft:
+        //IMU Pitch = Roll
+        //IMU Yaw = Pitch
+        //IMU Roll = Yaw
+        imu_RollRate = imu_data[1];
+        imu_PitchRate = imu_data[2];
+        imu_YawRate = imu_data[0];
+
+        VN100_SPI_GetYPR(0, &imu_data[0],&imu_data[1],&imu_data[2]);
+        //Outputs in order: Roll, Pitch, Yaw
+        //But on the aircraft:
+        //IMU Pitch = Roll
+        //IMU Yaw = Pitch
+        //IMU Roll = Yaw
+        imu_RollAngle = imu_data[1];
+        imu_PitchAngle = imu_data[2];
+        imu_YawAngle = imu_data[0];
+
+         UART1_SendChar(0xAA);
 
         /*****************************************************************************
          *****************************************************************************
@@ -350,8 +380,8 @@ int main() {
                     else if (sp_Type > 718){
                         kd_Yaw = (float)(sp_Value - LOWER_PWM)/(UPPER_PWM - LOWER_PWM);
                     }
-
                 }
+
             }else {
                 kd_Roll = 0.1;
                 kd_Pitch = 0.1;
@@ -379,6 +409,51 @@ int main() {
         setPWM(2, control_Pitch);
         setPWM(3, control_Throttle);
         setPWM(4, control_Yaw);
+
+        /*****************************************************************************
+         *****************************************************************************
+
+                                TIMESTAMP CALULCATION
+
+         *****************************************************************************
+         *****************************************************************************/
+        
+
+        //Add to seperate  function - This is a timestamp calculation
+        t1 = t2;
+        t2 = TMR2;
+        if (t1 < t2){
+            timestamp += t2 - t1;
+        }
+        else{
+           timestamp += (PR2 - t1) + t2;
+        }
+
+        /*****************************************************************************
+         *****************************************************************************
+
+                                        COMMUNICATION
+
+         *****************************************************************************
+         *****************************************************************************/
+
+        struct telem_block *telem_data;
+        telem_data = createTelemetryBlock();
+        telem_data->millis = timestamp;
+//        telem_data->pitch = imu_PitchAngle;
+//        telem_data->roll = imu_RollAngle;
+//        telem_data->yaw = imu_YawAngle;
+//        telem_data->pitchRate = imu_PitchRate;
+//        telem_data->pitch_gain = kd_Pitch;
+//        telem_data->roll_gain = kd_Gain;
+//        telem_data->yaw_gain = kd_Yaw;
+//        telem_data->editing_gain = (sp_Switch < 600);
+//        telem_data->pitchSetpoint = sp_PitchRate;
+//        telem_data->rollSetpoint = sp_RollRate;
+//        telem_data->yawSetpoint = sp_YawRate;
+//
+        sendBlock(telem_data);
+        destroyTelemetryBlock(telem_data);
 
         asm("CLRWDT");
     }

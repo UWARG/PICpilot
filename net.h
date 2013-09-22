@@ -10,8 +10,8 @@
 #define EDIT_ROLL_GAIN 2
 #define EDIT_YAW_GAIN 3
 
-struct telem_block {
-    long millis;        // Timestamp relative to start echelon  // 4Byte
+typedef struct telem_block {
+    long long millis;        // Timestamp relative to start echelon  // 8Byte
     long double lat, lon; // Latitude and longitude from gps    // 8Byte
     float pitch, roll, yaw;                         // 4Byte
     float pitchRate, rollRate, yawRate;             // 4Byte
