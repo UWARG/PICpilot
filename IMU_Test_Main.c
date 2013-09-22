@@ -58,10 +58,7 @@ int controlSignal(float setpoint, float output, float gain) {
     int control = SERVO_SCALE_FACTOR * (setpoint - output * gain) + MIDDLE_PWM;
     return control;
 }
-
-#define DERP 0
-#if DERP // incomplete code below
-
+#if 0
 // add alias to above control function
 int (*PcontrolSignal)(float, float, float);
 //PcontrolSignal = controlSignal;
@@ -225,10 +222,10 @@ int main() {
     int sp_ThrottleRate;
     int sp_YawRate;
 
-
     int sp_Value = 0; //0=Roll, 1= Pitch, 2=Yaw
     int sp_Type = 0; //0 = Saved Value, 1 = Edit Mode
     int sp_Switch = 0;
+    int sp_GearSwitch = 0;
 
     // System outputs (get from IMU)
     float imu_RollRate;
@@ -241,10 +238,9 @@ int main() {
     float imu_YawAngle;
 
     // Derivative Gains (Set for desired pwm servo pulse width)
-    float kd_Roll;
-    float kd_Pitch;
-    float kd_Throttle;
-    float kd_Yaw;
+    float kd_Roll = 0;
+    float kd_Pitch = 0;
+    float kd_Yaw = 0;
 
     // Control Signals (Output compare value)
     int control_Roll;
@@ -252,37 +248,16 @@ int main() {
     int control_Throttle;
     int control_Yaw;
 
-    long long timestamp = 0;
-    int t1 = 0;
-    int t2 = 0;
-
-    //    PIDdata pid_roll;
-    //    pid_roll.p_gain = 0.1;
-    //    pid_roll.d_gain = 0.0001;
-    //    pid_roll.i_gain = 0.1;
-    //    pid_roll.last_value = 0;
-    //    pid_roll.running_total = 0;
-    //
-    //    PIDdata pid_yaw;
-    //    pid_yaw.p_gain = 0.1;
-    //    pid_yaw.d_gain = 0.0001;
-    //    pid_yaw.i_gain = 0.1;
-    //    pid_yaw.last_value = 0;
-    //    pid_yaw.running_total = 0;
-    //
-    //    PIDdata pid_pitch;
-    //    pid_pitch.p_gain = 0.1;
-    //    pid_pitch.d_gain = 0.0001;
-    //    pid_pitch.i_gain = 0.1;
-    //    pid_pitch.last_value = 0;
-    //    pid_pitch.running_total = 0;
+    int switched = 0;
 
 
 
     VN100_initSPI();
 
     if (DEBUG) {
-        initIC(0b11101111);
+        int gainSelector = 0; //0=Roll, 1= Pitch, 2=Yaw
+        int gainTrigger = 0; //0 = Saved Value, 1 = Edit Mode
+        initIC(0b11111111);
         initOC(0b1111); //Initialize only Output Compare 1,2,3 and 4
         UART1_SendString("START OF CODE BEFORE WHILE");
     } else {
@@ -311,6 +286,7 @@ int main() {
         sp_ThrottleRate = (icTimeDiff[2]);
         sp_YawRate = (icTimeDiff[3] - MIDDLE_PWM);
 
+        sp_GearSwitch = icTimeDiff[4];
         sp_Type = icTimeDiff[5];
         sp_Value = icTimeDiff[6];
         sp_Switch = icTimeDiff[7];
@@ -328,30 +304,16 @@ int main() {
          *****************************************************************************
          *****************************************************************************/
 
-        float imu_data[3];
-        float mountingFactor = -15.0;
-        VN100_SPI_GetRates(0, &imu_data);
-        //Outputs in order: Roll[0],Pitch[1],Yaw[2]
-        //But on the aircraft:
-        //IMU Pitch = Roll
-        //IMU Yaw = Pitch
-        //IMU Roll = Yaw
-        imu_RollRate = imu_data[1];
-        imu_PitchRate = imu_data[2];
-        imu_YawRate = imu_data[0];
+        float rates[3];
+        VN100_SPI_GetRates(0, &rates);
+        //Outputs in order: Roll,Pitch,Yaw
+        imu_RollRate = rates[0];
+        imu_PitchRate = rates[1];
+        imu_YawRate = rates[2];
 
-        VN100_SPI_GetYPR(0, &imu_data[0],&imu_data[1],&imu_data[2]);
-        //Outputs in order: Roll, Pitch, Yaw
-        //But on the aircraft:
-        //IMU Pitch = Roll
-        //IMU Yaw = Pitch
-        //IMU Roll = Yaw
-        imu_RollAngle = imu_data[1];
-        imu_PitchAngle = imu_data[2];
-        imu_YawAngle = imu_data[0];
+        if (DEBUG) {
 
-         UART1_SendChar(0xAA);
-
+        }
         /*****************************************************************************
          *****************************************************************************
 
@@ -360,38 +322,47 @@ int main() {
          *****************************************************************************
          *****************************************************************************/
 
-
-
-
         if (!STABILIZATION) {
             control_Roll = sp_RollRate + MIDDLE_PWM;
             control_Pitch = sp_PitchRate + MIDDLE_PWM;
             control_Yaw = sp_YawRate + MIDDLE_PWM;
             control_Throttle = sp_ThrottleRate;
         } else {
-            if (DEBUG) {
-                if (sp_Switch < 600){
-                    if (sp_Type < 684){
-                        kd_Roll = (float)(sp_Value - LOWER_PWM)/(UPPER_PWM - LOWER_PWM);
-                        }
-                    else if (sp_Type > 684 && sp_Type < 718){
-                        kd_Pitch = (float)(sp_Value - LOWER_PWM)/(float)(UPPER_PWM - LOWER_PWM);
-                        }
-                    else if (sp_Type > 718){
-                        kd_Yaw = (float)(sp_Value - LOWER_PWM)/(UPPER_PWM - LOWER_PWM);
-                    }
-                }
 
-            }else {
-                kd_Roll = 0.1;
-                kd_Pitch = 0.1;
-                kd_Yaw = 0.1;
+
+            if (sp_Switch < 600) {
+                if (sp_GearSwitch > 600) {
+                    if (sp_Type < 684) {
+                        kd_Roll = (float) (sp_Value - LOWER_PWM) / (UPPER_PWM - LOWER_PWM) *2;
+                    } else if (sp_Type > 684 && sp_Type < 718) {
+                        kd_Pitch = (float) (sp_Value - LOWER_PWM) / (UPPER_PWM - LOWER_PWM) * 2;
+                    } else if (sp_Type > 718) {
+                        kd_Yaw = (float) (sp_Value - LOWER_PWM) / (UPPER_PWM - LOWER_PWM) * 2;
+                    }
+                    
+                }
+                else {
+                //THROTTLE
+                    char str[20];
+                    sprintf(str,"%i", sp_Value);
+                    UART1_SendString(str);
+                   if (sp_ThrottleRate < ((UPPER_PWM - LOWER_PWM) * 0.3))
+                        control_Throttle = (((float)(sp_Value - 514)/(float)(888-514) + 0.5) * (UPPER_PWM-LOWER_PWM)) + LOWER_PWM;
+                }
+                if (sp_ThrottleRate < ((UPPER_PWM - LOWER_PWM) * 0.3) + LOWER_PWM && switched != sp_Switch < 600) {
+                    control_Throttle = LOWER_PWM;
+
+                }
             }
+            else
+                control_Throttle = sp_ThrottleRate;
+            switched = sp_Switch < 600;
+
             // Control Signals (Output compare value)
             control_Roll = controlSignal(sp_RollRate / SERVO_SCALE_FACTOR, imu_RollRate, kd_Roll);
             control_Pitch = controlSignal(sp_PitchRate / SERVO_SCALE_FACTOR, imu_PitchRate, kd_Pitch);
             control_Yaw = controlSignal(sp_YawRate / SERVO_SCALE_FACTOR, imu_YawRate, kd_Yaw);
-            control_Throttle = sp_ThrottleRate;
+            
         }
         /*****************************************************************************
          *****************************************************************************
@@ -409,51 +380,6 @@ int main() {
         setPWM(2, control_Pitch);
         setPWM(3, control_Throttle);
         setPWM(4, control_Yaw);
-
-        /*****************************************************************************
-         *****************************************************************************
-
-                                TIMESTAMP CALULCATION
-
-         *****************************************************************************
-         *****************************************************************************/
-        
-
-        //Add to seperate  function - This is a timestamp calculation
-        t1 = t2;
-        t2 = TMR2;
-        if (t1 < t2){
-            timestamp += t2 - t1;
-        }
-        else{
-           timestamp += (PR2 - t1) + t2;
-        }
-
-        /*****************************************************************************
-         *****************************************************************************
-
-                                        COMMUNICATION
-
-         *****************************************************************************
-         *****************************************************************************/
-
-        struct telem_block *telem_data;
-        telem_data = createTelemetryBlock();
-        telem_data->millis = timestamp;
-//        telem_data->pitch = imu_PitchAngle;
-//        telem_data->roll = imu_RollAngle;
-//        telem_data->yaw = imu_YawAngle;
-//        telem_data->pitchRate = imu_PitchRate;
-//        telem_data->pitch_gain = kd_Pitch;
-//        telem_data->roll_gain = kd_Gain;
-//        telem_data->yaw_gain = kd_Yaw;
-//        telem_data->editing_gain = (sp_Switch < 600);
-//        telem_data->pitchSetpoint = sp_PitchRate;
-//        telem_data->rollSetpoint = sp_RollRate;
-//        telem_data->yawSetpoint = sp_YawRate;
-//
-        sendBlock(telem_data);
-        destroyTelemetryBlock(telem_data);
 
         asm("CLRWDT");
     }
