@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <p33FJ256GP710.h>
-#include <string.h>
+
 
 //Include the Full Initialization Header File
 #include "Clock.h"
@@ -125,7 +125,7 @@ void median_filter(float *in, float *out, unsigned long size) {
         // update the window -- note, leaves mess at beginning
         window[i % WINDOW_SIZE] = i + 1;
     }
-  
+
     // cover up mess left above
     for (i = 0; i < WINDOW_SIZE / 2; i++) {
         out[i] = window[i] = in[i];
@@ -248,8 +248,8 @@ int main() {
     int control_Throttle;
     int control_Yaw;
 
-    int switched = 0;
-
+    char switched = 0;
+    char autoTrigger = 0;
 
 
     VN100_initSPI();
@@ -339,30 +339,35 @@ int main() {
                     } else if (sp_Type > 718) {
                         kd_Yaw = (float) (sp_Value - LOWER_PWM) / (UPPER_PWM - LOWER_PWM) * 2;
                     }
-                    
-                }
-                else {
-                //THROTTLE
-                    char str[20];
-                    sprintf(str,"%i", sp_Value);
-                    UART1_SendString(str);
-                   if (sp_ThrottleRate < ((UPPER_PWM - LOWER_PWM) * 0.3))
-                        control_Throttle = (((float)(sp_Value - 514)/(float)(888-514) + 0.5) * (UPPER_PWM-LOWER_PWM)) + LOWER_PWM;
-                }
-                if (sp_ThrottleRate < ((UPPER_PWM - LOWER_PWM) * 0.3) + LOWER_PWM && switched != sp_Switch < 600) {
-                    control_Throttle = LOWER_PWM;
 
+                } else {
+                    //THROTTLE
+                    if (sp_ThrottleRate > ((UPPER_PWM - LOWER_PWM) * 0.2) + LOWER_PWM && autoTrigger) {
+                        control_Throttle = (((float) (sp_Value - 514) / (float) (888 - 514) + 0.5) * (UPPER_PWM - LOWER_PWM)) + LOWER_PWM;
+                        if (UPPER_PWM < control_Throttle)
+                            control_Throttle = UPPER_PWM;
+                    }
+ 
                 }
-            }
-            else
+                if (sp_ThrottleRate < ((UPPER_PWM - LOWER_PWM) * 0.2) + LOWER_PWM && switched != (sp_Switch < 600)) {
+                    control_Throttle = LOWER_PWM;
+                }
+                else if (switched != (sp_Switch < 600)){
+                    autoTrigger = 1;
+                }
+
+            } else{
                 control_Throttle = sp_ThrottleRate;
-            switched = sp_Switch < 600;
+                autoTrigger = 0;
+            }
+            switched = (sp_Switch < 600);
+
 
             // Control Signals (Output compare value)
             control_Roll = controlSignal(sp_RollRate / SERVO_SCALE_FACTOR, imu_RollRate, kd_Roll);
             control_Pitch = controlSignal(sp_PitchRate / SERVO_SCALE_FACTOR, imu_PitchRate, kd_Pitch);
             control_Yaw = controlSignal(sp_YawRate / SERVO_SCALE_FACTOR, imu_YawRate, kd_Yaw);
-            
+
         }
         /*****************************************************************************
          *****************************************************************************
