@@ -54,10 +54,17 @@ _FOSC(FCKSM_CSECMD & OSCIOFNC_OFF & POSCMD_NONE);
 //Servo scale factor is used in converting deg/s rotation input into output compare values
 float SERVO_SCALE_FACTOR;
 
-int controlSignal(float setpoint, float output, float gain) {
-    int control = SERVO_SCALE_FACTOR * (setpoint - output * gain) + MIDDLE_PWM;
+int controlSignalGyros(float sp_Rate, float output, float gain) { // function to find output based on gyro acceleration and PWM input
+    int control = SERVO_SCALE_FACTOR * (sp_Rate - output * gain) + MIDDLE_PWM;
     return control;
 }
+
+int controlSignalAccel(float sp_Angle, float IMU_Angle, float gain){ // function to find output based on accelerometer position (angle)
+    float correctionAngle = (sp_Angle - IMU_Angle); // angle to correct for
+    int control = 0;// not sure what chould go here. *****FIGURE OUT THIS CALCULATION*****
+    return control;
+}
+
 #if 0
 // add alias to above control function
 int (*PcontrolSignal)(float, float, float);
@@ -217,15 +224,21 @@ int main() {
     SERVO_SCALE_FACTOR = -(UPPER_PWM - MIDDLE_PWM) / 45;
 
     // Setpoints (From radio transmitter or autopilot)
-    int sp_RollRate;
+   
     int sp_PitchRate;
     int sp_ThrottleRate;
-    int sp_YawRate;
+    int sp_YawRate; 
+    int sp_RollRate;
+    int sp_Range = UPPER_PWM - MIDDLE_PWM; // +- Range for the sp_xxxxRate values
 
     int sp_Value = 0; //0=Roll, 1= Pitch, 2=Yaw
     int sp_Type = 0; //0 = Saved Value, 1 = Edit Mode
     int sp_Switch = 0;
     int sp_GearSwitch = 0;
+
+    float sp_PitchAngle;
+    float sp_YawAngle;
+    float sp_RollAngle;
 
     // System outputs (get from IMU)
     float imu_RollRate;
@@ -237,10 +250,15 @@ int main() {
     float imu_PitchAngle;
     float imu_YawAngle;
 
-    // Derivative Gains (Set for desired pwm servo pulse width)
-    float kd_Roll = 0;
-    float kd_Pitch = 0;
-    float kd_Yaw = 0;
+    // Derivative Gains for gyro stabalization (Set for desired pwm servo pulse width)
+    float kd_Gyro_Roll = 0;
+    float kd_Gyro_Pitch = 0;
+    float kd_Gyro_Yaw = 0;
+
+    // Derivative Gains for accelerometer stabalization (Set for desired pwm servo pulse width)
+    float kd_Accel_Roll = 0;
+    float kd_Accel_Pitch = 0;
+    float kd_Accel_Yaw = 0;
 
     // Control Signals (Output compare value)
     int control_Roll;
@@ -251,6 +269,14 @@ int main() {
     char switched = 0;
     char autoTrigger = 0;
 
+    // on/off "switches" for features
+    int accelStabilization = 0;
+    int autoPilotOnOff = 0;
+
+    //System constants
+    float maxRollAngle = 60; // max allowed roll angle in degrees
+    float maxPitchAngle = 60;
+    float maxYawAngle = 20;
 
     VN100_initSPI();
 
@@ -329,6 +355,28 @@ int main() {
          *****************************************************************************
          *****************************************************************************/
 
+         if (accelStabilization){ // if we are using accelerometer based stabalization
+             // convert sp_xxxRate to an angle (based on maxangle
+             if (!autoPilotOnOff){ // if we are getting input from the controller
+                 // convert sp_xxxxRate to an sp_xxxxAngle in degrees
+                 sp_YawAngle = sp_YawRate / (sp_Range / maxYawAngle);
+                 sp_RollAngle = sp_RollRate / (sp_Range / maxRollAngle);
+                 sp_PitchAngle = sp_PitchRate / (sp_Range / maxPitchAngle);
+                 
+             } else {
+                 //get autopilot requested angle, set sp_xxxxAngle based on autopilot request
+             }
+             
+             // output to servos based on requested angle and actual angle (using a gain value)
+             // we set this to sp_xxxxRate so that the gyros can do their thing aswell
+             /* this is commented untill we get the controlSignalAccel() function working
+             sp_YawRate = controlSignalAccel(sp_YawAngle, imu_YawAngle, kd_Accel_Yaw);
+             sp_RollRate =  controlSignalAccel(sp_RollAngle, imu_RollAngle, kd_Accel_Roll);
+             sp_PitchRate =  controlSignalAccel(sp_PitchAngle, imu_PitchAngle, kd_Accel_Pitch);
+*/
+             
+         }
+
         if (!STABILIZATION) {
             control_Roll = sp_RollRate + MIDDLE_PWM;
             control_Pitch = sp_PitchRate + MIDDLE_PWM;
@@ -340,11 +388,11 @@ int main() {
             if (sp_Switch < 600) {
                 if (sp_GearSwitch > 600) {
                     if (sp_Type < 684) {
-                        kd_Roll = (float) (sp_Value - LOWER_PWM) / (UPPER_PWM - LOWER_PWM) *2;
+                        kd_Gyro_Roll = (float) (sp_Value - LOWER_PWM) / (UPPER_PWM - LOWER_PWM) *2;
                     } else if (sp_Type > 684 && sp_Type < 718) {
-                        kd_Pitch = (float) (sp_Value - LOWER_PWM) / (UPPER_PWM - LOWER_PWM) * 2;
+                        kd_Gyro_Pitch = (float) (sp_Value - LOWER_PWM) / (UPPER_PWM - LOWER_PWM) * 2;
                     } else if (sp_Type > 718) {
-                        kd_Yaw = (float) (sp_Value - LOWER_PWM) / (UPPER_PWM - LOWER_PWM) * 2;
+                        kd_Gyro_Yaw = (float) (sp_Value - LOWER_PWM) / (UPPER_PWM - LOWER_PWM) * 2;
                     }
 
                 } else {
@@ -371,9 +419,9 @@ int main() {
 
 
             // Control Signals (Output compare value)
-            control_Roll = controlSignal(sp_RollRate / SERVO_SCALE_FACTOR, imu_RollRate, kd_Roll);
-            control_Pitch = controlSignal(sp_PitchRate / SERVO_SCALE_FACTOR, imu_PitchRate, kd_Pitch);
-            control_Yaw = controlSignal(sp_YawRate / SERVO_SCALE_FACTOR, imu_YawRate, kd_Yaw);
+            control_Roll = controlSignalGyros(sp_RollRate / SERVO_SCALE_FACTOR, imu_RollRate, kd_Gyro_Roll);
+            control_Pitch = controlSignalGyros(sp_PitchRate / SERVO_SCALE_FACTOR, imu_PitchRate, kd_Gyro_Pitch);
+            control_Yaw = controlSignalGyros(sp_YawRate / SERVO_SCALE_FACTOR, imu_YawRate, kd_Gyro_Yaw);
 
         }
         /*****************************************************************************
