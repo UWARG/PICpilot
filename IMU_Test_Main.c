@@ -304,15 +304,22 @@ int main() {
          *****************************************************************************
          *****************************************************************************/
 
-        float rates[3];
-        VN100_SPI_GetRates(0, &rates);
+        float imuData[3];
+        VN100_SPI_GetRates(0, &imuData);
         //Outputs in order: Roll,Pitch,Yaw
-        imu_RollRate = rates[0];
-        imu_PitchRate = rates[1];
-        imu_YawRate = rates[2];
+        imu_RollRate = imuData[0];
+        imu_PitchRate = imuData[1];
+        imu_YawRate = imuData[2];
+
+         VN100_SPI_GetYPR(0,&imuData[0], &imuData[1], &imuData[2]);
+         imu_RollAngle = imuData[2];
+         imu_PitchAngle = imuData[1];
+         imu_YawAngle = imuData[0];
 
         if (DEBUG) {
-
+            char str[20];
+            sprintf(str,"%f",imuData[0]);
+            UART1_SendString(str);
         }
         /*****************************************************************************
          *****************************************************************************
