@@ -10,7 +10,7 @@
 #define EDIT_ROLL_GAIN 2
 #define EDIT_YAW_GAIN 3
 
-typedef struct telem_block {
+struct telem_block {
     long long millis;        // Timestamp relative to start echelon  // 8Byte
     long double lat, lon; // Latitude and longitude from gps    // 8Byte
     float pitch, roll, yaw;                         // 4Byte
@@ -22,7 +22,10 @@ typedef struct telem_block {
 };
 
 // Initialize the data link
-int initTelemetryLink(void);
+int initDataLink(void);
+
+// Create a telemetry block to use for debugging, only creates one instance
+struct telem_block *getDebugTelemetryBlock(void);
 
 // Create a zero initialized telem block returns null if fails
 struct telem_block *createTelemetryBlock(void);
@@ -48,4 +51,4 @@ void setMaxSend(int max);
 struct telem_block *popTelemetryBlock(void);
 
 // Send a block of telemetry probably should call this directly
-int sendBlock(struct telem_block *telem);
+int sendTelemetryBlock(struct telem_block *telem);

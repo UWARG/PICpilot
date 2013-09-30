@@ -22,7 +22,6 @@
 #include "InputCapture.h"
 #include "OutputCompare.h"
 #include "net.h"
-#include "UART2.h"
 
 //For Testing/Debugging:
 #if DEBUG
@@ -169,7 +168,7 @@ int main() {
     if (DEBUG) {
         InitUART1();
     }
-    InitUART2();
+    initDataLink();
 
     if (RCONbits.TRAPR == 1) {
         UART1_SendString("TRAP Reset Occurred");
@@ -344,7 +343,7 @@ int main() {
 
         if (DEBUG) {
             char str[20];
-            sprintf(str,"%f",imuData[0]);
+            //sprintf(str,"%f",imuData[0]);
             UART1_SendString(str);
         }
         /*****************************************************************************
@@ -441,6 +440,7 @@ int main() {
         setPWM(3, control_Throttle);
         setPWM(4, control_Yaw);
 
+        sendTelemetryBlock(getDebugTelemetryBlock());
         asm("CLRWDT");
     }
 }
