@@ -163,8 +163,9 @@ int sendTelemetryBlock(struct telem_block *telem) {
     int i;
     for (i = 0; i < apiLength; i++) {
         // Wait for data link to clear from previous send
-        while(U2STAbits.UTXBF == 1){;}
+        while(U2STAbits.TRMT == 0);
         U2TXREG = apiString[i];
+
     }
     // Note: We send the last piece of data through UART and
     // then forget about it. We assume it will get handled eventually
