@@ -5,13 +5,10 @@
  * Created on June 15, 2013, 3:40 PM
  */
 
-#define DEBUG 1 //Debug Mode = 1
-#define STABILIZATION 1 //Stabilization Mode = 1
-
 //Include Libraries
 #include <stdio.h>
 #include <stdlib.h>
-#include <p33FJ256GP710.h>
+#include "main.h"
 
 
 //Include the Full Initialization Header File
@@ -22,11 +19,8 @@
 #include "InputCapture.h"
 #include "OutputCompare.h"
 #include "net.h"
+#include "StartupErrorCodes.h"
 
-//For Testing/Debugging:
-#if DEBUG
-#include "UART1.h"
-#endif
 //Perform random clock things that came with the Sample Code (Keep in code)
 _FOSCSEL(FNOSC_FRC); // Internal FRC oscillator
 _FOSC(FCKSM_CSECMD & OSCIOFNC_OFF & POSCMD_NONE);
@@ -34,9 +28,7 @@ _FOSC(FCKSM_CSECMD & OSCIOFNC_OFF & POSCMD_NONE);
 // OSC2 Pin Function: OSC2 is Clock Output
 // Primary Oscillator Mode: XT Crystanl
 
-//Define variables for global use in the code
-#define TRUE	1
-#define FALSE	0
+
 #define YAW     0
 #define PITCH   1
 #define ROLL    2
@@ -54,9 +46,14 @@ _FOSC(FCKSM_CSECMD & OSCIOFNC_OFF & POSCMD_NONE);
 
 //Servo scale factor is used in converting deg/s rotation input into output compare values
 float SERVO_SCALE_FACTOR;
+float integralSum = 0;
 
 //float Angle_Bias[3];
-
+int controlSignalPosition(float setpoint, float output, float gain, float integralGain, float dTime) { // function to find output based on gyro acceleration and PWM input
+    integralSum += (setpoint - output) * dTime;
+    int control = ((setpoint - output) * gain) + (integralSum * integralGain);
+    return control;
+}
 int controlSignalAngles(float setpoint, float output, float gain, float SERVO_SCALE_FACTOR_ANGLES) { // function to find output based on gyro acceleration and PWM input
     int control = SERVO_SCALE_FACTOR_ANGLES * ((setpoint - output) * gain);
     return control;
@@ -80,68 +77,22 @@ int main() {
 
     //Debug Mode:
     if (DEBUG) {
-        InitUART1();
+        InitUART1();  
     }
+    checkErrorCodes();
+
     initDataLink();
 
-    if (RCONbits.TRAPR == 1) {
-        UART1_SendString("TRAP Reset Occurred");
-        RCONbits.TRAPR = 0;
-    }
 
-    if (RCONbits.IOPUWR == 1) {
-        UART1_SendString("Illegal Opcode Reset Occurred");
-        RCONbits.IOPUWR = 0;
-    }
-
-    if (RCONbits.VREGS == 1) {
-        UART1_SendString("Voltage Reg Reset Occurred");
-        RCONbits.VREGS = 0;
-    }
-
-    if (RCONbits.EXTR == 1) {
-        UART1_SendString("External Reset Occurred");
-        RCONbits.EXTR = 0;
-    }
-
-    if (RCONbits.SWR == 1) {
-        UART1_SendString("Software Reset Occurred");
-        RCONbits.SWR = 0;
-    }
-
-    if (RCONbits.WDTO == 1) {
-        UART1_SendString("Software WDT Reset Occurred");
-        RCONbits.WDTO = 0;
-    }
-
-    if (RCONbits.SLEEP == 1) {
-        UART1_SendString("Sleep Mode Reset Occurred");
-        RCONbits.SLEEP = 0;
-    }
-
-    if (RCONbits.IDLE == 1) {
-        UART1_SendString("Idle Mode Reset Occurred");
-        RCONbits.IDLE = 0;
-    }
-
-    if (RCONbits.BOR == 1) {
-        UART1_SendString("Brown Out Reset Occurred");
-        RCONbits.BOR = 0;
-    }
-
-    if (RCONbits.POR == 1) {
-        UART1_SendString("Power On Reset Occurred");
-        RCONbits.POR = 0;
-    }
 
     SERVO_SCALE_FACTOR = -(UPPER_PWM - MIDDLE_PWM) / 45;
 
     // Setpoints (From radio transmitter or autopilot)
 
-    int sp_PitchRate;
-    int sp_ThrottleRate;
-    int sp_YawRate;
-    int sp_RollRate;
+    int sp_PitchRate = 0;
+    int sp_ThrottleRate = 0;
+    int sp_YawRate = 0;
+    int sp_RollRate = 0;
     int sp_Range = 0; // +- Range for the sp_xxxxRate values
 
     int sp_Value = 0; //0=Roll, 1= Pitch, 2=Yaw
@@ -149,19 +100,19 @@ int main() {
     int sp_Switch = 0;
     int sp_GearSwitch = 0;
 
-    float sp_PitchAngle;
-    float sp_YawAngle;
-    float sp_RollAngle;
+    float sp_PitchAngle = 0;
+    float sp_YawAngle = 0;
+    float sp_RollAngle = 0;
 
     // System outputs (get from IMU)
-    float imu_RollRate;
-    float imu_PitchRate;
-    float imu_YawRate;
+    float imu_RollRate = 0;
+    float imu_PitchRate = 0;
+    float imu_YawRate = 0;
 
     //IMU integration outputs
-    float imu_RollAngle;
-    float imu_PitchAngle;
-    float imu_YawAngle;
+    float imu_RollAngle = 0;
+    float imu_PitchAngle = 0;
+    float imu_YawAngle = 0;
 
     // Derivative Gains for gyro stabalization (Set for desired pwm servo pulse width)
     float kd_Gyro_Roll = 0;
@@ -203,6 +154,7 @@ int main() {
         initIC(0b1111);
         initOC(0b1111); //Initialize only Output Compare 1,2,3 and 4
     }
+    
     sp_Range = UPPER_PWM - MIDDLE_PWM;
 
     while (1) {
@@ -221,15 +173,16 @@ int main() {
         int* icTimeDiff;
         icTimeDiff = getICValues();
 
-        sp_RollRate = (icTimeDiff[0] - MIDDLE_PWM);
-        sp_PitchRate = (icTimeDiff[1] - MIDDLE_PWM);
-        sp_ThrottleRate = (icTimeDiff[2]);
-        sp_YawRate = (icTimeDiff[3] - MIDDLE_PWM);
 
-        sp_GearSwitch = icTimeDiff[4];
-        sp_Type = icTimeDiff[5];
-        sp_Value = icTimeDiff[6];
-        sp_Switch = icTimeDiff[7];
+            sp_RollRate = (icTimeDiff[0] - MIDDLE_PWM);
+            sp_PitchRate = (icTimeDiff[1] - MIDDLE_PWM);
+            sp_ThrottleRate = (icTimeDiff[2]);
+            sp_YawRate = (icTimeDiff[3] - MIDDLE_PWM);
+
+            sp_GearSwitch = icTimeDiff[4];
+            sp_Type = icTimeDiff[5];
+            sp_Value = icTimeDiff[6];
+            sp_Switch = icTimeDiff[7];
 
         if (DEBUG) {
 
@@ -276,7 +229,7 @@ int main() {
             // convert sp_xxxxRate to an sp_xxxxAngle in degrees
             //sp_YawAngle = sp_YawRate / (sp_Range / maxYawAngle);
             sp_RollAngle = sp_RollRate / (sp_Range / maxRollAngle);
-            sp_PitchAngle = sp_PitchRate / (sp_Range / maxPitchAngle);
+            sp_PitchAngle = -sp_PitchRate / (sp_Range / maxPitchAngle);
 
             //             } else {
             //get autopilot requested angle, set sp_xxxxAngle based on autopilot request
@@ -286,7 +239,7 @@ int main() {
             // we set this to sp_xxxxRate so that the gyros can do their thing aswell
             /* this is commented untill we get the controlSignalAccel() function working
              */
-           // sp_YawRate = controlSignalAngles(sp_YawAngle, imu_YawAngle, kd_Accel_Yaw, -(UPPER_PWM - MIDDLE_PWM) / (maxYawAngle)) ;
+            //sp_YawRate = controlSignalAngles(sp_YawAngle, imu_YawAngle, kd_Accel_Yaw, -(UPPER_PWM - MIDDLE_PWM) / (maxYawAngle)) ;
             sp_RollRate = controlSignalAngles(sp_RollAngle, imu_RollAngle, kd_Accel_Roll, -(UPPER_PWM - MIDDLE_PWM) / (maxRollAngle)) ;
             sp_PitchRate = controlSignalAngles (sp_PitchAngle, imu_PitchAngle, kd_Accel_Pitch, -(UPPER_PWM - MIDDLE_PWM) / (maxPitchAngle));
 
@@ -372,7 +325,7 @@ int main() {
         setPWM(3, control_Throttle);
         setPWM(4, control_Yaw);
 
-        //sendTelemetryBlock(getDebugTelemetryBlock());
+//        sendTelemetryBlock(getDebugTelemetryBlock());
         asm("CLRWDT");
     }
 }
