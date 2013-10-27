@@ -1,3 +1,5 @@
+test.pto: test.sh output bezier.py path.json
+	./test.sh > $@
 output: terrain.blend map.png
 	blender -b terrain.blend -x 1 -o //output/ -F png -a 
 map.png:

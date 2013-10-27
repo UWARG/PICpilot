@@ -80,7 +80,7 @@ if __name__=="__main__":
 		with open(x) as f:
 			b=Bezier(f)
 			cameras=[]
-			for d in np.linspace(0,b.arclength(),num=40):
+			for image_num,d in enumerate(np.linspace(0,b.arclength(),num=40),1):
 				t=b.distance_arc(d)
 				d=b(t)
 				y=b.prime(t)
@@ -94,6 +94,31 @@ if __name__=="__main__":
 
 				ppt=np.identity(4)
 				ppt[3][2]=-math.atan(120*math.pi/360.)#parallax
-				cameras.append(np.matrix(ppt)*np.concatenate((np.matrix([x,y,z,d]).transpose(),np.matrix([[0,0,0,1]]))).I)
+				ppt=np.matrix(ppt)
+				translate=np.concatenate((np.matrix([[0]*3]*3+[d]).T,[[0]*4]))+np.identity(4)
+				rotate=np.concatenate((np.matrix([x,y,z,np.zeros(3)]).T,((0,0,0,1),)))
+				#cameras.append(ppt*np.concatenate((np.matrix([x,y,z,d]).T,np.matrix([[0,0,0,1]]))).I)
+				cameras.append(ppt*translate*rotate)
 
-				print np.around(cameras[-1]*cameras[0].I,decimals=3)
+				fudge=np.matrix(np.diag((1.,-1.,1.,1.0573374023762807)))#different NDC?!?
+				trans=fudge.I*cameras[-1]*cameras[0].I*fudge
+				print>>sys.stderr,np.around(trans,decimals=2)
+				r2d=180/math.pi
+				trans2=np.matrix([
+					[ 0, 1, 0, 0],
+					[-1, 0, 0, 0],
+					[ 0, 0, 1, 0],
+					[ 0, 0, 0, 1]])*trans
+				print '#-hugin  cropFactor=1\ni w256 h256 f0 v%s Ra=0 Rb=0 Rc=0 Rd=0 Re=0 Eev=0 Er%s Eb%s r%f p%f y%f TrX%f TrY%f TrZ%f j0 a=0 b=0 c=0 d=0 e=0 g=0 t=0 Va%s Vb=0 Vc=0 Vd=0 Vx=0 Vy=0  Vm5 n"%04d.png"'.translate(None,'='[image_num-1:])%(
+					'120' if image_num==1 else '=0',
+					'1' if image_num==1 else '=0',
+					'1' if image_num==1 else '=0',
+					r2d*math.atan2(trans[0,1],trans[0,0]),#-r2d*math.atan2(trans[0,2],trans[1,2]),#XXX formulas are wrong
+					0,#r2d*math.acos(max(-1,min(1,trans[2,2]))),
+					0,#r2d*math.atan2(trans[2,0],trans[2,1]),
+					trans2[0,3],
+					trans2[1,3],
+					trans2[2,3],
+					'1' if image_num==1 else '=0',
+					image_num,
+				)
