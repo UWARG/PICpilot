@@ -1,5 +1,5 @@
 #!/usr/bin/python
-import json,collections,scipy.integrate,scipy.optimize
+import json,collections,scipy.integrate,scipy.optimize,math
 import numpy as np
 BezierSpline=collections.namedtuple('BezierSpline','c l r')
 class Memo(dict):
@@ -17,7 +17,7 @@ class Bezier(object):
 		'create new Bezier from file'
 		if isinstance(o,file):
 			o=json.load(o)
-		self.splines=[BezierSpline(**{k:np.array(v) for k,v in p.iteritems()}) for p in o]
+		self.splines=[BezierSpline(**{k:np.array(v,dtype='float64') for k,v in p.iteritems()}) for p in o]
 		self._speed=np.vectorize(self.speed)
 		self.integrals=Memo(lambda i:scipy.integrate.quadrature(self._speed,i,i+1)[0])
 	def displacement(self,t):
@@ -79,6 +79,21 @@ if __name__=="__main__":
 	for x in sys.argv[1:]:
 		with open(x) as f:
 			b=Bezier(f)
+			cameras=[]
 			for d in np.linspace(0,b.arclength(),num=40):
 				t=b.distance_arc(d)
-				print b(t),b.prime(t)
+				d=b(t)
+				y=b.prime(t)
+				k=np.array([0.,0.,1.])
+				z=k-y*np.dot(k,y)/np.dot(y,y)
+				x=np.cross(y,z)
+
+				x/=np.linalg.norm(x)
+				y/=np.linalg.norm(y)
+				z/=np.linalg.norm(z)
+
+				ppt=np.identity(4)
+				ppt[3][2]=-math.atan(120*math.pi/180.)#parallax
+				cameras.append(np.matrix(ppt)*np.concatenate((np.matrix([x,y,z,d]).transpose(),np.matrix([[0,0,0,1]]))).I)
+
+				print np.around(cameras[-1]*cameras[0].I,decimals=3)
