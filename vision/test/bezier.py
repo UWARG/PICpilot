@@ -93,7 +93,7 @@ if __name__=="__main__":
 				z/=np.linalg.norm(z)
 
 				ppt=np.identity(4)
-				ppt[3][2]=-math.atan(120*math.pi/180.)#parallax
+				ppt[3][2]=-math.atan(120*math.pi/360.)#parallax
 				cameras.append(np.matrix(ppt)*np.concatenate((np.matrix([x,y,z,d]).transpose(),np.matrix([[0,0,0,1]]))).I)
 
 				print np.around(cameras[-1]*cameras[0].I,decimals=3)
