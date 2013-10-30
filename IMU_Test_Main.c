@@ -45,27 +45,7 @@ _FOSC(FCKSM_CSECMD & OSCIOFNC_OFF & POSCMD_NONE);
  *****************************************************************************/
 
 //Servo scale factor is used in converting deg/s rotation input into output compare values
-float SERVO_SCALE_FACTOR;
-float integralSum = 0;
 
-//float Angle_Bias[3];
-int controlSignalPosition(float setpoint, float output, float gain, float integralGain, float dTime) { // function to find output based on gyro acceleration and PWM input
-    integralSum += (setpoint - output) * dTime;
-    int control = ((setpoint - output) * gain) + (integralSum * integralGain);
-    return control;
-}
-int controlSignalAngles(float setpoint, float output, float gain, float SERVO_SCALE_FACTOR_ANGLES) { // function to find output based on gyro acceleration and PWM input
-    int control = SERVO_SCALE_FACTOR_ANGLES * ((setpoint - output) * gain);
-    return control;
-}
-int controlSignal(float setpoint, float output, float gain) { // function to find output based on gyro acceleration and PWM input
-    int control = SERVO_SCALE_FACTOR * (setpoint - output * gain) + MIDDLE_PWM;
-    return control;
-}
-
-//int getAngleBias(){
-//    VN100_SPI_GetYPR(0, &Angle_Bias[YAW], &Angle_Bias[PITCH], &Angle_Bias[ROLL]);
-//    }
 
 /*****************************************************************************
  *****************************************************************************
@@ -82,10 +62,6 @@ int main() {
     checkErrorCodes();
 
     initDataLink();
-
-
-
-    SERVO_SCALE_FACTOR = -(UPPER_PWM - MIDDLE_PWM) / 45;
 
     // Setpoints (From radio transmitter or autopilot)
 
@@ -123,6 +99,12 @@ int main() {
     float kd_Accel_Roll = 1;
     float kd_Accel_Pitch = 1;
     float kd_Accel_Yaw = 1;
+    //Integral Gains for accelerometer stabilization
+    float ki_Accel_Pitch = 0.01;
+    float ki_Accel_Roll = 0.01;
+    //Integral Gains for accelerometer stabilization
+    float sum_Accel_Pitch = 0;
+    float sum_Accel_Roll = 0;
 
     // Control Signals (Output compare value)
     int control_Roll;
@@ -240,8 +222,8 @@ int main() {
             /* this is commented untill we get the controlSignalAccel() function working
              */
             //sp_YawRate = controlSignalAngles(sp_YawAngle, imu_YawAngle, kd_Accel_Yaw, -(UPPER_PWM - MIDDLE_PWM) / (maxYawAngle)) ;
-            sp_RollRate = controlSignalAngles(sp_RollAngle, imu_RollAngle, kd_Accel_Roll, -(UPPER_PWM - MIDDLE_PWM) / (maxRollAngle)) ;
-            sp_PitchRate = controlSignalAngles (sp_PitchAngle, imu_PitchAngle, kd_Accel_Pitch, -(UPPER_PWM - MIDDLE_PWM) / (maxPitchAngle));
+            sp_RollRate = controlSignalAngles(sp_RollAngle, imu_RollAngle, kd_Accel_Roll, ki_Accel_Roll, &sum_Accel_Roll, -(UPPER_PWM - MIDDLE_PWM) / (maxRollAngle)) ;
+            sp_PitchRate = controlSignalAngles (sp_PitchAngle, imu_PitchAngle, kd_Accel_Pitch, ki_Accel_Pitch, &sum_Accel_Pitch, -(UPPER_PWM - MIDDLE_PWM) / (maxPitchAngle));
 
 
         }
@@ -326,6 +308,8 @@ int main() {
         setPWM(4, control_Yaw);
 
 //        sendTelemetryBlock(getDebugTelemetryBlock());
+        while(U2STAbits.TRMT == 0);
+        U2TXREG = 0xAA;
         asm("CLRWDT");
     }
 }

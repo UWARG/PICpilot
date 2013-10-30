@@ -14,9 +14,9 @@ void InitUART2()
 	//U2MODEbits.notimplemented;	// Bit14
 	U2MODEbits.USIDL = 0;	// Bit13 Continue in Idle
 	U2MODEbits.IREN = 0;	// Bit12 No IR translation
-	U2MODEbits.RTSMD = 0;	// Bit11 Simplex Mode
+	U2MODEbits.RTSMD = 0;	// Bit11 Flow Control Mode = 0/ Simplex = 1
 	//U2MODEbits.notimplemented;	// Bit10
-	U2MODEbits.UEN = 0;		// Bits8,9 TX,RX enabled, CTS,RTS not
+	U2MODEbits.UEN = 0b00;		// Bits8,9 TX,RX,enabled, RTS not used CTS not used
 	U2MODEbits.WAKE = 0;	// Bit7 No Wake up (since we don't sleep here)
 	U2MODEbits.LPBACK = 0;	// Bit6 No Loop Back
 	U2MODEbits.ABAUD = 0;	// Bit5 No Autobaud (would require sending '55')
