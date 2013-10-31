@@ -28,13 +28,6 @@ _FOSC(FCKSM_CSECMD & OSCIOFNC_OFF & POSCMD_NONE);
 // Primary Oscillator Mode: XT Crystanl
 
 
-#define YAW     0
-#define PITCH   1
-#define ROLL    2
-
-
-
-
 /*****************************************************************************
  *****************************************************************************
 
@@ -132,7 +125,7 @@ int main() {
         initOC(0b1111); //Initialize only Output Compare 1,2,3 and 4
         UART1_SendString("START OF CODE BEFORE WHILE");
     } else {
-        initIC(0b1111);
+        initIC(0b11111111);
         initOC(0b1111); //Initialize only Output Compare 1,2,3 and 4
     }
     
@@ -181,14 +174,14 @@ int main() {
         float imuData[3];
         VN100_SPI_GetRates(0, &imuData);
         //Outputs in order: Roll,Pitch,Yaw
-        imu_RollRate = imuData[0];
-        imu_PitchRate = imuData[1];
-        imu_YawRate = imuData[2];
+        imu_RollRate = imuData[ROLL_RATE];
+        imu_PitchRate = imuData[PITCH_RATE];
+        imu_YawRate = imuData[YAW_RATE];
 
         VN100_SPI_GetYPR(0, &imuData[YAW], &imuData[PITCH], &imuData[ROLL]);
-        imu_YawAngle = imuData[YAW] - angle_zero[0];
-        imu_PitchAngle = imuData[PITCH] - angle_zero[1];
-        imu_RollAngle = imuData[ROLL] - angle_zero[2];
+        imu_YawAngle = imuData[YAW] - angle_zero[YAW];
+        imu_PitchAngle = imuData[PITCH] - angle_zero[PITCH];
+        imu_RollAngle = imuData[ROLL] - angle_zero[ROLL];
 
 
         if (DEBUG) {
@@ -236,6 +229,7 @@ int main() {
 
 
             if (sp_Switch < 600) {
+                unfreezeIntegral();
                 if (sp_GearSwitch > 600) {
                     if (sp_Type < 684) {
                         kd_Gyro_Roll = (float) (sp_Value - LOWER_PWM) / (UPPER_PWM - LOWER_PWM) * 2;
@@ -264,14 +258,15 @@ int main() {
             } else {
                 control_Throttle = sp_ThrottleRate;
                 autoTrigger = 0;
+                freezeIntegral();
             }
             switched = (sp_Switch < 600);
 
 
             // Control Signals (Output compare value)
-            control_Roll = controlSignal(sp_RollRate / SERVO_SCALE_FACTOR, imu_RollRate,ROLL);
-            control_Pitch = controlSignal(sp_PitchRate / SERVO_SCALE_FACTOR, imu_PitchRate, PITCH);
-            control_Yaw = controlSignal(sp_YawRate / SERVO_SCALE_FACTOR, imu_YawRate, YAW);
+            control_Roll = controlSignal(sp_RollRate / SERVO_SCALE_FACTOR, imu_RollRate,ROLL_RATE);
+            control_Pitch = controlSignal(sp_PitchRate / SERVO_SCALE_FACTOR, imu_PitchRate, PITCH_RATE);
+            control_Yaw = controlSignal(sp_YawRate / SERVO_SCALE_FACTOR, imu_YawRate, YAW_RATE);
 
         }
         /*****************************************************************************
@@ -308,8 +303,8 @@ int main() {
         setPWM(4, control_Yaw);
 
 //        sendTelemetryBlock(getDebugTelemetryBlock());
-        while(U2STAbits.TRMT == 0);
-        U2TXREG = 0xAA;
+//        while(U2STAbits.TRMT == 0);
+//        U2TXREG = 0xAA;
         asm("CLRWDT");
     }
 }

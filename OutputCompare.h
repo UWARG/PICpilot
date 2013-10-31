@@ -5,15 +5,10 @@
  * Created on March 3, 2013, 12:42 AM
  */
 
-extern short MSEC;
-//#define MSEC 3125                                               //3125 = 1 ms
-
-extern short UPPER_PWM;
-extern short LOWER_PWM;
-extern short MIDDLE_PWM;
-
-//Defined registers for output compare
-//
+#define MSEC 470
+#define UPPER_PWM 941
+#define LOWER_PWM 470
+#define MIDDLE_PWM 706
 
 
 

@@ -10,12 +10,6 @@
 #include "OutputCompare.h"
 #include "InputCapture.h"
 
-
-short MSEC = 3766;//3125;
-short UPPER_PWM = 7532;//6250;//7882;
-short LOWER_PWM = 3766;//3125;//3941;
-short MIDDLE_PWM = 5649;//4687;//5911;
-
 char initializedOC;
 
 /*
@@ -103,29 +97,8 @@ OC8CONbits.OCM = 0b110; // Select the Output Compare mode (without fault protect
 
 void setPeriod(double time) 
 {
-//    Time is input in milliseconds
-//    Using Timer 2:
-     //int pScale = T2CONbits.TCKPS;
-
-    //If the prescaler is too small, it is incremented, and the corresponding
-    //period and PWM are altered.
-    //if (time * MSEC > 0xFFFF)
-    //{
-    //     pScale++;
          T2CONbits.TCKPS = 0x01; //1:8 scaler
-         MSEC /= 8;  //Divide the cycle/sec ratio by the prescaler
-  
-    //     //Reinitialize all the variables
-         UPPER_PWM = MSEC * 2;
-         MIDDLE_PWM = MSEC * 1.5;
-         LOWER_PWM = MSEC;
-    //     init_oc(initializedOC);
-    // }
-
-
-        //PR2 = (unsigned int)(10 * MSEC);
-     PR2 = (unsigned int)(time * MSEC);//3250;//(time * MSEC); //3250??
-
+         PR2 = (unsigned int)(time * MSEC);
 }
 
 void setPWM(int ocPin, int time)
