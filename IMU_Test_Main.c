@@ -12,14 +12,13 @@
 
 
 //Include the Full Initialization Header File
-#include "Clock.h"
-#include "FullInitialize.h"
 #include "delay.h"
 #include "VN100.h"
 #include "InputCapture.h"
 #include "OutputCompare.h"
 #include "net.h"
 #include "StartupErrorCodes.h"
+#include "OrientationControl.h"
 
 //Perform random clock things that came with the Sample Code (Keep in code)
 _FOSCSEL(FNOSC_FRC); // Internal FRC oscillator
@@ -64,7 +63,7 @@ int main() {
     initDataLink();
 
     // Setpoints (From radio transmitter or autopilot)
-
+    float SERVO_SCALE_FACTOR = (-(UPPER_PWM - MIDDLE_PWM) / 45);
     int sp_PitchRate = 0;
     int sp_ThrottleRate = 0;
     int sp_YawRate = 0;
@@ -187,9 +186,9 @@ int main() {
         imu_YawRate = imuData[2];
 
         VN100_SPI_GetYPR(0, &imuData[YAW], &imuData[PITCH], &imuData[ROLL]);
-        imu_YawAngle = imuData[YAW];
-        imu_PitchAngle = imuData[PITCH];
-        imu_RollAngle = imuData[ROLL];
+        imu_YawAngle = imuData[YAW] - angle_zero[0];
+        imu_PitchAngle = imuData[PITCH] - angle_zero[1];
+        imu_RollAngle = imuData[ROLL] - angle_zero[2];
 
 
         if (DEBUG) {
@@ -222,8 +221,8 @@ int main() {
             /* this is commented untill we get the controlSignalAccel() function working
              */
             //sp_YawRate = controlSignalAngles(sp_YawAngle, imu_YawAngle, kd_Accel_Yaw, -(UPPER_PWM - MIDDLE_PWM) / (maxYawAngle)) ;
-            sp_RollRate = controlSignalAngles(sp_RollAngle, imu_RollAngle, kd_Accel_Roll, ki_Accel_Roll, &sum_Accel_Roll, -(UPPER_PWM - MIDDLE_PWM) / (maxRollAngle)) ;
-            sp_PitchRate = controlSignalAngles (sp_PitchAngle, imu_PitchAngle, kd_Accel_Pitch, ki_Accel_Pitch, &sum_Accel_Pitch, -(UPPER_PWM - MIDDLE_PWM) / (maxPitchAngle));
+            sp_RollRate = controlSignalAngles(sp_RollAngle, imu_RollAngle, ROLL, -(UPPER_PWM - MIDDLE_PWM) / (maxRollAngle)) ;
+            sp_PitchRate = controlSignalAngles (sp_PitchAngle, imu_PitchAngle, PITCH, -(UPPER_PWM - MIDDLE_PWM) / (maxPitchAngle));
 
 
         }
@@ -245,6 +244,7 @@ int main() {
                     } else if (sp_Type > 718) {
                         kd_Gyro_Yaw = (float) (sp_Value - LOWER_PWM) / (UPPER_PWM - LOWER_PWM) * 2;
                     }
+
 
                 } else {
                     //THROTTLE
@@ -269,9 +269,9 @@ int main() {
 
 
             // Control Signals (Output compare value)
-            control_Roll = controlSignal(sp_RollRate / SERVO_SCALE_FACTOR, imu_RollRate, kd_Gyro_Roll);
-            control_Pitch = controlSignal(sp_PitchRate / SERVO_SCALE_FACTOR, imu_PitchRate, kd_Gyro_Pitch);
-            control_Yaw = controlSignal(sp_YawRate / SERVO_SCALE_FACTOR, imu_YawRate, kd_Gyro_Yaw);
+            control_Roll = controlSignal(sp_RollRate / SERVO_SCALE_FACTOR, imu_RollRate,ROLL);
+            control_Pitch = controlSignal(sp_PitchRate / SERVO_SCALE_FACTOR, imu_PitchRate, PITCH);
+            control_Yaw = controlSignal(sp_YawRate / SERVO_SCALE_FACTOR, imu_YawRate, YAW);
 
         }
         /*****************************************************************************
