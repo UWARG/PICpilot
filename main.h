@@ -11,13 +11,23 @@
 
 #include <p33FJ256GP710.h>
 
-//Define variables for global use in the code
+//Define constants for global use in the code
 #define TRUE	1
 #define FALSE	0
 
 #define DEBUG 0
 #define STABILIZATION 1
 
+//Defined Orientation Angle constants
+#define YAW     0
+#define PITCH   1
+#define ROLL    2
+
+//Defined in the opposite order for rates of rotation
+//Be careful not to confuse the constants
+#define YAW_RATE     2
+#define PITCH_RATE   1
+#define ROLL_RATE    0
 
 #if DEBUG
     #include "UART1.h"

@@ -303,8 +303,8 @@ int main() {
         setPWM(4, control_Yaw);
 
 //        sendTelemetryBlock(getDebugTelemetryBlock());
-//        while(U2STAbits.TRMT == 0);
-//        U2TXREG = 0xAA;
+        while(U2STAbits.TRMT == 0);
+        U2TXREG = 0xAA;
         asm("CLRWDT");
     }
 }
