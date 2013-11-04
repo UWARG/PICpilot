@@ -5,7 +5,7 @@
 #include "UART2.h"
 
 struct telem_block *outBuffer
-    [OUTBOUND_QUEUE_SIZE];
+[OUTBOUND_QUEUE_SIZE];
 int outbuff_start = 0;
 int outbuff_end = 0;
 
@@ -18,18 +18,21 @@ int maxSend = DEFAULT_SEND_LIMIT;
 struct telem_block *debugTelemetry;
 
 // Initialize the data link
+
 int initDataLink(void) {
     InitUART2();
     return 0;
 }
 
 // Create a zero initialized telem block returns null if fails
+
 struct telem_block *createTelemetryBlock(void) {
-    struct telem_block *telem = malloc(sizeof(struct telem_block));
+    struct telem_block *telem = malloc(sizeof (struct telem_block));
     return telem;
 }
 
 // Create a telemetry block to use for debugging, only creates one instance
+
 struct telem_block *getDebugTelemetryBlock(void) {
     // If the telemetry block does not exist, create it with
     // alternating ones and zeros (0xAA)
@@ -39,7 +42,7 @@ struct telem_block *getDebugTelemetryBlock(void) {
         debugTelemetry->lat = (long double) 0xAAAAAAAAAAAAAAAA;
         debugTelemetry->lon = (long double) 0xAAAAAAAAAAAAAAAA;
         debugTelemetry->pitch = (float) 0xAAAAAAAA;
-        debugTelemetry->roll = (float) 0xAAAAAAAA;;
+        debugTelemetry->roll = (float) 0xAAAAAAAA;
         debugTelemetry->yaw = (float) 0xAAAAAAAA;
         debugTelemetry->pitchRate = (float) 0xAAAAAAAA;
         debugTelemetry->rollRate = (float) 0xAAAAAAAA;
@@ -56,12 +59,14 @@ struct telem_block *getDebugTelemetryBlock(void) {
 }
 
 // Destroy a telemetryBlock
+
 void destroyTelemetryBlock(struct telem_block *telem) {
-    free( telem);
+    free(telem);
 }
 
 // Add a telem_block to the outbound telemetry queue
 // Returns the position in the queue or -1 if no room in queue
+
 int addToOutboundTelemetryQueue(struct telem_block *telem) {
     int currentQueueLength = getOutboundQueueLength();
     if (currentQueueLength - OUTBOUND_QUEUE_SIZE <= 0) {
@@ -74,6 +79,7 @@ int addToOutboundTelemetryQueue(struct telem_block *telem) {
 }
 
 // Get the number of items waiting to be sent
+
 int getOutboundQueueLength(void) {
     if (outbuff_end < outbuff_start) {
         return outbuff_end - outbuff_start + OUTBOUND_QUEUE_SIZE;
@@ -83,6 +89,7 @@ int getOutboundQueueLength(void) {
 }
 
 // Clear all telem blocks waiting to be sent
+
 int clearOutboundTelemetryQueue(void) {
     int cleared = 0;
     for (cleared = 0; cleared < OUTBOUND_QUEUE_SIZE; cleared++) {
@@ -95,13 +102,14 @@ int clearOutboundTelemetryQueue(void) {
 }
 
 // Send a block of telemetry returns the number of blocks sent
+
 int sendTelemetry(struct telem_block *telemetry) {
     int blocks_sent = 0;
     int failed_blocks = 0;
-    int sent = 0;       // 1 - yes, 0 - no
+    int sent = 0; // 1 - yes, 0 - no
     for (blocks_sent = 0; blocks_sent < maxSend; blocks_sent++) {
         sent = sendTelemetryBlock(outBuffer[outbuff_start]);
-        if (! sent) {
+        if (!sent) {
             blocks_sent--;
             failed_blocks++;
         }
@@ -113,60 +121,121 @@ int sendTelemetry(struct telem_block *telemetry) {
 }
 
 // Get the maximum number of telem blocks to send before returning
+
 int getMaxSend(void) {
     return maxSend;
 }
 
 // Set the maximum number of telem blocks to send before returning
+
 void setMaxSend(int max) {
     maxSend = max;
 }
 
 // Pop next telem_block from incoming buffer, null if no telemetry
+
 struct telem_block *popTelemetryBlock(void) {
     return (void *) 0;
 }
 
 // generate an api string into the given char array from the telem block
 // Does not check array length!
-int generateApiString(unsigned char *apiString,
+
+unsigned int generateApiString(unsigned char *apiString,
         struct telem_block *telem) {
     // TODO: No need to re-init this every time.
-    int apiIndex = 0;
-    apiString[apiIndex] = 0x7E; apiIndex++;
-    apiString[apiIndex] = 0x00; apiIndex++;
-    apiString[apiIndex] = (char) (5+4+sizeof(struct telem_block)); apiIndex++;
-    apiString[apiIndex] = 0x01; apiIndex++;
-    apiString[apiIndex] = 0x00; apiIndex++;
-    apiString[apiIndex] = 0xCC; apiIndex++;
-    apiString[apiIndex] = 0xCC; apiIndex++;
-    apiString[apiIndex] = 0x01; apiIndex++;
+    unsigned int apiIndex = 0;
     // Set up api prefix
-    apiString[apiIndex] = '$';  apiIndex++;
-    apiString[apiIndex] = 'S';  apiIndex++;
-    apiString[apiIndex] = 'P';  apiIndex++;
-    apiString[apiIndex] = ',';  apiIndex++;
+    apiString[apiIndex] = '$';
+    apiIndex++;
+    apiString[apiIndex] = 'S';
+    apiIndex++;
+    apiString[apiIndex] = 'P';
+    apiIndex++;
+    apiString[apiIndex] = ',';
+    apiIndex++;
 
     // I'M A WIZARD
-    char *telemStart = (char*) &apiString[13];
-    memcpy(telemStart, telem, sizeof(struct telem_block));
-    apiIndex += sizeof(struct telem_block);
+    char *telemStart = (char*) &apiString[12];
+    memcpy(telemStart, telem, sizeof (struct telem_block));
+    apiIndex += sizeof (struct telem_block);
     return apiIndex;
     // TODO: Add additional telemetry block parameters to be sent here
 }
 
+int createPackets(unsigned int stringLength, unsigned char *apiString, unsigned char **packets, unsigned char *packetLength) {
+    int packetIndex = 0;
+    unsigned char dataFrame = 0;
+
+    //If the data is to big to fit in one packet, split it
+    int nPackets = stringLength / DEFAULT_SEND_LIMIT + 1;
+
+    int i = 0;
+    for (i = 0; i < nPackets; i++) {
+        if (INCREMENT_DATA_FRAME) {
+            dataFrame++;
+        }
+        int totalLength = stringLength + API_HEADER_LENGTH;
+        packets[i][packetIndex++] = 0x7E;
+        packets[i][packetIndex++] = totalLength & 0xFF00;
+        packets[i][packetIndex++] = totalLength & 0x00FF;
+        packets[i][packetIndex++] = TRANSMIT_16BIT;
+        packets[i][packetIndex++] = dataFrame;
+        packets[i][packetIndex++] = RECEIVER_ADDRESS_MSB;
+        packets[i][packetIndex++] = RECEIVER_ADDRESS_LSB;
+        packets[i][packetIndex++] = OPTION_BYTE;
+
+        int packetSize = 0;
+        for (packetSize = packetIndex; packetSize < stringLength + packetIndex; packetSize++) {
+            //Add the data in
+            packets[i][packetSize] = apiString[packetSize - packetIndex];
+        }
+        //Checksum calculation
+        //IF OPTIMIIZATION IS REQUIRED, PRECALCULATE THE HEADER CHECKSUM
+        int j = 0;
+        unsigned char checksum = 0;
+        for (j = packetIndex - API_HEADER_LENGTH; j < packetSize; j++) {
+            checksum += packets[i][j] & 0xFF;
+        }
+        packets[i][packetSize++] = 0xFF - checksum;
+
+        packetLength[i] = packetSize;
+    }
+    return i; //The number of packets in the set
+}
+
 // Send a telemetry block
+
 int sendTelemetryBlock(struct telem_block *telem) {
     unsigned char apiString[100];
+    unsigned char **packets;
+    unsigned char packetLength[20];
 
-    int apiLength = generateApiString(apiString, telem);
-    int i;
-    for (i = 0; i < apiLength; i++) {
+    //Allocate array space 20xDEFAULT_SEND_LIMIT matrix
+    packets = malloc(20 * sizeof *packets);
+    int i = 0;
+    for (i = 0; i < 20; i++) {
+        packets[i] = malloc((DEFAULT_SEND_LIMIT + API_HEADER_LENGTH + 3) * sizeof *packets[i]);
+    }
+
+    //Generate the shit
+    unsigned int apiLength = generateApiString(apiString, telem);
+    unsigned int numPackets = createPackets(apiLength, apiString, packets, packetLength);
+    for (i = 0; i < numPackets; i++) {
         // Wait for data link to clear from previous send
-        while(U2STAbits.TRMT == 0);
-        U2TXREG = apiString[i];
+        int j = 0;
+        for (j = 0; j < packetLength[i]; j++) {
+            while (U2STAbits.TRMT == 0);
+            U2TXREG = packets[i][j];
+        }
 
     }
+    destroyTelemetryBlock(telem);
+
+    for (i = 0; i < 20; i++) {
+        free(packets[i]);
+    }
+    free(packets);
     // Note: We send the last piece of data through UART and
     // then forget about it. We assume it will get handled eventually
     return 0;

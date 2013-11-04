@@ -302,9 +302,7 @@ int main() {
         setPWM(3, control_Throttle);
         setPWM(4, control_Yaw);
 
-//        sendTelemetryBlock(getDebugTelemetryBlock());
-        while(U2STAbits.TRMT == 0);
-        U2TXREG = 0xAA;
+        sendTelemetryBlock(getDebugTelemetryBlock());
         asm("CLRWDT");
     }
 }

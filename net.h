@@ -10,6 +10,21 @@
 #define EDIT_ROLL_GAIN 2
 #define EDIT_YAW_GAIN 3
 
+#define CHECKSUM_START_OFFSET 3
+#define LENGTH_START_OFFSET 3
+#define LENGTH_POSITION 2
+
+#define API_HEADER_LENGTH 5
+#define RECEIVER_ADDRESS_MSB 0x50
+#define RECEIVER_ADDRESS_LSB 0x01
+#define INCREMENT_DATA_FRAME 0x00
+#define OPTION_BYTE 0x01 //Disables ACK
+
+//API IDENTIFIER TYPES
+#define TRANSMIT_64BIT 0x00
+#define TRANSMIT_16BIT 0x01
+
+
 struct telem_block {
     long long millis;        // Timestamp relative to start echelon  // 8Byte
     long double lat, lon; // Latitude and longitude from gps    // 8Byte
