@@ -1,3 +1,4 @@
+#include "main.h"
 #include "net.h"
 #include <stdlib.h>
 #include <string.h>
@@ -209,9 +210,8 @@ int sendTelemetryBlock(struct telem_block *telem) {
 
     // Note: We send the last piece of data through UART and
     // then forget about it. We assume it will get handled eventually
-    UART1_SendString("Test 3");
-    if ( packetLength != lengthCheck ) {
-        UART1_SendString("length mismatch");
+    if ( packetLength != lengthCheck && DEBUG) {
+        UART1_SendString("Length Mismatch");
     }
     return 0;
 }

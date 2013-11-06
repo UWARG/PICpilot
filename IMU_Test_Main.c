@@ -27,21 +27,16 @@ _FOSC(FCKSM_CSECMD & OSCIOFNC_OFF & POSCMD_NONE);
 // OSC2 Pin Function: OSC2 is Clock Output
 // Primary Oscillator Mode: XT Crystanl
 
+long long time = 0;
+long long lastTime = 0;
 
-/*****************************************************************************
- *****************************************************************************
-
-                            STABILIZATION CODE
-
- *****************************************************************************
- *****************************************************************************/
-
-//Servo scale factor is used in converting deg/s rotation input into output compare values
-
-
-/*****************************************************************************
- *****************************************************************************
- ******************************************************************************/
+void __attribute__((__interrupt__, no_auto_psv)) _T2Interrupt(void){
+    //Temporary Timer Interrupt
+    time += 20;
+    /* Interrupt Service Routine code goes here */
+    IFS0bits.T2IF = 0;
+    // Clear Timer1 Interrupt Flag
+}
 
 int main() {
 
@@ -301,9 +296,32 @@ int main() {
         setPWM(2, control_Pitch);
         setPWM(3, control_Throttle);
         setPWM(4, control_Yaw);
-        UART1_SendString("Test -1");
-        sendTelemetryBlock(getDebugTelemetryBlock());
+
+        if (time - lastTime > 500){
+            lastTime = time;
+
+            struct telem_block* statusData = createTelemetryBlock();
+            int i = 0;
+            statusData[i] = (long long)time; i+=8;
+            statusData[i] = (long long)0; i+=8;
+            statusData[i] = (long long)0; i+=8;
+            statusData[i] = (float)imu_PitchAngle; i+=4;
+            statusData[i] = (float)imu_RollAngle;i+=4;
+            statusData[i] = (float)imu_YawAngle; i+=4;
+            statusData[i] = (float)imu_PitchRate; i+=4;
+            statusData[i] = (float)imu_RollRate; i+=4;
+            statusData[i] = (float)imu_YawRate; i+=4;
+            //statusData[i] = (float)getOrientationGain(PITCH); i+=4;
+            //statusData[i] = (float)getOrientationGain(ROLL); i+=4;
+            //statusData[i] = (float)getOrientationGain(YAW); i+=4;
+            statusData[i] = (int)sp_PitchRate; i+=2;
+            statusData[i] = (int)sp_RollRate; i+=2;
+            statusData[i] = (int)sp_YawRate; i+=2;
+            statusData[i] = (char)(sp_Switch < 600 && sp_GearSwitch > 600);
+
+            //sendTelemetryBlock(getDebugTelemetryBlock());
+
+        }
         asm("CLRWDT");
-        UART1_SendString("Test 4");
     }
 }

@@ -32,9 +32,9 @@ void init_t2(void)    // Initialize and enable Timer2
     TMR2 = 0x00; // Clear timer register
     setPeriod(20);
     //PR2 = MSEC * 20; // Load the period value = 20ms                        //
-    IPC1bits.T2IP = 0x00; // Set Timer 2 Interrupt Priority Level
+    IPC1bits.T2IP = 0x01; // Set Timer 2 Interrupt Priority Level - Lowest
     IFS0bits.T2IF = 0; // Clear Timer 2 Interrupt Flag
-    IEC0bits.T2IE = 0; // Disable Timer 2 interrupt
+    IEC0bits.T2IE = 1; // Disable Timer 2 interrupt
     T2CONbits.TON = 1; // Start Timer
 }
 
@@ -154,7 +154,7 @@ void initInputCapture(char initIC)     // Capture Interrupt Service Routine
         IC1CONbits.ICM = 0b001; // Generate capture event on every Rising and Falling edge
 
         // Enable Capture Interrupt And Timer2
-        IPC0bits.IC1IP = 1; // Setup IC1 interrupt priority level
+        IPC0bits.IC1IP = 7; // Setup IC1 interrupt priority level - Highest
         IFS0bits.IC1IF = 0; // Clear IC1 Interrupt Status Flag
         IEC0bits.IC1IE = 1; // Enable IC1 interrupt
     }
@@ -165,7 +165,7 @@ void initInputCapture(char initIC)     // Capture Interrupt Service Routine
         IC2CONbits.ICM = 0b001; // Generate capture event on every Rising edge
 
         // Enable Capture Interrupt And Timer2
-        IPC1bits.IC2IP = 1; // Setup IC1 interrupt priority level
+        IPC1bits.IC2IP = 7; // Setup IC1 interrupt priority level - Highest
         IFS0bits.IC2IF = 0; // Clear IC1 Interrupt Status Flag
         IEC0bits.IC2IE = 1; // Enable IC1 interrupt
     }
@@ -176,7 +176,7 @@ void initInputCapture(char initIC)     // Capture Interrupt Service Routine
         IC3CONbits.ICM = 0b001; // Generate capture event on every Rising edge
 
         // Enable Capture Interrupt And Timer2
-        IPC9bits.IC3IP = 1; // Setup IC1 interrupt priority level
+        IPC9bits.IC3IP = 7; // Setup IC1 interrupt priority level - Highest
         IFS2bits.IC3IF = 0; // Clear IC1 Interrupt Status Flag
         IEC2bits.IC3IE = 1; // Enable IC1 interrupt
     }
@@ -187,7 +187,7 @@ void initInputCapture(char initIC)     // Capture Interrupt Service Routine
         IC4CONbits.ICM = 0b001; // Generate capture event on every Rising edge
 
         // Enable Capture Interrupt And Timer2
-        IPC9bits.IC4IP = 1; // Setup IC1 interrupt priority level
+        IPC9bits.IC4IP = 7; // Setup IC1 interrupt priority level - Highest
         IFS2bits.IC4IF = 0; // Clear IC1 Interrupt Status Flag
         IEC2bits.IC4IE = 1; // Enable IC1 interrupt
     }
@@ -198,7 +198,7 @@ void initInputCapture(char initIC)     // Capture Interrupt Service Routine
         IC5CONbits.ICM = 0b001; // Generate capture event on every Rising edge
 
         // Enable Capture Interrupt And Timer2
-        IPC9bits.IC5IP = 1; // Setup IC1 interrupt priority level
+        IPC9bits.IC5IP = 7; // Setup IC1 interrupt priority level - Highest
         IFS2bits.IC5IF = 0; // Clear IC1 Interrupt Status Flag
         IEC2bits.IC5IE = 1; // Enable IC1 interrupt
     }
@@ -209,7 +209,7 @@ void initInputCapture(char initIC)     // Capture Interrupt Service Routine
         IC6CONbits.ICM = 0b001; // Generate capture event on every Rising edge
 
         // Enable Capture Interrupt And Timer2
-        IPC10bits.IC6IP = 1; // Setup IC1 interrupt priority level
+        IPC10bits.IC6IP = 7; // Setup IC1 interrupt priority level - Highest
         IFS2bits.IC6IF = 0; // Clear IC1 Interrupt Status Flag
         IEC2bits.IC6IE = 1; // Enable IC1 interrupt
     }
@@ -220,7 +220,7 @@ void initInputCapture(char initIC)     // Capture Interrupt Service Routine
         IC7CONbits.ICM = 0b001; // Generate capture event on every Rising edge
 
         // Enable Capture Interrupt And Timer2
-        IPC5bits.IC7IP = 1; // Setup IC1 interrupt priority level
+        IPC5bits.IC7IP = 7; // Setup IC1 interrupt priority level - Highest
         IFS1bits.IC7IF = 0; // Clear IC1 Interrupt Status Flag
         IEC1bits.IC7IE = 1; // Enable IC1 interrupt
     }
@@ -231,7 +231,7 @@ void initInputCapture(char initIC)     // Capture Interrupt Service Routine
         IC8CONbits.ICM = 0b001; // Generate capture event on every Rising edge
 
         // Enable Capture Interrupt And Timer2
-        IPC5bits.IC8IP = 1; // Setup IC1 interrupt priority level
+        IPC5bits.IC8IP = 7; // Setup IC1 interrupt priority level - Highest
         IFS1bits.IC8IF = 0; // Clear IC1 Interrupt Status Flag
         IEC1bits.IC8IE = 1; // Enable IC1 interrupt
     }
