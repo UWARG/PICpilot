@@ -301,8 +301,9 @@ int main() {
         setPWM(2, control_Pitch);
         setPWM(3, control_Throttle);
         setPWM(4, control_Yaw);
-
+        UART1_SendString("Test -1");
         sendTelemetryBlock(getDebugTelemetryBlock());
         asm("CLRWDT");
+        UART1_SendString("Test 4");
     }
 }

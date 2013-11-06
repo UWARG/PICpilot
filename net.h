@@ -4,6 +4,7 @@
 #define OUTBOUND_QUEUE_SIZE 50
 #define INBOUND_QUEUE_SIZE 100
 #define DEFAULT_SEND_LIMIT 50
+#define MAX_PACKET_SIZE 100
 
 #define EDIT_NONE 0
 #define EDIT_PITCH_GAIN 1
@@ -13,13 +14,14 @@
 #define CHECKSUM_START_OFFSET 3
 #define LENGTH_START_OFFSET 3
 #define LENGTH_POSITION 2
-
 #define API_HEADER_LENGTH 5
+#define PACKET_HEADER_LENGTH 3
+
 #define RECEIVER_ADDRESS_MSB 0x50
 #define RECEIVER_ADDRESS_LSB 0x01
+
 #define INCREMENT_DATA_FRAME 0x00
 #define OPTION_BYTE 0x01 //Disables ACK
-
 //API IDENTIFIER TYPES
 #define TRANSMIT_64BIT 0x00
 #define TRANSMIT_16BIT 0x01
@@ -30,8 +32,8 @@ struct telem_block {
     long double lat, lon; // Latitude and longitude from gps    // 8Byte
     float pitch, roll, yaw;                         // 4Byte
     float pitchRate, rollRate, yawRate;             // 4Byte
-    int pitchSetpoint, rollSetpoint, yawSetpoint;   // 2Byte
     float pitch_gain, roll_gain, yaw_gain;          // 4Byte
+    int pitchSetpoint, rollSetpoint, yawSetpoint;   // 2Byte
     char editing_gain;                              // 1Byte
     // TODO: Add additional telemetry to be sent here
 };

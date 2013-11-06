@@ -16,6 +16,7 @@
 #define FALSE	0
 
 #define DEBUG 0
+
 #define STABILIZATION 1
 
 //Defined Orientation Angle constants

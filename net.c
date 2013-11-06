@@ -36,25 +36,27 @@ struct telem_block *createTelemetryBlock(void) {
 struct telem_block *getDebugTelemetryBlock(void) {
     // If the telemetry block does not exist, create it with
     // alternating ones and zeros (0xAA)
+    UART1_SendString("Repeat");
     if (debugTelemetry == 0) {
         debugTelemetry = createTelemetryBlock();
-        debugTelemetry->millis = (long long) 0xAAAAAAAAAAAAAAAA;
-        debugTelemetry->lat = (long double) 0xAAAAAAAAAAAAAAAA;
-        debugTelemetry->lon = (long double) 0xAAAAAAAAAAAAAAAA;
-        debugTelemetry->pitch = (float) 0xAAAAAAAA;
-        debugTelemetry->roll = (float) 0xAAAAAAAA;
-        debugTelemetry->yaw = (float) 0xAAAAAAAA;
-        debugTelemetry->pitchRate = (float) 0xAAAAAAAA;
-        debugTelemetry->rollRate = (float) 0xAAAAAAAA;
-        debugTelemetry->yawRate = (float) 0xAAAAAAAA;
-        debugTelemetry->pitchSetpoint = (int) 0xAAAA;
-        debugTelemetry->rollSetpoint = (int) 0xAAAA;
-        debugTelemetry->yawSetpoint = (int) 0xAAAA;
-        debugTelemetry->pitch_gain = (float) 0xAAAAAAAA;
-        debugTelemetry->roll_gain = (float) 0xAAAAAAAA;
-        debugTelemetry->yaw_gain = (float) 0xAAAAAAAA;
-        debugTelemetry->editing_gain = (char) 0xAA;
+        debugTelemetry->millis = (long long) 1;
+        debugTelemetry->lat = (long double) 1;
+        debugTelemetry->lon = (long double) 1;
+        debugTelemetry->pitch = (float) 1;
+        debugTelemetry->roll = (float) 1;;
+        debugTelemetry->yaw = (float) 1;
+        debugTelemetry->pitchRate = (float) 1;
+        debugTelemetry->rollRate = (float) 1;
+        debugTelemetry->yawRate = (float) 1;
+        debugTelemetry->pitch_gain = (float) 1;
+        debugTelemetry->roll_gain = (float) 1;
+        debugTelemetry->yaw_gain = (float) 1;
+        debugTelemetry->pitchSetpoint = (int) 1;
+        debugTelemetry->rollSetpoint = (int) 1;
+        debugTelemetry->yawSetpoint = (int) 1;
+        debugTelemetry->editing_gain = (char)1;
     }
+
     return debugTelemetry;
 }
 
@@ -144,7 +146,23 @@ struct telem_block *popTelemetryBlock(void) {
 unsigned int generateApiString(unsigned char *apiString,
         struct telem_block *telem) {
     // TODO: No need to re-init this every time.
-    unsigned int apiIndex = 0;
+    int apiIndex = 0;
+    char dataFrame = 0; //0 for now, we don't care about ACKs
+    int length = 5+4+sizeof(struct telem_block);
+    if (sizeof(struct telem_block) > MAX_PACKET_SIZE){
+        //TODO: Implement method to split telemetry data between multiple packets
+    }
+    apiString[apiIndex] = 0x7E; apiIndex++;
+    apiString[apiIndex] = length & 0xFF00; apiIndex++;
+    apiString[apiIndex] = length & 0x00FF; apiIndex++;
+
+    /*API STRING STARTS HERE*/
+
+    apiString[apiIndex] = TRANSMIT_16BIT; apiIndex++;
+    apiString[apiIndex] = dataFrame; apiIndex++;
+    apiString[apiIndex] = RECEIVER_ADDRESS_MSB; apiIndex++;
+    apiString[apiIndex] = RECEIVER_ADDRESS_LSB; apiIndex++;
+    apiString[apiIndex] = OPTION_BYTE; apiIndex++;
     // Set up api prefix
     apiString[apiIndex] = '$';
     apiIndex++;
@@ -156,9 +174,21 @@ unsigned int generateApiString(unsigned char *apiString,
     apiIndex++;
 
     // I'M A WIZARD
-    char *telemStart = (char*) &apiString[12];
+    char *telemStart = (char*) &apiString[apiIndex];
     memcpy(telemStart, telem, sizeof (struct telem_block));
     apiIndex += sizeof (struct telem_block);
+
+    /*API STRING STARTS ENDS*/
+    //Calculate Checksum
+    //IF OPTIMIIZATION IS REQUIRED, PRECALCULATE THE HEADER CHECKSUM
+    int j = 0;
+    unsigned char checksum = 0;
+    for (j = PACKET_HEADER_LENGTH; j < apiIndex; j++) {
+        checksum += apiString[j] & 0xFF;
+    }
+    apiString[apiIndex++] = 0xFF - checksum;
+
+
     return apiIndex;
     // TODO: Add additional telemetry block parameters to be sent here
 }
@@ -207,7 +237,7 @@ int createPackets(unsigned int stringLength, unsigned char *apiString, unsigned 
 // Send a telemetry block
 
 int sendTelemetryBlock(struct telem_block *telem) {
-    unsigned char apiString[100];
+    unsigned char apiString[MAX_PACKET_SIZE + PACKET_HEADER_LENGTH + API_HEADER_LENGTH];
     unsigned char **packets;
     unsigned char packetLength[20];
 
@@ -238,5 +268,6 @@ int sendTelemetryBlock(struct telem_block *telem) {
     free(packets);
     // Note: We send the last piece of data through UART and
     // then forget about it. We assume it will get handled eventually
+     UART1_SendString("Test 3");
     return 0;
 }
