@@ -112,6 +112,7 @@ int main() {
     float maxYawAngle = 20;
 
     VN100_initSPI();
+    //getAngleBias();
 
     if (DEBUG) {
         int gainSelector = 0; //0=Roll, 1= Pitch, 2=Yaw
@@ -180,9 +181,9 @@ int main() {
 
 
         if (DEBUG) {
-            char str[20];
-            //sprintf(str,"%f",imuData[0]);
-            UART1_SendString(str);
+//            char str[20];
+//            //sprintf(str,"%f",imuData[0]);
+//            UART1_SendString(str);
         }
         /*****************************************************************************
          *****************************************************************************
@@ -227,11 +228,11 @@ int main() {
                 unfreezeIntegral();
                 if (sp_GearSwitch > 600) {
                     if (sp_Type < 684) {
-                        kd_Gyro_Roll = (float) (sp_Value - LOWER_PWM) / (UPPER_PWM - LOWER_PWM) * 2;
+                        setGain(ROLL,GAIN_KD,((float) (sp_Value - LOWER_PWM)) / (UPPER_PWM - LOWER_PWM) * 2);
                     } else if (sp_Type > 684 && sp_Type < 718) {
-                        kd_Gyro_Pitch = (float) (sp_Value - LOWER_PWM) / (UPPER_PWM - LOWER_PWM) * 2;
+                        setGain(PITCH,GAIN_KD,((float) (sp_Value - LOWER_PWM)) / (UPPER_PWM - LOWER_PWM) * 2);
                     } else if (sp_Type > 718) {
-                        kd_Gyro_Yaw = (float) (sp_Value - LOWER_PWM) / (UPPER_PWM - LOWER_PWM) * 2;
+                        setGain(YAW,GAIN_KD,((float) (sp_Value - LOWER_PWM)) / (UPPER_PWM - LOWER_PWM) * 2);
                     }
 
 
@@ -301,27 +302,27 @@ int main() {
             lastTime = time;
 
             struct telem_block* statusData = createTelemetryBlock();
-            int i = 0;
-            statusData[i] = (long long)time; i+=8;
-            statusData[i] = (long long)0; i+=8;
-            statusData[i] = (long long)0; i+=8;
-            statusData[i] = (float)imu_PitchAngle; i+=4;
-            statusData[i] = (float)imu_RollAngle;i+=4;
-            statusData[i] = (float)imu_YawAngle; i+=4;
-            statusData[i] = (float)imu_PitchRate; i+=4;
-            statusData[i] = (float)imu_RollRate; i+=4;
-            statusData[i] = (float)imu_YawRate; i+=4;
-            //statusData[i] = (float)getOrientationGain(PITCH); i+=4;
-            //statusData[i] = (float)getOrientationGain(ROLL); i+=4;
-            //statusData[i] = (float)getOrientationGain(YAW); i+=4;
-            statusData[i] = (int)sp_PitchRate; i+=2;
-            statusData[i] = (int)sp_RollRate; i+=2;
-            statusData[i] = (int)sp_YawRate; i+=2;
-            statusData[i] = (char)(sp_Switch < 600 && sp_GearSwitch > 600);
+            (*statusData).millis = time;
+            (*statusData).lat = 0;
+            (*statusData).lon = 0;
+            (*statusData).pitch = imu_PitchAngle;
+            (*statusData).roll = imu_RollAngle;
+            (*statusData).yaw = imu_YawAngle;
+            (*statusData).pitchRate = imu_PitchRate;
+            (*statusData).rollRate = imu_RollRate;
+            (*statusData).yawRate = imu_YawRate;
+            (*statusData).pitch_gain = getGain(PITCH,GAIN_KD);
+            (*statusData).roll_gain = getGain(ROLL,GAIN_KD);
+            (*statusData).yaw_gain = getGain(YAW,GAIN_KD);
+            (*statusData).pitchSetpoint = sp_PitchRate;
+            (*statusData).rollSetpoint = sp_RollRate;
+            (*statusData).yawSetpoint = sp_YawRate;
+            (*statusData).editing_gain = (sp_Switch < 600 && sp_GearSwitch > 600);
 
-            //sendTelemetryBlock(getDebugTelemetryBlock());
-
+            sendTelemetryBlock(statusData);
         }
+
+        
         asm("CLRWDT");
     }
 }

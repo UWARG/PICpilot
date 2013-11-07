@@ -9,6 +9,9 @@
 
 float extern angle_zero[3];
 
+#define GAIN_KD 0
+#define GAIN_KP 1
+#define GAIN_KI 2
 
 
 

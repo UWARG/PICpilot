@@ -5,6 +5,7 @@
  * Created on October 29, 2013, 9:41 PM
  */
 #include "OutputCompare.h"
+#include "OrientationControl.h"
 #include "main.h"
 
 
@@ -44,4 +45,29 @@ void unfreezeIntegral() {
 
 void resetIntegral(char type) {
     sum_accel[type] = 0;
+}
+
+float getGain(char YPR, char type){
+    if (type == GAIN_KD){
+        return kd_gyro[YPR];
+    }
+    else if (type == GAIN_KP){
+         return kp_accel[YPR];
+    }
+    else if (type == GAIN_KI){
+        return ki_accel[YPR];
+    }
+    else
+        return -1;
+}
+void setGain(char YPR, char type, float value){
+    if (type == GAIN_KD){
+        kd_gyro[YPR] = value;
+    }
+    else if (type == GAIN_KP){
+         kp_accel[YPR] = value;
+    }
+    else if (type == GAIN_KI){
+        ki_accel[YPR] = value;
+    }
 }

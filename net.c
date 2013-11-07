@@ -145,7 +145,7 @@ struct telem_block *popTelemetryBlock(void) {
 // Does not check array length!
 unsigned int generateApiHeader(unsigned char *apiString, char dataFrame) {
     unsigned int apiIndex = 0;
-    unsigned int length = API_HEADER_LENGTH - 3 + sizeof(struct telem_block);
+    unsigned int length = API_HEADER_LENGTH + sizeof(struct telem_block);
     unsigned int telemLength = sizeof(struct telem_block);
 
     // API Mode header
@@ -171,8 +171,8 @@ unsigned int generateApiHeader(unsigned char *apiString, char dataFrame) {
 int sendTelemetryBlock(struct telem_block *telem) {
 
     unsigned char apiHeader[API_HEADER_LENGTH];
-    unsigned int apiHeaderLength = generateApiHeader(apiHeader, 0);
-    unsigned int packetLength = API_HEADER_LENGTH + sizeof(struct telem_block) + 1; 
+    unsigned int headerLength = generateApiHeader(apiHeader, 0);
+    unsigned int packetLength = API_HEADER_LENGTH + sizeof(struct telem_block) + 1 + PACKET_HEADER_LENGTH;
     // Treat the telemetry block as a character array.
     unsigned char *telemAsArray = telem;
     unsigned char debugTelemArray[sizeof(struct telem_block)];
@@ -181,7 +181,7 @@ int sendTelemetryBlock(struct telem_block *telem) {
     unsigned char checksum = 0;
     unsigned int i;
     // Send the header
-    for (i = 0; i < API_HEADER_LENGTH; i++ ) {
+    for (i = 0; i < headerLength; i++ ) {
         // Culmulative checksum
         if (i >= 3) {
             checksum += apiHeader[i] & 0xFF;

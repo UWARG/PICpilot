@@ -15,7 +15,7 @@
 #define TRUE	1
 #define FALSE	0
 
-#define DEBUG 0
+#define DEBUG 1
 
 #define STABILIZATION 1
 
