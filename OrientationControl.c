@@ -43,8 +43,11 @@ void unfreezeIntegral() {
     integralFreeze = 0;
 }
 
-void resetIntegral(char type) {
-    sum_accel[type] = 0;
+void setIntegralSum(char YPR, float value) {
+    sum_accel[YPR] = value;
+}
+float getIntegralSum(char YPR){
+    return sum_accel[YPR];
 }
 
 float getGain(char YPR, char type){
@@ -70,4 +73,5 @@ void setGain(char YPR, char type, float value){
     else if (type == GAIN_KI){
         ki_accel[YPR] = value;
     }
+
 }

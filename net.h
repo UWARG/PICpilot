@@ -33,7 +33,7 @@ struct telem_block {
     float pitch, roll, yaw;                         // 4Byte
     float pitchRate, rollRate, yawRate;             // 4Byte
     float pitch_gain, roll_gain, yaw_gain;          // 4Byte
-    int pitchSetpoint, rollSetpoint, yawSetpoint;   // 2Byte
+    int pitchSetpoint, rollSetpoint, yawSetpoint, throttleSetpoint;   // 2Byte
     char editing_gain;                              // 1Byte
     // TODO: Add additional telemetry to be sent here
 };

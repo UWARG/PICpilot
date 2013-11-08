@@ -22,5 +22,8 @@ int getAngleBias();
 void freezeIntegral();
 void unfreezeIntegral();
 
-void resetIntegral(char type);
+void setIntegralSum(char YPR, float value);
+float getIntegralSum(char YPR);
+
+
 

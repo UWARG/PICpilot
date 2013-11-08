@@ -113,6 +113,7 @@ int main() {
 
     VN100_initSPI();
     //getAngleBias();
+    VN100_SPI_Tare(0);
 
     if (DEBUG) {
         int gainSelector = 0; //0=Roll, 1= Pitch, 2=Yaw
@@ -124,7 +125,6 @@ int main() {
         initIC(0b11111111);
         initOC(0b1111); //Initialize only Output Compare 1,2,3 and 4
     }
-    
     sp_Range = UPPER_PWM - MIDDLE_PWM;
 
     while (1) {
@@ -170,14 +170,19 @@ int main() {
         float imuData[3];
         VN100_SPI_GetRates(0, &imuData);
         //Outputs in order: Roll,Pitch,Yaw
-        imu_RollRate = imuData[ROLL_RATE];
-        imu_PitchRate = imuData[PITCH_RATE];
-        imu_YawRate = imuData[YAW_RATE];
+        imu_RollRate = (imuData[ROLL_RATE]);
+//        imu_PitchRate = imuData[PITCH_RATE];
+//        imu_YawRate = imuData[YAW_RATE];
+        imu_PitchRate = imuData[YAW_RATE];
+        imu_YawRate = imuData[PITCH_RATE];
 
         VN100_SPI_GetYPR(0, &imuData[YAW], &imuData[PITCH], &imuData[ROLL]);
-        imu_YawAngle = imuData[YAW] - angle_zero[YAW];
-        imu_PitchAngle = imuData[PITCH] - angle_zero[PITCH];
-        imu_RollAngle = imuData[ROLL] - angle_zero[ROLL];
+//        imu_YawAngle = imuData[YAW] - angle_zero[YAW];
+//        imu_PitchAngle = imuData[PITCH] - angle_zero[PITCH];
+//        imu_RollAngle = (imuData[ROLL] - angle_zero[ROLL]);
+        imu_YawAngle = imuData[PITCH] - angle_zero[PITCH];
+        imu_PitchAngle = imuData[YAW] - angle_zero[YAW];
+        imu_RollAngle = (imuData[ROLL] - angle_zero[ROLL]);
 
 
         if (DEBUG) {
@@ -228,11 +233,11 @@ int main() {
                 unfreezeIntegral();
                 if (sp_GearSwitch > 600) {
                     if (sp_Type < 684) {
-                        setGain(ROLL,GAIN_KD,((float) (sp_Value - LOWER_PWM)) / (UPPER_PWM - LOWER_PWM) * 2);
+                        setGain(ROLL,GAIN_KD,((float) (sp_Value - LOWER_PWM)) / (UPPER_PWM - LOWER_PWM) * 20);
                     } else if (sp_Type > 684 && sp_Type < 718) {
-                        setGain(PITCH,GAIN_KD,((float) (sp_Value - LOWER_PWM)) / (UPPER_PWM - LOWER_PWM) * 2);
+                        setGain(PITCH,GAIN_KD,((float) (sp_Value - LOWER_PWM)) / (UPPER_PWM - LOWER_PWM) * 20);
                     } else if (sp_Type > 718) {
-                        setGain(YAW,GAIN_KD,((float) (sp_Value - LOWER_PWM)) / (UPPER_PWM - LOWER_PWM) * 2);
+                        setGain(YAW,GAIN_KD,((float) (sp_Value - LOWER_PWM)) / (UPPER_PWM - LOWER_PWM) * 20);
                     }
 
 
@@ -275,15 +280,30 @@ int main() {
         if (DEBUG) {
 
         }
-        if (control_Roll > UPPER_PWM)
+        if (control_Roll > UPPER_PWM){
             control_Roll = UPPER_PWM;
-        if (control_Roll < LOWER_PWM)
+            if (2 * getIntegralSum(ROLL) * getGain(ROLL,GAIN_KI) > sp_RollRate){
+                setIntegralSum(ROLL,getIntegralSum(ROLL)/1.2);
+            }
+        }
+        if (control_Roll < LOWER_PWM){
             control_Roll = LOWER_PWM;
-
-        if (control_Pitch > UPPER_PWM)
+            if (2 * getIntegralSum(ROLL) * getGain(ROLL,GAIN_KI) < sp_RollRate){
+                setIntegralSum(ROLL,getIntegralSum(ROLL)/1.2);
+            }
+        }
+        if (control_Pitch > UPPER_PWM){
             control_Pitch = UPPER_PWM;
-        if (control_Pitch < LOWER_PWM)
+            if (2 * getIntegralSum(ROLL) * getGain(ROLL,GAIN_KI) > sp_RollRate){
+                setIntegralSum(ROLL,getIntegralSum(ROLL)/1.2);
+            }
+        }
+        if (control_Pitch < LOWER_PWM){
             control_Pitch = LOWER_PWM;
+            if (2 * getIntegralSum(ROLL) * getGain(ROLL,GAIN_KI) < sp_RollRate){
+                setIntegralSum(ROLL,getIntegralSum(ROLL)/1.2);
+            }
+        }
 
         if (control_Yaw > UPPER_PWM)
             control_Yaw = UPPER_PWM;
@@ -317,12 +337,12 @@ int main() {
             (*statusData).pitchSetpoint = sp_PitchRate;
             (*statusData).rollSetpoint = sp_RollRate;
             (*statusData).yawSetpoint = sp_YawRate;
+            (*statusData).throttleSetpoint = control_Throttle;
             (*statusData).editing_gain = (sp_Switch < 600 && sp_GearSwitch > 600);
 
             sendTelemetryBlock(statusData);
+            destroyTelemetryBlock(statusData);
         }
-
-        
         asm("CLRWDT");
     }
 }
