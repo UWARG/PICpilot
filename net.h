@@ -1,9 +1,9 @@
 
 // The net.* files must be in aircraft code and the base station.
 
-#define OUTBOUND_QUEUE_SIZE 50
-#define INBOUND_QUEUE_SIZE 100
-#define DEFAULT_SEND_LIMIT 50
+#define OUTBOUND_QUEUE_SIZE 20
+#define INBOUND_QUEUE_SIZE 40
+#define DEFAULT_SEND_LIMIT 10
 #define MAX_PACKET_SIZE 100
 
 #define EDIT_NONE 0
@@ -11,11 +11,8 @@
 #define EDIT_ROLL_GAIN 2
 #define EDIT_YAW_GAIN 3
 
-#define CHECKSUM_START_OFFSET 3
-#define LENGTH_START_OFFSET 3
-#define LENGTH_POSITION 2
-#define API_HEADER_LENGTH 5
-#define PACKET_HEADER_LENGTH 3
+#define API_HEADER_LENGTH 8
+#define API_HEADER_PREFIX 3
 
 #define RECEIVER_ADDRESS_MSB 0x50
 #define RECEIVER_ADDRESS_LSB 0x01
@@ -38,13 +35,24 @@ struct telem_block {
     // TODO: Add additional telemetry to be sent here
 };
 
+struct telem_buffer {
+    unsigned int headerIndex;           // index into header to send
+    unsigned int sendIndex;             // index into telemetry to send 
+    unsigned char* header;              // The header for the telem
+    union {
+        struct telem_block *asStruct;   // The telemetry block being sent
+        unsigned char *asArray;         // The telemetry intepreted as an array
+    } telemetry;
+    unsigned char checksum;             // The checksum so far
+};
+
 // Initialize the data link
 int initDataLink(void);
 
 // Create a telemetry block to use for debugging, only creates one instance
 struct telem_block *getDebugTelemetryBlock(void);
 
-// Create a zero initialized telem block returns null if fails
+// Create a telem block returns null if fails
 struct telem_block *createTelemetryBlock(void);
 // Destroy a dataBlock
 void destroyTelemetryBlock(struct telem_block *data);
@@ -67,5 +75,5 @@ void setMaxSend(int max);
 // Pop next telem_block from incoming buffer, null if no data
 struct telem_block *popTelemetryBlock(void);
 
-// Send a block of telemetry probably should call this directly
+// Send a block of telemetry immediately, probably shouldn't call this directly
 int sendTelemetryBlock(struct telem_block *telem);

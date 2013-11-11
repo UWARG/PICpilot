@@ -45,17 +45,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=Clock.c delay.c FullInitialize.c IMU_Test_Main.c InputCapture.c OutputCompare.c SPI.c UART1.c VN100.c VN_lib.c VN_math.c VN_user.c net.c UART2.c
+SOURCEFILES_QUOTED_IF_SPACED=Clock.c delay.c FullInitialize.c IMU_Test_Main.c InputCapture.c OutputCompare.c SPI.c UART1.c VN100.c VN_lib.c VN_math.c VN_user.c net.c UART2.c StartupErrorCodes.c OrientationControl.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/Clock.o ${OBJECTDIR}/delay.o ${OBJECTDIR}/FullInitialize.o ${OBJECTDIR}/IMU_Test_Main.o ${OBJECTDIR}/InputCapture.o ${OBJECTDIR}/OutputCompare.o ${OBJECTDIR}/SPI.o ${OBJECTDIR}/UART1.o ${OBJECTDIR}/VN100.o ${OBJECTDIR}/VN_lib.o ${OBJECTDIR}/VN_math.o ${OBJECTDIR}/VN_user.o ${OBJECTDIR}/net.o ${OBJECTDIR}/UART2.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/Clock.o.d ${OBJECTDIR}/delay.o.d ${OBJECTDIR}/FullInitialize.o.d ${OBJECTDIR}/IMU_Test_Main.o.d ${OBJECTDIR}/InputCapture.o.d ${OBJECTDIR}/OutputCompare.o.d ${OBJECTDIR}/SPI.o.d ${OBJECTDIR}/UART1.o.d ${OBJECTDIR}/VN100.o.d ${OBJECTDIR}/VN_lib.o.d ${OBJECTDIR}/VN_math.o.d ${OBJECTDIR}/VN_user.o.d ${OBJECTDIR}/net.o.d ${OBJECTDIR}/UART2.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/Clock.o ${OBJECTDIR}/delay.o ${OBJECTDIR}/FullInitialize.o ${OBJECTDIR}/IMU_Test_Main.o ${OBJECTDIR}/InputCapture.o ${OBJECTDIR}/OutputCompare.o ${OBJECTDIR}/SPI.o ${OBJECTDIR}/UART1.o ${OBJECTDIR}/VN100.o ${OBJECTDIR}/VN_lib.o ${OBJECTDIR}/VN_math.o ${OBJECTDIR}/VN_user.o ${OBJECTDIR}/net.o ${OBJECTDIR}/UART2.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/OrientationControl.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/Clock.o.d ${OBJECTDIR}/delay.o.d ${OBJECTDIR}/FullInitialize.o.d ${OBJECTDIR}/IMU_Test_Main.o.d ${OBJECTDIR}/InputCapture.o.d ${OBJECTDIR}/OutputCompare.o.d ${OBJECTDIR}/SPI.o.d ${OBJECTDIR}/UART1.o.d ${OBJECTDIR}/VN100.o.d ${OBJECTDIR}/VN_lib.o.d ${OBJECTDIR}/VN_math.o.d ${OBJECTDIR}/VN_user.o.d ${OBJECTDIR}/net.o.d ${OBJECTDIR}/UART2.o.d ${OBJECTDIR}/StartupErrorCodes.o.d ${OBJECTDIR}/OrientationControl.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/Clock.o ${OBJECTDIR}/delay.o ${OBJECTDIR}/FullInitialize.o ${OBJECTDIR}/IMU_Test_Main.o ${OBJECTDIR}/InputCapture.o ${OBJECTDIR}/OutputCompare.o ${OBJECTDIR}/SPI.o ${OBJECTDIR}/UART1.o ${OBJECTDIR}/VN100.o ${OBJECTDIR}/VN_lib.o ${OBJECTDIR}/VN_math.o ${OBJECTDIR}/VN_user.o ${OBJECTDIR}/net.o ${OBJECTDIR}/UART2.o
+OBJECTFILES=${OBJECTDIR}/Clock.o ${OBJECTDIR}/delay.o ${OBJECTDIR}/FullInitialize.o ${OBJECTDIR}/IMU_Test_Main.o ${OBJECTDIR}/InputCapture.o ${OBJECTDIR}/OutputCompare.o ${OBJECTDIR}/SPI.o ${OBJECTDIR}/UART1.o ${OBJECTDIR}/VN100.o ${OBJECTDIR}/VN_lib.o ${OBJECTDIR}/VN_math.o ${OBJECTDIR}/VN_user.o ${OBJECTDIR}/net.o ${OBJECTDIR}/UART2.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/OrientationControl.o
 
 # Source Files
-SOURCEFILES=Clock.c delay.c FullInitialize.c IMU_Test_Main.c InputCapture.c OutputCompare.c SPI.c UART1.c VN100.c VN_lib.c VN_math.c VN_user.c net.c UART2.c
+SOURCEFILES=Clock.c delay.c FullInitialize.c IMU_Test_Main.c InputCapture.c OutputCompare.c SPI.c UART1.c VN100.c VN_lib.c VN_math.c VN_user.c net.c UART2.c StartupErrorCodes.c OrientationControl.c
 
 
 CFLAGS=
@@ -163,6 +163,18 @@ ${OBJECTDIR}/UART2.o: UART2.c  nbproject/Makefile-${CND_CONF}.mk
 	${MP_CC} $(MP_EXTRA_CC_PRE)  UART2.c  -o ${OBJECTDIR}/UART2.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/UART2.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1  -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/UART2.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
+${OBJECTDIR}/StartupErrorCodes.o: StartupErrorCodes.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/StartupErrorCodes.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  StartupErrorCodes.c  -o ${OBJECTDIR}/StartupErrorCodes.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/StartupErrorCodes.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1  -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/StartupErrorCodes.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/OrientationControl.o: OrientationControl.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/OrientationControl.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  OrientationControl.c  -o ${OBJECTDIR}/OrientationControl.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/OrientationControl.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1  -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/OrientationControl.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
 else
 ${OBJECTDIR}/Clock.o: Clock.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
@@ -247,6 +259,18 @@ ${OBJECTDIR}/UART2.o: UART2.c  nbproject/Makefile-${CND_CONF}.mk
 	@${RM} ${OBJECTDIR}/UART2.o.d 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  UART2.c  -o ${OBJECTDIR}/UART2.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/UART2.o.d"      -g -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/UART2.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/StartupErrorCodes.o: StartupErrorCodes.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/StartupErrorCodes.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  StartupErrorCodes.c  -o ${OBJECTDIR}/StartupErrorCodes.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/StartupErrorCodes.o.d"      -g -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/StartupErrorCodes.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/OrientationControl.o: OrientationControl.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/OrientationControl.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  OrientationControl.c  -o ${OBJECTDIR}/OrientationControl.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/OrientationControl.o.d"      -g -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/OrientationControl.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 endif
 
