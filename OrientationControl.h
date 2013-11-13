@@ -24,6 +24,8 @@ void unfreezeIntegral();
 
 void setIntegralSum(char YPR, float value);
 float getIntegralSum(char YPR);
+float getGain(char YPR, char type);
+void setGain(char YPR, char type, float value);
 
 
 

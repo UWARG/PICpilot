@@ -18,6 +18,7 @@
 #define DEBUG 1
 
 #define STABILIZATION 1
+#define ORIENTATION 1
 
 //Defined Orientation Angle constants
 #define YAW     0
@@ -29,6 +30,8 @@
 #define YAW_RATE     2
 #define PITCH_RATE   1
 #define ROLL_RATE    0
+
+#define LOW_PASS_EPSILON 40
 
 #if DEBUG
     #include "UART1.h"

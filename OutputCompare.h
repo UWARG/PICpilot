@@ -9,6 +9,7 @@
 #define UPPER_PWM 941
 #define LOWER_PWM 470
 #define MIDDLE_PWM 706
+#define SP_RANGE (UPPER_PWM - MIDDLE_PWM)
 
 
 
