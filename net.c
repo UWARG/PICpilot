@@ -13,6 +13,8 @@
 #include "p33FJ256GP710.h"
 #include "UART2.h"
 
+const unsigned int PACKET_LENGTH = API_HEADER_LENGTH + sizeof(struct telem_block) + 1;
+
 struct telem_block *outBuffer [OUTBOUND_QUEUE_SIZE];
 int outbuff_start = 0;
 int outbuff_end = 0;
@@ -21,13 +23,15 @@ struct telem_block *inBuffer [INBOUND_QUEUE_SIZE];
 int inbuff_start = 0;
 int inbuff_end = 0;
 
-int maxSend = DEFAULT_SEND_LIMIT;
-
 struct telem_block *debugTelemetry;
+
+struct telem_buffer stagingBuffer;
 
 // Initialize the data link
 int initDataLink(void) {
     InitUART2();
+    IEC1bits.U2TXIE = 1;	// Enable Transmit Interrupt
+    stagingBuffer.header[0]='\x42';
     return 0;
 }
 
@@ -71,23 +75,23 @@ void destroyTelemetryBlock(struct telem_block *telem) {
 
 // Add a telem_block to the outbound telemetry queue
 // Returns the position in the queue or -1 if no room in queue
-int addToOutboundTelemetryQueue(struct telem_block *telem) {
-    int currentQueueLength = getOutboundQueueLength();
-    if (currentQueueLength - OUTBOUND_QUEUE_SIZE <= 0) {
+int pushOutboundTelemetryQueue(struct telem_block *telem) {
+    if (getOutboundQueueLength() >= OUTBOUND_QUEUE_SIZE) {
         return -1;
     }
     outBuffer[outbuff_end] = telem;
     outbuff_end++;
     outbuff_end = outbuff_end % OUTBOUND_QUEUE_SIZE;
-    return currentQueueLength;
+    return getOutboundQueueLength();
 }
 
 // Get the number of items waiting to be sent
 int getOutboundQueueLength(void) {
-    if (outbuff_end < outbuff_start) {
-        return outbuff_end - outbuff_start + OUTBOUND_QUEUE_SIZE;
+    int length = outbuff_end - outbuff_start;
+    if ( length < 0 ) {
+        return length + OUTBOUND_QUEUE_SIZE;
     } else {
-        return outbuff_end - outbuff_start;
+        return length;
     }
 }
 
@@ -103,37 +107,58 @@ int clearOutboundTelemetryQueue(void) {
     return cleared;
 }
 
-// Send a block of telemetry returns the number of blocks sent
-int sendTelemetry(struct telem_block *telemetry) {
-    int blocks_sent = 0;
-    int failed_blocks = 0;
-    int sent = 0; // 1 - yes, 0 - no
-    for (blocks_sent = 0; blocks_sent < maxSend; blocks_sent++) {
-        sent = sendTelemetryBlock(outBuffer[outbuff_start]);
-        if (!sent) {
-            blocks_sent--;
-            failed_blocks++;
+// Do buffer maintenance
+void bufferMaintenance(void) {
+    //UART1_SendChar('B');
+    if ( stagingBuffer.sendIndex >= PACKET_LENGTH ) {
+        destroyTelemetryBlock(stagingBuffer.telemetry.asStruct);
+        if ( getOutboundQueueLength() ) {
+            stageTelemetryBlock(popOutboundTelemetryQueue());
         }
-        if (failed_blocks > 0) {
-            return -1;
-        }
+    } else if ( stagingBuffer.telemetry.asStruct == 0 && getOutboundQueueLength() ) {
+        stageTelemetryBlock(popOutboundTelemetryQueue());
     }
-    return blocks_sent;
 }
 
-// Get the maximum number of telem blocks to send before returning
-int getMaxSend(void) {
-    return maxSend;
+void sendNextByte(void) {
+    unsigned char sendByte; // The byte to send
+    if ( stagingBuffer.sendIndex < API_HEADER_LENGTH ) {
+        //while (U2STAbits.TRMT == 0);
+        sendByte = stagingBuffer.header[stagingBuffer.sendIndex] & 0xFF;
+        // Compute checksum
+        if (stagingBuffer.sendIndex >= 3) {
+            stagingBuffer.checksum += sendByte & 0xFF;
+        }
+    } else if ( stagingBuffer.sendIndex < PACKET_LENGTH - 1 ) {
+        sendByte = stagingBuffer.telemetry.asArray[stagingBuffer.sendIndex - API_HEADER_LENGTH] & 0xFF;
+        stagingBuffer.checksum += sendByte & 0xFF;
+    } else if ( stagingBuffer.sendIndex == PACKET_LENGTH - 1) {
+        sendByte = 0xFF - (stagingBuffer.checksum & 0xFF);
+    } else {
+        IFS1bits.U2TXIF = 0;
+        return;
+    }
+
+    stagingBuffer.sendIndex++;
+    IFS1bits.U2TXIF = 0;
+    U2TXREG = sendByte;
 }
 
-// Set the maximum number of telem blocks to send before returning
-void setMaxSend(int max) {
-    maxSend = max;
+// Put the next telemetry
+void stageTelemetryBlock(struct telem_block *telem) {
+    stagingBuffer.telemetry.asStruct = telem;
+    generateApiHeader(stagingBuffer.header, 0);
+    stagingBuffer.sendIndex = 0;
+    sendNextByte();
 }
 
-// Pop next telem_block from incoming buffer, null if no telemetry
-struct telem_block *popTelemetryBlock(void) {
-    return (void *) 0;
+// Pop next telem_block from outgoing buffer, null if no telemetry
+struct telem_block *popOutboundTelemetryQueue(void) {
+    struct telem_block* telem = outBuffer[outbuff_start];
+    outbuff_start += 1;
+    outBuffer[outbuff_start - 1] = 0;
+    outbuff_start %= OUTBOUND_QUEUE_SIZE;
+    return telem;
 }
 
 //TODO: Implement method to split telemetry data between multiple packets
@@ -170,7 +195,7 @@ int sendTelemetryBlock(struct telem_block *telem) {
     unsigned char apiHeader[API_HEADER_LENGTH];
     unsigned int headerLength = generateApiHeader(apiHeader, 0);
     // Treat the telemetry block as a character array.
-    unsigned char *telemAsArray = telem;
+    unsigned char *telemAsArray = (unsigned char*)telem;
 
     unsigned int lengthCheck = 0;
     unsigned char checksum = 0;
@@ -207,10 +232,11 @@ int sendTelemetryBlock(struct telem_block *telem) {
     return 0;
 }
 
-void __attribute__((__interrupt__)) _U2TXInterrupt(void) {
-    if ( /* buffered block to send */ 1 ) {
+void __attribute__((__interrupt__, no_auto_psv)) _U2TXInterrupt(void) {
+    // Short circuit if nothing in the staging area yet
+    if ( stagingBuffer.telemetry.asStruct == 0 ) {
         IFS1bits.U2TXIF = 0;
-        U2TXREG = 'a'; // next byte
-    } else if ( /* data waiting to send */ 1 ) {
+        return;
     }
+    sendNextByte();
 }

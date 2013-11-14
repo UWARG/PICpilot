@@ -356,9 +356,15 @@ int main() {
             statusData->throttleSetpoint = control_Throttle;
             statusData->editing_gain = (( sp_GearSwitch > 600) * 0xFF) & (currentGain); //(sp_Switch < 600 &&
 
-            sendTelemetryBlock(statusData);
-            destroyTelemetryBlock(statusData);
+            if ( BLOCKING_MODE ) {
+                sendTelemetryBlock(statusData);
+            } else {
+                pushOutboundTelemetryQueue(statusData);
+                statusData->throttleSetpoint = getOutboundQueueLength();
+            }
+            //destroyTelemetryBlock(statusData);
         }
+        bufferMaintenance();
         asm("CLRWDT");
     }
 }

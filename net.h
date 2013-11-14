@@ -1,9 +1,10 @@
 
 // The net.* files must be in aircraft code and the base station.
 
+#define BLOCKING_MODE 1
+
 #define OUTBOUND_QUEUE_SIZE 20
 #define INBOUND_QUEUE_SIZE 40
-#define DEFAULT_SEND_LIMIT 10
 #define MAX_PACKET_SIZE 100
 
 #define EDIT_NONE 0
@@ -36,9 +37,8 @@ struct telem_block {
 };
 
 struct telem_buffer {
-    unsigned int headerIndex;           // index into header to send
     unsigned int sendIndex;             // index into telemetry to send 
-    unsigned char* header;              // The header for the telem
+    unsigned char header[API_HEADER_LENGTH];    // The header for the telem
     union {
         struct telem_block *asStruct;   // The telemetry block being sent
         unsigned char *asArray;         // The telemetry intepreted as an array
@@ -59,21 +59,22 @@ void destroyTelemetryBlock(struct telem_block *data);
 
 // Add a telem_block to the outbound data queue
 // Returns the position in the queue or -1 if no room in queue
-int addToOutboundTelemetryQueue(struct telem_block *data);
+int pushOutboundTelemetryQueue(struct telem_block *data);
 // Get the number of items waiting to be sent
 int getOutboundQueueLength(void);
 // Clear all telem blocks waiting to be sent
 int clearOutboundTelemetryQueue(void);
-// Send a block of data returns the number blocks sent
-int sendTelemetry(struct telem_block *telem);
-
-// Get the maximum number of telem blocks to send before returning
-int getMaxSend(void);
-// Set the maximum number of telem blocks to send before returning
-void setMaxSend(int max);
 
 // Pop next telem_block from incoming buffer, null if no data
-struct telem_block *popTelemetryBlock(void);
+struct telem_block *popOutboundTelemetryQueue(void);
+
+// generate the header for the a telemetry block
+unsigned int generateApiHeader(unsigned char *apiString, char dataFrame);
+
+// Stage the given telemetry block
+void stageTelemetryBlock(struct telem_block *telem);
+// Do buffer maintenance
+void bufferMaintenance(void);
 
 // Send a block of telemetry immediately, probably shouldn't call this directly
 int sendTelemetryBlock(struct telem_block *telem);
