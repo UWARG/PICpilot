@@ -1,7 +1,7 @@
 
 // The net.* files must be in aircraft code and the base station.
 
-#define BLOCKING_MODE 1
+#define BLOCKING_MODE 0
 
 #define OUTBOUND_QUEUE_SIZE 20
 #define INBOUND_QUEUE_SIZE 40

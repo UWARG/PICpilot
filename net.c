@@ -149,6 +149,7 @@ void stageTelemetryBlock(struct telem_block *telem) {
     stagingBuffer.telemetry.asStruct = telem;
     generateApiHeader(stagingBuffer.header, 0);
     stagingBuffer.sendIndex = 0;
+    stagingBuffer.checksum = 0;
     sendNextByte();
 }
 
@@ -238,5 +239,5 @@ void __attribute__((__interrupt__, no_auto_psv)) _U2TXInterrupt(void) {
         IFS1bits.U2TXIF = 0;
         return;
     }
-    sendNextByte();
+        sendNextByte();
 }

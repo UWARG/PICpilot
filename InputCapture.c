@@ -150,7 +150,7 @@ void initInputCapture(char initIC)     // Capture Interrupt Service Routine
     if (initIC & 0b01){
         IC1CONbits.ICM = 0b00; // Disable Input Capture 1 module
         IC1CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
-        IC1CONbits.ICI = 0b00; // Interrupt on every capture event
+        IC1CONbits.ICI = 0b11; // Interrupt on every capture event
         IC1CONbits.ICM = 0b001; // Generate capture event on every Rising and Falling edge
 
         // Enable Capture Interrupt And Timer2
@@ -161,7 +161,7 @@ void initInputCapture(char initIC)     // Capture Interrupt Service Routine
     if (initIC & 0b10){
         IC2CONbits.ICM = 0b00; // Disable Input Capture 2 module
         IC2CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
-        IC2CONbits.ICI = 0b00; // Interrupt on every capture event
+        IC2CONbits.ICI = 0b11; // Interrupt on every capture event
         IC2CONbits.ICM = 0b001; // Generate capture event on every Rising edge
 
         // Enable Capture Interrupt And Timer2
@@ -172,7 +172,7 @@ void initInputCapture(char initIC)     // Capture Interrupt Service Routine
     if (initIC & 0b100){
         IC3CONbits.ICM = 0b00; // Disable Input Capture 3 module
         IC3CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
-        IC3CONbits.ICI = 0b00; // Interrupt on every capture event
+        IC3CONbits.ICI = 0b11; // Interrupt on every capture event
         IC3CONbits.ICM = 0b001; // Generate capture event on every Rising edge
 
         // Enable Capture Interrupt And Timer2
@@ -183,7 +183,7 @@ void initInputCapture(char initIC)     // Capture Interrupt Service Routine
     if (initIC & 0b1000){
         IC4CONbits.ICM = 0b00; // Disable Input Capture 4 module
         IC4CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
-        IC4CONbits.ICI = 0b00; // Interrupt on every capture event
+        IC4CONbits.ICI = 0b11; // Interrupt on every capture event
         IC4CONbits.ICM = 0b001; // Generate capture event on every Rising edge
 
         // Enable Capture Interrupt And Timer2
@@ -194,7 +194,7 @@ void initInputCapture(char initIC)     // Capture Interrupt Service Routine
     if (initIC & 0b10000){
         IC5CONbits.ICM = 0b00; // Disable Input Capture 6 module
         IC5CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
-        IC5CONbits.ICI = 0b00; // Interrupt on every capture event
+        IC5CONbits.ICI = 0b11; // Interrupt on every capture event
         IC5CONbits.ICM = 0b001; // Generate capture event on every Rising edge
 
         // Enable Capture Interrupt And Timer2
@@ -205,7 +205,7 @@ void initInputCapture(char initIC)     // Capture Interrupt Service Routine
     if (initIC & 0b100000){
         IC6CONbits.ICM = 0b00; // Disable Input Capture 7 module
         IC6CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
-        IC6CONbits.ICI = 0b00; // Interrupt on every capture event
+        IC6CONbits.ICI = 0b11; // Interrupt on every capture event
         IC6CONbits.ICM = 0b001; // Generate capture event on every Rising edge
 
         // Enable Capture Interrupt And Timer2
@@ -216,7 +216,7 @@ void initInputCapture(char initIC)     // Capture Interrupt Service Routine
     if (initIC & 0b1000000){
         IC7CONbits.ICM = 0b00; // Disable Input Capture 8 module
         IC7CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
-        IC7CONbits.ICI = 0b00; // Interrupt on every capture event
+        IC7CONbits.ICI = 0b11; // Interrupt on every capture event
         IC7CONbits.ICM = 0b001; // Generate capture event on every Rising edge
 
         // Enable Capture Interrupt And Timer2
@@ -227,7 +227,7 @@ void initInputCapture(char initIC)     // Capture Interrupt Service Routine
     if (initIC & 0b10000000){
         IC8CONbits.ICM = 0b00; // Disable Input Capture 9 module
         IC8CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
-        IC8CONbits.ICI = 0b00; // Interrupt on every capture event
+        IC8CONbits.ICI = 0b11; // Interrupt on every capture event
         IC8CONbits.ICM = 0b001; // Generate capture event on every Rising edge
 
         // Enable Capture Interrupt And Timer2

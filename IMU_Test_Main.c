@@ -94,14 +94,14 @@ int main() {
 
     VN100_initSPI();
     VN100_SPI_Tare(0);
-//    getAngleBias();
+    getAngleBias();
 
     if (DEBUG) {
         initIC(0b11111111);
         initOC(0b1111); //Initialize only Output Compare 1,2,3 and 4
         UART1_SendString("START OF CODE BEFORE WHILE");
     } else {
-        initIC(0b11111111);
+        initIC(0b11110001);
         initOC(0b1111); //Initialize only Output Compare 1,2,3 and 4
     }
 
@@ -320,7 +320,7 @@ int main() {
         setPWM(3, control_Throttle);
         setPWM(4, control_Yaw);
 
-        if (time - lastTime > 5000){
+        if (time - lastTime > 500){
             lastTime = time;
             struct telem_block* statusData = createTelemetryBlock();
             statusData->millis = time;
@@ -345,8 +345,9 @@ int main() {
                 sendTelemetryBlock(statusData);
                 destroyTelemetryBlock(statusData);
             } else {
+
                 pushOutboundTelemetryQueue(statusData);
-                statusData->throttleSetpoint = getOutboundQueueLength();
+                //statusData->throttleSetpoint = getOutboundQueueLength();
             }
             
         }
