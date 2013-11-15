@@ -148,8 +148,9 @@ void sendNextByte(void) {
 void stageTelemetryBlock(struct telem_block *telem) {
     stagingBuffer.telemetry.asStruct = telem;
     generateApiHeader(stagingBuffer.header, 0);
-    stagingBuffer.sendIndex = 0;
     stagingBuffer.checksum = 0;
+    // Send index should be reset last for reasons
+    stagingBuffer.sendIndex = 0;
     sendNextByte();
 }
 
