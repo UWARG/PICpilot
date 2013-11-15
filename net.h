@@ -2,6 +2,8 @@
 // The net.* files must be in aircraft code and the base station.
 
 #define BLOCKING_MODE 0
+// uncomment to use the queue of raw bytes
+// #define QUEUE_RAW_BYTES
 
 #define OUTBOUND_QUEUE_SIZE 20
 #define INBOUND_QUEUE_SIZE 40
