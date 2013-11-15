@@ -31,8 +31,6 @@
 #define PITCH_RATE   1
 #define ROLL_RATE    0
 
-#define LOW_PASS_EPSILON 40
-
 #if DEBUG
     #include "UART1.h"
 #endif

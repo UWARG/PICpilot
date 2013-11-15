@@ -11,7 +11,7 @@
 #include "main.h"
 
 
-//Include the Full Initialization Header File
+//Include Header Files
 #include "delay.h"
 #include "VN100.h"
 #include "InputCapture.h"
@@ -33,32 +33,27 @@ long long lastTime = 0;
 void __attribute__((__interrupt__, no_auto_psv)) _T2Interrupt(void){
     //Temporary Timer Interrupt
     time += 20;
-    /* Interrupt Service Routine code goes here */
     IFS0bits.T2IF = 0;
     // Clear Timer1 Interrupt Flag
 }
 
 int main() {
 
-
-
-    //Debug Mode:
+    //Debug Mode initialize communication with the serial port (Computer)
     if (DEBUG) {
         InitUART1();  
     }
     checkErrorCodes();
-
     initDataLink();
 
     // Setpoints (From radio transmitter or autopilot)
-    float SERVO_SCALE_FACTOR = (-(UPPER_PWM - MIDDLE_PWM) / 45);
     int sp_PitchRate = 0;
     int sp_ThrottleRate = 0;
     int sp_YawRate = 0;
     int sp_RollRate = 0;
 
     int sp_ComputedPitchRate = 0;
-    int sp_ComputedThrottleRate = 0;
+    //int sp_ComputedThrottleRate = 0;
     int sp_ComputedRollRate = 0;
     int sp_ComputedYawRate = 0;
 
@@ -69,10 +64,11 @@ int main() {
     char currentGain = 0;
 
     float sp_PitchAngle = 0;
-    float sp_YawAngle = 0;
+    //float sp_YawAngle = 0;
     float sp_RollAngle = 0;
 
     // System outputs (get from IMU)
+    float imuData[3];
     float imu_RollRate = 0;
     float imu_PitchRate = 0;
     float imu_YawRate = 0;
@@ -88,30 +84,19 @@ int main() {
     int control_Throttle;
     int control_Yaw;
 
-    char counter = 0;
-    int lastPitch[LOW_PASS_EPSILON];
-    int lastRoll[LOW_PASS_EPSILON];
-    int lastYaw[LOW_PASS_EPSILON];
-
     char switched = 0;
     char autoTrigger = 0;
-
-    // on/off "switches" for features
-    int accelStabilization = 0;
-    int autoPilotOnOff = 0;
 
     //System constants
     float maxRollAngle = 60; // max allowed roll angle in degrees
     float maxPitchAngle = 60;
-    float maxYawAngle = 20;
+    //float maxYawAngle = 20;
 
     VN100_initSPI();
     VN100_SPI_Tare(0);
 //    getAngleBias();
 
     if (DEBUG) {
-        int gainSelector = 0; //0=Roll, 1= Pitch, 2=Yaw
-        int gainTrigger = 0; //0 = Saved Value, 1 = Edit Mode
         initIC(0b11111111);
         initOC(0b1111); //Initialize only Output Compare 1,2,3 and 4
         UART1_SendString("START OF CODE BEFORE WHILE");
@@ -122,8 +107,7 @@ int main() {
 
     while (1) {
         if (DEBUG) {
-            //UART1_SendString("Hi My Name is Mitch");
-            //UART1_SendString("Hi My Name is CHRIS");
+
         }
         /*****************************************************************************
          *****************************************************************************
@@ -159,9 +143,7 @@ int main() {
 
          *****************************************************************************
          *****************************************************************************/
-
-        float imuData[3];
-        VN100_SPI_GetRates(0, &imuData);
+        VN100_SPI_GetRates(0, (float*)&imuData);
         //Outputs in order: Roll,Pitch,Yaw
         imu_RollRate = (imuData[ROLL_RATE]);
 //        imu_PitchRate = imuData[PITCH_RATE];
@@ -177,6 +159,8 @@ int main() {
         imu_PitchAngle = imuData[YAW] - angle_zero[YAW];
         imu_RollAngle = (imuData[ROLL] - angle_zero[ROLL]);
 
+//        VN100_SPI_GetMag(0,&imuData);
+
 
         if (DEBUG) {
 //            char str[20];
@@ -191,24 +175,20 @@ int main() {
          *****************************************************************************
          *****************************************************************************/
 
-        if (ORIENTATION) { // if we are using accelerometer based stabalization
-            // convert sp_xxxRate to an angle (based on maxangle
-            //             if (!autoPilotOnOff){ // if we are getting input from the controller
+        if (ORIENTATION) { 
+            // If we are using accelerometer based stabalization
+            // convert sp_xxxRate to an angle (based on maxAngle)
+            // If we are getting input from the controller
             // convert sp_xxxxRate to an sp_xxxxAngle in degrees
+
             //sp_YawAngle = sp_YawRate / (sp_Range / maxYawAngle);
             sp_RollAngle = sp_RollRate / (SP_RANGE / maxRollAngle);
             sp_PitchAngle = -sp_PitchRate / (SP_RANGE / maxPitchAngle);
 
-            //             } else {
-            //get autopilot requested angle, set sp_xxxxAngle based on autopilot request
-            //          }
+            // Output to servos based on requested angle and actual angle (using a gain value)
+            // Set this to sp_xxxxRate so that the gyros can do their thing aswell
 
-            // output to servos based on requested angle and actual angle (using a gain value)
-            // we set this to sp_xxxxRate so that the gyros can do their thing aswell
-            /* this is commented untill we get the controlSignalAccel() function working
-             */
             //sp_YawRate = controlSignalAngles(sp_YawAngle, imu_YawAngle, kd_Accel_Yaw, -(SP_RANGE) / (maxYawAngle)) ;
-
             sp_ComputedYawRate = sp_YawRate;
             sp_ComputedRollRate = controlSignalAngles(sp_RollAngle, imu_RollAngle, ROLL, -(SP_RANGE) / (maxRollAngle)) ;
             sp_ComputedPitchRate = controlSignalAngles (sp_PitchAngle, imu_PitchAngle, PITCH, -(SP_RANGE) / (maxPitchAngle));
@@ -225,7 +205,8 @@ int main() {
             control_Throttle = sp_ThrottleRate;
         } else {
 
-
+            // CONTROLLER INPUT INTERPRETATION CODE
+            // TODO: Add a separate function for this
             if (sp_Switch < 600) {
                 unfreezeIntegral();
                 if (sp_GearSwitch > 600) {
@@ -300,24 +281,28 @@ int main() {
         }
         if (control_Roll > UPPER_PWM){
             control_Roll = UPPER_PWM;
+            // Limits the effects of the integrator, if the output signal is maxed out
             if (getIntegralSum(ROLL) * getGain(ROLL,GAIN_KI) * 2 > sp_RollRate - sp_ComputedRollRate){
                 setIntegralSum(ROLL,getIntegralSum(ROLL)/1.1);
             }
         }
         if (control_Roll < LOWER_PWM){
             control_Roll = LOWER_PWM;
+            // Limits the effects of the integrator, if the output signal is maxed out
             if (getIntegralSum(ROLL) * getGain(ROLL,GAIN_KI) * 2 < sp_RollRate - sp_ComputedRollRate){
                 setIntegralSum(ROLL,getIntegralSum(ROLL)/1.1);
             }
         }
         if (control_Pitch > UPPER_PWM){
             control_Pitch = UPPER_PWM;
+            // Limits the effects of the integrator, if the output signal is maxed out
             if (getIntegralSum(PITCH) * getGain(PITCH,GAIN_KI) > control_Pitch - sp_PitchRate){
                 setIntegralSum(PITCH,getIntegralSum(PITCH)/1.1);
             }
         }
         if (control_Pitch < LOWER_PWM){
             control_Pitch = LOWER_PWM;
+            // Limits the effects of the integrator, if the output signal is maxed out
             if (getIntegralSum(PITCH) * getGain(PITCH,GAIN_KI) < sp_PitchRate - control_Pitch){
                 setIntegralSum(PITCH,getIntegralSum(PITCH)/1.1);
             }
@@ -329,7 +314,7 @@ int main() {
             control_Yaw = LOWER_PWM;
 
 
-        //Double check ocPin
+        // Sends the output signal to the servo motors
         setPWM(1, control_Roll);
         setPWM(2, control_Pitch);
         setPWM(3, control_Throttle);
@@ -358,11 +343,12 @@ int main() {
 
             if ( BLOCKING_MODE ) {
                 sendTelemetryBlock(statusData);
+                destroyTelemetryBlock(statusData);
             } else {
                 pushOutboundTelemetryQueue(statusData);
                 statusData->throttleSetpoint = getOutboundQueueLength();
             }
-            //destroyTelemetryBlock(statusData);
+            
         }
         bufferMaintenance();
         asm("CLRWDT");
