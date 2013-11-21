@@ -84,16 +84,13 @@ int main() {
     int control_Throttle;
     int control_Yaw;
 
-    char switched = 0;
-    char autoTrigger = 0;
-
     //System constants
     float maxRollAngle = 60; // max allowed roll angle in degrees
     float maxPitchAngle = 60;
     //float maxYawAngle = 20;
 
     VN100_initSPI();
-//    VN100_SPI_Tare(0);
+    VN100_SPI_Tare(0);
 //    getAngleBias();
 
     if (DEBUG) {
@@ -211,41 +208,24 @@ int main() {
                 unfreezeIntegral();
                 if (sp_GearSwitch > 600) {
                     if (sp_Type < 660) {
-                        setGain(ROLL,GAIN_KD,((float) (sp_Value - 514)) / (SP_RANGE) * 40.0);
+                        setGain(ROLL_RATE,GAIN_KD,((float) (sp_Value - 520)) / (SP_RANGE) * 40.0);
                         currentGain = (GAIN_KD << 4) + ROLL;
                     } else if (sp_Type > 660 && sp_Type < 699) {
-                        setGain(PITCH,GAIN_KD,((float) (sp_Value - 514)) / (SP_RANGE) * 40.0);
+                        setGain(PITCH_RATE,GAIN_KD,((float) (sp_Value - 520)) / (SP_RANGE) * 40.0);
                         currentGain = (GAIN_KD << 4) + PITCH;
                     } else if (sp_Type > 699) {
-                        setGain(YAW,GAIN_KD,((float) (sp_Value - 514)) / (SP_RANGE) * 40.0);//10/0.1
+                        setGain(YAW_RATE,GAIN_KD,((float) (sp_Value - 520)) / (SP_RANGE) * 40.0);//10/0.1
                         currentGain = (GAIN_KD << 4) + YAW;
                     } 
 
 
-                } else {
-                    //THROTTLE
-                    if (sp_ThrottleRate > ((UPPER_PWM - LOWER_PWM) * 0.2) + LOWER_PWM && autoTrigger) {
-                        control_Throttle = (((float) (sp_Value - 514) / (float) (888 - 514) + 0.5) * (SP_RANGE)) + LOWER_PWM;
-                        if (UPPER_PWM < control_Throttle)
-                            control_Throttle = UPPER_PWM;
-                    }
-
                 }
-                if (sp_ThrottleRate < ((SP_RANGE) * 0.2) + LOWER_PWM && switched != (sp_Switch < 600)) {
-                    control_Throttle = LOWER_PWM;
-                } else if (switched != (sp_Switch < 600)) {
-                    autoTrigger = 1;
-                }
-
             } else {
-                control_Throttle = sp_ThrottleRate;
-                autoTrigger = 0;
                 freezeIntegral();
             }
-            switched = (sp_Switch < 600);
-
 
             // Control Signals (Output compare value)
+            control_Throttle = sp_ThrottleRate;
             control_Roll = controlSignal(sp_ComputedRollRate / SERVO_SCALE_FACTOR, imu_RollRate,ROLL_RATE);
             control_Pitch = controlSignal(sp_ComputedPitchRate / SERVO_SCALE_FACTOR, imu_PitchRate, PITCH_RATE);
             control_Yaw = controlSignal(sp_ComputedYawRate / SERVO_SCALE_FACTOR, imu_YawRate, YAW_RATE);
@@ -320,7 +300,7 @@ int main() {
             statusData->pitchSetpoint = sp_PitchRate;
             statusData->rollSetpoint = sp_RollRate;
             statusData->yawSetpoint = sp_YawRate;
-            statusData->throttleSetpoint = control_Throttle;
+            statusData->throttleSetpoint = (int)((float)(control_Throttle - 454)/(890-454)*100);
             statusData->editing_gain = (( sp_GearSwitch > 600) * 0xFF) & (currentGain); //(sp_Switch < 600 &&
 
             if ( BLOCKING_MODE ) {

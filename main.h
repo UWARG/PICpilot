@@ -18,7 +18,7 @@
 #define DEBUG 1
 
 #define STABILIZATION 1
-#define ORIENTATION 1
+#define ORIENTATION 0
 
 //Defined Orientation Angle constants
 #define YAW     0
