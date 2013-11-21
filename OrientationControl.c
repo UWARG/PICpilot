@@ -13,7 +13,7 @@
 
 float kd_gyro[3] = {0, 0, 0};
 float kp_accel[3] = {1, 1, 1};
-float ki_accel[3]= {0.01, 0.01, 0.01};
+float ki_accel[3]= {0, 0, 0};
 float sum_accel[3] = {0, 0, 0};
 
 float angle_zero[3];

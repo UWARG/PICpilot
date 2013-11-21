@@ -93,8 +93,8 @@ int main() {
     //float maxYawAngle = 20;
 
     VN100_initSPI();
-    VN100_SPI_Tare(0);
-    getAngleBias();
+//    VN100_SPI_Tare(0);
+//    getAngleBias();
 
     if (DEBUG) {
         initIC(0b11111111);
@@ -182,7 +182,7 @@ int main() {
             // convert sp_xxxxRate to an sp_xxxxAngle in degrees
 
             //sp_YawAngle = sp_YawRate / (sp_Range / maxYawAngle);
-            sp_RollAngle = sp_RollRate / (SP_RANGE / maxRollAngle);
+            sp_RollAngle = -sp_RollRate / (SP_RANGE / maxRollAngle);
             sp_PitchAngle = -sp_PitchRate / (SP_RANGE / maxPitchAngle);
 
             // Output to servos based on requested angle and actual angle (using a gain value)
@@ -211,33 +211,15 @@ int main() {
                 unfreezeIntegral();
                 if (sp_GearSwitch > 600) {
                     if (sp_Type < 660) {
-                        setGain(ROLL,GAIN_KD,((float) (sp_Value - LOWER_PWM)) / (SP_RANGE) * 20.0);
-                        currentGain = GAIN_KD + (ROLL << 4);
-                    } else if (sp_Type > 660 && sp_Type < 665) {
-                        setGain(PITCH,GAIN_KD,((float) (sp_Value - LOWER_PWM)) / (SP_RANGE) * 20.0);
-                        currentGain = GAIN_KD + (PITCH << 4);
-                    } else if (sp_Type > 665 && sp_Type < 670) {
-                        setGain(YAW,GAIN_KD,((float) (sp_Value - LOWER_PWM)) / (SP_RANGE) * 20.0);
-                        currentGain = GAIN_KD + (YAW << 4);
-                    } else if (sp_Type > 675 && sp_Type < 680) {
-                        setGain(ROLL,GAIN_KP,((float) (sp_Value - LOWER_PWM)) / (SP_RANGE) * 10.0);
-                        currentGain = GAIN_KP + (ROLL << 4);
-                    } else if (sp_Type > 680 && sp_Type < 685) {
-                        setGain(PITCH,GAIN_KP,((float) (sp_Value - LOWER_PWM)) / (SP_RANGE) * 10.0);
-                        currentGain = GAIN_KP + (PITCH << 4);
-                    } else if (sp_Type > 690 && sp_Type < 695) {
-                        setGain(YAW,GAIN_KP,((float) (sp_Value - LOWER_PWM)) / (SP_RANGE) * 10.0);
-                        currentGain = GAIN_KP + (YAW << 4);
-                    } else if (sp_Type > 700 && sp_Type < 705) {
-                        setGain(ROLL,GAIN_KI,((float) (sp_Value - LOWER_PWM)) / (SP_RANGE) * 0.1);
-                        currentGain = GAIN_KI + (ROLL << 4);
-                    } else if (sp_Type > 705 && sp_Type < 710) {
-                        setGain(PITCH,GAIN_KI,((float) (sp_Value - LOWER_PWM)) / (SP_RANGE) * 0.1);
-                        currentGain = GAIN_KI + (PITCH << 4);
-                    } else if (sp_Type > 710) {
-                        setGain(YAW,GAIN_KI,((float) (sp_Value - LOWER_PWM)) / (SP_RANGE) * 0.1);
-                         currentGain = GAIN_KI + (YAW << 4);
-                    }
+                        setGain(ROLL,GAIN_KD,((float) (sp_Value - 514)) / (SP_RANGE) * 40.0);
+                        currentGain = (GAIN_KD << 4) + ROLL;
+                    } else if (sp_Type > 660 && sp_Type < 699) {
+                        setGain(PITCH,GAIN_KD,((float) (sp_Value - 514)) / (SP_RANGE) * 40.0);
+                        currentGain = (GAIN_KD << 4) + PITCH;
+                    } else if (sp_Type > 699) {
+                        setGain(YAW,GAIN_KD,((float) (sp_Value - 514)) / (SP_RANGE) * 40.0);//10/0.1
+                        currentGain = (GAIN_KD << 4) + YAW;
+                    } 
 
 
                 } else {
@@ -296,14 +278,14 @@ int main() {
         if (control_Pitch > UPPER_PWM){
             control_Pitch = UPPER_PWM;
             // Limits the effects of the integrator, if the output signal is maxed out
-            if (getIntegralSum(PITCH) * getGain(PITCH,GAIN_KI) > control_Pitch - sp_PitchRate){
+            if (getIntegralSum(PITCH) * getGain(PITCH,GAIN_KI) * 2 > sp_PitchRate - sp_ComputedPitchRate){
                 setIntegralSum(PITCH,getIntegralSum(PITCH)/1.1);
             }
         }
         if (control_Pitch < LOWER_PWM){
             control_Pitch = LOWER_PWM;
             // Limits the effects of the integrator, if the output signal is maxed out
-            if (getIntegralSum(PITCH) * getGain(PITCH,GAIN_KI) < sp_PitchRate - control_Pitch){
+            if (getIntegralSum(PITCH) * getGain(PITCH,GAIN_KI) * 2 < sp_PitchRate - sp_ComputedPitchRate){
                 setIntegralSum(PITCH,getIntegralSum(PITCH)/1.1);
             }
         }
@@ -320,7 +302,7 @@ int main() {
         setPWM(3, control_Throttle);
         setPWM(4, control_Yaw);
 
-        if (time - lastTime > 500){
+        if (time - lastTime > 200){
             lastTime = time;
             struct telem_block* statusData = createTelemetryBlock();
             statusData->millis = time;
@@ -332,9 +314,9 @@ int main() {
             statusData->pitchRate = imu_PitchRate;
             statusData->rollRate = imu_RollRate;
             statusData->yawRate = imu_YawRate;
-            statusData->pitch_gain = getGain(PITCH,currentGain & 0xF);
-            statusData->roll_gain = getGain(ROLL,currentGain & 0xF);
-            statusData->yaw_gain = getGain(YAW,currentGain & 0xF);
+            statusData->pitch_gain = getGain(PITCH,currentGain & 0xF0);
+            statusData->roll_gain = getGain(ROLL,currentGain & 0xF0);
+            statusData->yaw_gain = getGain(YAW,currentGain & 0xF0);
             statusData->pitchSetpoint = sp_PitchRate;
             statusData->rollSetpoint = sp_RollRate;
             statusData->yawSetpoint = sp_YawRate;
