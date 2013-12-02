@@ -11,7 +11,7 @@
 
 //float constmax = 2.7188;
 
-float kd_gyro[3] = {0, 0, 0};
+float kd_gyro[3] = {0,0,0};//{25.9, 39.8, -8.38};
 float kp_accel[3] = {1, 1, 1};
 float ki_accel[3]= {0, 0, 0};
 float sum_accel[3] = {0, 0, 0};

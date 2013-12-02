@@ -207,16 +207,18 @@ int main() {
             if (sp_Switch < 600) {
                 unfreezeIntegral();
                 if (sp_GearSwitch > 600) {
-                    if (sp_Type < 660) {
-                        setGain(ROLL_RATE,GAIN_KD,((float) (sp_Value - 520)) / (SP_RANGE) * 40.0);
+                    if (sp_Type < 640) {
+                        float roll_gain=((float) (sp_Value - 520)) / (SP_RANGE) * 25 / 1.6212766647 + 10;
+                        setGain(ROLL_RATE,GAIN_KD,roll_gain<11.?0.:roll_gain);
                         currentGain = (GAIN_KD << 4) + ROLL;
-                    } else if (sp_Type > 660 && sp_Type < 699) {
-                        setGain(PITCH_RATE,GAIN_KD,((float) (sp_Value - 520)) / (SP_RANGE) * 40.0);
+                    } else if (sp_Type > 640 && sp_Type < 710) {
+                        float pitch_gain=((float) (sp_Value - 520)) / (SP_RANGE) * 20 / 1.6212766647 + 25;
+                        setGain(PITCH_RATE,GAIN_KD,pitch_gain<26.?0.:pitch_gain);
                         currentGain = (GAIN_KD << 4) + PITCH;
-                    } else if (sp_Type > 699) {
-                        setGain(YAW_RATE,GAIN_KD,((float) (sp_Value - 520)) / (SP_RANGE) * 40.0);//10/0.1
+                    } else if (sp_Type > 710) {
+                        setGain(YAW_RATE,GAIN_KD,((float) (sp_Value - 520)) / (SP_RANGE) * 40 / 1.6212766647 * -1);//10/0.1
                         currentGain = (GAIN_KD << 4) + YAW;
-                    } 
+                    }
 
 
                 }
