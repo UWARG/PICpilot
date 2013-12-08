@@ -1,3 +1,5 @@
+show: output/output_hdr.exr
+	display output/output_hdr.exr
 output/output.pto: make-pto.sh output bezier.py path.json
 	./make-pto.sh path.json > $@
 output/output.pto.mk: output/output.pto
@@ -12,4 +14,4 @@ path.json: terrain.blend export_path.py
 	blender -b terrain.blend -P export_path.py 2> $@
 clean:
 	rm -rf output map.png
-.PHONY: clean
+.PHONY: clean show

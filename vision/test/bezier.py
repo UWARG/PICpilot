@@ -1,6 +1,7 @@
 #!/usr/bin/python
-import json,collections,scipy.integrate,scipy.optimize,math
+import json,collections,scipy.integrate,scipy.optimize,math,scipy
 import numpy as np
+np.set_printoptions(precision=2)
 BezierSpline=collections.namedtuple('BezierSpline','c l r')
 class Memo(dict):
 	def __init__(self,f):
@@ -79,46 +80,45 @@ if __name__=="__main__":
 	for x in sys.argv[1:]:
 		with open(x) as f:
 			b=Bezier(f)
-			cameras=[]
-			for image_num,d in enumerate(np.linspace(0,b.arclength(),num=40),1):
+			cameras=[]#transforms half ndc to object space
+			for image_num,d in enumerate(np.linspace(0,b.arclength(),num=40,endpoint=False),1):
 				t=b.distance_arc(d)
 				d=b(t)
-				y=b.prime(t)
+				dy=b.prime(t)
+
+				#print>>sys.stderr,"displacement",d
+				#print>>sys.stderr,"velocity",dy
+
 				k=np.array([0.,0.,1.])
-				z=k-y*np.dot(k,y)/np.dot(y,y)
-				x=np.cross(y,z)
+				dz=k-dy*np.dot(k,dy)/np.dot(dy,dy)
+				dx=np.cross(dy,dz)
 
-				x/=np.linalg.norm(x)
-				y/=np.linalg.norm(y)
-				z/=np.linalg.norm(z)
+				dx/=np.linalg.norm(dx)
+				dy/=np.linalg.norm(dy)
+				dz/=np.linalg.norm(dz)
+				#print>>sys.stderr,"dx",dx,"dy",dy,"dz",dz
 
-				ppt=np.identity(4)
-				ppt[3][2]=-math.atan(120*math.pi/360.)#parallax
-				ppt=np.matrix(ppt)
-				translate=np.concatenate((np.matrix([[0]*3]*3+[d]).T,[[0]*4]))+np.identity(4)
-				rotate=np.concatenate((np.matrix([x,y,z,np.zeros(3)]).T,((0,0,0,1),)))
-				#cameras.append(ppt*np.concatenate((np.matrix([x,y,z,d]).T,np.matrix([[0,0,0,1]]))).I)
-				cameras.append(ppt*translate*rotate)
+				wpt_to_obj=np.concatenate((np.matrix([dx,dy,dz,d]).T,[[0,0,0,1]]))
+				#print>>sys.stderr,"wpt_to_obj"
+				#print>>sys.stderr,wpt_to_obj
+				cameras.append(wpt_to_obj*np.matrix(np.diag((-1,1,1,1))))
 
-				fudge=np.matrix(np.diag((1.,-1.,1.,1.0573374023762807)))#different NDC?!?
-				trans=fudge.I*cameras[-1]*cameras[0].I*fudge
-				print>>sys.stderr,np.around(trans,decimals=2)
+				trans=cameras[0].I*cameras[-1]
+				print>>sys.stderr,"trans"
+				print>>sys.stderr,trans
+				#"""
 				r2d=180/math.pi
-				trans2=np.matrix([
-					[ 0, 1, 0, 0],
-					[-1, 0, 0, 0],
-					[ 0, 0, 1, 0],
-					[ 0, 0, 0, 1]])*trans
-				print '#-hugin  cropFactor=1\ni w256 h256 f0 v%s Ra=0 Rb=0 Rc=0 Rd=0 Re=0 Eev=0 Er%s Eb%s r%f p%f y%f TrX%f TrY%f TrZ%f j0 a=0 b=0 c=0 d=0 e=0 g=0 t=0 Va%s Vb=0 Vc=0 Vd=0 Vx=0 Vy=0  Vm5 n"%04d.png"'.translate(None,'='[image_num-1:])%(
+				print'#-hugin  cropFactor=1\ni w256 h256 f0 v%s Ra=0 Rb=0 Rc=0 Rd=0 Re=0 Eev=0 Er%s Eb%s r%f p%f y%f TrX%f TrY%f TrZ%f j0 a=0 b=0 c=0 d=0 e=0 g=0 t=0 Va%s Vb=0 Vc=0 Vd=0 Vx=0 Vy=0  Vm5 n"%04d.png"'.translate(None,'='[image_num-1:])%(
 					'120' if image_num==1 else '=0',
 					'1' if image_num==1 else '=0',
 					'1' if image_num==1 else '=0',
-					r2d*math.atan2(trans[0,1],trans[0,0]),#-r2d*math.atan2(trans[0,2],trans[1,2]),#XXX formulas are wrong
-					0,#r2d*math.acos(max(-1,min(1,trans[2,2]))),
-					0,#r2d*math.atan2(trans[2,0],trans[2,1]),
-					trans2[0,3],
-					trans2[1,3],
-					trans2[2,3],
+					-r2d*math.atan2(trans[0,1],trans[1,1]),
+					-r2d*math.atan2(trans[2,1],trans[2,2]),#XXX fix
+					0,#r2d*math.atan2(trans[2,0],trans[2,1]),#XXX fix
+					-trans[0,3],
+					-trans[1,3],
+					-trans[2,3],
 					'1' if image_num==1 else '=0',
 					image_num,
 				)
+				#"""
