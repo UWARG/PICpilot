@@ -2,16 +2,33 @@
 cat << EOF
 # hugin project file
 #hugin_ptoversion 2
-p f0 w1878 h3375 v171  E0 R1 n"TIFF_m c:LZW r:CROP"
+p f0 w1878 h3375 v171  E0 R1 S270,1100,410,1850 n"TIFF_m c:LZW r:CROP"
 m g1 i0 f0 m2 p0.00784314
 
 # image lines
 EOF
-./bezier.py "$@"
+n="$(find output -name \*.jpg -printf . | wc -c)"
+./bezier.py "$n" "$@"
 cat << EOF
 
 # specify variables that should be optimized
+EOF
+for((i=1;i<$n;++i))
+do
+	cat << EOF
+v r$i
+v TrX$i
+v TrY$i
+EOF
+done
+cat << EOF
 v
+
+
+# Control points
+EOF
+panomatic -n 4 --fullscale -o /proc/self/fd/3 -- output/*.jpg 3>&1 >&2 | grep ^c
+cat << EOF
 
 #hugin_optimizeReferenceImage 0
 #hugin_blender enblend

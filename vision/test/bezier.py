@@ -77,11 +77,11 @@ class Bezier(object):
 		return self.distance(len(self.splines)-1)
 if __name__=="__main__":
 	import sys
-	for x in sys.argv[1:]:
+	for x in sys.argv[2:]:
 		with open(x) as f:
 			b=Bezier(f)
 			cameras=[]#transforms half ndc to object space
-			for image_num,d in enumerate(np.linspace(0,b.arclength(),num=40,endpoint=False),1):
+			for image_num,d in enumerate(np.linspace(0,b.arclength(),num=int(sys.argv[1]),endpoint=False),1):
 				t=b.distance_arc(d)
 				d=b(t)
 				dy=b.prime(t)
@@ -104,11 +104,11 @@ if __name__=="__main__":
 				cameras.append(wpt_to_obj*np.matrix(np.diag((-1,1,1,1))))
 
 				trans=cameras[0].I*cameras[-1]
-				print>>sys.stderr,"trans"
-				print>>sys.stderr,trans
+				#print>>sys.stderr,"trans"
+				#print>>sys.stderr,trans
 				#"""
 				r2d=180/math.pi
-				print'#-hugin  cropFactor=1\ni w256 h256 f0 v%s Ra=0 Rb=0 Rc=0 Rd=0 Re=0 Eev=0 Er%s Eb%s r%f p%f y%f TrX%f TrY%f TrZ%f j0 a=0 b=0 c=0 d=0 e=0 g=0 t=0 Va%s Vb=0 Vc=0 Vd=0 Vx=0 Vy=0  Vm5 n"%04d.png"'.translate(None,'='[image_num-1:])%(
+				print'#-hugin  cropFactor=1\ni w1024 h1024 f0 v%s Ra=0 Rb=0 Rc=0 Rd=0 Re=0 Eev=0 Er%s Eb%s r%f p%f y%f TrX%f TrY%f TrZ%f j0 a=0 b=0 c=0 d=0 e=0 g=0 t=0 Va%s Vb=0 Vc=0 Vd=0 Vx=0 Vy=0  Vm5 n"%04d.jpg"'.translate(None,'='[image_num-1:])%(
 					'120' if image_num==1 else '=0',
 					'1' if image_num==1 else '=0',
 					'1' if image_num==1 else '=0',
