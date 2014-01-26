@@ -11,25 +11,24 @@
 
 #include <p33FJ256GP710.h>
 
+//Turns debug mode on or off. Usually contains small snippets of code to output
+//data through UART or to provide small input adjustments
+#define DEBUG 1
+
+//Defines the usage of this chip. It may be one or multiple of the following roles:
+//  Path Manager - Communicates with the GPS in order to provide a constant
+//                  heading for the aircraft to follow.
+//  Attitude Manager - Communicates with a IMU (kinematics sensor) in order to
+//                      the desires Pitch, Roll, Yaw on the aircraft.
+//  Communication Manager - Provides network communication (uplink/downlink) between the aircraft and
+//                          the ground station (or any other data link).
+#define PATH_MANAGER 0
+#define ATTITUDE_MANAGER 1
+#define COMMUNICATION_MANAGER 1
+
 //Define constants for global use in the code
 #define TRUE	1
 #define FALSE	0
-
-#define DEBUG 1
-
-#define STABILIZATION 1
-#define ORIENTATION 1
-
-//Defined Orientation Angle constants
-#define YAW     0
-#define PITCH   1
-#define ROLL    2
-
-//Defined in the opposite order for rates of rotation
-//Be careful not to confuse the constants
-#define YAW_RATE     2
-#define PITCH_RATE   1
-#define ROLL_RATE    0
 
 //Mathematical Constants
 #define PI 3.14159265
