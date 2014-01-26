@@ -19,6 +19,7 @@
 #include "net.h"
 #include "StartupErrorCodes.h"
 #include "OrientationControl.h"
+#include <math.h>
 
 //Perform random clock things that came with the Sample Code (Keep in code)
 _FOSCSEL(FNOSC_FRC); // Internal FRC oscillator
@@ -47,10 +48,10 @@ int main() {
     initDataLink();
 
     // Setpoints (From radio transmitter or autopilot)
-    int sp_PitchRate = 0;
+    int sp_PitchRate = MIDDLE_PWM;
     int sp_ThrottleRate = 0;
-    int sp_YawRate = 0;
-    int sp_RollRate = 0;
+    int sp_YawRate = MIDDLE_PWM;
+    int sp_RollRate = MIDDLE_PWM;
 
     int sp_ComputedPitchRate = 0;
     //int sp_ComputedThrottleRate = 0;
@@ -89,8 +90,25 @@ int main() {
     float maxPitchAngle = 60;
     //float maxYawAngle = 20;
 
+    //IMU position matrix
+    float x_angle_offset = -90 * PI / 180.0; //Degrees
+    float y_angle_offset = -0 * PI / 180.0;
+    float z_angle_offset = -10 * PI / 180.0;
+    float refRotationMatrix[9] = {cos(y_angle_offset) * cos(z_angle_offset), -cos(y_angle_offset) * sin(z_angle_offset), sin(y_angle_offset),
+                                sin(x_angle_offset) * sin(y_angle_offset) * cos(z_angle_offset) + sin(z_angle_offset) * cos(x_angle_offset), -sin(x_angle_offset) * sin(y_angle_offset) * sin(z_angle_offset) + cos(z_angle_offset) * cos(x_angle_offset), -sin(x_angle_offset) * cos(y_angle_offset),
+                                -cos(x_angle_offset) * sin(y_angle_offset) * cos(z_angle_offset) + sin(z_angle_offset) * sin(x_angle_offset), cos(x_angle_offset) * sin(y_angle_offset) * sin(z_angle_offset) + cos(z_angle_offset) * sin(x_angle_offset), cos(x_angle_offset) * cos(y_angle_offset)};
+    char filterSettings[16] = {0,0,0,0,0x41,0x84,0xA5,0xE3,0x41,0x84,0xA5,0xE3,0x41,0x84,0xA5,0xE3}; //0x41,0x84,0xA5,0xE3 represent 16.581 as a float
+
     VN100_initSPI();
-    VN100_SPI_Tare(0);
+    VN100_SPI_SetRefFrameRot(0,&refRotationMatrix);
+    VN100_SPI_FilterBasicControl(0,&filterSettings);
+
+    angle_zero[PITCH] = 0;
+    angle_zero[ROLL] = 0;//-90
+    angle_zero[YAW] = 0;//50
+
+
+//    VN100_SPI_Tare(0);
 //    getAngleBias();
 
     if (DEBUG) {
@@ -143,17 +161,14 @@ int main() {
         VN100_SPI_GetRates(0, (float*)&imuData);
         //Outputs in order: Roll,Pitch,Yaw
         imu_RollRate = (imuData[ROLL_RATE]);
-//        imu_PitchRate = imuData[PITCH_RATE];
-//        imu_YawRate = imuData[YAW_RATE];
-        imu_PitchRate = imuData[YAW_RATE];
-        imu_YawRate = imuData[PITCH_RATE];
+        imu_PitchRate = imuData[PITCH_RATE];
+        imu_YawRate = imuData[YAW_RATE];
+//        imu_PitchRate = imuData[YAW_RATE];
+//        imu_YawRate = -imuData[PITCH_RATE];
 
         VN100_SPI_GetYPR(0, &imuData[YAW], &imuData[PITCH], &imuData[ROLL]);
-//        imu_YawAngle = imuData[YAW] - angle_zero[YAW];
-//        imu_PitchAngle = imuData[PITCH] - angle_zero[PITCH];
-//        imu_RollAngle = (imuData[ROLL] - angle_zero[ROLL]);
-        imu_YawAngle = imuData[PITCH] - angle_zero[PITCH];
-        imu_PitchAngle = imuData[YAW] - angle_zero[YAW];
+        imu_YawAngle = imuData[YAW] - angle_zero[YAW];
+        imu_PitchAngle = imuData[PITCH] - angle_zero[PITCH];
         imu_RollAngle = (imuData[ROLL] - angle_zero[ROLL]);
 
 //        VN100_SPI_GetMag(0,&imuData);
@@ -219,7 +234,6 @@ int main() {
                         setGain(YAW_RATE,GAIN_KD,((float) (sp_Value - 520)) / (SP_RANGE) * 40 / 1.6212766647 * -1);//10/0.1
                         currentGain = (GAIN_KD << 4) + YAW;
                     }
-
 
                 }
             } else {

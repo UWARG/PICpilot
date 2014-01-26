@@ -53,6 +53,8 @@
 #define     VN100_REG_RFR       26
 #define     VN100_REG_YMR       27
 #define     VN100_REG_ACG       28
+
+#define     VN100_REG_RRG       34
   
 #define     VN100_REG_RAW         251
 #define     VN100_REG_CMV       252
@@ -217,6 +219,7 @@ VN100_SPI_Packet* VN100_SPI_GetRefFrameRot(unsigned char sensorID, float* refFra
 VN100_SPI_Packet* VN100_SPI_SetRefFrameRot(unsigned char sensorID, float* refFrameRot);
 VN100_SPI_Packet* VN100_SPI_GetAccGain(unsigned char sensorID, VN100_AccGainType* gain);
 VN100_SPI_Packet* VN100_SPI_SetAccGain(unsigned char sensorID, VN100_AccGainType gain);
+VN100_SPI_Packet* VN100_SPI_FilterBasicControl(unsigned char sensorID, char* filterSettings);
 VN100_SPI_Packet* VN100_SPI_RestoreFactorySettings(unsigned char sensorID);
 VN100_SPI_Packet* VN100_SPI_Tare(unsigned char sensorID);
 void VN100_SPI_Reset(unsigned char sensorID);
