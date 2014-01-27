@@ -90,8 +90,8 @@ void attitudeInit() {
     char filterSettings[16] = {0, 0, 0, 0, 0x41, 0x84, 0xA5, 0xE3, 0x41, 0x84, 0xA5, 0xE3, 0x41, 0x84, 0xA5, 0xE3}; //0x41,0x84,0xA5,0xE3 represent 16.581 as a float
 
     VN100_initSPI();
-    VN100_SPI_SetRefFrameRot(0, &refRotationMatrix);
-    VN100_SPI_FilterBasicControl(0, &filterSettings);
+    VN100_SPI_SetRefFrameRot(0, (float*)&refRotationMatrix);
+    VN100_SPI_FilterBasicControl(0, (char*)&filterSettings);
 
     angle_zero[PITCH] = 0;
     angle_zero[ROLL] = 0; //-90

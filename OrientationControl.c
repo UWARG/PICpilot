@@ -7,6 +7,7 @@
 #include "OutputCompare.h"
 #include "OrientationControl.h"
 #include "main.h"
+#include "AttitudeManager.h"
 #include "VN100.h"
 
 //float constmax = 2.7188;
