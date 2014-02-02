@@ -1,5 +1,5 @@
 /* 
- * File:   IMU_Test_Main.c
+ * File:   AttitudeManager.c
  * Author: Mitch
  *
  * Created on June 15, 2013, 3:40 PM
@@ -8,6 +8,7 @@
 //Include Libraries
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 //Include Header Files
 #include "delay.h"
@@ -18,7 +19,7 @@
 #include "OrientationControl.h"
 #include "AttitudeManager.h"
 #include "main.h"
-#include <math.h>
+
 
 long long time = 0;
 long long lastTime = 0;
@@ -51,6 +52,15 @@ float sp_PitchAngle = 0;
 //float sp_YawAngle = 0;
 float sp_RollAngle = 0;
 
+//Heading Variables
+float sp_Heading = 0;
+float sp_HeadingRate = 0;
+
+//GPS Data
+float gps_Heading = 0;
+float gps_GroundSpeed = 0; //NOTE: NEEDS TO BE IN METERS/SECOND. CALCULATIONS DEPEND ON THESE UNITS. GPS RETURNS KM/H.
+float gps_Time = 0;
+
 // System outputs (get from IMU)
 float imuData[3];
 float imu_RollRate = 0;
@@ -72,6 +82,7 @@ int control_Yaw;
 float maxRollAngle = 60; // max allowed roll angle in degrees
 float maxPitchAngle = 60;
 //float maxYawAngle = 20;
+float maxHeadingRate = 36; //Max heading change of 36 degrees per second
 
 void attitudeInit() {
     //Debug Mode initialize communication with the serial port (Computer)
@@ -93,9 +104,9 @@ void attitudeInit() {
     VN100_SPI_SetRefFrameRot(0, (float*)&refRotationMatrix);
     VN100_SPI_FilterBasicControl(0, (char*)&filterSettings);
 
-    angle_zero[PITCH] = 0;
-    angle_zero[ROLL] = 0; //-90
-    angle_zero[YAW] = 0; //50
+//    angle_zero[PITCH] = 0;
+//    angle_zero[ROLL] = 0; //-90
+//    angle_zero[YAW] = 0; //50
 
     /* Initialize Input Capture and Output Compare Modules */
     if (DEBUG) {
@@ -153,9 +164,9 @@ void attitudeManagerRuntime() {
     //        imu_YawRate = -imuData[PITCH_RATE];
 
     VN100_SPI_GetYPR(0, &imuData[YAW], &imuData[PITCH], &imuData[ROLL]);
-    imu_YawAngle = imuData[YAW] - angle_zero[YAW];
-    imu_PitchAngle = imuData[PITCH] - angle_zero[PITCH];
-    imu_RollAngle = (imuData[ROLL] - angle_zero[ROLL]);
+    imu_YawAngle = imuData[YAW];
+    imu_PitchAngle = imuData[PITCH];
+    imu_RollAngle = (imuData[ROLL]);
 
     //        VN100_SPI_GetMag(0,&imuData);
 
@@ -173,30 +184,42 @@ void attitudeManagerRuntime() {
      *****************************************************************************
      *****************************************************************************/
 
-    if (ORIENTATION) {
+    if (HEADING_CONTROL){
+        //Estimation of Roll angle based on heading:
+        //TODO: Add if statement to use rudder for small heading changes
+        // -(maxHeadingRate)/180.0,
+        sp_HeadingRate = controlSignalHeading(sp_Heading, gps_Heading, gps_Time);
+        //Kinematics formula for approximating Roll angle from Heading and Velocity
+        sp_RollAngle = atan(gps_GroundSpeed * sp_HeadingRate/9.8);
+
+    }
+
+    if (ORIENTATION_CONTROL) {
         // If we are using accelerometer based stabalization
         // convert sp_xxxRate to an angle (based on maxAngle)
         // If we are getting input from the controller
         // convert sp_xxxxRate to an sp_xxxxAngle in degrees
 
-        //sp_YawAngle = sp_YawRate / (sp_Range / maxYawAngle);
-        sp_RollAngle = -sp_RollRate / (SP_RANGE / maxRollAngle);
-        sp_PitchAngle = -sp_PitchRate / (SP_RANGE / maxPitchAngle);
+        if (!HEADING_CONTROL){
+            //sp_YawAngle = sp_YawRate / (sp_Range / maxYawAngle);
+            sp_RollAngle = -sp_RollRate / (SP_RANGE / maxRollAngle);
+            sp_PitchAngle = -sp_PitchRate / (SP_RANGE / maxPitchAngle);
+        }
 
         // Output to servos based on requested angle and actual angle (using a gain value)
         // Set this to sp_xxxxRate so that the gyros can do their thing aswell
 
         //sp_YawRate = controlSignalAngles(sp_YawAngle, imu_YawAngle, kd_Accel_Yaw, -(SP_RANGE) / (maxYawAngle)) ;
         sp_ComputedYawRate = sp_YawRate;
-        sp_ComputedRollRate = controlSignalAngles(sp_RollAngle, imu_RollAngle, ROLL, -(SP_RANGE) / (maxRollAngle));
-        sp_ComputedPitchRate = controlSignalAngles(sp_PitchAngle, imu_PitchAngle, PITCH, -(SP_RANGE) / (maxPitchAngle));
+        sp_ComputedRollRate = controlSignalAngles(sp_RollAngle, imu_RollAngle, ROLL, -(SP_RANGE) / (maxRollAngle),gps_Time);
+        sp_ComputedPitchRate = controlSignalAngles(sp_PitchAngle, imu_PitchAngle, PITCH, -(SP_RANGE) / (maxPitchAngle),gps_Time);
     } else {
         sp_ComputedRollRate = sp_RollRate;
         sp_ComputedPitchRate = sp_PitchRate;
         sp_ComputedYawRate = sp_YawRate;
     }
 
-    if (!STABILIZATION) {
+    if (!STABILIZATION_CONTROL) {
         control_Roll = sp_RollRate + MIDDLE_PWM;
         control_Pitch = sp_PitchRate + MIDDLE_PWM;
         control_Yaw = sp_YawRate + MIDDLE_PWM;

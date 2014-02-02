@@ -6,7 +6,6 @@
  */
 
 //Global Variables
-float extern angle_zero[3];
 
 #define GAIN_KD 0
 #define GAIN_KP 1
@@ -20,7 +19,29 @@ float extern angle_zero[3];
 //Function Prototypes
 
 /*****************************************************************************
- * Function: int controlSignalAngles(float setpoint, float output, unsigned char type, float SERVO_SCALE_FACTOR_ANGLES)
+ * Function: float controlSignalHeading(float setpoint, float output, float time)
+ *
+ * Preconditions: None.
+ *
+ * Overview: This function is responsible for the heading of the plane. It
+ * contains the equations that model a PID control system. It calculates the
+ * proportional, integral, and derivative terms of the control signal. The setpoint (target value
+ * required by the system) and the output (current state of the system) are both
+ * inputs to this function in terms of angles (deg) ranging from 0 to 359 degrees (as per compass bearings).
+ *
+ * Input:   float setpoint -> The target value that is required by the system.
+ *              (Input from the controller or path manager)
+ *          float output -> The acutal value of the system (Data from the GPS)
+ *          float time -> The current time as of the last system cycle.
+ *
+ * Output:  float -> An integer value representing the output of the system
+ *              (heading rate). This value is in degrees per second.
+ *
+ *****************************************************************************/
+float controlSignalHeading(float setpoint, float output, float time);
+
+/*****************************************************************************
+ * Function: int controlSignalAngles(float setpoint, float output, unsigned char type, float SERVO_SCALE_FACTOR_ANGLES, float time)
  *
  * Preconditions: None.
  *
@@ -38,6 +59,7 @@ float extern angle_zero[3];
  *              components to be calculated. See main.h for their definitions.
  *          float SERVO_SCALE_FACTOR_ANGLES -> The value that scales the input
  *              values to the return value. See above for the definition.
+ *          float time -> The current time as of the last system cycle.
  *
  * Output:  int -> An integer value representing the output of the system
  *              (angular rate). This value is in arbitrary timer ticks that vary
@@ -45,7 +67,7 @@ float extern angle_zero[3];
  *
  *****************************************************************************/
 
-int controlSignalAngles(float setpoint, float output, unsigned char type, float SERVO_SCALE_FACTOR_ANGLES);
+int controlSignalAngles(float setpoint, float output, unsigned char type, float SERVO_SCALE_FACTOR_ANGLES, float time);
 
 /*****************************************************************************
  * Function: int controlSignal(float setpoint, float output, unsigned char type)
