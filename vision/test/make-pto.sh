@@ -7,7 +7,7 @@ m g1 i0 f0 m2 p0.00784314
 
 # image lines
 EOF
-n="$(find output -name \*.jpg -printf . | wc -c)"
+n="$(find -L output -name \*.jpg -printf . | wc -c)"
 ./bezier.py "$n" "$@"
 cat << EOF
 
@@ -27,7 +27,9 @@ v
 
 # Control points
 EOF
-panomatic -n 4 --fullscale -o /proc/self/fd/3 -- output/*.jpg 3>&1 >&2 | grep ^c
+# takes about 0.4 GiB per core
+#panomatic -n 4 -o /proc/self/fd/3 -- output/*.jpg 3>&1 >&2 | grep ^c
+panomatic -o /proc/self/fd/3 -- output/*.jpg 3>&1 >&2 | grep ^c
 cat << EOF
 
 #hugin_optimizeReferenceImage 0
