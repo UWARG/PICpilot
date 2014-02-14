@@ -4,12 +4,7 @@
  *
  * Created on June 15, 2013, 3:40 PM
  */
-
-//Include Libraries
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-
+ 
 //Include Header Files
 #include "delay.h"
 #include "VN100.h"
@@ -20,6 +15,14 @@
 #include "AttitudeManager.h"
 #include "main.h"
 
+#if !(PATH_MANAGER && ATTITUDE_MANAGER && COMMUNICATION_MANAGER)
+#include "InterchipDMA.h"
+#endif
+
+
+#if !(PATH_MANAGER && ATTITUDE_MANAGER && COMMUNICATION_MANAGER)
+extern PMData pmData;
+#endif
 
 long long time = 0;
 long long lastTime = 0;
@@ -90,6 +93,11 @@ void attitudeInit() {
         InitUART1();
     }
 
+    //Initialize Interchip communication
+    init_DMA0();
+    init_DMA1();
+    init_SPI1();
+
     /* Initialize IMU with correct orientation matrix and filter settings */
     //IMU position matrix
     float x_angle_offset = -90 * PI / 180.0; //Degrees
@@ -98,15 +106,18 @@ void attitudeInit() {
     float refRotationMatrix[9] = {cos(y_angle_offset) * cos(z_angle_offset), -cos(y_angle_offset) * sin(z_angle_offset), sin(y_angle_offset),
         sin(x_angle_offset) * sin(y_angle_offset) * cos(z_angle_offset) + sin(z_angle_offset) * cos(x_angle_offset), -sin(x_angle_offset) * sin(y_angle_offset) * sin(z_angle_offset) + cos(z_angle_offset) * cos(x_angle_offset), -sin(x_angle_offset) * cos(y_angle_offset),
         -cos(x_angle_offset) * sin(y_angle_offset) * cos(z_angle_offset) + sin(z_angle_offset) * sin(x_angle_offset), cos(x_angle_offset) * sin(y_angle_offset) * sin(z_angle_offset) + cos(z_angle_offset) * sin(x_angle_offset), cos(x_angle_offset) * cos(y_angle_offset)};
-    char filterSettings[16] = {0, 0, 0, 0, 0x41, 0x84, 0xA5, 0xE3, 0x41, 0x84, 0xA5, 0xE3, 0x41, 0x84, 0xA5, 0xE3}; //0x41,0x84,0xA5,0xE3 represent 16.581 as a float
-
+    
+    float filterVariance[10] = {+1.0e-6, +4.968087236542740e-006, +4.112245302664222e-006, +1.775172462044985e-004, +2.396688069825628e+006, +3.198907908235179e+006, +1.389186225936592e+005, +6.620304667228608e-005, +4.869544197003338e-005, +1.560574584667775e-004};
     VN100_initSPI();
     VN100_SPI_SetRefFrameRot(0, (float*)&refRotationMatrix);
-    VN100_SPI_FilterBasicControl(0, (char*)&filterSettings);
+    VN100_SPI_SetFiltMeasVar(0, (float*)&filterVariance);
+
 
 //    angle_zero[PITCH] = 0;
 //    angle_zero[ROLL] = 0; //-90
 //    angle_zero[YAW] = 0; //50
+
+
 
     /* Initialize Input Capture and Output Compare Modules */
     if (DEBUG) {
@@ -144,8 +155,10 @@ void attitudeManagerRuntime() {
     sp_Switch = icTimeDiff[7];
 
     if (DEBUG) {
-
-
+//                   char str[20];
+//                   sprintf(str,"%f",pmData.time);
+//                   UART1_SendString(str);
+        
     }
 
     /*****************************************************************************

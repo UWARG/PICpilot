@@ -1134,23 +1134,6 @@ VN100_SPI_Packet* VN100_SPI_SetAccGain(unsigned char sensorID, VN100_AccGainType
 }
 
 /*******************************************************************************
-* Function Name  : VN100_SPI_FilterBasicControl(unsigned char sensorID, char* filterSettings)
-* Description    : Provides various features involving Kalman Filter processing
-*                  found in Section 7 of the User Manual.                                        
-* Input          : sensorID -> The sensor to get the requested data from.
-*                  filterSettings -> The array containing 1 byte integer values of the corresponding
- *                                  filter settings.               
-* Output         : None
-* Return         : Pointer to SPI packet returned by the sensor
-*******************************************************************************/
-VN100_SPI_Packet* VN100_SPI_FilterBasicControl(unsigned char sensorID, char* filterSettings){
-
-  /* Write register and return SPI packet*/
-  return VN100_SPI_WriteRegister(sensorID, VN100_REG_RRG, 16, &filterSettings);
-}
-
-
-/*******************************************************************************
 * Function Name  : VN100_SPI_RestoreFactoryDefaultSettings(unsigned char sensorID)
 * Description    : Restore the selected sensor to factory default state. The
 *                  values for factory default state for each register can be

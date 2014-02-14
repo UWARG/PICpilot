@@ -219,7 +219,6 @@ VN100_SPI_Packet* VN100_SPI_GetRefFrameRot(unsigned char sensorID, float* refFra
 VN100_SPI_Packet* VN100_SPI_SetRefFrameRot(unsigned char sensorID, float* refFrameRot);
 VN100_SPI_Packet* VN100_SPI_GetAccGain(unsigned char sensorID, VN100_AccGainType* gain);
 VN100_SPI_Packet* VN100_SPI_SetAccGain(unsigned char sensorID, VN100_AccGainType gain);
-VN100_SPI_Packet* VN100_SPI_FilterBasicControl(unsigned char sensorID, char* filterSettings);
 VN100_SPI_Packet* VN100_SPI_RestoreFactorySettings(unsigned char sensorID);
 VN100_SPI_Packet* VN100_SPI_Tare(unsigned char sensorID);
 void VN100_SPI_Reset(unsigned char sensorID);

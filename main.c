@@ -11,8 +11,7 @@
 #include "StartupErrorCodes.h"
 
 #if PATH_MANAGER
-//TODO: Make a PathManager.h and .c file
-#include "PathManager.h" //Doesn't exist yet - This is the next step (I[Chris] already have it partially written)
+#include "PathManager.h"
 #endif
 #if ATTITUDE_MANAGER
 #include "AttitudeManager.h"
