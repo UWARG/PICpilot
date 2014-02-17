@@ -14,8 +14,8 @@
 
 
 //TODO: Change these variable names to more generic names for inclusion of heading
-float kd_gain[4] = {0, 0, 0, 0};//{25.9,39.8,0};//{25.9, 39.8, -8.38};
-float kp_gain[4] = {1, 1, 1, 1};
+float kd_gain[4] = {9.619, 32.7086, 0, 0};//{25.9,39.8,0};//{25.9, 39.8, -8.38}; //14.619,35.7086
+float kp_gain[4] = {1, 1, 1, 0};
 float ki_gain[4]= {0, 0, 0, 0};
 //Interal Values
 float sum_gain[4] = {0, 0, 0, 0};
@@ -60,7 +60,7 @@ int controlSignalAngles(float setpoint, float output, unsigned char type, float 
 
     //To ensure that the time is valid and doesn't suddenly spike.
     if (dTime > 1){
-        return 0;
+        dTime = 0;
     }
     if (integralFreeze == 0){
         sum_gain[type] += (setpoint - output);

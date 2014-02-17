@@ -11,7 +11,7 @@
 //Constants involving attitude management
 #define STABILIZATION_CONTROL 1
 #define ORIENTATION_CONTROL 1
-#define HEADING_CONTROL 1
+#define HEADING_CONTROL 0
 
 //Defined Orientation Angle constants
 #define YAW     0

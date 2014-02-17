@@ -14,17 +14,18 @@
 #define EDIT_ROLL_GAIN 2
 #define EDIT_YAW_GAIN 3
 
-#define API_HEADER_LENGTH 8
+#define API_HEADER_LENGTH 17
 #define API_HEADER_PREFIX 3
 
-#define RECEIVER_ADDRESS_MSB 0x50
-#define RECEIVER_ADDRESS_LSB 0x01
+#define RECEIVER_ADDRESS 0x0013A20040B47E6B
 
 #define INCREMENT_DATA_FRAME 0x00
 #define OPTION_BYTE 0x01 //Disables ACK
-//API IDENTIFIER TYPES
-#define TRANSMIT_64BIT 0x00
-#define TRANSMIT_16BIT 0x01
+
+//FRAME TYPE
+#define TX_PACKET 0x10
+
+#define BROADCAST_RADIUS 1 //0 is infinite number of hops to reach target
 
 
 struct telem_block {

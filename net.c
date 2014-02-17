@@ -182,19 +182,33 @@ unsigned int generateApiHeader(unsigned char *apiString, char dataFrame) {
     // API Mode header
     apiString[apiIndex++] = 0x7E;
     // Packet length (can't be more than 100bytes anyway, so length MSB = 0)
-    apiString[apiIndex++] = (0 & 0xFF);         // MSB  = 0
+    apiString[apiIndex++] = 0;         // MSB  = 0
     apiString[apiIndex++] = (length & 0x00FF);  // LSB <= 100
 
-    // API Identifier
-    apiString[apiIndex++] = TRANSMIT_16BIT;
+    //Frame Type
+    apiString[apiIndex++] = TX_PACKET;
     // Data frame
     apiString[apiIndex++] = dataFrame;
     // Receiver address
-    apiString[apiIndex++] = RECEIVER_ADDRESS_MSB;
-    apiString[apiIndex++] = RECEIVER_ADDRESS_LSB;
+    apiString[apiIndex++] = (RECEIVER_ADDRESS & 0xFF00000000000000) >> 56;
+    apiString[apiIndex++] = (RECEIVER_ADDRESS & 0x00FF000000000000) >> 48;
+    apiString[apiIndex++] = (RECEIVER_ADDRESS & 0x0000FF0000000000) >> 40;
+    apiString[apiIndex++] = (RECEIVER_ADDRESS & 0x000000FF00000000) >> 32;
+    apiString[apiIndex++] = (RECEIVER_ADDRESS & 0x00000000FF000000) >> 24;
+    apiString[apiIndex++] = (RECEIVER_ADDRESS & 0x0000000000FF0000) >> 16;
+    apiString[apiIndex++] = (RECEIVER_ADDRESS & 0x000000000000FF00) >> 8;
+    apiString[apiIndex++] = (RECEIVER_ADDRESS & 0x00000000000000FF);
+
+    //Reserved Data
+    apiString[apiIndex++] = 0xFF;
+    apiString[apiIndex++] = 0xFE;
+//    *((long long *)(&apiString[apiIndex])) = RECEIVER_ADDRESS;
+//    apiIndex += 8; //Receiver Address is 64 bit
+    //Node Path distance
+    apiString[apiIndex++] = BROADCAST_RADIUS;
     // Option byte
     apiString[apiIndex++] = OPTION_BYTE;
-
+    
     return apiIndex;
 }
 
@@ -212,7 +226,7 @@ int sendTelemetryBlock(struct telem_block *telem) {
     // Send the header
     for (i = 0; i < headerLength; i++ ) {
         // Culmulative checksum
-        if (i >= 3) {
+        if (i >= API_HEADER_PREFIX) {
             checksum += apiHeader[i] & 0xFF;
         }
         // Wait for data link to clear from previous send

@@ -19,6 +19,12 @@
 #endif
 
 
+void __attribute__((__interrupt__,no_auto_psv)) _SPI1Interrupt(void){
+    SPI1STATbits.SPIROV = 0;
+    IFS0bits.SPI1IF = 0;
+    IFS0bits.SPI1EIF = 0;
+}
+
 #if !PATH_MANAGER
 
 /*SPI RECEIVE OPERATION*/
@@ -31,15 +37,13 @@ unsigned char RxBufferB[sizeof(PMData) + 1] __attribute__((space(dma)));
 unsigned char TxBufferA[sizeof(PMData) + 1] __attribute__((space(dma)));
 unsigned char TxBufferB[sizeof(PMData) + 1] __attribute__((space(dma)));
 
-static unsigned int TxBufferCount = 0; // Keep record of which buffer contains TX Data
-static unsigned int RxBufferCount = 0; // Keep record of which buffer contains RX Data
 
 /*
  *
  */
 
-
 void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
+    static unsigned int RxBufferCount = 0; // Keep record of which buffer contains RX Data
     if(RxBufferCount == 0){
         ProcessRxData(&RxBufferA[0]); // Process received SPI data in DMA RAM Primary buffer
     }else{
@@ -49,12 +53,14 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
     IFS0bits.DMA0IF = 0;// Clear the DMA0 Interrupt Flag
 }
 void __attribute__((__interrupt__, no_auto_psv)) _DMA1Interrupt(void){
+    static unsigned int TxBufferCount = 0; // Keep record of which buffer contains TX Data
     if(TxBufferCount == 0){
         ProcessTxData(&TxBufferA[0]); // Copy SPI data into DMA RAM Primary buffer
     }else{
         ProcessTxData(&TxBufferB[0]); // Copy SPI data into DMA RAM Secondary buffer
     }
     TxBufferCount ^= 1;
+//    UART1_SendString("TX");
     IFS0bits.DMA1IF = 0;// Clear the DMA0 Interrupt Flag
 }
 
@@ -71,9 +77,9 @@ void ProcessRxData(unsigned char *buffer){
             pmDataArray[i] = buffer[i];
 //            UART1_SendChar(buffer[i]);
         }
-    char str[16];
-    sprintf(&str,"%f",pmData.time);
-    UART1_SendString(str);
+//    char str[16];
+//    sprintf(&str,"%f",pmData.time);
+//    UART1_SendString(str);
 //    }
 
 }
@@ -100,10 +106,10 @@ void ProcessTxData(unsigned char *buffer){
     char *pmDataArray = &pmData;
     char spiChecksum = 0;
     for (i = 0; i < sizeof(PMData); i++){
-//        buffer[i] = pmDataArray[i];
+        buffer[i] = pmDataArray[i];
         spiChecksum ^= pmDataArray[i];
     }
-//    buffer[sizeof(PMData)] = spiChecksum;
+    buffer[sizeof(PMData)] = spiChecksum;
 
 
 }
@@ -196,10 +202,8 @@ unsigned char PMRxBufferB[sizeof(PMData) + 1] __attribute__((space(dma)));
 unsigned char PMTxBufferA[sizeof(PMData) + 1] __attribute__((space(dma)));
 unsigned char PMTxBufferB[sizeof(PMData) + 1] __attribute__((space(dma)));
 
-static unsigned int PMRxBufferCount = 0; // Keep record of which buffer contains RX Data
-static unsigned int PMTxBufferCount = 0; // Keep record of which buffer contains TX Data
-
 void __attribute__((__interrupt__, no_auto_psv)) _DMA1Interrupt(void){
+    static unsigned int PMRxBufferCount = 0; // Keep record of which buffer contains RX Data
     if(PMRxBufferCount == 0){
         ProcessPMRxData(&PMRxBufferA[0]); // Process received SPI data in DMA RAM Primary buffer
     }else{
@@ -209,6 +213,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA1Interrupt(void){
     IFS0bits.DMA1IF = 0;// Clear the DMA0 Interrupt Flag
 }
 void __attribute__((__interrupt__, no_auto_psv)) _DMA2Interrupt(void){
+    static unsigned int PMTxBufferCount = 0; // Keep record of which buffer contains TX Data
     if(PMTxBufferCount == 0){
         ProcessPMTxData(&PMTxBufferA[0]); // Process to place SPI data in DMA RAM Primary buffer
     }else{
@@ -226,9 +231,9 @@ void ProcessPMTxData(unsigned char *buffer){
         buffer[i] = pmDataArray[i];
         spiChecksum ^= pmDataArray[i];
     }
-                char str[16];
-    sprintf(&str,"%f",pmData.time);
-    UART1_SendString(&str);
+//                char str[16];
+//    sprintf(&str,"%f",pmData.time);
+//    UART1_SendString(&str);
     buffer[sizeof(PMData)] = spiChecksum;
 }
 
@@ -248,7 +253,7 @@ void ProcessPMRxData(unsigned char *buffer){
     }
     if (spiChecksum == buffer[sizeof(PMData)]){
         for (i = 0; i < sizeof(PMData); i++){
-//            pmDataArray[i] = buffer[i];
+            pmDataArray[i] = buffer[i];
         }
     }
 }
@@ -321,7 +326,7 @@ void init_SPI1(){
 
     //Then enable interrupts
     IFS0bits.SPI1IF = 0; //Clear interrupt flag
-    IEC0bits.SPI1IE = 0; //Disable interrupt
+    IEC0bits.SPI1IE = 1; //Enable interrupt
 
     //Enable SPI
     SPI1STATbits.SPIEN = 1;
@@ -363,7 +368,7 @@ void init_SPI1(){
 
     //Then enable interrupts
     IFS0bits.SPI1IF = 0; //Clear interrupt flag
-    IEC0bits.SPI1IE = 0; //Enable interrupt
+    IEC0bits.SPI1IE = 1; //Enable interrupt
 
     //Clear Receive Overflow
     SPI1STATbits.SPIROV = 0;

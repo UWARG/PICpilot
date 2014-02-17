@@ -15,7 +15,7 @@
 #include "AttitudeManager.h"
 #include "main.h"
 
-#if !(PATH_MANAGER && ATTITUDE_MANAGER && COMMUNICATION_MANAGER)
+#if !(PATH_MANAGER && ATTITUDE_MANAGER && COMMUN0ICATION_MANAGER)
 #include "InterchipDMA.h"
 #endif
 
@@ -100,9 +100,9 @@ void attitudeInit() {
 
     /* Initialize IMU with correct orientation matrix and filter settings */
     //IMU position matrix
-    float x_angle_offset = -90 * PI / 180.0; //Degrees
+    float x_angle_offset = (-90 + 40 - 33 + 8) * PI / 180.0; //Degrees
     float y_angle_offset = -0 * PI / 180.0;
-    float z_angle_offset = -10 * PI / 180.0;
+    float z_angle_offset = (-10 + 20 - 13) * PI / 180.0;
     float refRotationMatrix[9] = {cos(y_angle_offset) * cos(z_angle_offset), -cos(y_angle_offset) * sin(z_angle_offset), sin(y_angle_offset),
         sin(x_angle_offset) * sin(y_angle_offset) * cos(z_angle_offset) + sin(z_angle_offset) * cos(x_angle_offset), -sin(x_angle_offset) * sin(y_angle_offset) * sin(z_angle_offset) + cos(z_angle_offset) * cos(x_angle_offset), -sin(x_angle_offset) * cos(y_angle_offset),
         -cos(x_angle_offset) * sin(y_angle_offset) * cos(z_angle_offset) + sin(z_angle_offset) * sin(x_angle_offset), cos(x_angle_offset) * sin(y_angle_offset) * sin(z_angle_offset) + cos(z_angle_offset) * sin(x_angle_offset), cos(x_angle_offset) * cos(y_angle_offset)};
@@ -144,7 +144,7 @@ void attitudeManagerRuntime() {
     icTimeDiff = getICValues();
 
 
-    sp_RollRate = (icTimeDiff[0] - MIDDLE_PWM);
+    sp_RollRate = (icTimeDiff[0] - MIDDLE_PWM +7);
     sp_PitchRate = (icTimeDiff[1] - MIDDLE_PWM);
     sp_ThrottleRate = (icTimeDiff[2]);
     sp_YawRate = (icTimeDiff[3] - MIDDLE_PWM);
@@ -185,9 +185,9 @@ void attitudeManagerRuntime() {
 
 
     if (DEBUG) {
-        //            char str[20];
-        //            //sprintf(str,"%f",imuData[0]);
-        //            UART1_SendString(str);
+//                    char str[20];
+//                    sprintf(str,"%f",imuData[0]);
+//                    UART1_SendString(str);
     }
     /*****************************************************************************
      *****************************************************************************
@@ -214,8 +214,8 @@ void attitudeManagerRuntime() {
         // convert sp_xxxxRate to an sp_xxxxAngle in degrees
 
         if (!HEADING_CONTROL){
-            //sp_YawAngle = sp_YawRate / (sp_Range / maxYawAngle);
-            sp_RollAngle = -sp_RollRate / (SP_RANGE / maxRollAngle);
+//            //sp_YawAngle = sp_YawRate / (sp_Range / maxYawAngle);
+            sp_RollAngle = (-sp_RollRate / (SP_RANGE / maxRollAngle) - 1/1.5) * 45.0/50.0;
             sp_PitchAngle = -sp_PitchRate / (SP_RANGE / maxPitchAngle);
         }
 
@@ -224,8 +224,8 @@ void attitudeManagerRuntime() {
 
         //sp_YawRate = controlSignalAngles(sp_YawAngle, imu_YawAngle, kd_Accel_Yaw, -(SP_RANGE) / (maxYawAngle)) ;
         sp_ComputedYawRate = sp_YawRate;
-        sp_ComputedRollRate = controlSignalAngles(sp_RollAngle, imu_RollAngle, ROLL, -(SP_RANGE) / (maxRollAngle),gps_Time);
-        sp_ComputedPitchRate = controlSignalAngles(sp_PitchAngle, imu_PitchAngle, PITCH, -(SP_RANGE) / (maxPitchAngle),gps_Time);
+        sp_ComputedRollRate = controlSignalAngles(sp_RollAngle,  imu_RollAngle, ROLL, -(SP_RANGE) / (maxRollAngle),time);
+        sp_ComputedPitchRate = controlSignalAngles(sp_PitchAngle, imu_PitchAngle, PITCH, -(SP_RANGE) / (maxPitchAngle),time);
     } else {
         sp_ComputedRollRate = sp_RollRate;
         sp_ComputedPitchRate = sp_PitchRate;
@@ -244,17 +244,18 @@ void attitudeManagerRuntime() {
             unfreezeIntegral();
             if (sp_GearSwitch > 600) {
                 if (sp_Type < 640) {
-                    float roll_gain = ((float) (sp_Value - 520)) / (SP_RANGE) * 25 / 1.6212766647 + 10;
-                    setGain(ROLL_RATE, GAIN_KD, roll_gain < 11. ? 0. : roll_gain);
-                    currentGain = (GAIN_KD << 4) + ROLL;
-                } else if (sp_Type > 640 && sp_Type < 710) {
-                    float pitch_gain = ((float) (sp_Value - 520)) / (SP_RANGE) * 20 / 1.6212766647 + 25;
-                    setGain(PITCH_RATE, GAIN_KD, pitch_gain < 26. ? 0. : pitch_gain);
-                    currentGain = (GAIN_KD << 4) + PITCH;
-                } else if (sp_Type > 710) {
-                    setGain(YAW_RATE, GAIN_KD, ((float) (sp_Value - 520)) / (SP_RANGE) * 40 / 1.6212766647 * -1); //10/0.1
-                    currentGain = (GAIN_KD << 4) + YAW;
-                }
+                    float roll_gain = ((float) (sp_Value - 520)) / (SP_RANGE) * 6 / 1.6212766647 + 2;  //4+ 0.4
+                    setGain(ROLL, GAIN_KP, roll_gain < 2.5 ? 1 : roll_gain); //0.4
+                    currentGain = (GAIN_KP << 4) + ROLL;
+                } else{ //if (sp_Type > 640 && sp_Type < 710) {
+                    float pitch_gain = ((float) (sp_Value - 520)) / (SP_RANGE) * 10 / 1.6212766647 + 3; //5 + 0.4
+                    setGain(PITCH, GAIN_KP, pitch_gain < 3.5 ? 1 : pitch_gain);  //0.5
+                    currentGain = (GAIN_KP << 4) + PITCH;
+                    }
+//                } else if (sp_Type > 710) {
+//                    setGain(YAW, GAIN_KP, ((float) (sp_Value - 520)) / (SP_RANGE) * 4 / 1.6212766647 * 1); //10/0.1
+//                    currentGain = (GAIN_KP << 4) + YAW;
+//                }
 
             }
         } else {
@@ -288,21 +289,21 @@ void attitudeManagerRuntime() {
     if (control_Roll < LOWER_PWM) {
         control_Roll = LOWER_PWM;
         // Limits the effects of the integrator, if the output signal is maxed out
-        if (getIntegralSum(ROLL) * getGain(ROLL, GAIN_KI) * 2 < sp_RollRate - sp_ComputedRollRate) {
+        if (getIntegralSum(ROLL) * getGain(ROLL, GAIN_KI) * lastTime * 2 < sp_RollRate - sp_ComputedRollRate) {
             setIntegralSum(ROLL, getIntegralSum(ROLL) / 1.1);
         }
     }
     if (control_Pitch > UPPER_PWM) {
         control_Pitch = UPPER_PWM;
         // Limits the effects of the integrator, if the output signal is maxed out
-        if (getIntegralSum(PITCH) * getGain(PITCH, GAIN_KI) * 2 > sp_PitchRate - sp_ComputedPitchRate) {
+        if (getIntegralSum(PITCH) * getGain(PITCH, GAIN_KI)* lastTime * 2 > sp_PitchRate - sp_ComputedPitchRate) {
             setIntegralSum(PITCH, getIntegralSum(PITCH) / 1.1);
         }
     }
     if (control_Pitch < LOWER_PWM) {
         control_Pitch = LOWER_PWM;
         // Limits the effects of the integrator, if the output signal is maxed out
-        if (getIntegralSum(PITCH) * getGain(PITCH, GAIN_KI) * 2 < sp_PitchRate - sp_ComputedPitchRate) {
+        if (getIntegralSum(PITCH) * getGain(PITCH, GAIN_KI) * lastTime * 2 < sp_PitchRate - sp_ComputedPitchRate) {
             setIntegralSum(PITCH, getIntegralSum(PITCH) / 1.1);
         }
     }
@@ -331,9 +332,9 @@ void attitudeManagerRuntime() {
         statusData->pitchRate = imu_PitchRate;
         statusData->rollRate = imu_RollRate;
         statusData->yawRate = imu_YawRate;
-        statusData->pitch_gain = getGain(PITCH, currentGain & 0xF0);
-        statusData->roll_gain = getGain(ROLL, currentGain & 0xF0);
-        statusData->yaw_gain = getGain(YAW, currentGain & 0xF0);
+        statusData->pitch_gain = getGain(PITCH, (currentGain & 0xF0) >> 4);
+        statusData->roll_gain = getGain(ROLL, (currentGain & 0xF0) >> 4);
+        statusData->yaw_gain = getGain(YAW, (currentGain & 0xF0) >> 4);
         statusData->pitchSetpoint = sp_PitchRate;
         statusData->rollSetpoint = sp_RollRate;
         statusData->yawSetpoint = sp_YawRate;
