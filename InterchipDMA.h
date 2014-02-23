@@ -16,15 +16,15 @@
 #if PATH_MANAGER || ATTITUDE_MANAGER
 typedef struct _PMData {
     float time;     //4 Bytes   -  hhmmss.ssss
-//    long double latitude;  //8 Bytes - ddd.mmmmmm
-//    long double longitude; //8 Bytes - ddd.mmmmmm
-//    float altitude; // Meters
-//    float sp_Altitude; // Meters
-//    float heading;  //Degrees
-//    float sp_Heading; //Degrees
-//    float speed;    //KM/H
-//    char satellites;    //1 Byte
-//    char positionFix;   //0 = No GPS, 1 = GPS fix, 2 = DGSP Fix
+    long double latitude;  //8 Bytes - ddd.mmmmmm
+    long double longitude; //8 Bytes - ddd.mmmmmm
+    float altitude; // Meters
+    float sp_Altitude; // Meters
+    float heading;  //Degrees
+    float sp_Heading; //Degrees
+    float speed;    //KM/H
+    char satellites;    //1 Byte
+    char positionFix;   //0 = No GPS, 1 = GPS fix, 2 = DGSP Fix
 } PMData;
 
 typedef struct _AMData {

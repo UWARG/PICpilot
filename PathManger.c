@@ -22,6 +22,7 @@
 
 extern GPSData gpsData;
 extern PMData pmData;
+extern newGPSDataAvailable;
 
 float k_gain = 1;
 
@@ -57,11 +58,16 @@ void pathManagerInit(void) {
 
 void pathManagerRuntime(void) {
 #if DEBUG
-    //    char str[16];
-    //    sprintf(&str,"%f",pmData.time);
-    //    UART1_SendString(&str);
+        char str[16];
+        sprintf(&str,"%f",pmData.time);
+        UART1_SendString(&str);
 #endif
+    if (newGPSDataAvailable){
+        newGPSDataAvailable = 0;
         pmData.time = gpsData.time;
+        pmData.heading = gpsData.heading;
+        pmData.speed = gpsData.speed;
+    }
     //
     //
     //    //Orbit Following

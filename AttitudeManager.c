@@ -23,17 +23,11 @@
 #if !(PATH_MANAGER && ATTITUDE_MANAGER && COMMUNICATION_MANAGER)
 extern PMData pmData;
 extern AMData amData;
+extern char newDataAvailable;
 #endif
 
-long long time = 0;
-long long lastTime = 0;
-
-void __attribute__((__interrupt__, no_auto_psv)) _T2Interrupt(void) {
-    //Temporary Timer Interrupt
-    time += 20;
-    IFS0bits.T2IF = 0;
-    // Clear Timer1 Interrupt Flag
-}
+float time = 0;
+float lastTime = 0;
 
 // Setpoints (From radio transmitter or autopilot)
 int sp_PitchRate = MIDDLE_PWM;
@@ -64,6 +58,8 @@ float sp_HeadingRate = 0;
 float gps_Heading = 0;
 float gps_GroundSpeed = 0; //NOTE: NEEDS TO BE IN METERS/SECOND. CALCULATIONS DEPEND ON THESE UNITS. GPS RETURNS KM/H.
 float gps_Time = 0;
+long double gps_long = 0;
+long double gps_lat = 0;
 
 // System outputs (get from IMU)
 float imuData[3];
@@ -77,10 +73,10 @@ float imu_PitchAngle = 0;
 float imu_YawAngle = 0;
 
 // Control Signals (Output compare value)
-int control_Roll;
-int control_Pitch;
-int control_Throttle;
-int control_Yaw;
+int control_Roll = MIDDLE_PWM;
+int control_Pitch = MIDDLE_PWM;
+int control_Throttle = 0;
+int control_Yaw = MIDDLE_PWM;
 
 //System constants
 float maxRollAngle = 60; // max allowed roll angle in degrees
@@ -134,6 +130,19 @@ void attitudeInit() {
 
 void attitudeManagerRuntime() {
 
+    //Transfer data from SPI
+    if (newDataAvailable){
+        newDataAvailable = 0;
+        time = pmData.time;
+        gps_Heading = pmData.heading;
+        gps_GroundSpeed = pmData.speed * 1000.0/3600.0; //Convert from km/h to m/s
+        gps_long = pmData.longitude;
+        gps_lat = pmData.latitude;
+    }
+    
+
+
+
     /*****************************************************************************
      *****************************************************************************
 
@@ -158,7 +167,9 @@ void attitudeManagerRuntime() {
 
     if (DEBUG) {
 //                   char str[20];
-//                   sprintf(str,"%f",pmData.time);
+//                   sprintf(str,"%f",time);
+//                   UART1_SendString(str);
+//                   sprintf(str,"%f",gps_Heading);
 //                   UART1_SendString(str);
         
     }
@@ -186,11 +197,6 @@ void attitudeManagerRuntime() {
     //        VN100_SPI_GetMag(0,&imuData);
 
 
-    if (DEBUG) {
-//                    char str[20];
-//                    sprintf(str,"%f",imuData[0]);
-//                    UART1_SendString(str);
-    }
     /*****************************************************************************
      *****************************************************************************
 
@@ -203,10 +209,17 @@ void attitudeManagerRuntime() {
         //Estimation of Roll angle based on heading:
         //TODO: Add if statement to use rudder for small heading changes
         // -(maxHeadingRate)/180.0,
-        sp_HeadingRate = controlSignalHeading(sp_Heading, gps_Heading, gps_Time);
+        sp_HeadingRate = controlSignalHeading(sp_Heading, gps_Heading, time) * (maxHeadingRate)/180.0;
         //Kinematics formula for approximating Roll angle from Heading and Velocity
-        sp_RollAngle = atan(gps_GroundSpeed * sp_HeadingRate/9.8);
+        sp_RollAngle = atan(gps_GroundSpeed * sp_HeadingRate/9.8) * 180/PI;
 
+        if (DEBUG) {
+                    char str[40];
+                    sprintf(str,"Ground Speed:%f",gps_GroundSpeed);
+                    UART1_SendString(str);
+                    sprintf(str,"Roll Angle:%f",sp_RollAngle);
+                    UART1_SendString(str);
+    }
     }
 
     if (ORIENTATION_CONTROL) {
@@ -328,7 +341,7 @@ void attitudeManagerRuntime() {
     setPWM(3, control_Throttle);
     setPWM(4, control_Yaw);
 
-    if (time - lastTime > 200) {
+    if (time - lastTime > 0.200) {
         lastTime = time;
         struct telem_block* statusData = createTelemetryBlock();
         statusData->millis = time;

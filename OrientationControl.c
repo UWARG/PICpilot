@@ -15,7 +15,7 @@
 
 //TODO: Change these variable names to more generic names for inclusion of heading
 float kd_gain[4] = {3.80577445030212, 29.2125988006591, 0, 0};//{25.9,39.8,0};//{25.9, 39.8, -8.38}; //14.619,35.7086
-float kp_gain[4] = {1, 1, 1, 0};
+float kp_gain[4] = {1, 1, 1, 1};
 float ki_gain[4]= {0, 0, 0, 0};
 //Interal Values
 float sum_gain[4] = {0, 0, 0, 0};
@@ -41,22 +41,22 @@ float controlSignalHeading(float setpoint, float output, float time) { // functi
     
     //To ensure that the time is valid and doesn't suddenly spike.
     if (dTime > 1){
-        return 0;
+        dTime = 0.0000001;
     }
     if (integralFreeze == 0){
-        sum_gain[HEADING] += (setpoint - output);
+        sum_gain[HEADING] += (setpoint - output) * dTime;
     }
 
     //Derivative Calculations
     float dValue = (setpoint - output) - lastError[HEADING];
     lastError[HEADING] = setpoint - output;
 
-    float control = (dValue/dTime * kd_gain[HEADING] + (setpoint - output) * kp_gain[HEADING] + (sum_gain[HEADING] * ki_gain[HEADING] * dTime));
+    float control = (dValue/dTime * kd_gain[HEADING] + (setpoint - output) * kp_gain[HEADING] + (sum_gain[HEADING] * ki_gain[HEADING]));
     return control;
 }
 int controlSignalAngles(float setpoint, float output, unsigned char type, float SERVO_SCALE_FACTOR_ANGLES, float time) { // function to find output based on gyro acceleration and PWM input
-    float dTime = time/1000 - lastControlTime[type];
-    lastControlTime[type] = time/1000;
+    float dTime = time - lastControlTime[type];
+    lastControlTime[type] = time;
 
     //To ensure that the time is valid and doesn't suddenly spike.
     if (dTime > 1){

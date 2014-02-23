@@ -28,6 +28,8 @@ void __attribute__((__interrupt__,no_auto_psv)) _SPI1Interrupt(void){
 
 /*SPI RECEIVE OPERATION*/
 char transmitInitialized = 0; //0 = Nothing Received, 1 = Transmit Initialized
+char newDataAvailable = 0;
+char newGPSDataAvailable = 0;
 
 AMData amData __attribute__((space(dma)));
 PMData pmData __attribute__((space(dma)));
@@ -44,9 +46,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
 //    while (DMA1REQbits.FORCE == 1);
 //    }
 #endif
-            char str[16];
-    sprintf(&str,"%f",pmData.time);
-    UART1_SendString(&str);
+    newDataAvailable = 1;
     IFS0bits.DMA0IF = 0;// Clear the DMA0 Interrupt Flag
 }
 void __attribute__((__interrupt__, no_auto_psv)) _DMA1Interrupt(void){
@@ -216,29 +216,9 @@ GPSData gpsData __attribute__((space(dma)));
  */
 
 void __attribute__((__interrupt__, no_auto_psv)) _DMA2Interrupt(void){
-//    ProcessGPSRxData(GPSRxBufferA); // Process received SPI data in DMA RAM Primary buffer
+    newGPSDataAvailable = 1;
     IFS1bits.DMA2IF = 0;// Clear the DMA0 Interrupt Flag
 }
-
-void ProcessGPSRxData(unsigned char *buffer){
-//    int i = 0;
-//    char *gpsDataArray = &gpsData;
-////    spiChecksum = 0;
-////    for (i = 0; i < sizeof(GPSData); i++){
-////        spiChecksum ^= buffer[i];
-////    }
-//
-////    if (spiChecksum == buffer[sizeof(GPSData)]){
-//        for (i = 0; i < sizeof(GPSData); i++){
-//            gpsDataArray[i] = buffer[i];
-//        }
-////    }
-////    else{
-////        UART1_SendChar('X');
-////    }
-}
-
-//Channel 0 (Highest Priority) must manage receiving data from the GPS
 void init_DMA2(){
     IFS1bits.DMA2IF = 0;
     IEC1bits.DMA2IE = 1;

@@ -34,7 +34,7 @@ void init_t2(void)    // Initialize and enable Timer2
     //PR2 = MSEC * 20; // Load the period value = 20ms                        //
     IPC1bits.T2IP = 0x01; // Set Timer 2 Interrupt Priority Level - Lowest
     IFS0bits.T2IF = 0; // Clear Timer 2 Interrupt Flag
-    IEC0bits.T2IE = 1; // Enable Timer 2 interrupt
+    IEC0bits.T2IE = 0; // Disable Timer 2 interrupt
     T2CONbits.TON = 1; // Start Timer
 }
 
