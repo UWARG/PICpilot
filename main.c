@@ -34,9 +34,7 @@ _FOSC(FCKSM_CSECMD & OSCIOFNC_OFF & POSCMD_NONE);
  *
  */
 int main(int argc, char** argv) {
-    checkErrorCodes();
-
-
+    
 #if PATH_MANAGER
     pathManagerInit();
 #endif
@@ -47,6 +45,10 @@ int main(int argc, char** argv) {
 
 #if COMMUNICATION_MANAGER
     initDataLink();
+#endif
+
+#if DEBUG
+    checkErrorCodes();
 #endif
 
 

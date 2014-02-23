@@ -27,8 +27,8 @@
 //  Communication Manager - Provides network communication (uplink/downlink) between the aircraft and
 //                          the ground station (or any other data link).
 #define PATH_MANAGER 0
-#define ATTITUDE_MANAGER 1
-#define COMMUNICATION_MANAGER 1
+#define ATTITUDE_MANAGER !PATH_MANAGER
+#define COMMUNICATION_MANAGER !PATH_MANAGER
 
 //Define constants for global use in the code
 #define TRUE	1

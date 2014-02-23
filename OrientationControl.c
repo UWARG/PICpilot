@@ -14,7 +14,7 @@
 
 
 //TODO: Change these variable names to more generic names for inclusion of heading
-float kd_gain[4] = {9.619, 32.7086, 0, 0};//{25.9,39.8,0};//{25.9, 39.8, -8.38}; //14.619,35.7086
+float kd_gain[4] = {3.80577445030212, 29.2125988006591, 0, 0};//{25.9,39.8,0};//{25.9, 39.8, -8.38}; //14.619,35.7086
 float kp_gain[4] = {1, 1, 1, 0};
 float ki_gain[4]= {0, 0, 0, 0};
 //Interal Values
@@ -55,17 +55,17 @@ float controlSignalHeading(float setpoint, float output, float time) { // functi
     return control;
 }
 int controlSignalAngles(float setpoint, float output, unsigned char type, float SERVO_SCALE_FACTOR_ANGLES, float time) { // function to find output based on gyro acceleration and PWM input
-    float dTime = time - lastControlTime[type];
-    lastControlTime[type] = time;
+    float dTime = time/1000 - lastControlTime[type];
+    lastControlTime[type] = time/1000;
 
     //To ensure that the time is valid and doesn't suddenly spike.
     if (dTime > 1){
         dTime = 0;
     }
     if (integralFreeze == 0){
-        sum_gain[type] += (setpoint - output);
+        sum_gain[type] += (setpoint - output) * dTime;
     }
-    int control = SERVO_SCALE_FACTOR_ANGLES * ((setpoint - output) * kp_gain[type] + (sum_gain[type] * ki_gain[type] * dTime));
+    int control = SERVO_SCALE_FACTOR_ANGLES * ((setpoint - output) * kp_gain[type] + (sum_gain[type] * ki_gain[type]));
     return control;
 }
 int controlSignal(float setpoint, float output, unsigned char type) { // function to find output based on gyro acceleration and PWM input

@@ -15,13 +15,14 @@
 #include "AttitudeManager.h"
 #include "main.h"
 
-#if !(PATH_MANAGER && ATTITUDE_MANAGER && COMMUN0ICATION_MANAGER)
+#if !(PATH_MANAGER && ATTITUDE_MANAGER && COMMUNICATION_MANAGER)
 #include "InterchipDMA.h"
 #endif
 
 
 #if !(PATH_MANAGER && ATTITUDE_MANAGER && COMMUNICATION_MANAGER)
 extern PMData pmData;
+extern AMData amData;
 #endif
 
 long long time = 0;
@@ -94,9 +95,10 @@ void attitudeInit() {
     }
 
     //Initialize Interchip communication
+    init_SPI1();
     init_DMA0();
     init_DMA1();
-    init_SPI1();
+
 
     /* Initialize IMU with correct orientation matrix and filter settings */
     //IMU position matrix
@@ -242,22 +244,28 @@ void attitudeManagerRuntime() {
         // CONTROLLER INPUT INTERPRETATION CODE
         if (sp_Switch < 600) {
             unfreezeIntegral();
-            if (sp_GearSwitch > 600) {
-                if (sp_Type < 640) {
-                    float roll_gain = ((float) (sp_Value - 520)) / (SP_RANGE) * 6 / 1.6212766647 + 2;  //4+ 0.4
-                    setGain(ROLL, GAIN_KP, roll_gain < 2.5 ? 1 : roll_gain); //0.4
-                    currentGain = (GAIN_KP << 4) + ROLL;
-                } else{ //if (sp_Type > 640 && sp_Type < 710) {
-                    float pitch_gain = ((float) (sp_Value - 520)) / (SP_RANGE) * 10 / 1.6212766647 + 3; //5 + 0.4
-                    setGain(PITCH, GAIN_KP, pitch_gain < 3.5 ? 1 : pitch_gain);  //0.5
-                    currentGain = (GAIN_KP << 4) + PITCH;
+                    if (sp_GearSwitch > 600) {
+                        float roll_gain = ((float) (sp_Value - 520)) / (SP_RANGE) * 6 / 1.6212766647 + 4.49;  //4+ 0.4
+                        setGain(ROLL, GAIN_KP, roll_gain < 2.5 ? 0.5 : roll_gain); //0.4
+                        currentGain = (GAIN_KP << 4) + ROLL;
+                        roll_gain = ((float) (sp_Type - 520)) / (SP_RANGE) * 0.5 / 1.6212766647 + 0; //5 + 0.4
+                        setGain(ROLL, GAIN_KI, roll_gain < 0.01 ? 0 : roll_gain);  //0.5
+                        currentGain = (GAIN_KI << 4) + ROLL;
                     }
+                    else{
+                        float pitch_gain = ((float) (sp_Value - 520)) / (SP_RANGE) * 10 / 1.6212766647 + 0.5; //5 + 0.4
+                        setGain(PITCH, GAIN_KP, pitch_gain < 0.5 ? 0.5 : pitch_gain);  //0.5
+                        currentGain = (GAIN_KP << 4) + PITCH;
+                        pitch_gain = ((float) (sp_Type - 520)) / (SP_RANGE) * 0.5 / 1.6212766647 + 0; //5 + 0.4
+                        setGain(PITCH, GAIN_KI, pitch_gain < 0.01 ? 0 : pitch_gain);  //0.5
+                        currentGain = (GAIN_KI << 4) + PITCH;
+                    }
+
 //                } else if (sp_Type > 710) {
 //                    setGain(YAW, GAIN_KP, ((float) (sp_Value - 520)) / (SP_RANGE) * 4 / 1.6212766647 * 1); //10/0.1
 //                    currentGain = (GAIN_KP << 4) + YAW;
 //                }
 
-            }
         } else {
             freezeIntegral();
         }
@@ -282,29 +290,29 @@ void attitudeManagerRuntime() {
     if (control_Roll > UPPER_PWM) {
         control_Roll = UPPER_PWM;
         // Limits the effects of the integrator, if the output signal is maxed out
-        if (getIntegralSum(ROLL) * getGain(ROLL, GAIN_KI) * 2 > sp_RollRate - sp_ComputedRollRate) {
-            setIntegralSum(ROLL, getIntegralSum(ROLL) / 1.1);
+        if (getIntegralSum(ROLL) * getGain(ROLL, GAIN_KI)* lastTime/1000 > sp_RollRate - sp_ComputedRollRate) {
+            setIntegralSum(ROLL, getIntegralSum(ROLL) / 1.01);
         }
     }
     if (control_Roll < LOWER_PWM) {
         control_Roll = LOWER_PWM;
         // Limits the effects of the integrator, if the output signal is maxed out
-        if (getIntegralSum(ROLL) * getGain(ROLL, GAIN_KI) * lastTime * 2 < sp_RollRate - sp_ComputedRollRate) {
-            setIntegralSum(ROLL, getIntegralSum(ROLL) / 1.1);
+        if (getIntegralSum(ROLL) * getGain(ROLL, GAIN_KI) < sp_RollRate - sp_ComputedRollRate) {
+            setIntegralSum(ROLL, getIntegralSum(ROLL) / 1.01);
         }
     }
     if (control_Pitch > UPPER_PWM) {
         control_Pitch = UPPER_PWM;
         // Limits the effects of the integrator, if the output signal is maxed out
-        if (getIntegralSum(PITCH) * getGain(PITCH, GAIN_KI)* lastTime * 2 > sp_PitchRate - sp_ComputedPitchRate) {
-            setIntegralSum(PITCH, getIntegralSum(PITCH) / 1.1);
+        if (getIntegralSum(PITCH) * getGain(PITCH, GAIN_KI) > sp_PitchRate - sp_ComputedPitchRate) {
+            setIntegralSum(PITCH, getIntegralSum(PITCH) / 1.01);
         }
     }
     if (control_Pitch < LOWER_PWM) {
         control_Pitch = LOWER_PWM;
         // Limits the effects of the integrator, if the output signal is maxed out
-        if (getIntegralSum(PITCH) * getGain(PITCH, GAIN_KI) * lastTime * 2 < sp_PitchRate - sp_ComputedPitchRate) {
-            setIntegralSum(PITCH, getIntegralSum(PITCH) / 1.1);
+        if (getIntegralSum(PITCH) * getGain(PITCH, GAIN_KI) < sp_PitchRate - sp_ComputedPitchRate) {
+            setIntegralSum(PITCH, getIntegralSum(PITCH) / 1.01);
         }
     }
 
@@ -332,9 +340,9 @@ void attitudeManagerRuntime() {
         statusData->pitchRate = imu_PitchRate;
         statusData->rollRate = imu_RollRate;
         statusData->yawRate = imu_YawRate;
-        statusData->pitch_gain = getGain(PITCH, (currentGain & 0xF0) >> 4);
-        statusData->roll_gain = getGain(ROLL, (currentGain & 0xF0) >> 4);
-        statusData->yaw_gain = getGain(YAW, (currentGain & 0xF0) >> 4);
+        statusData->pitch_gain = sp_GearSwitch <= 600?getGain(PITCH_RATE, GAIN_KD):getGain(ROLL_RATE, GAIN_KD);
+        statusData->roll_gain = sp_GearSwitch <= 600?getGain(PITCH, GAIN_KP):getGain(ROLL, GAIN_KP);
+        statusData->yaw_gain = sp_GearSwitch <= 600?getGain(PITCH, GAIN_KI):getGain(ROLL, GAIN_KI);
         statusData->pitchSetpoint = sp_PitchRate;
         statusData->rollSetpoint = sp_RollRate;
         statusData->yawSetpoint = sp_YawRate;
