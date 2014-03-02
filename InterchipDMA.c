@@ -40,11 +40,11 @@ PMData pmData __attribute__((space(dma)));
 
 void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
 #if !PATH_MANAGER
-//    if (!transmitInitialized){
-//        transmitInitialized = 1;
-//                DMA1REQbits.FORCE = 1;
-//    while (DMA1REQbits.FORCE == 1);
-//    }
+    if (!transmitInitialized){
+        transmitInitialized = 1;
+                DMA1REQbits.FORCE = 1;
+    while (DMA1REQbits.FORCE == 1);
+    }   
 #endif
     newDataAvailable = 1;
     IFS0bits.DMA0IF = 0;// Clear the DMA0 Interrupt Flag

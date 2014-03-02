@@ -26,7 +26,7 @@
 //                      the desires Pitch, Roll, Yaw on the aircraft.
 //  Communication Manager - Provides network communication (uplink/downlink) between the aircraft and
 //                          the ground station (or any other data link).
-#define PATH_MANAGER 0
+#define PATH_MANAGER 1
 #define ATTITUDE_MANAGER !PATH_MANAGER
 #define COMMUNICATION_MANAGER !PATH_MANAGER
 
@@ -36,6 +36,10 @@
 
 //Mathematical Constants
 #define PI 3.14159265
+
+//Basic Mathematical Conversions
+#define deg2rad(DEG) DEG * PI/180.0
+#define rad2deg(RAD) RAD * 180.0/PI
 
 #if DEBUG
     #include "UART1.h"

@@ -13,6 +13,7 @@
 
 // A scaling factor used in the PID control loops
 #define SERVO_SCALE_FACTOR (-(UPPER_PWM - MIDDLE_PWM) / 45)
+#define ALTITUDE_PITCH_SCALE_FACTOR 0.1 //0.1 degrees per meter in altitude change
 
 
 

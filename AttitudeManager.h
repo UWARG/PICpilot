@@ -12,12 +12,14 @@
 #define STABILIZATION_CONTROL 1
 #define ORIENTATION_CONTROL 1
 #define HEADING_CONTROL 1
+#define ALTITUDE_CONTROL 1
 
 //Defined Orientation Angle constants
 #define YAW     0
 #define PITCH   1
 #define ROLL    2
 #define HEADING 3
+#define ALTITUDE 4
 
 //Defined in the opposite order for rates of rotation
 //Be careful not to confuse the constants

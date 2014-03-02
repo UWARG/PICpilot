@@ -64,10 +64,20 @@ struct telem_block *getDebugTelemetryBlock(void) {
         debugTelemetry->pitch_gain = (float) 1;
         debugTelemetry->roll_gain = (float) 1;
         debugTelemetry->yaw_gain = (float) 1;
-        debugTelemetry->pitchSetpoint = (int) 1;
-        debugTelemetry->rollSetpoint = (int) 1;
-        debugTelemetry->yawSetpoint = (int) 1;
-        debugTelemetry->editing_gain = 'X';
+        debugTelemetry->heading = (float) 1;
+        debugTelemetry->groundSpeed = (float) 1;
+        debugTelemetry->pitchSetpoint = (float) 1;
+        debugTelemetry->rollSetpoint = (float) 1;
+        debugTelemetry->headingSetpoint = (float) 1;
+        debugTelemetry->throttleSetpoint = (float) 1;
+        debugTelemetry->altitudeSetpoint = (float) 1;
+        debugTelemetry->altitude = (float) 1;
+        debugTelemetry->cPitchSetpoint = (int) 1;
+        debugTelemetry->cRollSetpoint = (int) 1;
+        debugTelemetry->cYawSetpoint = (int) 1;
+        debugTelemetry->cThrottleSetpoint = (int) 1;
+        debugTelemetry->editing_gain = (char)1;
+        debugTelemetry->gpsStatus = (char)1;
     }
     return debugTelemetry;
 }
