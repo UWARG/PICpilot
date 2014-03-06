@@ -26,6 +26,15 @@ extern AMData amData;
 extern char newDataAvailable;
 #endif
 
+long int chipTime, lastChipTime;
+
+void __attribute__((__interrupt__, no_auto_psv)) _T2Interrupt(void){
+    //Temporary Timer Interrupt
+    chipTime += 20;
+    IFS0bits.T2IF = 0;
+    // Clear Timer1 Interrupt Flag
+}
+
 float time = 0;
 float lastTime = 0;
 
@@ -400,12 +409,12 @@ void attitudeManagerRuntime() {
     setPWM(3, control_Throttle);
     setPWM(4, control_Yaw);
 
-    if (time - lastTime < 0){
-        lastTime -= 240000;
-    }
+//    if (time - lastTime < 0){
+//        lastTime -= 240000;
+//    }
     
-    if (time - lastTime > 0.2) {
-        lastTime = time;
+    if (chipTime - lastChipTime > 500) {
+        lastChipTime = chipTime;
         struct telem_block* statusData = createTelemetryBlock();
         statusData->lat = gps_Latitude;
         statusData->lon = gps_Longitude;
