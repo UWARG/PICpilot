@@ -14,9 +14,9 @@
 
 
 //TODO: Change these variable names to more generic names for inclusion of heading
-float kd_gain[5] = {3.80577445030212, 29.2125988006591, 0, 0, 0};//{25.9,39.8,0};//{25.9, 39.8, -8.38}; //14.619,35.7086
-float kp_gain[5] = {1, 1, 1, 1, 1};
-float ki_gain[5]= {0, 0, 0.5, 0, 0};
+float kd_gain[5] = {16.5748023987, 29.2125988006591, 0, 0, 0};//{25.9,39.8,0};//{25.9, 39.8, -8.38}; //14.619,35.7086
+float kp_gain[5] = {1, 3.15, 3.39895009995, 1, 1};
+float ki_gain[5]= {0, 0, 0, 0, 0};
 //Interal Values
 float sum_gain[5] = {0, 0, 0, 0, 0};
 float lastControlTime[5] = {0, 0, 0, 0, 0};

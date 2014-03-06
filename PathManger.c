@@ -98,12 +98,12 @@ void pathManagerRuntime(void) {
 
 
     if (inOrbit){
-        pmData.sp_Heading = followOrbit(path[currentIndex]->longitude, path[currentIndex]->latitude, path[currentIndex]->radius, path[currentIndex]->direction);
-        pmData.sp_Altitude = path[currentIndex]->altitude;
+//        pmData.sp_Heading = followOrbit(path[currentIndex]->longitude, path[currentIndex]->latitude, path[currentIndex]->radius, path[currentIndex]->direction);
+//        pmData.sp_Altitude = path[currentIndex]->altitude;
     }
     else{
-       pmData.sp_Heading = followStraightPath();
-       pmData.sp_Altitude = maintainAltitude();
+//       pmData.sp_Heading = followStraightPath();
+//       pmData.sp_Altitude = maintainAltitude();
     }
 
     //    //Straight Path Following

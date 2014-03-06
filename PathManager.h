@@ -38,7 +38,7 @@ void pathManagerInit(void);
 void pathManagerRuntime(void);
 
 char followWaypoints(PathData* currentWaypoint, float* waypointPosition, float* waypointDirection, float* position);
-float followOrbit(long double longitude, long double latitude, float radius, char direction);
+float followOrbit(float* center, float radius, char direction, float* position, float heading);
 float followStraightPath(float* waypointPosition, float* waypointDirection, float* position, float heading);
 float maintainAltitude(PathData* cPath);
 void getCoordinates(long double longitude, long double latitude, float* xyCoordinates);

@@ -18,7 +18,7 @@
 
 
 //Function Prototypes
-
+float controlSignalAltitude(float sp_Altitude,float gps_Altitude, float time);
 /*****************************************************************************
  * Function: float controlSignalHeading(float setpoint, float output, float time)
  *
