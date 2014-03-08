@@ -418,7 +418,7 @@ void attitudeManagerRuntime() {
     float floatReceived;
     if ( cmd ) {
         floatReceived = 1.21;
-        switch (cmd->type) {
+        switch (cmd->cmd) {
             case 0:             // Debugging command, writes to debug UART
                 UART1_SendString( (char*) cmd->data);
                 break;

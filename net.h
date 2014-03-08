@@ -53,7 +53,7 @@ struct telem_buffer {
 };
 
 struct command {
-    unsigned char type;
+    unsigned char cmd;
     unsigned char data_length;
     unsigned char data[101];
 };

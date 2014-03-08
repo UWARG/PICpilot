@@ -58,7 +58,7 @@ struct command* createCommand( char* rawPacket ) {
     char temp[128];
     for (k = 0; k < 128; k++) temp[k] = rawPacket[k];
     cmd->data_length = rawPacket[2];
-    cmd->type = rawPacket[15];
+    cmd->cmd = rawPacket[15];
     int i;
     int j = 0;
     for ( i = 16; i < 15 + cmd->data_length - 12; i++ ) {   // Received packet payload starts at 15 and has 12 bytes before len
