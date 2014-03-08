@@ -1,12 +1,11 @@
-
-// The net.* files must be in aircraft code and the base station.
+/**
+ * net.h
+ */
 
 #define BLOCKING_MODE 0
-// uncomment to use the queue of raw bytes
-// #define QUEUE_RAW_BYTES
 
 #define OUTBOUND_QUEUE_SIZE 20
-#define INBOUND_QUEUE_SIZE 40
+#define INBOUND_QUEUE_SIZE 10
 #define MAX_PACKET_SIZE 100
 
 #define EDIT_NONE 0
@@ -27,6 +26,7 @@
 
 #define BROADCAST_RADIUS 1 //0 is infinite number of hops to reach target
 
+#define RAW_PACKET_BUFFER_SIZE 8    // Number of buffer regions to allow for incoming commands
 
 struct telem_block {
     long double lat, lon; // Latitude and longitude from gps    // 8Byte
@@ -50,6 +50,12 @@ struct telem_buffer {
         unsigned char *asArray;         // The telemetry intepreted as an array
     } telemetry;
     unsigned char checksum;             // The checksum so far
+};
+
+struct command {
+    unsigned char type;
+    unsigned char data_length;
+    unsigned char data[101];
 };
 
 // Initialize the data link
@@ -79,8 +85,30 @@ unsigned int generateApiHeader(unsigned char *apiString, char dataFrame);
 
 // Stage the given telemetry block
 void stageTelemetryBlock(struct telem_block *telem);
-// Do buffer maintenance
-void bufferMaintenance(void);
+// Do outbound buffer maintenance
+void outboundBufferMaintenance(void);
 
 // Send a block of telemetry immediately, probably shouldn't call this directly
 int sendTelemetryBlock(struct telem_block *telem);
+
+/****************************************************************************
+ * Inbound relevant functions
+ */
+
+// Clean up the command
+void destroyCommand( struct command* cmd );
+
+// Get the next command
+struct command* popCommand();
+
+// Queue up another command
+int pushCommand(struct command* cmd);
+
+// Create a new command struct
+struct command* createCommand( char* rawPacket );
+
+// Check and make sure the char array is a valid packet
+int checkPacket( char* rawPacket);
+
+// Handle the inbound buffer
+void inboundBufferMaintenance(void);

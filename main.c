@@ -63,7 +63,8 @@ int main(int argc, char** argv) {
 #endif
 
 #if COMMUNICATION_MANAGER
-        bufferMaintenance();
+        outboundBufferMaintenance();
+        inboundBufferMaintenance();
 #endif
         asm("CLRWDT");
     }

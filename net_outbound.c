@@ -1,44 +1,21 @@
-// net.c
-//
-// ONLY EDIT THIS FILE IF YOU ARE REALLY SURE YOU KNOW WHAT YOU ARE
-// DOING.
-//
-// This code contains lock free data structures and scenarios where
-// their validity is really unstable.
-// 
-// Seriously, don't touch this code
+/**
+ * net_outbound.c
+ */
 
 #include "net.h"
-#include <stdlib.h>
-#include <assert.h>
-#include "p33FJ256GP710.h"
-#include "UART2.h"
 
-#ifndef QUEUE_RAW_BYTES
-const unsigned int PACKET_LENGTH = API_HEADER_LENGTH + sizeof(struct telem_block) + 1;
+#include <stdlib.h>
+#include "p33FJ256GP710.h"
 
 struct telem_block *outBuffer [OUTBOUND_QUEUE_SIZE];
 int outbuff_start = 0;
 int outbuff_end = 0;
-#endif
-
-struct telem_block *inBuffer [INBOUND_QUEUE_SIZE];
-int inbuff_start = 0;
-int inbuff_end = 0;
 
 struct telem_block *debugTelemetry;
 
 struct telem_buffer stagingBuffer;
 
-// Initialize the data link
-int initDataLink(void) {
-    InitUART2();
-#ifndef QUEUE_RAW_BYTES
-    IEC1bits.U2TXIE = 1;	// Enable Transmit Interrupt
-    stagingBuffer.header[0]='\x42';
-#endif
-    return 0;
-}
+const unsigned int PACKET_LENGTH = API_HEADER_LENGTH + sizeof(struct telem_block) + 1;
 
 // Create a telem block returns null if fails
 struct telem_block *createTelemetryBlock(void) {
@@ -88,7 +65,6 @@ void destroyTelemetryBlock(struct telem_block *telem) {
     telem = 0;
 }
 
-#ifndef QUEUE_RAW_BYTES
 // Add a telem_block to the outbound telemetry queue
 // Returns the position in the queue or -1 if no room in queue
 int pushOutboundTelemetryQueue(struct telem_block *telem) {
@@ -124,7 +100,7 @@ int clearOutboundTelemetryQueue(void) {
 }
 
 // Do buffer maintenance
-void bufferMaintenance(void) {
+void outboundBufferMaintenance(void) {
     //UART1_SendChar('B');
     if ( stagingBuffer.sendIndex >= PACKET_LENGTH ) {
         destroyTelemetryBlock(stagingBuffer.telemetry.asStruct);
@@ -178,7 +154,6 @@ struct telem_block *popOutboundTelemetryQueue(void) {
     outbuff_start %= OUTBOUND_QUEUE_SIZE;
     return telem;
 }
-#endif
 
 //TODO: Implement method to split telemetry data between multiple packets
 
@@ -218,7 +193,7 @@ unsigned int generateApiHeader(unsigned char *apiString, char dataFrame) {
     apiString[apiIndex++] = BROADCAST_RADIUS;
     // Option byte
     apiString[apiIndex++] = OPTION_BYTE;
-    
+
     return apiIndex;
 }
 
@@ -265,7 +240,6 @@ int sendTelemetryBlock(struct telem_block *telem) {
     return 0;
 }
 
-#ifndef QUEUE_RAW_BYTES
 void __attribute__((__interrupt__, no_auto_psv)) _U2TXInterrupt(void) {
     // Short circuit if nothing in the staging area yet
     if ( stagingBuffer.telemetry.asStruct == 0 ) {
@@ -274,79 +248,3 @@ void __attribute__((__interrupt__, no_auto_psv)) _U2TXInterrupt(void) {
     }
         sendNextByte();
 }
-#endif
-
-#ifdef QUEUE_RAW_BYTES
-#define SEND_BUF_SZ (4096) //match the other send buffer size
-static unsigned char send_buf[SEND_BUF_SZ];
-static int send_buf_start, send_buf_end; // always at least one unused byte
-#define SEND_BUF_SPACE ((send_buf_end - send_buf_start + SEND_BUF_SZ) %\
-    SEND_BUF_SZ)
-
-void __attribute__((__interrupt__, no_auto_psv)) _U2TXInterrupt(void) {
-#ifndef NDEBUG
-    if (send_buf_start == send_buf_end) { // should never happen
-        assert(false);
-        return;
-    }
-#endif
-    U2TXREG = send_buf[send_buf_start];
-    send_buf_start = (send_buf_start + 1) % SEND_BUF_SZ;
-    // quit if buffer is empty
-    if (send_buf_start != send_buf_end)
-        IFS1bits.U2TXIF = 1;
-}
-void pushOutboundTelemetryQueue(struct telem_block *telem) {
-    send_frame(telem, sizeof(*telem));
-}
-
-/**
- * Enqueues a block to be sent as the payload of a single frame
- * @param buf the buffer to send
- * @param len the size of the buffer, len can't be too big
- * @return number of bytes queued and 0 on error
- */
-static size_t send_frame(const void *buf, unsigned int len, unsigned char dataFrame) {
-    const unsigned int sz = API_HEADER_LENGTH - API_HEADER_PREFIX + len;
-    assert(sz > len); //check for overflow
-    const size_t msg_size = 3 + sz;
-    unsigned char cksum = 0;
-    if (msg_size >= SEND_BUF_SPACE)
-        return 0;
-
-#define SEND_BYTE(x) do{\
-    send_buf[send_buf_end] = (x);\
-    send_buf_end = (send_buf_end + 1) % SEND_BUF_SZ;\
-} while(0)
-// x must have no side effects
-#define SEND_MSG_BYTE(x) do{\
-    SEND_BYTE(x);\
-    cksum += (x);\
-} while(0)
-
-    // API Mode header
-    SEND_BYTE(0x7E);
-    // Packet length
-    SEND_BYTE(sz >> 8); // MSB  = 0
-    SEND_BYTE(sz);      // LSB <= 100
-
-    // API Identifier
-    SEND_MSG_BYTE(TRANSMIT_16BIT);
-    // Data frame
-    SEND_MSG_BYTE(dataFrame); // only ever one frame
-    // Receiver address
-    SEND_MSG_BYTE(RECEIVER_ADDRESS_MSB);
-    SEND_MSG_BYTE(RECEIVER_ADDRESS_LSB);
-    // Option byte
-    SEND_MSG_BYTE(OPTION_BYTE);
-
-    for(int i = 0; i < len; ++i)
-        SEND_MSG_BYTE(buf[i]);
-
-    SEND_BYTE(((unsigned char)0xFF) - x);
-
-    IFS1bits.U2TXIF = 1; // wake up consumer
-
-    return msg_size;
-}
-#endif

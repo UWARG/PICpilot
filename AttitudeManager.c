@@ -13,6 +13,7 @@
 #include "net.h"
 #include "OrientationControl.h"
 #include "AttitudeManager.h"
+#include "commands.h"
 #include "main.h"
 
 #if !(PATH_MANAGER && ATTITUDE_MANAGER && COMMUNICATION_MANAGER)
@@ -412,10 +413,27 @@ void attitudeManagerRuntime() {
 //    if (time - lastTime < 0){
 //        lastTime -= 240000;
 //    }
-    
+
+    struct command* cmd = popCommand();
+    float floatReceived;
+    if ( cmd ) {
+        floatReceived = 1.21;
+        switch (cmd->type) {
+            case 0:             // Debugging command, writes to debug UART
+                UART1_SendString( (char*) cmd->data);
+                break;
+            case SET_ROLLGAIN:
+                floatReceived = *(float*)(&cmd->data);
+                break;
+            default:
+                break;
+        }
+        destroyCommand( cmd );
+    }
+
     if (chipTime - lastChipTime > 500) {
         lastChipTime = chipTime;
-        struct telem_block* statusData = createTelemetryBlock();
+        struct telem_block* statusData = getDebugTelemetryBlock();//createTelemetryBlock();
         statusData->lat = gps_Latitude;
         statusData->lon = gps_Longitude;
         statusData->millis = time;
@@ -436,7 +454,7 @@ void attitudeManagerRuntime() {
         statusData->throttleSetpoint = (int) ((float) (control_Throttle - 454) / (890 - 454)*100);
         statusData->altitudeSetpoint = sp_Altitude;
         statusData->altitude = gps_Altitude;
-        statusData->cPitchSetpoint = sp_PitchRate;
+        //statusData->cPitchSetpoint = sp_PitchRate;
         statusData->cRollSetpoint = sp_RollRate;
         statusData->cYawSetpoint = sp_YawRate;
         statusData->cThrottleSetpoint = (int) ((float) (control_Throttle - 454) / (890 - 454)*100);
