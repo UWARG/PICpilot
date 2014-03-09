@@ -424,13 +424,13 @@ void readDatalink(void){
                 UART1_SendString( (char*) cmd->data);
                 break;
             case SET_PITCH_KD_GAIN:
-                setGain(PITCH, GAIN_KD, *(float*)(&cmd->data));
+                setGain(PITCH_RATE, GAIN_KD, *(float*)(&cmd->data));
                 break;
             case SET_ROLL_KD_GAIN:
-                setGain(ROLL, GAIN_KD, *(float*)(&cmd->data));
+                setGain(ROLL_RATE, GAIN_KD, *(float*)(&cmd->data));
                 break;
             case SET_YAW_KD_GAIN:
-                setGain(YAW, GAIN_KD, *(float*)(&cmd->data));
+                setGain(YAW_RATE, GAIN_KD, *(float*)(&cmd->data));
                 break;
             case SET_PITCH_KP_GAIN:
                 setGain(PITCH, GAIN_KP, *(float*)(&cmd->data));
