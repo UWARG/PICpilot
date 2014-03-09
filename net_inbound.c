@@ -102,7 +102,11 @@ void __attribute__((__interrupt__, no_auto_psv)) _U2RXInterrupt(void) {
     }
     switch ( payloadPos ) {
         case 0:
-            if ( data != START_DELIMITER ) return;
+            if ( data != START_DELIMITER ) {
+                int nopass = 5;
+
+                return;
+            }
             break;
         case 1:
             if ( data != 0 ) {

@@ -45,17 +45,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=AttitudeManager.c InterchipDMA.c PathManger.c main.c Clock.c FullInitialize.c InputCapture.c OrientationControl.c OutputCompare.c SPI.c StartupErrorCodes.c UART1.c UART2.c VN100.c VN_lib.c VN_math.c VN_user.c delay.c net_outbound.c net_inbound.c net_common.c
+SOURCEFILES_QUOTED_IF_SPACED=AttitudeManager.c InterchipDMA.c PathManger.c main.c Clock.c FullInitialize.c InputCapture.c OrientationControl.c OutputCompare.c SPI.c StartupErrorCodes.c UART1.c UART2.c VN100.c VN_lib.c VN_math.c VN_user.c delay.c net_outbound.c net_inbound.c net_common.c cameraManager.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/AttitudeManager.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/PathManger.o ${OBJECTDIR}/main.o ${OBJECTDIR}/Clock.o ${OBJECTDIR}/FullInitialize.o ${OBJECTDIR}/InputCapture.o ${OBJECTDIR}/OrientationControl.o ${OBJECTDIR}/OutputCompare.o ${OBJECTDIR}/SPI.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/UART1.o ${OBJECTDIR}/UART2.o ${OBJECTDIR}/VN100.o ${OBJECTDIR}/VN_lib.o ${OBJECTDIR}/VN_math.o ${OBJECTDIR}/VN_user.o ${OBJECTDIR}/delay.o ${OBJECTDIR}/net_outbound.o ${OBJECTDIR}/net_inbound.o ${OBJECTDIR}/net_common.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/AttitudeManager.o.d ${OBJECTDIR}/InterchipDMA.o.d ${OBJECTDIR}/PathManger.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/Clock.o.d ${OBJECTDIR}/FullInitialize.o.d ${OBJECTDIR}/InputCapture.o.d ${OBJECTDIR}/OrientationControl.o.d ${OBJECTDIR}/OutputCompare.o.d ${OBJECTDIR}/SPI.o.d ${OBJECTDIR}/StartupErrorCodes.o.d ${OBJECTDIR}/UART1.o.d ${OBJECTDIR}/UART2.o.d ${OBJECTDIR}/VN100.o.d ${OBJECTDIR}/VN_lib.o.d ${OBJECTDIR}/VN_math.o.d ${OBJECTDIR}/VN_user.o.d ${OBJECTDIR}/delay.o.d ${OBJECTDIR}/net_outbound.o.d ${OBJECTDIR}/net_inbound.o.d ${OBJECTDIR}/net_common.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/AttitudeManager.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/PathManger.o ${OBJECTDIR}/main.o ${OBJECTDIR}/Clock.o ${OBJECTDIR}/FullInitialize.o ${OBJECTDIR}/InputCapture.o ${OBJECTDIR}/OrientationControl.o ${OBJECTDIR}/OutputCompare.o ${OBJECTDIR}/SPI.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/UART1.o ${OBJECTDIR}/UART2.o ${OBJECTDIR}/VN100.o ${OBJECTDIR}/VN_lib.o ${OBJECTDIR}/VN_math.o ${OBJECTDIR}/VN_user.o ${OBJECTDIR}/delay.o ${OBJECTDIR}/net_outbound.o ${OBJECTDIR}/net_inbound.o ${OBJECTDIR}/net_common.o ${OBJECTDIR}/cameraManager.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/AttitudeManager.o.d ${OBJECTDIR}/InterchipDMA.o.d ${OBJECTDIR}/PathManger.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/Clock.o.d ${OBJECTDIR}/FullInitialize.o.d ${OBJECTDIR}/InputCapture.o.d ${OBJECTDIR}/OrientationControl.o.d ${OBJECTDIR}/OutputCompare.o.d ${OBJECTDIR}/SPI.o.d ${OBJECTDIR}/StartupErrorCodes.o.d ${OBJECTDIR}/UART1.o.d ${OBJECTDIR}/UART2.o.d ${OBJECTDIR}/VN100.o.d ${OBJECTDIR}/VN_lib.o.d ${OBJECTDIR}/VN_math.o.d ${OBJECTDIR}/VN_user.o.d ${OBJECTDIR}/delay.o.d ${OBJECTDIR}/net_outbound.o.d ${OBJECTDIR}/net_inbound.o.d ${OBJECTDIR}/net_common.o.d ${OBJECTDIR}/cameraManager.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/AttitudeManager.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/PathManger.o ${OBJECTDIR}/main.o ${OBJECTDIR}/Clock.o ${OBJECTDIR}/FullInitialize.o ${OBJECTDIR}/InputCapture.o ${OBJECTDIR}/OrientationControl.o ${OBJECTDIR}/OutputCompare.o ${OBJECTDIR}/SPI.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/UART1.o ${OBJECTDIR}/UART2.o ${OBJECTDIR}/VN100.o ${OBJECTDIR}/VN_lib.o ${OBJECTDIR}/VN_math.o ${OBJECTDIR}/VN_user.o ${OBJECTDIR}/delay.o ${OBJECTDIR}/net_outbound.o ${OBJECTDIR}/net_inbound.o ${OBJECTDIR}/net_common.o
+OBJECTFILES=${OBJECTDIR}/AttitudeManager.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/PathManger.o ${OBJECTDIR}/main.o ${OBJECTDIR}/Clock.o ${OBJECTDIR}/FullInitialize.o ${OBJECTDIR}/InputCapture.o ${OBJECTDIR}/OrientationControl.o ${OBJECTDIR}/OutputCompare.o ${OBJECTDIR}/SPI.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/UART1.o ${OBJECTDIR}/UART2.o ${OBJECTDIR}/VN100.o ${OBJECTDIR}/VN_lib.o ${OBJECTDIR}/VN_math.o ${OBJECTDIR}/VN_user.o ${OBJECTDIR}/delay.o ${OBJECTDIR}/net_outbound.o ${OBJECTDIR}/net_inbound.o ${OBJECTDIR}/net_common.o ${OBJECTDIR}/cameraManager.o
 
 # Source Files
-SOURCEFILES=AttitudeManager.c InterchipDMA.c PathManger.c main.c Clock.c FullInitialize.c InputCapture.c OrientationControl.c OutputCompare.c SPI.c StartupErrorCodes.c UART1.c UART2.c VN100.c VN_lib.c VN_math.c VN_user.c delay.c net_outbound.c net_inbound.c net_common.c
+SOURCEFILES=AttitudeManager.c InterchipDMA.c PathManger.c main.c Clock.c FullInitialize.c InputCapture.c OrientationControl.c OutputCompare.c SPI.c StartupErrorCodes.c UART1.c UART2.c VN100.c VN_lib.c VN_math.c VN_user.c delay.c net_outbound.c net_inbound.c net_common.c cameraManager.c
 
 
 CFLAGS=
@@ -205,6 +205,12 @@ ${OBJECTDIR}/net_common.o: net_common.c  nbproject/Makefile-${CND_CONF}.mk
 	${MP_CC} $(MP_EXTRA_CC_PRE)  net_common.c  -o ${OBJECTDIR}/net_common.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/net_common.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1  -omf=elf -mlarge-data -O0 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/net_common.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
+${OBJECTDIR}/cameraManager.o: cameraManager.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/cameraManager.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  cameraManager.c  -o ${OBJECTDIR}/cameraManager.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/cameraManager.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1  -omf=elf -mlarge-data -O0 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/cameraManager.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
 else
 ${OBJECTDIR}/AttitudeManager.o: AttitudeManager.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
@@ -331,6 +337,12 @@ ${OBJECTDIR}/net_common.o: net_common.c  nbproject/Makefile-${CND_CONF}.mk
 	@${RM} ${OBJECTDIR}/net_common.o.d 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  net_common.c  -o ${OBJECTDIR}/net_common.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/net_common.o.d"      -g -omf=elf -mlarge-data -O0 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/net_common.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/cameraManager.o: cameraManager.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/cameraManager.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  cameraManager.c  -o ${OBJECTDIR}/cameraManager.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/cameraManager.o.d"      -g -omf=elf -mlarge-data -O0 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/cameraManager.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 endif
 

@@ -48,7 +48,7 @@ void InitUART2()
 	U2STAbits.UTXEN = 0;	//Bit10 TX pins controlled by periph
 	U2STAbits.UTXBF = 0;	//Bit9 *Read Only Bit*
 	U2STAbits.TRMT = 0;	//Bit8 *Read Only bit*
-	U2STAbits.URXISEL = 2;	//Bits6,7 Int. on character recieved
+	U2STAbits.URXISEL = 0;	//Bits6,7 Int. on character recieved
 	U2STAbits.ADDEN = 0;	//Bit5 Address Detect Disabled
 	U2STAbits.RIDLE = 0;	//Bit4 *Read Only Bit*
 	U2STAbits.PERR = 0;		//Bit3 *Read Only Bit*
