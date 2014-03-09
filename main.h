@@ -38,8 +38,8 @@
 #define PI 3.14159265
 
 //Basic Mathematical Conversions
-#define deg2rad(DEG) DEG * PI/180.0
-#define rad2deg(RAD) RAD * 180.0/PI
+#define deg2rad(DEG) ((DEG) * PI/180.0)
+#define rad2deg(RAD) ((RAD) * 180.0/PI)
 
 #if DEBUG
     #include "UART1.h"

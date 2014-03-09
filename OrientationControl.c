@@ -14,18 +14,24 @@
 
 
 //TODO: Change these variable names to more generic names for inclusion of heading
-float kd_gain[5] = {16.5748023987, 29.2125988006591, 0, 0, 0};//{25.9,39.8,0};//{25.9, 39.8, -8.38}; //14.619,35.7086
-float kp_gain[5] = {1, 3.15, 3.39895009995, 1, 1};
-float ki_gain[5]= {0, 0, 0, 0, 0};
+float kd_gain[6] = {16.5748023987, 29.2125988006591, 0, 0, 0, 0};//{25.9,39.8,0};//{25.9, 39.8, -8.38}; //14.619,35.7086
+float kp_gain[6] = {1, 3.15, 3.39895009995, 1, 1, 1};
+float ki_gain[6]= {0, 0, 0, 0, 0, 0};
 //Interal Values
-float sum_gain[5] = {0, 0, 0, 0, 0};
-float lastControlTime[5] = {0, 0, 0, 0, 0};
+float sum_gain[6] = {0, 0, 0, 0, 0, 0};
+float lastControlTime[6] = {0, 0, 0, 0, 0, 0};
 //Derivative Values
-float lastError[5] = {0, 0, 0, 0, 0}; //[0],[1],[2] are currently unused
+float lastError[6] = {0, 0, 0, 0, 0, 0}; //[0],[1],[2] are currently unused
 
-//TODO: Delete all code related to angle_bias
-float angle_zero[5];
 char integralFreeze = 0;
+
+
+float controlSignalThrottle(float setpoint, float output, float time){
+    float error = setpoint - output;
+
+    float controlSignal = THROTTLE_SCALE_FACTOR * (error * kp_gain[THROTTLE]);
+    return controlSignal;
+}
 
 float controlSignalAltitude(float setpoint, float output, float time){
     //Integral Calculations
@@ -41,11 +47,9 @@ float controlSignalAltitude(float setpoint, float output, float time){
         sum_gain[ALTITUDE] += (error * dTime);
     }
 
-    float controlSignal = (error * kp_gain[ALTITUDE] + (sum_gain[ALTITUDE] * ki_gain[ALTITUDE]));
+    float controlSignal = ALTITUDE_PITCH_SCALE_FACTOR * (error * kp_gain[ALTITUDE] + (sum_gain[ALTITUDE] * ki_gain[ALTITUDE]));
     return controlSignal;
 }
-
-
 
 float controlSignalHeading(float setpoint, float output, float time) { // function to find output based on gyro acceleration and PWM input
 
@@ -66,8 +70,12 @@ float controlSignalHeading(float setpoint, float output, float time) { // functi
     if (integralFreeze == 0){
         sum_gain[HEADING] += (error * dTime);
     }
+    
+    //Derivative Calculations
+    float dValue = error - lastError[HEADING];
+    lastError[HEADING] = error;
 
-    float controlSignal = ALTITUDE_PITCH_SCALE_FACTOR * (error * kp_gain[HEADING] + (sum_gain[HEADING] * ki_gain[HEADING]));
+    float controlSignal = HEADING_ROLL_SCALE_FACTOR * ((dValue/dTime * kd_gain[HEADING]) + (error * kp_gain[HEADING]) + (sum_gain[HEADING] * ki_gain[HEADING]));
     return controlSignal;
 }
 int controlSignalAngles(float setpoint, float output, unsigned char type, float SERVO_SCALE_FACTOR_ANGLES, float time) { // function to find output based on gyro acceleration and PWM input
@@ -90,9 +98,6 @@ int controlSignal(float setpoint, float output, unsigned char type) { // functio
     int controlSignal = SERVO_SCALE_FACTOR * (setpoint - output * kd_gain[type]) + MIDDLE_PWM;
     return controlSignal;
 }
-void getAngleBias(){
-   VN100_SPI_GetYPR(0, &angle_zero[YAW], &angle_zero[PITCH], &angle_zero[ROLL]);
-    }
 
 void freezeIntegral() {
     integralFreeze = 1;

@@ -1132,7 +1132,25 @@ VN100_SPI_Packet* VN100_SPI_SetAccGain(unsigned char sensorID, VN100_AccGainType
   /* Write register and return SPI packet*/
   return VN100_SPI_WriteRegister(sensorID, VN100_REG_ACG, 1, &regValue);
 }
+/*******************************************************************************
+* Function Name  : VN100_SPI_WriteSettings(unsigned char sensorID)
+* Description    : Command the given sensor to save its settings.
+* Input          : sensorID -> The sensor to get the requested data from.
+* Output         : None
+* Return         : Pointer to SPI packet returned by the sensor
+*******************************************************************************/
+void VN100_SPI_WriteSettings(unsigned char sensorID){
 
+  /* Pull SS line low */
+  VN_SPI_SetSS(sensorID, VN_PIN_LOW);
+
+  /* Send command over SPI */
+  VN_SPI_SendReceive(VN_BYTES2WORD(0, 0, 0, VN100_CmdID_WriteSettings));
+  VN_SPI_SendReceive(0);
+
+  /* Pull SS line high */
+  VN_SPI_SetSS(sensorID, VN_PIN_HIGH);
+}
 /*******************************************************************************
 * Function Name  : VN100_SPI_RestoreFactoryDefaultSettings(unsigned char sensorID)
 * Description    : Restore the selected sensor to factory default state. The

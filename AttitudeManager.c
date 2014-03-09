@@ -14,7 +14,7 @@
 #include "OrientationControl.h"
 #include "AttitudeManager.h"
 #include "commands.h"
-#include "main.h"
+#include "cameraManager.h"
 
 #if !(PATH_MANAGER && ATTITUDE_MANAGER && COMMUNICATION_MANAGER)
 #include "InterchipDMA.h"
@@ -27,17 +27,14 @@ extern AMData amData;
 extern char newDataAvailable;
 #endif
 
-long int chipTime, lastChipTime;
 
+long int time = 0;
+long int lastTime = 0;
 void __attribute__((__interrupt__, no_auto_psv)) _T2Interrupt(void){
-    //Temporary Timer Interrupt
-    chipTime += 20;
+    //Timer Interrupt used for the control loops and data link
+    time += 20;
     IFS0bits.T2IF = 0;
-    // Clear Timer1 Interrupt Flag
 }
-
-float time = 0;
-float lastTime = 0;
 
 // Setpoints (From radio transmitter or autopilot)
 int sp_PitchRate = MIDDLE_PWM;
@@ -66,6 +63,7 @@ float sp_HeadingRate = 0;
 
 //Altitude Variables
 float sp_Altitude = 0;
+float sp_GroundSpeed = 0;
 
 //GPS Data
 float gps_Heading = 0;
@@ -94,14 +92,11 @@ int control_Pitch = MIDDLE_PWM;
 int control_Throttle = 0;
 int control_Yaw = MIDDLE_PWM;
 
-//System constants
-float maxRollAngle = 60; // max allowed roll angle in degrees
-float maxPitchAngle = 60;
-//float maxYawAngle = 20;
-float maxHeadingRate = 36; //Max heading change of 36 degrees per second
+char displayGain = 0;
+char controlLevel = 0;
 
-int tempCounter = 0;
-char trigger = 0;
+int headingCounter = 0;
+char altitudeTrigger = 0;
 
 void attitudeInit() {
     //Debug Mode initialize communication with the serial port (Computer)
@@ -117,42 +112,32 @@ void attitudeInit() {
 
     /* Initialize IMU with correct orientation matrix and filter settings */
     //IMU position matrix
-    float x_angle_offset = (-90 + 40 - 33 + 8) * PI / 180.0; //Degrees
-    float y_angle_offset = -0 * PI / 180.0;
-    float z_angle_offset = (-10 + 20 - 13) * PI / 180.0;
-    float refRotationMatrix[9] = {cos(y_angle_offset) * cos(z_angle_offset), -cos(y_angle_offset) * sin(z_angle_offset), sin(y_angle_offset),
-        sin(x_angle_offset) * sin(y_angle_offset) * cos(z_angle_offset) + sin(z_angle_offset) * cos(x_angle_offset), -sin(x_angle_offset) * sin(y_angle_offset) * sin(z_angle_offset) + cos(z_angle_offset) * cos(x_angle_offset), -sin(x_angle_offset) * cos(y_angle_offset),
-        -cos(x_angle_offset) * sin(y_angle_offset) * cos(z_angle_offset) + sin(z_angle_offset) * sin(x_angle_offset), cos(x_angle_offset) * sin(y_angle_offset) * sin(z_angle_offset) + cos(z_angle_offset) * sin(x_angle_offset), cos(x_angle_offset) * cos(y_angle_offset)};
+    float angleOffset[3] = {deg2rad(-75), deg2rad(0), deg2rad(-3)};
     
     float filterVariance[10] = {+1.0e-6, +4.968087236542740e-006, +4.112245302664222e-006, +1.775172462044985e-004, +2.396688069825628e+006, +3.198907908235179e+006, +1.389186225936592e+005, +6.620304667228608e-002, +4.869544197003338e-002, +1.560574584667775e-001};
     VN100_initSPI();
-    VN100_SPI_SetRefFrameRot(0, (float*)&refRotationMatrix);
+    setVNOrientationMatrix((float*)&angleOffset);
     VN100_SPI_SetFiltMeasVar(0, (float*)&filterVariance);
-
-
-//    angle_zero[PITCH] = 0;
-//    angle_zero[ROLL] = 0; //-90
-//    angle_zero[YAW] = 0; //50
-
 
 
     /* Initialize Input Capture and Output Compare Modules */
     if (DEBUG) {
         initIC(0b11111111);
-        initOC(0b1111); //Initialize only Output Compare 1,2,3 and 4
+        initOC(0b11111); //Initialize only Output Compare 1,2,3 and 4
         UART1_SendString("START OF CODE BEFORE WHILE");
     } else {
         initIC(0b11110001);
-        initOC(0b1111); //Initialize only Output Compare 1,2,3 and 4
+        initOC(0b11111); //Initialize only Output Compare 1,2,3 and 4
     }
 }
 
 void attitudeManagerRuntime() {
 
-    //Transfer data from SPI
+    //Transfer data from PATHMANAGER CHIP
+#if !PATH_MANAGER
     if (newDataAvailable){
         newDataAvailable = 0;
-        time = pmData.time;
+        gps_Time = pmData.time;
         gps_Heading = pmData.heading;
         gps_GroundSpeed = pmData.speed * 1000.0/3600.0; //Convert from km/h to m/s
         gps_Altitude = pmData.altitude;
@@ -160,9 +145,12 @@ void attitudeManagerRuntime() {
         gps_Latitude = pmData.latitude;
         gps_Satellites = pmData.satellites;
         gps_PositionFix = pmData.positionFix;
-//        sp_Altitude = pmData.sp_Altitude;
+        if (controlLevel >= FULL_AUTONOMY){
+            sp_Altitude = pmData.sp_Altitude;
+            sp_Heading = pmData.sp_Heading;
+        }
     }
-
+#endif
 
 
     /*****************************************************************************
@@ -178,7 +166,7 @@ void attitudeManagerRuntime() {
 
     sp_RollRate = (icTimeDiff[0] - MIDDLE_PWM +7);
     sp_PitchRate = (icTimeDiff[1] - MIDDLE_PWM);
-    sp_ThrottleRate = (icTimeDiff[2]);
+    sp_ThrottleRate = (icTimeDiff[2] - MIDDLE_PWM);
     sp_YawRate = (icTimeDiff[3] - MIDDLE_PWM);
 
     sp_GearSwitch = icTimeDiff[4];
@@ -226,52 +214,61 @@ void attitudeManagerRuntime() {
      *****************************************************************************
      *****************************************************************************/
 
+    if (THROTTLE_CONTROL){
+        if (controlLevel >= GROUND_STATION_THROTTLE_CONTROL){
+            sp_ThrottleRate = controlSignalThrottle(sp_GroundSpeed, gps_GroundSpeed, time);
+            //TODO: Fix decleration of these constants later - Maybe have a  controller.config file specific to each controller or something (make a script to generate this)
+            if (sp_ThrottleRate > 890){
+                sp_ThrottleRate = 890;
+            }
+            else if (sp_ThrottleRate < 454){
+                sp_ThrottleRate = 454;
+            }
+        }
+    }
+
     if (ALTITUDE_CONTROL){
 
-        if ((sp_Switch < 600) && trigger == 0){
-            sp_Altitude = gps_Altitude;
-            sp_Heading = gps_Heading;
-            trigger = 1;
+        if (controlLevel >= CONTROLLER_ALTITUDE_CONTROL && controlLevel <= CONTROLLER_HEADING_CONTROL){
+            if ((sp_Switch < 600) && altitudeTrigger == 0){
+                sp_Altitude = gps_Altitude;
+                if (controlLevel == CONTROLLER_HEADING_CONTROL)
+                    sp_Heading = gps_Heading;
+                altitudeTrigger = 1;
+            }
+            else if (sp_Switch > 600)
+                altitudeTrigger = 0;
         }
-        else if (sp_Switch > 600)
-            trigger = 0;
 
-        sp_PitchAngle = controlSignalAltitude(sp_Altitude,gps_Altitude, time);
-        if (sp_PitchAngle > 20.0)
-            sp_PitchAngle = 20.0;
-        if (sp_PitchAngle < -20.0)
-            sp_PitchAngle = -20.0;
+        sp_PitchAngle = controlSignalAltitude(sp_Altitude,gps_Altitude, time/1000.0);
+        if (sp_PitchAngle > MAX_PITCH_ANGLE)
+            sp_PitchAngle = MAX_PITCH_ANGLE;
+        if (sp_PitchAngle < -MAX_PITCH_ANGLE)
+            sp_PitchAngle = -MAX_PITCH_ANGLE;
     }
 
 
     if (HEADING_CONTROL){
         //Estimation of Roll angle based on heading:
         //TODO: Add if statement to use rudder for small heading changes
-//        if (sp_YawRate > SP_RANGE * 0.5 && tempCounter >= 250){
-//            tempCounter = 0;
-//            sp_Heading += 90;
-//        }
-//
-//        if (sp_YawRate < SP_RANGE * 0.5 && tempCounter >= 250){
-//            tempCounter = 0;
-//            sp_Heading -= 90;
-//        }
-//        else
-//            tempCounter++;
 
-
-        
-//        sp_Heading += sp_YawRate * 0.20/(-SP_RANGE) > 0.1||sp_YawRate * 0.20/(-SP_RANGE) < -0.1?sp_YawRate * 0.20/(-SP_RANGE):0;
 
         if (sp_Heading > 360)
             sp_Heading -=360;
         if (sp_Heading < 0)
             sp_Heading +=360;
 
+        if (controlLevel == CONTROLLER_HEADING_CONTROL || controlLevel >= GROUND_STATION_HEADING_CONTROL){
         // -(maxHeadingRate)/180.0,
-        sp_HeadingRate = controlSignalHeading(sp_Heading, gps_Heading, time) * (maxHeadingRate)/180.0;
-        //Kinematics formula for approximating Roll angle from Heading and Velocity
-        sp_RollAngle = atan(sp_HeadingRate) * 180/PI *0.3;
+            sp_HeadingRate = controlSignalHeading(sp_Heading, gps_Heading, time/1000.0);
+            //Kinematics formula for approximating Roll angle from Heading and Velocity
+            sp_RollAngle = atan(sp_HeadingRate) * 180/PI;
+
+        if (sp_RollAngle > MAX_ROLL_ANGLE)
+            sp_RollAngle = MAX_ROLL_ANGLE;
+        if (sp_RollAngle < -MAX_ROLL_ANGLE)
+            sp_RollAngle = -MAX_ROLL_ANGLE;
+        }
 
         if (DEBUG) {
 //                    char str[40];
@@ -282,16 +279,16 @@ void attitudeManagerRuntime() {
         }
     }
 
-    if (ORIENTATION_CONTROL) {
+    if (ORIENTATION_CONTROL && controlLevel >= CONTROLLER_ANGLE_CONTROL) {
         // If we are using accelerometer based stabalization
         // convert sp_xxxRate to an angle (based on maxAngle)
         // If we are getting input from the controller
         // convert sp_xxxxRate to an sp_xxxxAngle in degrees
 
-        if (!HEADING_CONTROL){
+        if (controlLevel == CONTROLLER_ANGLE_CONTROL){
 //            //sp_YawAngle = sp_YawRate / (sp_Range / maxYawAngle);
-            sp_RollAngle = (-sp_RollRate / (SP_RANGE / maxRollAngle) - 1/1.5) * 45.0/50.0;
-//            sp_PitchAngle = -sp_PitchRate / (SP_RANGE / maxPitchAngle);
+            sp_RollAngle = (-sp_RollRate / (SP_RANGE / MAX_ROLL_ANGLE) - 1/1.5) * 45.0/50.0;
+            sp_PitchAngle = -sp_PitchRate / (SP_RANGE / MAX_PITCH_ANGLE);
         }
 
         // Output to servos based on requested angle and actual angle (using a gain value)
@@ -300,9 +297,9 @@ void attitudeManagerRuntime() {
         //sp_YawRate = controlSignalAngles(sp_YawAngle, imu_YawAngle, kd_Accel_Yaw, -(SP_RANGE) / (maxYawAngle)) ;
 //        sp_ComputedYawRate = sp_YawRate;
         
-        sp_ComputedRollRate = controlSignalAngles(sp_RollAngle,  imu_RollAngle, ROLL, -(SP_RANGE) / (maxRollAngle),time);
-        sp_ComputedPitchRate = controlSignalAngles(sp_PitchAngle, imu_PitchAngle, PITCH, -(SP_RANGE) / (maxPitchAngle),time);
-    } else {
+        sp_ComputedRollRate = controlSignalAngles(sp_RollAngle,  imu_RollAngle, ROLL, -(SP_RANGE) / (MAX_ROLL_ANGLE),time/1000.0);
+        sp_ComputedPitchRate = controlSignalAngles(sp_PitchAngle, imu_PitchAngle, PITCH, -(SP_RANGE) / (MAX_PITCH_ANGLE),time/1000.0);
+    } else if (controlLevel >= CONTROLLER_RATE_CONTROL) {
         sp_ComputedRollRate = sp_RollRate;
         sp_ComputedPitchRate = sp_PitchRate;
         sp_ComputedYawRate = sp_YawRate;
@@ -312,16 +309,16 @@ void attitudeManagerRuntime() {
         control_Roll = sp_RollRate + MIDDLE_PWM;
         control_Pitch = sp_PitchRate + MIDDLE_PWM;
         control_Yaw = sp_YawRate + MIDDLE_PWM;
-        control_Throttle = sp_ThrottleRate;
+        control_Throttle = sp_ThrottleRate + MIDDLE_PWM;
     } else {
 
         // CONTROLLER INPUT INTERPRETATION CODE
         if (sp_Switch < 600) {
             unfreezeIntegral();
 //                    if (sp_GearSwitch > 600) {
-                        float roll_gain = ((float) (sp_Value - 520)) / (SP_RANGE) * 10 / 1.6212766647 + 0;  //4+ 0.4
-                        setGain(HEADING, GAIN_KP, roll_gain < 0.5 ? 0 : roll_gain); //0.4
-                        currentGain = (GAIN_KI << 4) + HEADING;
+//                        float roll_gain = ((float) (sp_Value - 520)) / (SP_RANGE) * 10 / 1.6212766647 + 0;  //4+ 0.4
+//                        setGain(HEADING, GAIN_KP, roll_gain < 0.5 ? 0 : roll_gain); //0.4
+//                        currentGain = (GAIN_KI << 4) + HEADING;
 //                        roll_gain = ((float) (sp_Type - 520)) / (SP_RANGE) *  0/ 1.6212766647 + 0; //5 + 0.4
 //                        setGain(HEADING, GAIN_KI, roll_gain < 1 ? 0.0 : roll_gain);  //0.5
 //                        currentGain = (GAIN_KI << 4) + HEADING;
@@ -338,9 +335,9 @@ void attitudeManagerRuntime() {
 //                        float heading_gain = ((float) (sp_Value - 520)) / (SP_RANGE) * 20 / 1.6212766647 + 10;
 //                        setGain(ALTITUDE, GAIN_KD, heading_gain < 10.5 ? 10 : heading_gain);  //0.5
 //                        currentGain = (GAIN_KD << 4) + ALTITUDE;
-                        float heading_gain = ((float) (sp_Type - 520)) / (SP_RANGE) * 30/ 1.6212766647 + 0;
-                        setGain(ALTITUDE, GAIN_KP, heading_gain < 1? 0.5 : heading_gain);  //0.5
-                        currentGain = (GAIN_KP << 4) + ALTITUDE;
+//                        float heading_gain = ((float) (sp_Type - 520)) / (SP_RANGE) * 30/ 1.6212766647 + 0;
+//                        setGain(ALTITUDE, GAIN_KP, heading_gain < 1? 0.5 : heading_gain);  //0.5
+//                        currentGain = (GAIN_KP << 4) + ALTITUDE;
 //                    }
 
 //                } else if (sp_Type > 710) {
@@ -353,7 +350,7 @@ void attitudeManagerRuntime() {
         }
 
         // Control Signals (Output compare value)
-        control_Throttle = sp_ThrottleRate;
+        control_Throttle = sp_ThrottleRate + MIDDLE_PWM;
         control_Roll = controlSignal(sp_ComputedRollRate / SERVO_SCALE_FACTOR, imu_RollRate, ROLL_RATE);
         control_Pitch = controlSignal(sp_ComputedPitchRate / SERVO_SCALE_FACTOR, imu_PitchRate, PITCH_RATE);
         control_Yaw = controlSignal(sp_ComputedYawRate / SERVO_SCALE_FACTOR, imu_YawRate, YAW_RATE);
@@ -403,49 +400,145 @@ void attitudeManagerRuntime() {
     if (control_Yaw < LOWER_PWM)
         control_Yaw = LOWER_PWM;
 
-
+    float pwmTemp = cameraPollingRuntime(gps_Latitude, gps_Longitude, sp_Switch);
     // Sends the output signal to the servo motors
     setPWM(1, control_Roll);
     setPWM(2, control_Pitch);
     setPWM(3, control_Throttle);
     setPWM(4, control_Yaw);
+    setPWM(5, pwmTemp);
 
-//    if (time - lastTime < 0){
-//        lastTime -= 240000;
-//    }
+#if COMMUNICATION_MANAGER
+    readDatalink();
+    writeDatalink(DATALINK_SEND_FREQUENCY); //pwmTemp>600?0?:0xFFFFFFFF;
+#endif
+}
 
+#if COMMUNICATION_MANAGER
+void readDatalink(void){
     struct command* cmd = popCommand();
-    float floatReceived;
+    //TODO: Add rudimentary input validation
     if ( cmd ) {
-        floatReceived = 1.21;
         switch (cmd->cmd) {
-            case 0:             // Debugging command, writes to debug UART
+            case DEBUG_TEST:             // Debugging command, writes to debug UART
                 UART1_SendString( (char*) cmd->data);
                 break;
-            case SET_ROLLGAIN:
-                floatReceived = *(float*)(&cmd->data);
+            case SET_PITCH_KD_GAIN:
+                setGain(PITCH, GAIN_KD, *(float*)(&cmd->data));
+                break;
+            case SET_ROLL_KD_GAIN:
+                setGain(ROLL, GAIN_KD, *(float*)(&cmd->data));
+                break;
+            case SET_YAW_KD_GAIN:
+                setGain(YAW, GAIN_KD, *(float*)(&cmd->data));
+                break;
+            case SET_PITCH_KP_GAIN:
+                setGain(PITCH, GAIN_KP, *(float*)(&cmd->data));
+                break;
+            case SET_ROLL_KP_GAIN:
+                setGain(ROLL, GAIN_KP, *(float*)(&cmd->data));
+                break;
+            case SET_YAW_KP_GAIN:
+                setGain(YAW, GAIN_KP, *(float*)(&cmd->data));
+                break;
+            case SET_PITCH_KI_GAIN:
+                setGain(PITCH, GAIN_KI, *(float*)(&cmd->data));
+                break;
+            case SET_ROLL_KI_GAIN:
+                setGain(ROLL, GAIN_KI, *(float*)(&cmd->data));
+                break;
+            case SET_YAW_KI_GAIN:
+                setGain(YAW, GAIN_KI, *(float*)(&cmd->data));
+                break;
+            case SET_HEADING_KD_GAIN:
+                setGain(HEADING, GAIN_KD, *(float*)(&cmd->data));
+                break;
+            case SET_HEADING_KP_GAIN:
+                setGain(HEADING, GAIN_KP, *(float*)(&cmd->data));
+                break;
+            case SET_HEADING_KI_GAIN:
+                setGain(HEADING, GAIN_KI, *(float*)(&cmd->data));
+                break;
+            case SET_ALTITUDE_KD_GAIN:
+                setGain(ALTITUDE, GAIN_KD, *(float*)(&cmd->data));
+                break;
+            case SET_ALTITUDE_KP_GAIN:
+                setGain(ALTITUDE, GAIN_KP, *(float*)(&cmd->data));
+                break;
+            case SET_ALTITUDE_KI_GAIN:
+                setGain(ALTITUDE, GAIN_KI, *(float*)(&cmd->data));
+                break;
+            case SET_THROTTLE_KD_GAIN:
+                setGain(THROTTLE, GAIN_KD, *(float*)(&cmd->data));
+                break;
+            case SET_THROTTLE_KP_GAIN:
+                setGain(THROTTLE, GAIN_KP, *(float*)(&cmd->data));
+                break;
+            case SET_THROTTLE_KI_GAIN:
+                setGain(THROTTLE, GAIN_KI, *(float*)(&cmd->data));
+                break;
+            case SET_PATH_GAIN:
+                break;
+            case SET_ORBIT_GAIN:
+                break;
+            case SHOW_GAIN:
+                displayGain = *(char*)(&cmd->data);
+                break;
+            case SET_PITCH_RATE:
+                sp_PitchRate = *(int*)(&cmd->data);
+                break;
+            case SET_ROLL_RATE:
+                sp_RollRate = *(int*)(&cmd->data);
+                break;
+            case SET_YAW_RATE:
+                sp_YawRate = *(int*)(&cmd->data);
+                break;
+            case SET_PITCH_ANGLE:
+                sp_PitchAngle = *(float*)(&cmd->data);
+                break;
+            case SET_ROLL_ANGLE:
+                sp_RollAngle = *(float*)(&cmd->data);
+                break;
+            case SET_YAW_ANGLE:
+//                sp_YawAngle = *(float*)(&cmd->data);
+                break;
+            case SET_ALTITUDE:
+                sp_Altitude = *(float*)(&cmd->data);
+                break;
+            case SET_HEADING:
+                sp_Heading = *(float*)(&cmd->data);
+                break;
+            case SET_THROTTLE:
+                sp_ThrottleRate = *(int*)(&cmd->data);
+                break;
+            case TARE_IMU:
+                tareVN100();
+                break;
+            case SET_AUTONOMOUS_LEVEL:
+                controlLevel = *(char*)(&cmd->data);
                 break;
             default:
                 break;
         }
         destroyCommand( cmd );
     }
-
-    if (chipTime - lastChipTime > 500) {
-        lastChipTime = chipTime;
-        struct telem_block* statusData = getDebugTelemetryBlock();//createTelemetryBlock();
+}
+int writeDatalink(long frequency){
+    if (time - lastTime > frequency) {
+        lastTime = time;
+        struct telem_block* statusData = createTelemetryBlock();//getDebugTelemetryBlock();//createTelemetryBlock();
         statusData->lat = gps_Latitude;
         statusData->lon = gps_Longitude;
-        statusData->millis = time;
+        statusData->millis = gps_Time;
         statusData->pitch = imu_PitchAngle;
         statusData->roll = imu_RollAngle;
         statusData->yaw = imu_YawAngle;
         statusData->pitchRate = imu_PitchRate;
         statusData->rollRate = imu_RollRate;
         statusData->yawRate = imu_YawRate;
-        statusData->pitch_gain = sp_GearSwitch <= 600?getGain(ALTITUDE, GAIN_KD):getGain(ROLL_RATE, GAIN_KD);
-        statusData->roll_gain = getGain(ALTITUDE, GAIN_KP);//sp_GearSwitch <= 600?getGain(ALTITUDE, GAIN_KP):getGain(ROLL, GAIN_KP);
-        statusData->yaw_gain = getGain(HEADING, GAIN_KP);//sp_GearSwitch <= 600?getGain(ALTITUDE, GAIN_KI):getGain(ROLL, GAIN_KI);
+        statusData->pitch_gain = getGain(displayGain, GAIN_KD);
+        statusData->roll_gain = getGain(displayGain, GAIN_KP);
+        statusData->yaw_gain = getGain(displayGain, GAIN_KI);
         statusData->heading = gps_Heading;
         statusData->groundSpeed = gps_GroundSpeed;
         statusData->pitchSetpoint = sp_PitchAngle;
@@ -454,11 +547,11 @@ void attitudeManagerRuntime() {
         statusData->throttleSetpoint = (int) ((float) (control_Throttle - 454) / (890 - 454)*100);
         statusData->altitudeSetpoint = sp_Altitude;
         statusData->altitude = gps_Altitude;
-        //statusData->cPitchSetpoint = sp_PitchRate;
+        statusData->cPitchSetpoint = sp_PitchRate;
         statusData->cRollSetpoint = sp_RollRate;
         statusData->cYawSetpoint = sp_YawRate;
         statusData->cThrottleSetpoint = (int) ((float) (control_Throttle - 454) / (890 - 454)*100);
-        statusData->editing_gain = sp_Switch < 600?(((sp_GearSwitch > 600) * 0xFF) & (currentGain)) + 1:0; //(sp_Switch < 600 &&
+        statusData->editing_gain = sp_Switch < 600?displayGain + 1:0; //(sp_Switch < 600 &&
         statusData->gpsStatus = gps_Satellites + (gps_PositionFix << 4);
 
         if (BLOCKING_MODE) {
@@ -466,10 +559,27 @@ void attitudeManagerRuntime() {
             destroyTelemetryBlock(statusData);
         } else {
 
-            pushOutboundTelemetryQueue(statusData);
-            //statusData->throttleSetpoint = getOutboundQueueLength();
+            return pushOutboundTelemetryQueue(statusData);
         }
-
     }
+    return 0;
 }
-//TODO: Make a set of functions to override the path manager. (Example: Altitude needs to manually be changed)
+#endif
+
+void tareVN100(void){
+    float YPROffset[3];
+    VN100_SPI_GetYPR(0, &YPROffset[2], &imuData[1], &imuData[0]);
+    setVNOrientationMatrix((float*)&YPROffset);
+
+}
+
+void setVNOrientationMatrix(float* angleOffset){
+    //angleOffset[0] = x, angleOffset[1] = y, angleOffset[2] = z
+    float refRotationMatrix[9] = {cos(angleOffset[1]) * cos(angleOffset[2]), -cos(angleOffset[1]) * sin(angleOffset[2]), sin(angleOffset[1]),
+        sin(angleOffset[0]) * sin(angleOffset[1]) * cos(angleOffset[2]) + sin(angleOffset[2]) * cos(angleOffset[0]), -sin(angleOffset[0]) * sin(angleOffset[1]) * sin(angleOffset[2]) + cos(angleOffset[2]) * cos(angleOffset[0]), -sin(angleOffset[0]) * cos(angleOffset[1]),
+        -cos(angleOffset[0]) * sin(angleOffset[1]) * cos(angleOffset[2]) + sin(angleOffset[2]) * sin(angleOffset[0]), cos(angleOffset[0]) * sin(angleOffset[1]) * sin(angleOffset[2]) + cos(angleOffset[2]) * sin(angleOffset[0]), cos(angleOffset[0]) * cos(angleOffset[1])};
+
+    VN100_SPI_SetRefFrameRot(0, (float*)&refRotationMatrix);
+    VN100_SPI_WriteSettings(0);
+    VN100_SPI_Reset(0);
+}

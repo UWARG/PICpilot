@@ -63,7 +63,7 @@ void init_DMA0(){
     DMA0CONbits.AMODE = 0b00; //With post increment mode
     DMA0CONbits.MODE = 0b00; //Transfer continuously
     DMA0CONbits.SIZE = 0; //Transfer words (16 bits)
-    DMA0STA = __builtin_dmaoffset(PATH_MANAGER?&amData:&pmData); //Primary Transfer Buffer
+    DMA0STA = __builtin_dmaoffset(PATH_MANAGER?(&amData):&pmData); //Primary Transfer Buffer
     DMA0PAD = (volatile unsigned int) &SPI1BUF; //Peripheral Address
     DMA0CNT = PATH_MANAGER?(sizeof(AMData)/2 + sizeof(AMData) % 2 - 1):(sizeof(PMData)/2 + sizeof(PMData) % 2 - 1); //+1 for checksum //DMA Transfer Count Length
     DMA0REQ = 0x000A;//0b0100001; //IRQ code for SPI1

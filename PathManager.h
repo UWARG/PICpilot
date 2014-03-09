@@ -32,7 +32,7 @@ typedef struct _PathData{
     char index;
 } PathData;
 
-
+#if PATH_MANAGER
 //Function Prototypes
 void pathManagerInit(void);
 void pathManagerRuntime(void);
@@ -42,9 +42,10 @@ float followOrbit(float* center, float radius, char direction, float* position, 
 float followStraightPath(float* waypointPosition, float* waypointDirection, float* position, float heading);
 float maintainAltitude(PathData* cPath);
 void getCoordinates(long double longitude, long double latitude, float* xyCoordinates);
-float getDistance(long double lon1, long double lat1, long double lon2, long double lat2);
 PathData* initializePathNode(void);
 PathData* initializePathNodeAndNext(void);
+#endif
+float getDistance(long double lat1, long double lon1, long double lat2, long double lon2);
 
 
 

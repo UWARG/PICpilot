@@ -19,7 +19,6 @@
 #endif
 
 #if PATH_MANAGER
-
 extern GPSData gpsData;
 extern PMData pmData;
 extern newGPSDataAvailable;
@@ -209,22 +208,8 @@ float maintainAltitude(PathData* cPath){
 }
 
 void getCoordinates(long double longitude, long double latitude, float* xyCoordinates){
-    xyCoordinates[0] = getDistance(RELATIVE_LONGITUDE,RELATIVE_LATITUDE,longitude,RELATIVE_LATITUDE);//Longitude relative to (0,0)
-    xyCoordinates[1] = getDistance(RELATIVE_LONGITUDE,RELATIVE_LATITUDE,RELATIVE_LONGITUDE,latitude);
-}
-
-float getDistance(long double lon1, long double lat1, long double lon2, long double lat2){ //in meters
-    long double dLat = deg2rad(lat2 - lat1);
-    long double dLon = deg2rad(lon2 - lon1);
-
-    float a = sin(dLat / 2) * sin(dLat / 2) + cos(deg2rad(lat1)) * cos(deg2rad(lat2)) * sin(dLon / 2) * sin(dLon / 2);
-
-    if ((dLat >= 0 && dLon >=0)||(dLat < 0 && dLon < 0)){
-        return EARTH_RADIUS * (2 * atan2(sqrt(a),sqrt(1 - a)));
-    }
-    else {
-         return EARTH_RADIUS * (2 * atan2(sqrt(a),sqrt(1 - a))) * -1.0;
-    }
+    xyCoordinates[0] = getDistance(RELATIVE_LATITUDE, RELATIVE_LONGITUDE, RELATIVE_LATITUDE, longitude);//Longitude relative to (0,0)
+    xyCoordinates[1] = getDistance(RELATIVE_LATITUDE, RELATIVE_LONGITUDE, latitude, RELATIVE_LONGITUDE);
 }
 
 unsigned int getIndexFromID(unsigned int ID) {
@@ -266,5 +251,18 @@ unsigned int removePathNode(unsigned int index){
 unsigned int insertPathNode(PathData* node, unsigned int index){
     
 }
-
 #endif
+
+float getDistance(long double lat1, long double lon1, long double lat2, long double lon2){ //in meters
+    long double dLat = deg2rad(lat2 - lat1);
+    long double dLon = deg2rad(lon2 - lon1);
+
+    float a = sin(dLat / 2) * sin(dLat / 2) + cos(deg2rad(lat1)) * cos(deg2rad(lat2)) * sin(dLon / 2) * sin(dLon / 2);
+
+    if ((dLat >= 0 && dLon >=0)||(dLat < 0 && dLon < 0)){
+        return EARTH_RADIUS * (2 * atan2(sqrt(a),sqrt(1 - a)));
+    }
+    else {
+         return EARTH_RADIUS * (2 * atan2(sqrt(a),sqrt(1 - a))) * -1.0;
+    }
+}

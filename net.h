@@ -2,6 +2,7 @@
  * net.h
  */
 
+#define DATALINK_SEND_FREQUENCY 200 //Time in milliseconds
 #define BLOCKING_MODE 0
 
 #define OUTBOUND_QUEUE_SIZE 20
