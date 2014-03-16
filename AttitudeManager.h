@@ -11,13 +11,6 @@
 //Header Files
 #include "main.h"
 
-//Constants involving attitude management
-#define STABILIZATION_CONTROL 1
-#define ORIENTATION_CONTROL 1
-#define HEADING_CONTROL 1
-#define ALTITUDE_CONTROL 1
-#define THROTTLE_CONTROL 1
-
 //Bit masks for levels of control
 #define PITCH_CONTROL_TYPE 0b00000001 //Pitch Rate(0) or Pitch Angles(1)
 #define PITCH_CONTROL_SOURCE 0b00000010 //Controller(0) or Ground Station(1)
@@ -26,8 +19,8 @@
 #define THROTTLE_CONTROL_SOURCE 0b00110000 //Controller(0) or Ground Station(1) or Autopilot(2)(Controlled by the GroundSpeed)
 #define ALTITUDE_CONTROL_SOURCE 0b01000000 //Ground Station(0) or Autopilot(1)
 #define ALTITUDE_CONTROL_ON 0b10000000 //Off(0) or On(1)
-#define HEADING_CONTROL_SOURCE 0b00000001 00000000 // Ground Station(0) or Autopilot(1)
-#define HEADING_CONTROL_ON 0b00000010 00000000 //Off(0) or On(1)
+#define HEADING_CONTROL_SOURCE 0b0000000100000000 // Ground Station(0) or Autopilot(1)
+#define HEADING_CONTROL_ON 0b0000001000000000 //Off(0) or On(1)
 
 //Defined Orientation Parameter constants
 #define YAW     0
@@ -46,7 +39,7 @@
 
 
 /* FUNCTION PROTOTYPES */
-/*****************************************************************************
+/*****************************************************************************  
  * Function: void attitudeInit(void)
  *
  * Preconditions: None.

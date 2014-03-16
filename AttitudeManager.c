@@ -93,7 +93,7 @@ int control_Throttle = 0;
 int control_Yaw = MIDDLE_PWM;
 
 char displayGain = 0;
-char controlLevel = 0;
+int controlLevel = 0;
 
 int headingCounter = 0;
 char altitudeTrigger = 0;
@@ -246,7 +246,7 @@ void attitudeManagerRuntime() {
     }
 
 
-    if (HEADING_CONTROL_ON){
+    if (controlLevel & HEADING_CONTROL_ON == 1){
         //Estimation of Roll angle based on heading:
         //TODO: Add if statement to use rudder for small heading changes
 
@@ -468,7 +468,7 @@ void readDatalink(void){
                 tareVN100();
                 break;
             case SET_AUTONOMOUS_LEVEL:
-                controlLevel = *(char*)(&cmd->data);
+                controlLevel = *(int*)(&cmd->data);
                 break;
             default:
                 break;
@@ -504,7 +504,7 @@ int writeDatalink(long frequency){
         statusData->cRollSetpoint = sp_RollRate;
         statusData->cYawSetpoint = sp_YawRate;
         statusData->cThrottleSetpoint = sp_ThrottleRate;
-        statusData->editing_gain = displayGain + 1 + (sp_Switch < 600 << 4);
+        statusData->editing_gain = displayGain + ((sp_Switch < 600) << 4);
         statusData->gpsStatus = gps_Satellites + (gps_PositionFix << 4);
 
         if (BLOCKING_MODE) {
