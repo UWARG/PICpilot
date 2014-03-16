@@ -61,21 +61,37 @@ struct command* createCommand( char* rawPacket ) {
     cmd->cmd = rawPacket[15];
     int i;
     int j = 0;
-    for ( i = 16; i < 15 + cmd->data_length - 12; i++ ) {   // Received packet payload starts at 15 and has 12 bytes before len
+    for ( i = 16; i < 15 + cmd->data_length - 12; i++ ) {   // Received packet payload starts at 15 and has 12 bytes before len 
         cmd->data[j++] = rawPacket[i];
     }
     cmd->data[j] = '\0';    // Null terminate the string so can use SendUart
-    if ( cmd->data[0] == 0 ) {
-        int zero = 1;
-        zero += 1;
-        return 0;
-    }
+//    if ( cmd->data[0] == 0 ) {
+////        UART1_SendString("ERROR");
+//        int zero = 1;
+//        zero += 1;
+//        return 0;
+//    }
     return cmd;
 }
 
 // Return 1 if packet is valid
 int checkPacket( char* rawPacket) {
-    return 1;                       // TODO: checksums are for suckers, because fuck you, thats why
+    char i = 2;
+    char packetLength = rawPacket[i++];
+    char checksum = 0;
+    char packetChecksum = 0;
+
+    for (i = 3; i < packetLength + 3; i++){
+        checksum += rawPacket[i];
+    }
+    packetChecksum = 0xFF - rawPacket[i];
+    if (checksum == packetChecksum){
+//        UART1_SendString("GOODIE");
+        return 1;                       // TODO: checksums are for suckers, because fuck you, thats why
+    }
+    else{
+        return 0;
+    }
 }
 
 void inboundBufferMaintenance(void) {
@@ -97,14 +113,13 @@ void inboundBufferMaintenance(void) {
 void __attribute__((__interrupt__, no_auto_psv)) _U2RXInterrupt(void) {
     unsigned char data = U2RXREG;
     if ( rawPacketStatus[packetPos] != BUSY ) {    // no buffer available to write
+        packetPos = ( packetPos + 1  ) % RAW_PACKET_BUFFER_SIZE;
         IFS1bits.U2RXIF = 0;
         return;
     }
     switch ( payloadPos ) {
         case 0:
             if ( data != START_DELIMITER ) {
-                int nopass = 5;
-
                 return;
             }
             break;
@@ -121,7 +136,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _U2RXInterrupt(void) {
             break;
     }
     rawPackets[packetPos][payloadPos++] = data;
-    if ( payloadPos && payloadPos == payloadLength[packetPos] + 3 + 1 ) {   // at end of packet
+    if ( payloadPos && payloadPos == payloadLength[packetPos] + 3 + 1) {   // at end of packet
         rawPacketStatus[packetPos] = READY;
         payloadPos = 0;
         packetPos = ( packetPos + 1  ) % RAW_PACKET_BUFFER_SIZE;

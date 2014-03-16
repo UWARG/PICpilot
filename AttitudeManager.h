@@ -18,17 +18,16 @@
 #define ALTITUDE_CONTROL 1
 #define THROTTLE_CONTROL 1
 
-//Levels of control
-#define CONTROLLER_RATE_CONTROL 0 //Level 0 is full manual control
-#define CONTROLLER_ANGLE_CONTROL 1
-#define CONTROLLER_ALTITUDE_CONTROL 2
-#define CONTROLLER_HEADING_CONTROL 3
-#define GROUND_STATION_RATE_CONTROL 4
-#define GROUND_STATION_ANGLE_CONTROL 5
-#define GROUND_STATION_ALTITUDE_CONTROL 6
-#define GROUND_STATION_HEADING_CONTROL 7
-#define GROUND_STATION_THROTTLE_CONTROL 8
-#define FULL_AUTONOMY 9 //Level 9 is the highest level of autonomy
+//Bit masks for levels of control
+#define PITCH_CONTROL_TYPE 0b00000001 //Pitch Rate(0) or Pitch Angles(1)
+#define PITCH_CONTROL_SOURCE 0b00000010 //Controller(0) or Ground Station(1)
+#define ROLL_CONTROL_TYPE 0b00000100 //Roll Rates(0) or Roll Angles(1)
+#define ROLL_CONTROL_SOURCE 0b00001000 //Controller(0) or Ground Station(1)
+#define THROTTLE_CONTROL_SOURCE 0b00110000 //Controller(0) or Ground Station(1) or Autopilot(2)(Controlled by the GroundSpeed)
+#define ALTITUDE_CONTROL_SOURCE 0b01000000 //Ground Station(0) or Autopilot(1)
+#define ALTITUDE_CONTROL_ON 0b10000000 //Off(0) or On(1)
+#define HEADING_CONTROL_SOURCE 0b00000001 00000000 // Ground Station(0) or Autopilot(1)
+#define HEADING_CONTROL_ON 0b00000010 00000000 //Off(0) or On(1)
 
 //Defined Orientation Parameter constants
 #define YAW     0
@@ -40,9 +39,9 @@
 
 //Defined in the opposite order for rates of rotation
 //Be careful not to confuse the constants
-#define YAW_RATE     2
-#define PITCH_RATE   1
-#define ROLL_RATE    0
+#define IMU_YAW_RATE     2
+#define IMU_PITCH_RATE   1
+#define IMU_ROLL_RATE    0
 
 
 

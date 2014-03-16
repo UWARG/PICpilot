@@ -145,10 +145,10 @@ void attitudeManagerRuntime() {
         gps_Latitude = pmData.latitude;
         gps_Satellites = pmData.satellites;
         gps_PositionFix = pmData.positionFix;
-        if (controlLevel >= FULL_AUTONOMY){
+        if (controlLevel & ALTITUDE_CONTROL_SOURCE)
             sp_Altitude = pmData.sp_Altitude;
+        if (controlLevel & HEADING_CONTROL_SOURCE)
             sp_Heading = pmData.sp_Heading;
-        }
     }
 #endif
 
@@ -161,18 +161,21 @@ void attitudeManagerRuntime() {
      *****************************************************************************
      *****************************************************************************/
 
-    int* icTimeDiff;
-    icTimeDiff = getICValues();
+        int* icTimeDiff;
+        icTimeDiff = getICValues();
 
-    sp_RollRate = (icTimeDiff[0] - MIDDLE_PWM +7);
-    sp_PitchRate = (icTimeDiff[1] - MIDDLE_PWM);
-    sp_ThrottleRate = (icTimeDiff[2] - MIDDLE_PWM);
-    sp_YawRate = (icTimeDiff[3] - MIDDLE_PWM);
+        if (ROLL_CONTROL_SOURCE & controlLevel == 0)
+            sp_RollRate = (icTimeDiff[0] - MIDDLE_PWM +7);
+        if (PITCH_CONTROL_SOURCE & controlLevel == 0)
+            sp_PitchRate = (icTimeDiff[1] - MIDDLE_PWM);
+        if (THROTTLE_CONTROL_SOURCE & controlLevel == 0)
+            sp_ThrottleRate = (icTimeDiff[2] - MIDDLE_PWM);
+        sp_YawRate = (icTimeDiff[3] - MIDDLE_PWM);
 
-    sp_GearSwitch = icTimeDiff[4];
-    sp_Type = icTimeDiff[5];
-    sp_Value = icTimeDiff[6];
-    sp_Switch = icTimeDiff[7];
+        sp_GearSwitch = icTimeDiff[4];
+        sp_Type = icTimeDiff[5];
+        sp_Value = icTimeDiff[6];
+        sp_Switch = icTimeDiff[7];
 
     if (DEBUG) {
 //                   char str[20];
@@ -192,9 +195,9 @@ void attitudeManagerRuntime() {
      *****************************************************************************/
     VN100_SPI_GetRates(0, (float*) &imuData);
     //Outputs in order: Roll,Pitch,Yaw
-    imu_RollRate = (imuData[ROLL_RATE]);
-    imu_PitchRate = imuData[PITCH_RATE];
-    imu_YawRate = imuData[YAW_RATE];
+    imu_RollRate = (imuData[IMU_ROLL_RATE]);
+    imu_PitchRate = imuData[IMU_PITCH_RATE];
+    imu_YawRate = imuData[IMU_YAW_RATE];
     //        imu_PitchRate = imuData[YAW_RATE];
     //        imu_YawRate = -imuData[PITCH_RATE];
 
@@ -214,32 +217,27 @@ void attitudeManagerRuntime() {
      *****************************************************************************
      *****************************************************************************/
 
-    if (THROTTLE_CONTROL){
-        if (controlLevel >= GROUND_STATION_THROTTLE_CONTROL){
-            sp_ThrottleRate = controlSignalThrottle(sp_GroundSpeed, gps_GroundSpeed, time);
-            //TODO: Fix decleration of these constants later - Maybe have a  controller.config file specific to each controller or something (make a script to generate this)
-            if (sp_ThrottleRate > 890){
-                sp_ThrottleRate = 890;
-            }
-            else if (sp_ThrottleRate < 454){
-                sp_ThrottleRate = 454;
-            }
+    if (THROTTLE_CONTROL_SOURCE & controlLevel == 2){
+        sp_ThrottleRate = controlSignalThrottle(sp_GroundSpeed, gps_GroundSpeed, time);
+        //TODO: Fix decleration of these constants later - Maybe have a  controller.config file specific to each controller or something (make a script to generate this)
+        if (sp_ThrottleRate > 890){
+            sp_ThrottleRate = 890;
+        }
+        else if (sp_ThrottleRate < 454){
+            sp_ThrottleRate = 454;
         }
     }
 
-    if (ALTITUDE_CONTROL){
+    if ((sp_Switch < 600) && altitudeTrigger == 0){
+        sp_Altitude = gps_Altitude;
+        sp_Heading = gps_Heading;
+        altitudeTrigger = 1;
+    }
+    else if (sp_Switch > 600)
+        altitudeTrigger = 0;
 
-        if (controlLevel >= CONTROLLER_ALTITUDE_CONTROL && controlLevel <= CONTROLLER_HEADING_CONTROL){
-            if ((sp_Switch < 600) && altitudeTrigger == 0){
-                sp_Altitude = gps_Altitude;
-                if (controlLevel == CONTROLLER_HEADING_CONTROL)
-                    sp_Heading = gps_Heading;
-                altitudeTrigger = 1;
-            }
-            else if (sp_Switch > 600)
-                altitudeTrigger = 0;
-        }
 
+    if (controlLevel & ALTITUDE_CONTROL_ON){
         sp_PitchAngle = controlSignalAltitude(sp_Altitude,gps_Altitude, time/1000.0);
         if (sp_PitchAngle > MAX_PITCH_ANGLE)
             sp_PitchAngle = MAX_PITCH_ANGLE;
@@ -248,114 +246,69 @@ void attitudeManagerRuntime() {
     }
 
 
-    if (HEADING_CONTROL){
+    if (HEADING_CONTROL_ON){
         //Estimation of Roll angle based on heading:
         //TODO: Add if statement to use rudder for small heading changes
-
 
         if (sp_Heading > 360)
             sp_Heading -=360;
         if (sp_Heading < 0)
             sp_Heading +=360;
-
-        if (controlLevel == CONTROLLER_HEADING_CONTROL || controlLevel >= GROUND_STATION_HEADING_CONTROL){
         // -(maxHeadingRate)/180.0,
             sp_HeadingRate = controlSignalHeading(sp_Heading, gps_Heading, time/1000.0);
-            //Kinematics formula for approximating Roll angle from Heading and Velocity
+            //Approximating Roll angle from Heading
             sp_RollAngle = atan(sp_HeadingRate) * 180/PI;
 
         if (sp_RollAngle > MAX_ROLL_ANGLE)
             sp_RollAngle = MAX_ROLL_ANGLE;
         if (sp_RollAngle < -MAX_ROLL_ANGLE)
             sp_RollAngle = -MAX_ROLL_ANGLE;
-        }
-
-        if (DEBUG) {
-//                    char str[40];
-//                    sprintf(str,"Ground Speed:%f",gps_GroundSpeed);
-//                    UART1_SendString(str);
-//                    sprintf(str,"Roll Angle:%f",sp_RollAngle);
-//                    UART1_SendString(str);
-        }
     }
+    
 
-    if (ORIENTATION_CONTROL && controlLevel >= CONTROLLER_ANGLE_CONTROL) {
-        // If we are using accelerometer based stabalization
-        // convert sp_xxxRate to an angle (based on maxAngle)
-        // If we are getting input from the controller
-        // convert sp_xxxxRate to an sp_xxxxAngle in degrees
+    // If we are getting input from the controller convert sp_xxxxRate to an sp_xxxxAngle in degrees
 
-        if (controlLevel == CONTROLLER_ANGLE_CONTROL){
-//            //sp_YawAngle = sp_YawRate / (sp_Range / maxYawAngle);
-            sp_RollAngle = (-sp_RollRate / (SP_RANGE / MAX_ROLL_ANGLE) - 1/1.5) * 45.0/50.0;
-            sp_PitchAngle = -sp_PitchRate / (SP_RANGE / MAX_PITCH_ANGLE);
-        }
+    if (controlLevel & ROLL_CONTROL_SOURCE == 0)
+        sp_RollAngle = (-sp_RollRate / (SP_RANGE / MAX_ROLL_ANGLE) - 1/1.5) * 45.0/50.0;
+    if (controlLevel & PITCH_CONTROL_SOURCE == 0)
+        sp_PitchAngle = -sp_PitchRate / (SP_RANGE / MAX_PITCH_ANGLE);
 
-        // Output to servos based on requested angle and actual angle (using a gain value)
-        // Set this to sp_xxxxRate so that the gyros can do their thing aswell
+    //sp_YawRate = controlSignalAngles(sp_YawAngle, imu_YawAngle, kd_Accel_Yaw, -(SP_RANGE) / (maxYawAngle)) ;
+    //sp_ComputedYawRate = sp_YawRate;
 
-        //sp_YawRate = controlSignalAngles(sp_YawAngle, imu_YawAngle, kd_Accel_Yaw, -(SP_RANGE) / (maxYawAngle)) ;
-//        sp_ComputedYawRate = sp_YawRate;
-        
+    // Output to servos based on requested angle and actual angle (using a gain value)
+    if (controlLevel & ROLL_CONTROL_TYPE)
         sp_ComputedRollRate = controlSignalAngles(sp_RollAngle,  imu_RollAngle, ROLL, -(SP_RANGE) / (MAX_ROLL_ANGLE),time/1000.0);
-        sp_ComputedPitchRate = controlSignalAngles(sp_PitchAngle, imu_PitchAngle, PITCH, -(SP_RANGE) / (MAX_PITCH_ANGLE),time/1000.0);
-    } else if (controlLevel >= CONTROLLER_RATE_CONTROL) {
+    else
         sp_ComputedRollRate = sp_RollRate;
+    if (controlLevel & PITCH_CONTROL_TYPE)
+        sp_ComputedPitchRate = controlSignalAngles(sp_PitchAngle, imu_PitchAngle, PITCH, -(SP_RANGE) / (MAX_PITCH_ANGLE),time/1000.0);
+    else
         sp_ComputedPitchRate = sp_PitchRate;
-        sp_ComputedYawRate = sp_YawRate;
-    }
+    sp_ComputedYawRate = sp_YawRate;
 
-    if (!STABILIZATION_CONTROL) {
-        control_Roll = sp_RollRate + MIDDLE_PWM;
-        control_Pitch = sp_PitchRate + MIDDLE_PWM;
-        control_Yaw = sp_YawRate + MIDDLE_PWM;
-        control_Throttle = sp_ThrottleRate + MIDDLE_PWM;
+    // CONTROLLER INPUT INTERPRETATION CODE
+    if (sp_Switch < 600) {
+        unfreezeIntegral();
     } else {
-
-        // CONTROLLER INPUT INTERPRETATION CODE
-        if (sp_Switch < 600) {
-            unfreezeIntegral();
-//                    if (sp_GearSwitch > 600) {
-//                        float roll_gain = ((float) (sp_Value - 520)) / (SP_RANGE) * 10 / 1.6212766647 + 0;  //4+ 0.4
-//                        setGain(HEADING, GAIN_KP, roll_gain < 0.5 ? 0 : roll_gain); //0.4
-//                        currentGain = (GAIN_KI << 4) + HEADING;
-//                        roll_gain = ((float) (sp_Type - 520)) / (SP_RANGE) *  0/ 1.6212766647 + 0; //5 + 0.4
-//                        setGain(HEADING, GAIN_KI, roll_gain < 1 ? 0.0 : roll_gain);  //0.5
-//                        currentGain = (GAIN_KI << 4) + HEADING;
-//                    }
-//                    else if (sp_GearSwitch < 600 && sp_GearSwitch > 540){
-//                        float pitch_gain = ((float) (sp_Value - 520)) / (SP_RANGE) * 10 / 1.6212766647 + 0.5; //5 + 0.4
-//                        setGain(PITCH, GAIN_KP, pitch_gain < 0.5 ? 0.5 : pitch_gain);  //0.5
-//                        currentGain = (GAIN_KP << 4) + PITCH;
-//                        pitch_gain = ((float) (sp_Type - 520)) / (SP_RANGE) * 0.5 / 1.6212766647 + 0; //5 + 0.4
-//                        setGain(PITCH, GAIN_KI, pitch_gain < 0.01 ? 0 : pitch_gain);  //0.5
-//                        currentGain = (GAIN_KI << 4) + PITCH;
-//                    }
-//                    else{
-//                        float heading_gain = ((float) (sp_Value - 520)) / (SP_RANGE) * 20 / 1.6212766647 + 10;
-//                        setGain(ALTITUDE, GAIN_KD, heading_gain < 10.5 ? 10 : heading_gain);  //0.5
-//                        currentGain = (GAIN_KD << 4) + ALTITUDE;
-//                        float heading_gain = ((float) (sp_Type - 520)) / (SP_RANGE) * 30/ 1.6212766647 + 0;
-//                        setGain(ALTITUDE, GAIN_KP, heading_gain < 1? 0.5 : heading_gain);  //0.5
-//                        currentGain = (GAIN_KP << 4) + ALTITUDE;
-//                    }
-
-//                } else if (sp_Type > 710) {
-//                    setGain(YAW, GAIN_KP, ((float) (sp_Value - 520)) / (SP_RANGE) * 4 / 1.6212766647 * 1); //10/0.1
-//                    currentGain = (GAIN_KP << 4) + YAW;
-//                }
-
-        } else {
-            freezeIntegral();
-        }
-
-        // Control Signals (Output compare value)
-        control_Throttle = sp_ThrottleRate + MIDDLE_PWM;
-        control_Roll = controlSignal(sp_ComputedRollRate / SERVO_SCALE_FACTOR, imu_RollRate, ROLL_RATE);
-        control_Pitch = controlSignal(sp_ComputedPitchRate / SERVO_SCALE_FACTOR, imu_PitchRate, PITCH_RATE);
-        control_Yaw = controlSignal(sp_ComputedYawRate / SERVO_SCALE_FACTOR, imu_YawRate, YAW_RATE);
-
+        freezeIntegral();
     }
+
+    //Feed forward Term when turning
+    if (controlLevel & ROLL_CONTROL_TYPE){
+        float scaleFactor = 0.2; //Change this
+//        sp_ComputedPitchRate += abs((int)(scaleFactor * sin(deg2rad(sp_RollAngle)))) * SP_RANGE; //Sinusoidal Function
+//        sp_ComputedPitchRate += abs((int)(scaleFactor * pow(sp_RollAngle,2))) * SP_RANGE; //Polynomial Function //Change this 2 to whatever
+//        sp_ComputedPitchRate += abs((int)(scaleFactor * pow(sp_RollAngle,1.0/2.0))) * SP_RANGE; //Square root function
+//        sp_ComputedPitchRate += abs((int)(scaleFactor * sp_RollAngle)) * SP_RANGE; //Linear Function
+    }
+
+    // Control Signals (Output compare value)
+    control_Throttle = sp_ThrottleRate + MIDDLE_PWM;
+    control_Roll = controlSignal(sp_ComputedRollRate / SERVO_SCALE_FACTOR, imu_RollRate, ROLL);
+    control_Pitch = controlSignal(sp_ComputedPitchRate / SERVO_SCALE_FACTOR, imu_PitchRate, PITCH);
+    control_Yaw = controlSignal(sp_ComputedYawRate / SERVO_SCALE_FACTOR, imu_YawRate, YAW);
+
     /*****************************************************************************
      *****************************************************************************
 
@@ -424,13 +377,13 @@ void readDatalink(void){
                 UART1_SendString( (char*) cmd->data);
                 break;
             case SET_PITCH_KD_GAIN:
-                setGain(PITCH_RATE, GAIN_KD, *(float*)(&cmd->data));
+                setGain(PITCH, GAIN_KD, *(float*)(&cmd->data));
                 break;
             case SET_ROLL_KD_GAIN:
-                setGain(ROLL_RATE, GAIN_KD, *(float*)(&cmd->data));
+                setGain(ROLL, GAIN_KD, *(float*)(&cmd->data));
                 break;
             case SET_YAW_KD_GAIN:
-                setGain(YAW_RATE, GAIN_KD, *(float*)(&cmd->data));
+                setGain(YAW, GAIN_KD, *(float*)(&cmd->data));
                 break;
             case SET_PITCH_KP_GAIN:
                 setGain(PITCH, GAIN_KP, *(float*)(&cmd->data));
@@ -453,7 +406,7 @@ void readDatalink(void){
             case SET_HEADING_KD_GAIN:
                 setGain(HEADING, GAIN_KD, *(float*)(&cmd->data));
                 break;
-            case SET_HEADING_KP_GAIN:
+            case SET_HEADING_KP_GAIN:   
                 setGain(HEADING, GAIN_KP, *(float*)(&cmd->data));
                 break;
             case SET_HEADING_KI_GAIN:
@@ -509,7 +462,7 @@ void readDatalink(void){
                 sp_Heading = *(float*)(&cmd->data);
                 break;
             case SET_THROTTLE:
-                sp_ThrottleRate = *(int*)(&cmd->data);
+                sp_ThrottleRate = (int)(*(float*)(&cmd->data) / 100.0  * (890 - 454) + 454);
                 break;
             case TARE_IMU:
                 tareVN100();
@@ -544,14 +497,14 @@ int writeDatalink(long frequency){
         statusData->pitchSetpoint = sp_PitchAngle;
         statusData->rollSetpoint = sp_RollAngle;
         statusData->headingSetpoint = sp_Heading;
-        statusData->throttleSetpoint = (int) ((float) (control_Throttle - 454) / (890 - 454)*100);
+        statusData->throttleSetpoint = (int) ((float) (sp_ThrottleRate - 454) / (890 - 454)*100);
         statusData->altitudeSetpoint = sp_Altitude;
         statusData->altitude = gps_Altitude;
         statusData->cPitchSetpoint = sp_PitchRate;
         statusData->cRollSetpoint = sp_RollRate;
         statusData->cYawSetpoint = sp_YawRate;
-        statusData->cThrottleSetpoint = (int) ((float) (control_Throttle - 454) / (890 - 454)*100);
-        statusData->editing_gain = sp_Switch < 600?displayGain + 1:0; //(sp_Switch < 600 &&
+        statusData->cThrottleSetpoint = sp_ThrottleRate;
+        statusData->editing_gain = displayGain + 1 + (sp_Switch < 600 << 4);
         statusData->gpsStatus = gps_Satellites + (gps_PositionFix << 4);
 
         if (BLOCKING_MODE) {

@@ -13,7 +13,7 @@
 
 //Maximum rates for PID loop outputs
 #define MAX_HEADING_RATE 10.0 //Max heading change of 10 degrees per second
-#define MAX_ROLL_ANGLE 50.0 // max allowed roll angle in degrees
+#define MAX_ROLL_ANGLE 40.0 // max allowed roll angle in degrees
 #define MAX_PITCH_ANGLE 15.0
 #define MAX_SPEED 17.0 // ???m/s
 

@@ -65,9 +65,9 @@ void pathManagerInit(void) {
 void pathManagerRuntime(void) {
 
 #if DEBUG
-//        char str[16];
-//        sprintf(&str,"%f",pmData.time);
-//        UART1_SendString(&str);
+        char str[16];
+        sprintf(&str,"%f",pmData.time);
+        UART1_SendString(&str);
 #endif
     //Get GPS data
     if (newGPSDataAvailable){
@@ -91,7 +91,7 @@ void pathManagerRuntime(void) {
     position[2] = gpsData.altitude;
 
     if (path[currentIndex]->next != 0){
-        currentIndex = followWaypoints(path[currentIndex],&waypointPosition,&waypointDirection, &position);
+//        currentIndex = followWaypoints(path[currentIndex],&waypointPosition,&waypointDirection, &position);
     }
 
 
@@ -156,6 +156,11 @@ char followWaypoints(PathData* currentWaypoint, float* waypointPosition, float* 
         float eucNormal = sqrt(normal[0] * normal[0] + normal[1] * normal[1] + normal[2] * normal[2]);
         float eucPosition = sqrt(pow(position[0] - targetCoordinates[0],2) + pow(position[1] - targetCoordinates[1],2) + pow(position[2] - targetCoordinates[2],2));
         float eucSum = sqrt(pow(normal[0] + position[0],2) + pow(normal[1] + position[1],2) + pow(normal[2] + position[2],2));
+
+        if ((normal[0] >= 0 &&  normal[1] >=0)||(normal[0] < 0 && normal[1] < 0))
+            eucNormal *= -1;
+        if ((position[0] - targetCoordinates[0] >= 0 &&  position[1] - targetCoordinates[1] >=0)||(position[0] - targetCoordinates[0] < 0 && position[1] - targetCoordinates[1] < 0))
+            eucNormal *= -1;
 
         float cosC = (pow(eucSum,2) - pow(eucNormal,2) - pow(eucPosition,2))/(-2 * eucNormal * eucPosition);
 
@@ -260,9 +265,9 @@ float getDistance(long double lat1, long double lon1, long double lat2, long dou
     float a = sin(dLat / 2) * sin(dLat / 2) + cos(deg2rad(lat1)) * cos(deg2rad(lat2)) * sin(dLon / 2) * sin(dLon / 2);
 
     if ((dLat >= 0 && dLon >=0)||(dLat < 0 && dLon < 0)){
-        return EARTH_RADIUS * (2 * atan2(sqrt(a),sqrt(1 - a)));
+        return EARTH_RADIUS * (2 * atan2(sqrt(a),sqrt(1 - a))) * 1000;
     }
     else {
-         return EARTH_RADIUS * (2 * atan2(sqrt(a),sqrt(1 - a))) * -1.0;
+         return EARTH_RADIUS * (2 * atan2(sqrt(a),sqrt(1 - a))) * -1000;
     }
 }

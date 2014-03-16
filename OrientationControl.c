@@ -14,7 +14,7 @@
 
 
 //TODO: Change these variable names to more generic names for inclusion of heading
-float kd_gain[6] = {16.5748023987, 29.2125988006591, 0, 0, 0, 0};//{25.9,39.8,0};//{25.9, 39.8, -8.38}; //14.619,35.7086
+float kd_gain[6] = {0, 29.2125988006591, 16.5748023987, 0, 0, 0};
 float kp_gain[6] = {1, 3.15, 3.39895009995, 1, 1, 1};
 float ki_gain[6]= {0, 0, 0, 0, 0, 0};
 //Interal Values
@@ -27,9 +27,18 @@ char integralFreeze = 0;
 
 
 float controlSignalThrottle(float setpoint, float output, float time){
-    float error = setpoint - output;
+    float dTime = time - lastControlTime[THROTTLE];
+    lastControlTime[THROTTLE] = time;
+    //To ensure that the time is valid and doesn't suddenly spike.
+    if (dTime > 1 || dTime <= 0){
+        dTime = 1;
+    }
 
-    float controlSignal = THROTTLE_SCALE_FACTOR * (error * kp_gain[THROTTLE]);
+    float error = setpoint - output;
+    if (integralFreeze == 0){
+        sum_gain[THROTTLE] += (error * dTime);
+    }
+    float controlSignal = THROTTLE_SCALE_FACTOR * (error * kp_gain[THROTTLE] + sum_gain[THROTTLE] * ki_gain[THROTTLE]);
     return controlSignal;
 }
 
@@ -47,15 +56,20 @@ float controlSignalAltitude(float setpoint, float output, float time){
         sum_gain[ALTITUDE] += (error * dTime);
     }
 
-    float controlSignal = ALTITUDE_PITCH_SCALE_FACTOR * (error * kp_gain[ALTITUDE] + (sum_gain[ALTITUDE] * ki_gain[ALTITUDE]));
+    //Derivative Calculations ---Not necessarily needed for altitude
+    float dValue = error - lastError[ALTITUDE];
+    lastError[ALTITUDE] = error;
+
+
+    float controlSignal = ALTITUDE_PITCH_SCALE_FACTOR * (dValue/dTime * kd_gain[ALTITUDE] + error * kp_gain[ALTITUDE] + (sum_gain[ALTITUDE] * ki_gain[ALTITUDE]));
     return controlSignal;
 }
 
 float controlSignalHeading(float setpoint, float output, float time) { // function to find output based on gyro acceleration and PWM input
 
     //Take into account Heading overflow (330 degrees and 30 degrees is a 60 degree difference)
-    if (setpoint + 180 < output){
-        setpoint += 360;
+    if (setpoint - output > 180.0){
+        output += 360.0;
     }
     
     //Integral Calculations
