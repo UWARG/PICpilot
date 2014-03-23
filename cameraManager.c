@@ -27,3 +27,13 @@ unsigned int cameraPollingRuntime(long double latitude, long double longitude, u
     else
         return 0;
 }
+unsigned int cameraGimbleStabilization(float rollAngle){
+    if (rollAngle > GIMBLE_MOTION_LIMIT){
+        rollAngle = GIMBLE_MOTION_LIMIT;
+    }
+    if (rollAngle < -GIMBLE_MOTION_LIMIT){
+        rollAngle = -GIMBLE_MOTION_LIMIT;
+    }
+
+    return GIMBLE_PWM_OFFSET + GIMBLE_PWM_RANGE/GIMBLE_MOTION_RANGE * rollAngle;
+}

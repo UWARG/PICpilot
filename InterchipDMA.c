@@ -63,7 +63,11 @@ void init_DMA0(){
     DMA0CONbits.AMODE = 0b00; //With post increment mode
     DMA0CONbits.MODE = 0b00; //Transfer continuously
     DMA0CONbits.SIZE = 0; //Transfer words (16 bits)
-    DMA0STA = __builtin_dmaoffset(PATH_MANAGER?(&amData):&pmData); //Primary Transfer Buffer
+#if PATH_MANAGER
+    DMA0STA = __builtin_dmaoffset(&amData); //Primary Transfer Buffer
+#else
+    DMA0STA = __builtin_dmaoffset(&pmData); //Primary Transfer Buffer
+#endif
     DMA0PAD = (volatile unsigned int) &SPI1BUF; //Peripheral Address
     DMA0CNT = PATH_MANAGER?(sizeof(AMData)/2 + sizeof(AMData) % 2 - 1):(sizeof(PMData)/2 + sizeof(PMData) % 2 - 1); //+1 for checksum //DMA Transfer Count Length
     DMA0REQ = 0x000A;//0b0100001; //IRQ code for SPI1
@@ -80,7 +84,11 @@ void init_DMA1(){
     DMA1CONbits.AMODE = 0b00; //Without post increment mode
     DMA1CONbits.MODE = 0b00; //Transfer continuously, ping ponging between buffers
     DMA1CONbits.SIZE = 0; //Transfer words (16 bits)
-    DMA1STA = __builtin_dmaoffset(PATH_MANAGER?&pmData:&amData); //Primary Transfer Buffer
+#if PATH_MANAGER
+    DMA1STA = __builtin_dmaoffset(&pmData); //Primary Transfer Buffer
+#else
+    DMA1STA = __builtin_dmaoffset(&amData); //Primary Transfer Buffer
+#endif
     DMA1PAD = (volatile unsigned int) &SPI1BUF; //Peripheral Address
     DMA1CNT = PATH_MANAGER?(sizeof(PMData)/2 + sizeof(PMData) % 2 - 1):(sizeof(AMData)/2 + sizeof(AMData) % 2 - 1); //+1 for checksum //DMA Transfer Count Length
     DMA1REQ = 0x000A;//0b0100001; //IRQ code for SPI1

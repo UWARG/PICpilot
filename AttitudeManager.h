@@ -109,19 +109,19 @@ int writeDatalink(long frequency);
 #endif
 
 /*****************************************************************************
- * Function: void tareVN100(void);
+ * Function: void adjustVNOrientationMatrix(float* adjustment);
  *
  * Preconditions: The VN100 module, and the SPI2 interface must have already been initialized.
  *
- * Overview: This function takes the current position of the VN100 model, and applies
+ * Overview: This function takes x,y,z positioning parameters (degrees) of the VN100 model, and applies
  * it into an orientation matrix which removes any bias.
  *
- * Input:   None.
+ * Input:   float* adjustment - the x, y, z rotational components of the VN100 in degrees.
  *
  * Output:  None.
  *
  *****************************************************************************/
-void tareVN100(void);
+void adjustVNOrientationMatrix(float* adjustment);
 
 /*****************************************************************************
  * Function: void setVNOrientationMatrix(float* angleOffset);
@@ -139,5 +139,12 @@ void tareVN100(void);
  *
  *****************************************************************************/
 void setVNOrientationMatrix(float* angleOffset);
+
+//TODO: Add descriptions for these
+
+void setAngularWalkVariance(float variance);
+void setGyroVariance(float variance);
+void setMagneticVariance(float variance);
+void setAccelVariance(float variance);
 #endif	/* ATTITUDEMANAGER_H */
 

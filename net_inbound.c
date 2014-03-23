@@ -75,8 +75,8 @@ struct command* createCommand( char* rawPacket ) {
 }
 
 // Return 1 if packet is valid
-int checkPacket( char* rawPacket) {
-    char i = 2;
+int checkPacket(char* rawPacket) {
+    unsigned int i = 2;
     char packetLength = rawPacket[i++];
     char checksum = 0;
     char packetChecksum = 0;
@@ -86,8 +86,8 @@ int checkPacket( char* rawPacket) {
     }
     packetChecksum = 0xFF - rawPacket[i];
     if (checksum == packetChecksum){
-//        UART1_SendString("GOODIE");
         return 1;                       // TODO: checksums are for suckers, because fuck you, thats why
+
     }
     else{
         return 0;

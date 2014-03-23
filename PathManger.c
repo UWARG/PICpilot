@@ -160,7 +160,7 @@ char followWaypoints(PathData* currentWaypoint, float* waypointPosition, float* 
         if ((normal[0] >= 0 &&  normal[1] >=0)||(normal[0] < 0 && normal[1] < 0))
             eucNormal *= -1;
         if ((position[0] - targetCoordinates[0] >= 0 &&  position[1] - targetCoordinates[1] >=0)||(position[0] - targetCoordinates[0] < 0 && position[1] - targetCoordinates[1] < 0))
-            eucNormal *= -1;
+            eucPosition *= -1;
 
         float cosC = (pow(eucSum,2) - pow(eucNormal,2) - pow(eucPosition,2))/(-2 * eucNormal * eucPosition);
 
@@ -172,7 +172,8 @@ char followWaypoints(PathData* currentWaypoint, float* waypointPosition, float* 
 
 }
 
-float followOrbit(float* center, float radius, char direction, float* position, float heading){
+float followOrbit(float* center, float radius, char direction, float* position, float heading){//Heading in degrees (magnetic)
+    heading = deg2rad(heading - 90);
     float orbitDistance = sqrt(pow(position[0] - center[0],2) + pow(position[1] - center[1],2));
     float courseAngle = atan2(position[1] - center[1], position[0] - center[0]); // (y,x) format
     while (courseAngle - heading < -PI){
@@ -182,18 +183,19 @@ float followOrbit(float* center, float radius, char direction, float* position, 
         courseAngle -= 2 * PI;
     }
 
-    return courseAngle + direction * (PI/2 + atan(k_gain[ORBIT] * (orbitDistance - radius)/radius));
+    return rad2deg(courseAngle + direction * (PI/2 + atan(k_gain[ORBIT] * (orbitDistance - radius)/radius))) + 90; //Heading in degrees (magnetic)
 }
-float followStraightPath(float* waypointPosition, float* waypointDirection, float* position, float heading){
+float followStraightPath(float* waypointDirection, float* position, float heading){ //Heading in degrees (magnetic)
+    heading = deg2rad(heading - 90);//heading - 90 = magnetic heading to cartesian heading
     float courseAngle = atan2(waypointDirection[1], waypointDirection[0]); // (y,x) format
-    while (courseAngle - heading < -PI){
+    while (courseAngle - heading < -PI){ 
         courseAngle += 2 * PI;
     }
     while (courseAngle - heading > PI){
         courseAngle -= 2 * PI;
     }
-    float pathError = -sin(waypointPosition[0] - position[0]) + cos(waypointPosition[1] - position[1]);
-    return (courseAngle - heading) * 2/PI * atan(k_gain[PATH] * pathError) * 180.0/PI;
+    float pathError = -sin(courseAngle) * (position[0] - waypointDirection[0]) + cos(courseAngle) * (position[1] - waypointDirection[1]);
+    return 90 - (courseAngle - heading * 2/PI * atan(k_gain[PATH] * pathError)) * 180.0/PI ; //Heading in degrees (magnetic)
 
 }
 //float followStraightPath(float longitude1, float latitude1, long double longitude2, long double latitude2){

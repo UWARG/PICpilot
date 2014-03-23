@@ -112,22 +112,16 @@ void attitudeInit() {
 
     /* Initialize IMU with correct orientation matrix and filter settings */
     //IMU position matrix
-    float angleOffset[3] = {deg2rad(-75), deg2rad(0), deg2rad(-3)};
-    
-    float filterVariance[10] = {+1.0e-6, +4.968087236542740e-006, +4.112245302664222e-006, +1.775172462044985e-004, +2.396688069825628e+006, +3.198907908235179e+006, +1.389186225936592e+005, +6.620304667228608e-002, +4.869544197003338e-002, +1.560574584667775e-001};
+//    float filterVariance[10] = {+1.0e-6, +4.968087236542740e-006, +4.112245302664222e-006, +1.775172462044985e-004, +2.396688069825628e+006, +3.198907908235179e+006, +1.389186225936592e+005, +6.620304667228608e-002, +4.869544197003338e-002, +1.560574584667775e-001};
     VN100_initSPI();
-    setVNOrientationMatrix((float*)&angleOffset);
-    VN100_SPI_SetFiltMeasVar(0, (float*)&filterVariance);
-
-
     /* Initialize Input Capture and Output Compare Modules */
     if (DEBUG) {
         initIC(0b11111111);
-        initOC(0b11111); //Initialize only Output Compare 1,2,3 and 4
+        initOC(0b111111); //Initialize only Output Compare 1,2,3 and 4,5,6
         UART1_SendString("START OF CODE BEFORE WHILE");
     } else {
         initIC(0b11110001);
-        initOC(0b11111); //Initialize only Output Compare 1,2,3 and 4
+        initOC(0b111111); //Initialize only Output Compare 1,2,3 and 4,5,6
     }
 }
 
@@ -164,11 +158,13 @@ void attitudeManagerRuntime() {
         int* icTimeDiff;
         icTimeDiff = getICValues();
 
-        if (ROLL_CONTROL_SOURCE & controlLevel == 0)
+        if ((ROLL_CONTROL_SOURCE & controlLevel) == 0){
             sp_RollRate = (icTimeDiff[0] - MIDDLE_PWM +7);
-        if (PITCH_CONTROL_SOURCE & controlLevel == 0)
+        }
+        if ((PITCH_CONTROL_SOURCE & controlLevel) == 0){
             sp_PitchRate = (icTimeDiff[1] - MIDDLE_PWM);
-        if (THROTTLE_CONTROL_SOURCE & controlLevel == 0)
+        }
+        if ((THROTTLE_CONTROL_SOURCE & controlLevel) == 0)
             sp_ThrottleRate = (icTimeDiff[2] - MIDDLE_PWM);
         sp_YawRate = (icTimeDiff[3] - MIDDLE_PWM);
 
@@ -217,7 +213,7 @@ void attitudeManagerRuntime() {
      *****************************************************************************
      *****************************************************************************/
 
-    if (THROTTLE_CONTROL_SOURCE & controlLevel == 2){
+    if ((THROTTLE_CONTROL_SOURCE & controlLevel) >> 4 == 2){
         sp_ThrottleRate = controlSignalThrottle(sp_GroundSpeed, gps_GroundSpeed, time);
         //TODO: Fix decleration of these constants later - Maybe have a  controller.config file specific to each controller or something (make a script to generate this)
         if (sp_ThrottleRate > 890){
@@ -246,7 +242,7 @@ void attitudeManagerRuntime() {
     }
 
 
-    if (controlLevel & HEADING_CONTROL_ON == 1){
+    if (controlLevel & HEADING_CONTROL_ON){
         //Estimation of Roll angle based on heading:
         //TODO: Add if statement to use rudder for small heading changes
 
@@ -268,23 +264,27 @@ void attitudeManagerRuntime() {
 
     // If we are getting input from the controller convert sp_xxxxRate to an sp_xxxxAngle in degrees
 
-    if (controlLevel & ROLL_CONTROL_SOURCE == 0)
+    if ((controlLevel & ROLL_CONTROL_SOURCE) == 0)
         sp_RollAngle = (-sp_RollRate / (SP_RANGE / MAX_ROLL_ANGLE) - 1/1.5) * 45.0/50.0;
-    if (controlLevel & PITCH_CONTROL_SOURCE == 0)
+    if ((controlLevel & PITCH_CONTROL_SOURCE) == 0)
         sp_PitchAngle = -sp_PitchRate / (SP_RANGE / MAX_PITCH_ANGLE);
 
     //sp_YawRate = controlSignalAngles(sp_YawAngle, imu_YawAngle, kd_Accel_Yaw, -(SP_RANGE) / (maxYawAngle)) ;
     //sp_ComputedYawRate = sp_YawRate;
 
     // Output to servos based on requested angle and actual angle (using a gain value)
-    if (controlLevel & ROLL_CONTROL_TYPE)
+    if (controlLevel & ROLL_CONTROL_TYPE){
         sp_ComputedRollRate = controlSignalAngles(sp_RollAngle,  imu_RollAngle, ROLL, -(SP_RANGE) / (MAX_ROLL_ANGLE),time/1000.0);
-    else
+    }
+    else{
         sp_ComputedRollRate = sp_RollRate;
-    if (controlLevel & PITCH_CONTROL_TYPE)
+    }
+    if (controlLevel & PITCH_CONTROL_TYPE){
         sp_ComputedPitchRate = controlSignalAngles(sp_PitchAngle, imu_PitchAngle, PITCH, -(SP_RANGE) / (MAX_PITCH_ANGLE),time/1000.0);
-    else
+    }
+    else{
         sp_ComputedPitchRate = sp_PitchRate;
+    }
     sp_ComputedYawRate = sp_YawRate;
 
     // CONTROLLER INPUT INTERPRETATION CODE
@@ -353,13 +353,15 @@ void attitudeManagerRuntime() {
     if (control_Yaw < LOWER_PWM)
         control_Yaw = LOWER_PWM;
 
-    float pwmTemp = cameraPollingRuntime(gps_Latitude, gps_Longitude, sp_Switch);
+    unsigned int pwmTemp = cameraPollingRuntime(gps_Latitude, gps_Longitude, sp_Switch);
+    unsigned int gimblePWM = cameraGimbleStabilization(imu_RollAngle);
     // Sends the output signal to the servo motors
     setPWM(1, control_Roll);
     setPWM(2, control_Pitch);
     setPWM(3, control_Throttle);
     setPWM(4, control_Yaw);
     setPWM(5, pwmTemp);
+    setPWM(6, gimblePWM);
 
 #if COMMUNICATION_MANAGER
     readDatalink();
@@ -464,11 +466,26 @@ void readDatalink(void){
             case SET_THROTTLE:
                 sp_ThrottleRate = (int)(*(float*)(&cmd->data) / 100.0  * (890 - 454) + 454);
                 break;
-            case TARE_IMU:
-                tareVN100();
-                break;
             case SET_AUTONOMOUS_LEVEL:
                 controlLevel = *(int*)(&cmd->data);
+                break;
+            case SET_ANGULAR_WALK_VARIANCE:
+                setAngularWalkVariance(*(float*)(&cmd->data));
+                break;
+            case SET_GYRO_VARIANCE:
+                setGyroVariance(*(float*)(&cmd->data));
+                break;
+            case SET_MAGNETIC_VARIANCE:
+                setMagneticVariance(*(float*)(&cmd->data));
+                break;
+            case SET_ACCEL_VARIANCE:
+                setAccelVariance(*(float*)(&cmd->data));
+                break;
+            case TARE_IMU:
+                adjustVNOrientationMatrix((float*)(&cmd->data));
+                break;
+            case SET_IMU:
+                setVNOrientationMatrix((float*)(&cmd->data));
                 break;
             default:
                 break;
@@ -519,15 +536,35 @@ int writeDatalink(long frequency){
 }
 #endif
 
-void tareVN100(void){
-    float YPROffset[3];
-    VN100_SPI_GetYPR(0, &YPROffset[2], &imuData[1], &imuData[0]);
-    setVNOrientationMatrix((float*)&YPROffset);
+void adjustVNOrientationMatrix(float* adjustment){
+
+    adjustment[0] = deg2rad(adjustment[0]);
+    adjustment[1] = deg2rad(adjustment[1]);
+    adjustment[2] = deg2rad(adjustment[2]);
+
+    float matrix[9];
+    VN100_SPI_GetRefFrameRot(0, (float*)&matrix);
+    
+    float refRotationMatrix[9] = {cos(adjustment[1]) * cos(adjustment[2]), -cos(adjustment[1]) * sin(adjustment[2]), sin(adjustment[1]),
+        sin(deg2rad(adjustment[0])) * sin(adjustment[1]) * cos(adjustment[2]) + sin(adjustment[2]) * cos(adjustment[0]), -sin(adjustment[0]) * sin(adjustment[1]) * sin(adjustment[2]) + cos(adjustment[2]) * cos(adjustment[0]), -sin(adjustment[0]) * cos(adjustment[1]),
+        -cos(deg2rad(adjustment[0])) * sin(adjustment[1]) * cos(adjustment[2]) + sin(adjustment[2]) * sin(adjustment[0]), cos(adjustment[0]) * sin(adjustment[1]) * sin(adjustment[2]) + cos(adjustment[2]) * sin(adjustment[0]), cos(adjustment[0]) * cos(adjustment[1])};
+
+    int i = 0;
+    for (i = 0; i < 9; i++){
+        refRotationMatrix[i] += matrix[i];
+    }
+
+    VN100_SPI_SetRefFrameRot(0, (float*)&refRotationMatrix);
+    VN100_SPI_WriteSettings(0);
+    VN100_SPI_Reset(0);
 
 }
 
 void setVNOrientationMatrix(float* angleOffset){
     //angleOffset[0] = x, angleOffset[1] = y, angleOffset[2] = z
+    angleOffset[0] = deg2rad(angleOffset[0]);
+    angleOffset[1] = deg2rad(angleOffset[1]);
+    angleOffset[2] = deg2rad(angleOffset[2]);
     float refRotationMatrix[9] = {cos(angleOffset[1]) * cos(angleOffset[2]), -cos(angleOffset[1]) * sin(angleOffset[2]), sin(angleOffset[1]),
         sin(angleOffset[0]) * sin(angleOffset[1]) * cos(angleOffset[2]) + sin(angleOffset[2]) * cos(angleOffset[0]), -sin(angleOffset[0]) * sin(angleOffset[1]) * sin(angleOffset[2]) + cos(angleOffset[2]) * cos(angleOffset[0]), -sin(angleOffset[0]) * cos(angleOffset[1]),
         -cos(angleOffset[0]) * sin(angleOffset[1]) * cos(angleOffset[2]) + sin(angleOffset[2]) * sin(angleOffset[0]), cos(angleOffset[0]) * sin(angleOffset[1]) * sin(angleOffset[2]) + cos(angleOffset[2]) * sin(angleOffset[0]), cos(angleOffset[0]) * cos(angleOffset[1])};
@@ -535,4 +572,41 @@ void setVNOrientationMatrix(float* angleOffset){
     VN100_SPI_SetRefFrameRot(0, (float*)&refRotationMatrix);
     VN100_SPI_WriteSettings(0);
     VN100_SPI_Reset(0);
+}
+void setAngularWalkVariance(float variance){
+    float previousVariance[10];
+    VN100_SPI_GetFiltMeasVar(0, (float*)&previousVariance);
+    previousVariance[0] = variance;
+    VN100_SPI_SetFiltMeasVar(0, (float*)&previousVariance);
+    VN100_SPI_WriteSettings(0);
+}
+
+void setGyroVariance(float variance){
+    float previousVariance[10];
+    VN100_SPI_GetFiltMeasVar(0, (float*)&previousVariance);
+    previousVariance[1] = variance; //X -Can be split up later if needed
+    previousVariance[2] = variance; //Y
+    previousVariance[3] = variance; //Z
+    VN100_SPI_SetFiltMeasVar(0, (float*)&previousVariance);
+    VN100_SPI_WriteSettings(0);
+}
+
+void setMagneticVariance(float variance){
+    float previousVariance[10];
+    VN100_SPI_GetFiltMeasVar(0, (float*)&previousVariance);
+    previousVariance[4] = variance; //X -Can be split up later if needed
+    previousVariance[5] = variance; //Y
+    previousVariance[6] = variance; //Z
+    VN100_SPI_SetFiltMeasVar(0, (float*)&previousVariance);
+    VN100_SPI_WriteSettings(0);
+}
+
+void setAccelVariance(float variance){
+    float previousVariance[10];
+    VN100_SPI_GetFiltMeasVar(0, (float*)&previousVariance);
+    previousVariance[7] = variance; //X -Can be split up later if needed
+    previousVariance[8] = variance; //Y
+    previousVariance[9] = variance; //Z
+    VN100_SPI_SetFiltMeasVar(0, (float*)&previousVariance);
+    VN100_SPI_WriteSettings(0);
 }
