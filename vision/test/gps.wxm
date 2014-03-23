@@ -1,0 +1,76 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 12.09.0 ] */
+
+/* [wxMaxima: input   start ] */
+d(%alpha):=subst(0,del(b),subst(0,del(a),diff(%alpha)));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+ellipse:1=(x/a)^2+(y/b)^2;
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+partials:d(ellipse);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+slope:solve(partials,del(y))[1]/del(x);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+dx:solve(subst(rhs(slope)*del(x),del(y),d(cot(%theta)=rhs(slope))),del(x))[1]/del(%theta);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+dy:solve(subst(del(y)/rhs(slope),del(x),d(cot(%theta)=rhs(slope))),del(y))[1]/del(%theta);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+arclength:(del(s)/del(%theta))^2=rhs(dx)^2+rhs(dy)^2;
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+abs_arclength:sqrt(factor(arclength));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+abs_arclength_2:subst(rhs(solve(ellipse,y^2)[1]),y^2,abs_arclength);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+only_x:solve(subst(rhs(solve(ellipse,y)[2]),y,rhs(slope)=cot(%theta))^2,x)[2];
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+abs_arclength_3:trigsimp(ratsimp(subst(rhs(only_x),x,abs_arclength_2)));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+abs_arclength_4:factor(subst(a*(1-f),b,abs_arclength_3));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+makelist(float(/*mine*/
+  subst(angle/180*%pi,%theta,
+  subst(1/298.257223563,f,
+  subst(6378137,a,
+  rhs(abs_arclength_4))))
+),angle,0,90,15);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+makelist(float(/*wiki*/
+  subst(angle/180*%pi,%theta,
+  subst(6378137,a,
+  subst(1/298.257223563,f,
+  subst(f*(2-f),e^2,
+  a*(1-e^2)/(1-e^2*sin(%theta)^2)^(3/2)))))
+),angle,0,90,15);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+factor(subst(f*(2-f),e^2,%pi*a/180*(1-e^2)/(1-e^2*sin(%theta)^2)^(3/2)));
+/* [wxMaxima: input   end   ] */
+
+/* Maxima can't load/batch files which end with a comment! */
+"Created with wxMaxima"$

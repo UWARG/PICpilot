@@ -1,4 +1,5 @@
 #!/bin/sh
+set -e
 cat << EOF
 # hugin project file
 #hugin_ptoversion 2
