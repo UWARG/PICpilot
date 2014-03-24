@@ -10,10 +10,14 @@ import cmath
 import numpy as np
 import os.path
 import datetime
-import heap # like heapq
 def _mean_residual(a):
 	m=np.array(a).mean()
 	return m,a-m
+def _as_thread(target,*args,**kwargs):
+	thd=threading.Thread(target=target,args=args,kwargs=kwargs)
+	thd.isDaemon=False
+	return thd
+Composite=collections.namedtuple("Composite","path ready to_gps find_images")
 class Map(object):
 	types=("nN",int),("xXyYrpy",float)
 	def _read_points(self,pts_pto_path):
@@ -123,7 +127,7 @@ v TrY%d"""%(i,i,i)
 			subprocess.check_call(("autooptimiser","-n",raw_pto_path,"-o",opt_pto_path))
 		self._read_panorama(opt_pto_path)
 
-		print self.createComposite(0.,0.,1.,1.,100,100)#XXX
+		self._initialized.set()
 	def _read_panorama(self,opt_pto_path):
 		"Read optimized panorama template"
 		p=hsi.Panorama()
@@ -171,6 +175,7 @@ v TrY%d"""%(i,i,i)
 			image["lon"]=clon
 	def createComposite(self,topLeftLat,topLeftLon,topRightLat,topRightLon,widthPx,heightPx):
 		"Starts creating a composite image. Returns composite id immediately."
+		self._initialized.wait()
 		p=self.panorama
 		u=self._u
 		z=self._z # g = zu
@@ -199,6 +204,10 @@ v TrY%d"""%(i,i,i)
 			}.iteritems():
 				fields[k].setValue(v)
 				p.updateVariable(img,fields[k])
+		def to_gps(py,px):
+			pass
+		def find_images(py,px):
+			pass
 
 		orig=p.getMemento()
 		po=p.getOptions()
@@ -219,26 +228,37 @@ v TrY%d"""%(i,i,i)
 		del ofs
 		p.setMemento(orig)
 		out_mk_path=out_pto_path+".mk"
-		#XXX defer these 2
-		subprocess.check_call(("pto2mk",out_pto_path,"-o",out_mk_path,"-p",os.path.join(os.path.dirname(out_mk_path),"out")))
-		subprocess.check_call(("make","-j","-f",out_mk_path))
-		return self._base_path+"out.tif"
+		composite=Composite(
+			path=self._base_path+"out.tif",
+			ready=threading.Event(),
+			to_gps=to_gps,
+			find_images=find_images,
+		)
+		self.composites.append(composite)
+		def cb():
+			subprocess.check_call(("pto2mk",out_pto_path,"-o",out_mk_path,"-p",os.path.join(os.path.dirname(out_mk_path),"out")))
+			subprocess.check_call(("make","-j","-f",out_mk_path))
+			composite.ready.set()
+		_as_thread(cb).start()
+		return len(self.composites)-1
 	def isCompositeReady(self,cid):
 		"Returns true if composite is ready."
-		raise NotImplementedError
-		return self.composites[cid].ready
+		return self.composites[cid].ready.is_set()
 	def composite2Path(self,cid):
 		"Waits until isCompositeReady(id) and returns the path to the image."
-		raise NotImplementedError
-		return self.composites[cid].path
+		composite=self.composites[cid]
+		composite.ready.wait()
+		return composite.path
 	def composite2GPS(self,cid,compositeRow,compositeCol):
 		"Returns the GPS coordinates for the composite given image coordinates, approximating GPS coordinates as being linear."
-		raise NotImplementedError
-		return self.composites[cid].toGPS(compositeRow,compositeCol)
+		composite=self.composites[cid]
+		composite.ready.wait()
+		return composite.to_gps(compositeRow,compositeCol)
 	def composite2Images(self,cid,compositeRow,compositeCol):
 		"Returns a list of images for a composite at given coordinates."
-		raise NotImplementedError
-		return self.composites[cid].find_images(compositeRow,compositeCol)
+		composite=self.composites[cid]
+		composite.wait()
+		return composite.find_images(compositeRow,compositeCol)
 	def __init__(self,csv_path):
 		if not csv_path.endswith(".csv"):
 			raise ValueError("invalid csv path")
@@ -248,18 +268,22 @@ v TrY%d"""%(i,i,i)
 		self._csv_path=csv_path
 		self._root_path=csv_path[:-4]+os.path.sep
 		self._base_path=None
-		self._worker=threading.Thread(target=self._deferred_init)
-		self._worker.isDaemon=False
-		self._worker.start()
 		self._z=None
 		self._u=None
 		self._u0=None
 		self._g0=None
 		self._dgps=None
+		self._initialized=threading.Event()
+		self.composites=[]
+		self._worker=_as_thread(self._deferred_init)
+		self._worker.start()
 def main():
 	import sys
 	path=sys.argv[1]
 	m=Map("test.csv")
+	cid=m.createComposite(0.,0.,1.,1.,100,100)
+	print"started compositing",cid
+	print"done compositing",m.composite2Path(cid)
 if __name__=="__main__":
 	main()
 # vim: set ts=4 sw=4:
