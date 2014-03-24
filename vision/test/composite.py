@@ -8,14 +8,16 @@ import hsi
 import math
 import cmath
 import numpy as np
+import os.path
+import datetime
 def _mean_residual(a):
 	m=np.array(a).mean()
 	return m,a-m
 class Map(object):
 	types=("nN",int),("xXyYrpy",float)
-	def _read_points(self):
+	def _read_points(self,pts_pto_path):
 		"Read image paths and control points"
-		with open(self._points_path)as points_fd:
+		with open(pts_pto_path)as points_fd:
 			prev_img={}
 			points=[]
 			image=0
@@ -85,6 +87,10 @@ v TrY%d"""%(i,i,i)
 			print>>fd,point["line"]
 	def _deferred_init(self):
 		"Worker thread"
+		try:
+			os.mkdir(self._root_path)
+		except OSError:
+			pass
 		with open(self._csv_path)as csv_fd:
 			reader=csv.reader(csv_fd)
 			try:
@@ -94,29 +100,33 @@ v TrY%d"""%(i,i,i)
 			self.images=[]
 			for row in reader:
 				self.images.append({
-					"path":row[index["path"]],
+					"path":os.path.abspath(row[index["path"]]),
 					"lat":float(row[index["lat"]])*(math.pi/180),
 					"lon":float(row[index["lon"]])*(math.pi/180),
 					"width":None,
 					"height":None,
 				})
+
+		pts_pto_path=self._root_path+"pts.pto"
 		try:
-			self._read_points()
+			self._read_points(pts_pto_path)
 		except IOError:
-			subprocess.check_call(["panomatic","-o",self._points_path,"--"]+[e["path"]for e in self.images])
-			self._read_points()
-		try:
-			self._read_panorama()
-		except IOError:
-			with open(self._raw_pto_path,"w")as raw_pto_fd:
+			subprocess.check_call(["panomatic","-o",pts_pto_path,"--"]+[e["path"]for e in self.images])
+			self._read_points(pts_pto_path)
+
+		opt_pto_path=self._root_path+"opt.pto"
+		if not os.path.exists(opt_pto_path):
+			raw_pto_path=self._root_path+"raw.pto"
+			with open(raw_pto_path,"w")as raw_pto_fd:
 				self._output_raw_pto(raw_pto_fd)
-			subprocess.check_call(("autooptimiser","-n",self._raw_pto_path,"-o",self._opt_pto_path))
-			self._read_panorama()
-		m.createComposite(1.,0.,1.,1.,100,100)#XXX
-	def _read_panorama(self):
+			subprocess.check_call(("autooptimiser","-n",raw_pto_path,"-o",opt_pto_path))
+		self._read_panorama(opt_pto_path)
+
+		self.createComposite(1.,0.,1.,1.,100,100)#XXX
+	def _read_panorama(self,opt_pto_path):
 		"Read optimized panorama template"
 		p=hsi.Panorama()
-		ifs=hsi.ifstream(self._opt_pto_path)
+		ifs=hsi.ifstream(opt_pto_path)
 		p.readData(ifs)
 		del ifs
 		po=p.getOptions()
@@ -189,18 +199,28 @@ v TrY%d"""%(i,i,i)
 				fields[k].setValue(v)
 				p.updateVariable(img,fields[k])
 
-		path="test_out.pto"#XXX
-		#raise NotImplementedError()
 		orig=p.getMemento()
 		po=p.getOptions()
 		po.setWidth(widthPx)
 		po.setHeight(heightPx)
 		po.setROI(hsi.Rect2D(0,0,widthPx,heightPx))
 		del po
-		ofs=hsi.ofstream(path)
+		while True:
+			self._base_path=self._root_path+datetime.datetime.utcnow().isoformat().replace(":","_")+os.path.sep
+			try:
+				os.mkdir(self._base_path)
+				break
+			except OSError:
+				pass
+		out_pto_path=self._base_path+"out.pto"
+		ofs=hsi.ofstream(out_pto_path)
 		p.writeData(ofs)
 		del ofs
 		p.setMemento(orig)
+		out_mk_path=out_pto_path+".mk"
+		subprocess.check_call(("pto2mk",out_pto_path,"-o",out_mk_path,"-p",os.path.join(os.path.dirname(out_mk_path),"out")))
+		subprocess.check_call(("make","-f",out_mk_path))
+		return self._base_path+"out.tif"
 	def isCompositeReady(self,cid):
 		"Returns true if composite is ready."
 		raise NotImplementedError
@@ -213,14 +233,18 @@ v TrY%d"""%(i,i,i)
 	def composite2Images(self,cid,compositeRow,compositeCol):
 		"Returns a list of images for a composite at given coordinates."
 		raise NotImplementedError
-	def __init__(self,base_path):
+	def _create_path(self):
+		"Returns a path for a new composite"
+		raise NotImplementedError
+	def __init__(self,csv_path):
+		if not csv_path.endswith(".csv"):
+			raise ValueError("invalid csv path")
 		self._points=None
 		self.images=None
 		self.panorama=None
-		self._csv_path=base_path+".csv"
-		self._points_path=base_path+"_pts.pto"
-		self._raw_pto_path=base_path+"_raw.pto"
-		self._opt_pto_path=base_path+"_opt.pto"
+		self._csv_path=csv_path
+		self._root_path=csv_path[:-4]+os.path.sep
+		self._base_path=None
 		self._worker=threading.Thread(target=self._deferred_init)
 		self._worker.isDaemon=False
 		self._worker.start()
@@ -232,9 +256,7 @@ v TrY%d"""%(i,i,i)
 def main():
 	import sys
 	path=sys.argv[1]
-	with open(path+".csv")as csv_fd:
-		m=Map(csv_fd=csv_fd,points_path=path+".oto")
+	m=Map("test.csv")
 if __name__=="__main__":
-	#main()
-	m=Map("test")
+	main()
 # vim: set ts=4 sw=4:
