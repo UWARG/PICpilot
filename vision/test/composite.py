@@ -10,6 +10,7 @@ import cmath
 import numpy as np
 import os.path
 import datetime
+import heap # like heapq
 def _mean_residual(a):
 	m=np.array(a).mean()
 	return m,a-m
@@ -49,7 +50,7 @@ class Map(object):
 						"path":path[1:-1],
 					}
 		for img,image in enumerate(self.images):
-			image["v"]="50"
+			image["v"]="90"
 		self._retain_primary_component(points)
 	def _retain_primary_component(self,points):
 		"Retains largest connected component of images"
@@ -111,7 +112,7 @@ v TrY%d"""%(i,i,i)
 		try:
 			self._read_points(pts_pto_path)
 		except IOError:
-			subprocess.check_call(["panomatic","-o",pts_pto_path,"--"]+[e["path"]for e in self.images])
+			subprocess.check_call(["panomatic","-n","2","-o",pts_pto_path,"--"]+[e["path"]for e in self.images]) #XXX 2 cpus
 			self._read_points(pts_pto_path)
 
 		opt_pto_path=self._root_path+"opt.pto"
@@ -218,8 +219,9 @@ v TrY%d"""%(i,i,i)
 		del ofs
 		p.setMemento(orig)
 		out_mk_path=out_pto_path+".mk"
+		#XXX defer these 2
 		subprocess.check_call(("pto2mk",out_pto_path,"-o",out_mk_path,"-p",os.path.join(os.path.dirname(out_mk_path),"out")))
-		subprocess.check_call(("make","-f",out_mk_path))
+		subprocess.check_call(("make","-j","-f",out_mk_path))
 		return self._base_path+"out.tif"
 	def isCompositeReady(self,cid):
 		"Returns true if composite is ready."
