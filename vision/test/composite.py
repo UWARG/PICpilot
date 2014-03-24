@@ -122,7 +122,7 @@ v TrY%d"""%(i,i,i)
 			subprocess.check_call(("autooptimiser","-n",raw_pto_path,"-o",opt_pto_path))
 		self._read_panorama(opt_pto_path)
 
-		self.createComposite(1.,0.,1.,1.,100,100)#XXX
+		print self.createComposite(0.,0.,1.,1.,100,100)#XXX
 	def _read_panorama(self,opt_pto_path):
 		"Read optimized panorama template"
 		p=hsi.Panorama()
@@ -224,18 +224,19 @@ v TrY%d"""%(i,i,i)
 	def isCompositeReady(self,cid):
 		"Returns true if composite is ready."
 		raise NotImplementedError
+		return self.composites[cid].ready
 	def composite2Path(self,cid):
 		"Waits until isCompositeReady(id) and returns the path to the image."
 		raise NotImplementedError
+		return self.composites[cid].path
 	def composite2GPS(self,cid,compositeRow,compositeCol):
 		"Returns the GPS coordinates for the composite given image coordinates, approximating GPS coordinates as being linear."
 		raise NotImplementedError
+		return self.composites[cid].toGPS(compositeRow,compositeCol)
 	def composite2Images(self,cid,compositeRow,compositeCol):
 		"Returns a list of images for a composite at given coordinates."
 		raise NotImplementedError
-	def _create_path(self):
-		"Returns a path for a new composite"
-		raise NotImplementedError
+		return self.composites[cid].find_images(compositeRow,compositeCol)
 	def __init__(self,csv_path):
 		if not csv_path.endswith(".csv"):
 			raise ValueError("invalid csv path")
