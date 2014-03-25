@@ -10,13 +10,10 @@ import cmath
 import numpy as np
 import os.path
 import datetime
+import multiprocessing
 def _mean_residual(a):
 	m=np.array(a).mean()
 	return m,a-m
-def _as_thread(target,*args,**kwargs):
-	thd=threading.Thread(target=target,args=args,kwargs=kwargs)
-	thd.isDaemon=False
-	return thd
 Composite=collections.namedtuple("Composite","path ready to_gps find_images")
 class Map(object):
 	types=("nN",int),("xXyYrpy",float)
@@ -116,7 +113,7 @@ v TrY%d"""%(i,i,i)
 		try:
 			self._read_points(pts_pto_path)
 		except IOError:
-			subprocess.check_call(["panomatic","-n","2","-o",pts_pto_path,"--"]+[e["path"]for e in self.images]) #XXX 2 cpus
+			subprocess.check_call(["panomatic","-n",str(multiprocessing.cpu_count()),"-o",pts_pto_path,"--"]+[e["path"]for e in self.images])
 			self._read_points(pts_pto_path)
 
 		opt_pto_path=self._root_path+"opt.pto"
@@ -135,6 +132,7 @@ v TrY%d"""%(i,i,i)
 		p.readData(ifs)
 		del ifs
 		po=p.getOptions()
+		po.enblendOptions="--primary-seam-generator=gc" # no --gpu
 		po.setProjection(hsi.PanoramaOptions.RECTILINEAR)
 		po.setHFOV(90)
 		del po
@@ -237,15 +235,15 @@ v TrY%d"""%(i,i,i)
 		self.composites.append(composite)
 		def cb():
 			subprocess.check_call(("pto2mk",out_pto_path,"-o",out_mk_path,"-p",os.path.join(os.path.dirname(out_mk_path),"out")))
-			subprocess.check_call(("make","-j","-f",out_mk_path))
+			subprocess.call(("make","-j","-f",out_mk_path)) # could fail
 			composite.ready.set()
-		_as_thread(cb).start()
+		threading.Thread(target=cb).start()
 		return len(self.composites)-1
 	def isCompositeReady(self,cid):
 		"Returns true if composite is ready."
 		return self.composites[cid].ready.is_set()
 	def composite2Path(self,cid):
-		"Waits until isCompositeReady(id) and returns the path to the image."
+		"Waits until isCompositeReady(id) and returns the path to the image. No transparent images."
 		composite=self.composites[cid]
 		composite.ready.wait()
 		return composite.path
@@ -275,15 +273,18 @@ v TrY%d"""%(i,i,i)
 		self._dgps=None
 		self._initialized=threading.Event()
 		self.composites=[]
-		self._worker=_as_thread(self._deferred_init)
+		self._worker=threading.Thread(target=self._deferred_init)
 		self._worker.start()
 def main():
 	import sys
 	path=sys.argv[1]
 	m=Map("test.csv")
-	cid=m.createComposite(0.,0.,1.,1.,100,100)
-	print"started compositing",cid
-	print"done compositing",m.composite2Path(cid)
+	cids=[]
+	for lat in xrange(2):
+		for lon in xrange(-1,3):
+			cids.append(m.createComposite(lat,lon,lat,lon+1,100,100))
+	print"started compositing",cids
+	print"done compositing","\n".join(map(m.composite2Path,cids))
 if __name__=="__main__":
 	main()
 # vim: set ts=4 sw=4:
