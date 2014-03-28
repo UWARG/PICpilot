@@ -249,8 +249,7 @@ v TrY%d"""%(i,i,i)
 		self.composites.append(composite)
 		def cb():
 			subprocess.check_call(("pto2mk",out_pto_path,"-o",out_mk_path,"-p",os.path.join(os.path.dirname(out_mk_path),"out")))
-			#subprocess.call(("make","-j","-f",out_mk_path)) # could fail
-			subprocess.call(("make","-j1","-f",out_mk_path))#XXX
+			subprocess.call(("make","-j","-f",out_mk_path)) # could fail
 			composite.ready.set()
 		threading.Thread(target=cb).start()
 		return len(self.composites)-1
@@ -297,11 +296,11 @@ def main():
 	cids=[]
 	for lat in xrange(2):
 		for lon in xrange(-1,3):
-			cids.append(m.createComposite(lat,lon,lat,lon+1,100,100))
+			cids.append(m.createComposite(lat,lon,lat,lon+1,1000,1000))
 	print"started compositing",cids
 	print"done compositing","\n".join(map(m.composite2Path,cids))
-	print"images",m.composite2Images(cids[3],5,40)
-	print"GPS",m.composite2GPS(cids[3],5,40)#0,2.4
+	print"images",m.composite2Images(cids[3],50,400)
+	print"GPS",m.composite2GPS(cids[3],50,400)#0,2.4
 	#print"images",m.composite2Images(m.createComposite(0,2,0,3,100,70),5,40)
 	#print"GPS",m.composite2GPS(m.createComposite(0,2,0,3,100,70),5,40)#0,2.4
 if __name__=="__main__":
