@@ -257,20 +257,16 @@ v TrY%d"""%(i,i,i)
 		"Returns true if composite is ready."
 		return self.composites[cid].ready.is_set()
 	def composite2Path(self,cid):
-		"Waits until isCompositeReady(id) and returns the path to the image. No transparent images."
+		"Waits until isCompositeReady(id) and returns the path to the image. No transparent images are saved."
 		composite=self.composites[cid]
 		composite.ready.wait()
 		return composite.path
 	def composite2GPS(self,cid,compositeRow,compositeCol):
 		"Returns the GPS coordinates for the composite given image coordinates, approximating GPS coordinates as being linear."
-		composite=self.composites[cid]
-		composite.ready.wait()
-		return composite.to_gps(compositeRow,compositeCol)
+		return self.composites[cid].to_gps(compositeRow,compositeCol)
 	def composite2Images(self,cid,compositeRow,compositeCol):
 		"Returns a list of images for a composite at given coordinates."
-		composite=self.composites[cid]
-		composite.ready.wait()
-		return composite.find_images(compositeRow,compositeCol)
+		return self.composites[cid].find_images(compositeRow,compositeCol)
 	def __init__(self,csv_path):
 		if not csv_path.endswith(".csv"):
 			raise ValueError("invalid csv path")
