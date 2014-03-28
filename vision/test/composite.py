@@ -202,7 +202,8 @@ v TrY%d"""%(i,i,i)
 				fields[k].setValue(v)
 				p.updateVariable(img,fields[k])
 		def to_gps(py,px):
-			pass
+			g=(tl+(tr-tl)*((px+1j*py)/widthPx))*(180/math.pi)
+			return g0.real+g.real/dlat,g0.imag+g.imag/dlon
 		def find_images(py,px):
 			ret=[]
 			px=(2.*px-widthPx)/widthPx
@@ -248,7 +249,8 @@ v TrY%d"""%(i,i,i)
 		self.composites.append(composite)
 		def cb():
 			subprocess.check_call(("pto2mk",out_pto_path,"-o",out_mk_path,"-p",os.path.join(os.path.dirname(out_mk_path),"out")))
-			subprocess.call(("make","-j","-f",out_mk_path)) # could fail
+			#subprocess.call(("make","-j","-f",out_mk_path)) # could fail
+			subprocess.call(("make","-j1","-f",out_mk_path))#XXX
 			composite.ready.set()
 		threading.Thread(target=cb).start()
 		return len(self.composites)-1
@@ -293,14 +295,15 @@ def main():
 	path=sys.argv[1]
 	m=Map("test.csv")
 	cids=[]
-	#for lat in xrange(2):
-	#	for lon in xrange(-1,3):
-	#		cids.append(m.createComposite(lat,lon,lat,lon+1,100,100))
-	#print"started compositing",cids
-	#print"done compositing","\n".join(map(m.composite2Path,cids))
-	#print"images",m.composite2Images(cids[3],5,40)
-	#print"GPS",m.composite2GPS(cids[3],5,40)#2.3,0
-	print"images",m.composite2Images(m.createComposite(0,2,0,3,100,70),5,40)#XXX
+	for lat in xrange(2):
+		for lon in xrange(-1,3):
+			cids.append(m.createComposite(lat,lon,lat,lon+1,100,100))
+	print"started compositing",cids
+	print"done compositing","\n".join(map(m.composite2Path,cids))
+	print"images",m.composite2Images(cids[3],5,40)
+	print"GPS",m.composite2GPS(cids[3],5,40)#0,2.4
+	#print"images",m.composite2Images(m.createComposite(0,2,0,3,100,70),5,40)
+	#print"GPS",m.composite2GPS(m.createComposite(0,2,0,3,100,70),5,40)#0,2.4
 if __name__=="__main__":
 	main()
 # vim: set ts=4 sw=4:
