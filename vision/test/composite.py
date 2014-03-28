@@ -186,17 +186,16 @@ v TrY%d"""%(i,i,i)
 		nz=(tr-tl)/2 # new z, (tr-tl)/(2*math.tan(hfov/2))*-1j==(tr-tl)/2*-1j
 		m,phi=cmath.polar(z/nz)
 		mr=phi*(180/math.pi)
-		nu=((u+self._u0)*z-tl)/nz-(1+1j*heightPx/widthPx) # (1+1j*heightPx/widthPx)*math.tan(hfov/2)==(1+1j*heightPx/widthPx)
-		for img,fields,image,cx,cy in zip(
+		nu=((u+self._u0)*z-tl)/nz # math.tan(hfov/2)==1
+		for img,fields,image in zip(
 			p.getActiveImages(),
 			p.getVariables(),
 			self.images,
-			nu.real,
-			nu.imag,
 		):
+			nu[img]-=1+1j*image["height"]/image["width"]
 			for k,v in{
-				"TrX":cx,
-				"TrY":cy,
+				"TrX":nu[img].real,
+				"TrY":nu[img].imag,
 				"TrZ":m/2-1,
 				"r":(fields["r"].getValue()+mr+180)%360-180,
 			}.iteritems():
@@ -205,7 +204,21 @@ v TrY%d"""%(i,i,i)
 		def to_gps(py,px):
 			pass
 		def find_images(py,px):
-			pass
+			ret=[]
+			px=(2.*px-widthPx)/widthPx
+			py=(2.*py-heightPx)/widthPx
+			for img,fields,image in zip(
+				p.getActiveImages(),
+				p.getVariables(),
+				self.images
+			):
+				v=m*cmath.exp(1j*fields["r"].getValue()*(math.pi/180))
+				#print img,((px+1j*py)-nu[img])/v,
+				c=(((px+1j*py)-nu[img])/v+.5)*image["width"]+.5j*image["height"]
+				#print c
+				if 0<=c.real<image["width"]and 0<=c.imag<image["height"]:
+					ret.append((image["path"],c.imag,c.real))
+			return ret
 
 		orig=p.getMemento()
 		po=p.getOptions()
@@ -255,7 +268,7 @@ v TrY%d"""%(i,i,i)
 	def composite2Images(self,cid,compositeRow,compositeCol):
 		"Returns a list of images for a composite at given coordinates."
 		composite=self.composites[cid]
-		composite.wait()
+		composite.ready.wait()
 		return composite.find_images(compositeRow,compositeCol)
 	def __init__(self,csv_path):
 		if not csv_path.endswith(".csv"):
@@ -280,11 +293,14 @@ def main():
 	path=sys.argv[1]
 	m=Map("test.csv")
 	cids=[]
-	for lat in xrange(2):
-		for lon in xrange(-1,3):
-			cids.append(m.createComposite(lat,lon,lat,lon+1,100,100))
-	print"started compositing",cids
-	print"done compositing","\n".join(map(m.composite2Path,cids))
+	#for lat in xrange(2):
+	#	for lon in xrange(-1,3):
+	#		cids.append(m.createComposite(lat,lon,lat,lon+1,100,100))
+	#print"started compositing",cids
+	#print"done compositing","\n".join(map(m.composite2Path,cids))
+	#print"images",m.composite2Images(cids[3],5,40)
+	#print"GPS",m.composite2GPS(cids[3],5,40)#2.3,0
+	print"images",m.composite2Images(m.createComposite(0,2,0,3,100,70),5,40)#XXX
 if __name__=="__main__":
 	main()
 # vim: set ts=4 sw=4:
