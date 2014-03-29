@@ -202,7 +202,6 @@ void attitudeManagerRuntime() {
     imu_PitchAngle = imuData[PITCH];
     imu_RollAngle = (imuData[ROLL]);
 
-    //        VN100_SPI_GetMag(0,&imuData);
 
 
     /*****************************************************************************
@@ -433,8 +432,10 @@ void readDatalink(void){
                 setGain(THROTTLE, GAIN_KI, *(float*)(&cmd->data));
                 break;
             case SET_PATH_GAIN:
+                amData.pathGain = *(float*)(&cmd->data);
                 break;
             case SET_ORBIT_GAIN:
+                amData.orbitGain = *(float*)(&cmd->data);
                 break;
             case SHOW_GAIN:
                 displayGain = *(char*)(&cmd->data);
@@ -480,6 +481,10 @@ void readDatalink(void){
                 break;
             case SET_ACCEL_VARIANCE:
                 setAccelVariance(*(float*)(&cmd->data));
+                break;
+            case NEW_WAYPOINT:
+                amData.waypoint = *(WaypointWrapper*)(&cmd->data);
+                amData.waypoint.command = PM_NEW_WAYPOINT;
                 break;
             case TARE_IMU:
                 adjustVNOrientationMatrix((float*)(&cmd->data));

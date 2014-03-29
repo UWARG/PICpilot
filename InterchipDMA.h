@@ -11,6 +11,7 @@
 #define	INTERCHIPDMA_H
 
 #include "main.h"
+#include "PathManager.h"
 //Data Structures
 
 #if PATH_MANAGER || ATTITUDE_MANAGER
@@ -28,7 +29,9 @@ typedef struct _PMData {
 } PMData;
 
 typedef struct _AMData {
-    float time;
+    WaypointWrapper waypoint;
+    float pathGain;
+    float orbitGain;
 } AMData;
 #endif
 
