@@ -203,8 +203,6 @@ void attitudeManagerRuntime() {
     imu_RollRate = (imuData[IMU_ROLL_RATE]);
     imu_PitchRate = imuData[IMU_PITCH_RATE];
     imu_YawRate = imuData[IMU_YAW_RATE];
-    //        imu_PitchRate = imuData[YAW_RATE];
-    //        imu_YawRate = -imuData[PITCH_RATE];
 
     VN100_SPI_GetYPR(0, &imuData[YAW], &imuData[PITCH], &imuData[ROLL]);
     imu_YawAngle = imuData[YAW];
@@ -306,7 +304,7 @@ void attitudeManagerRuntime() {
     }
 
     //Feed forward Term when turning
-    if (controlLevel & ROLL_CONTROL_TYPE || controlLevel & HEADING_CONTROL_ON){
+    if (controlLevel & ALTITUDE_CONTROL_ON){
 //        sp_ComputedPitchRate += abs((int)(scaleFactor * sin(deg2rad(sp_RollAngle)))) * SP_RANGE; //Sinusoidal Function
 //        sp_ComputedPitchRate += abs((int)(scaleFactor * pow(sp_RollAngle,2))) * SP_RANGE; //Polynomial Function //Change this 2 to whatever
 //        sp_ComputedPitchRate += abs((int)(scaleFactor * pow(sp_RollAngle,1.0/2.0))) * SP_RANGE; //Square root function
