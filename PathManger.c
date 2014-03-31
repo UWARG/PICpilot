@@ -60,13 +60,13 @@ void pathManagerInit(void) {
 
 #endif
 
-    //Initialize first path nodes
-    path[currentBufferIndex] = initializePathNodeAndNext();
-    path[currentBufferIndex++]->index = 0;
-    path[currentBufferIndex]->previous = path[0];
-    path[currentBufferIndex] = path[currentBufferIndex -1]->next;
-    path[currentBufferIndex++]->index = 1;
-    currentIndex = 1;
+//    //Initialize first path nodes
+//    path[currentBufferIndex] = initializePathNodeAndNext();
+//    path[currentBufferIndex++]->index = 0;
+//    path[currentBufferIndex]->previous = path[0];
+//    path[currentBufferIndex] = path[currentBufferIndex -1]->next;
+//    path[currentBufferIndex++]->index = 1;
+//    currentIndex = 1;
 }
 
 void pathManagerRuntime(void) {
@@ -84,23 +84,21 @@ void pathManagerRuntime(void) {
 #endif
 
 
-    float position[3];
-    float heading;
-
-    //Get the position of the plane (in meters)
-    getCoordinates(gpsData.longitude,gpsData.latitude,(float*)&position);
-    position[2] = gpsData.altitude;
-    heading = gpsData.heading;
-
-
-
-    if (path[currentIndex]->next != 0 && path[currentIndex]->next->next != 0){
-        currentIndex = followWaypoints(path[currentIndex], (float*)&position, heading, &pmData.sp_Heading);
-    }
-    else if (path[currentIndex]->next != 0){
-        pmData.sp_Heading = followLineSegment(path[currentIndex], (float*)&position, heading);
-    }
-
+//    float position[3];
+//    float heading;
+//
+//    //Get the position of the plane (in meters)
+//    getCoordinates(gpsData.longitude,gpsData.latitude,(float*)&position);
+//    position[2] = gpsData.altitude;
+//    heading = gpsData.heading;
+//
+//
+//    if (path[currentIndex]->next != 0 && path[currentIndex]->next->next != 0){
+//        currentIndex = followWaypoints(path[currentIndex], (float*)&position, heading, &pmData.sp_Heading);
+//    }
+//    else if (path[currentIndex]->next != 0){
+//        pmData.sp_Heading = followLineSegment(path[currentIndex], (float*)&position, heading);
+//    }
 
 }
 char followWaypoints(PathData* currentWaypoint, float* position, float heading, float* sp_Heading){
@@ -271,12 +269,12 @@ PathData* initializePathNodeAndNext(void) {
 unsigned int appendPathNode(PathData* node){
     int previousIndex = currentBufferIndex - 1;
     if (previousIndex == -1){
-        UART1_SendString("Error: Previous node does not exist.");
+        if (currentBufferIndex == 0){
+            path[currentBufferIndex++] = node;
+        }
         return -1;
     }
     PathData* previousNode = path[previousIndex];
-    
-    
     node->previous = previousNode;
     //Update previous node
     previousNode->next = node;
@@ -288,7 +286,6 @@ unsigned int removePathNode(unsigned int ID){ //Also attempts to destroys the no
 
     unsigned int nodeIndex = getIndexFromID(ID);
     if (nodeIndex == -1){
-        UART1_SendString("Error: Node does not exist.");
         return -1;
     }
     PathData* node = path[nodeIndex];
@@ -305,7 +302,6 @@ unsigned int insertPathNode(PathData* node, unsigned int previousID, unsigned in
     int nextIndex = getIndexFromID(nextID);
     int previousIndex = getIndexFromID(previousID);
     if (nextIndex == -1 || previousIndex == -1){
-        UART1_SendString("Error: Previous or Next Nodes do not exist.");
         return -1;
     }
 
@@ -315,7 +311,6 @@ unsigned int insertPathNode(PathData* node, unsigned int previousID, unsigned in
     if (node->id == 0){ //If it hasn't been properly initialized.
         node->id = currentNodeID++;
         path[currentBufferIndex++] = node;
-        UART1_SendString("Warning: Improper Initialization. ID uninitialized.");
     }
     node->next = nextNode;
     node->previous = previousNode;
@@ -344,11 +339,10 @@ void copyGPSData(){
 void checkAMData(){
     int i = 0;
     char checksum = 0;
-    for (i = 0; i < sizeof(AMData); i++){
+    for (i = 0; i < sizeof(AMData) - 2; i++){
         checksum += ((char *)&amData)[i];
     }
-
-    if (checksum != lastAMDataChecksum){
+    if (checksum != lastAMDataChecksum && amData.checksum == checksum){
         lastAMDataChecksum = checksum;
 
         // All commands/actions that need to be run go here

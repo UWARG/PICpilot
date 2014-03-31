@@ -32,6 +32,7 @@ typedef struct _AMData {
     WaypointWrapper waypoint;
     float pathGain;
     float orbitGain;
+    char checksum;
 } AMData;
 #endif
 

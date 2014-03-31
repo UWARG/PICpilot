@@ -44,10 +44,19 @@
 #define SET_GYRO_VARIANCE 33
 #define SET_MAGNETIC_VARIANCE 34
 #define SET_ACCEL_VARIANCE 35
+#define SET_SCALE_FACTOR 36
 
+//Multipart Commands
 #define NEW_WAYPOINT 128
 #define TARE_IMU 129
 #define SET_IMU 130
 
+//Multipart Command Structs
+typedef struct _newwaypointwrapper {
+    long double longitude;  //TODO: Longitude and Latitude is bulky. If problems arise, change the format.
+    long double latitude;
+    float altitude;
+    float radius; //Radius of turn
+} NewWaypointWrapper;
 #endif	/* COMMANDS_H */
 

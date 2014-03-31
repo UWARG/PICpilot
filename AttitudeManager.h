@@ -16,7 +16,7 @@
 #define PITCH_CONTROL_SOURCE 0b00000010 //Controller(0) or Ground Station(1)
 #define ROLL_CONTROL_TYPE 0b00000100 //Roll Rates(0) or Roll Angles(1)
 #define ROLL_CONTROL_SOURCE 0b00001000 //Controller(0) or Ground Station(1)
-#define THROTTLE_CONTROL_SOURCE 0b00110000 //Controller(0) or Ground Station(1) or Autopilot(2)(Controlled by the GroundSpeed)
+#define THROTTLE_CONTROL_SOURCE 0b00110000 //Controller(0) or Ground Station(1) or Autopilot(2)(Controlled by the GroundSpeed).
 #define ALTITUDE_CONTROL_SOURCE 0b01000000 //Ground Station(0) or Autopilot(1)
 #define ALTITUDE_CONTROL_ON 0b10000000 //Off(0) or On(1)
 #define HEADING_CONTROL_SOURCE 0b0000000100000000 // Ground Station(0) or Autopilot(1)
