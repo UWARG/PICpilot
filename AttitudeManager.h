@@ -36,7 +36,12 @@
 #define IMU_PITCH_RATE   1
 #define IMU_ROLL_RATE    0
 
-
+#define MAX_ROLL_PWM UPPER_PWM - 20
+#define MIN_ROLL_PWM LOWER_PWM + 40
+#define MAX_PITCH_PWM UPPER_PWM - 25
+#define MIN_PITCH_PWM LOWER_PWM + 25
+#define MAX_YAW_PWM UPPER_PWM - 25
+#define MIN_YAW_PWM LOWER_PWM + 25
 
 /* FUNCTION PROTOTYPES */
 /*****************************************************************************  

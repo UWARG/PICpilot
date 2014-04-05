@@ -35,9 +35,10 @@ struct telem_block {
     float pitch, roll, yaw;                         // 4Byte
     float pitchRate, rollRate, yawRate;             // 4Byte
     float pitch_gain, roll_gain, yaw_gain;          // 4Byte
-    float heading, groundSpeed;
-    float pitchSetpoint, rollSetpoint, headingSetpoint, throttleSetpoint; //Angle
-    float altitudeSetpoint, altitude;
+    float groundSpeed;
+    int heading;
+    int pitchSetpoint, rollSetpoint, headingSetpoint, throttleSetpoint; //Angle
+    int altitudeSetpoint, altitude;
     int cPitchSetpoint, cRollSetpoint, cYawSetpoint, cThrottleSetpoint;  //Controller input // 2Byte
     char editing_gain, gpsStatus;                              // 1Byte
     // TODO: Add additional telemetry to be sent here

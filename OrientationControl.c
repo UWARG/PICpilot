@@ -18,98 +18,70 @@ float kd_gain[6] = {0, 25.2125988006591, 16.5748023987, 0, 0, 0};
 float kp_gain[6] = {1, 3.15, 3.39895009995, 1, 1, 0.1};
 float ki_gain[6]= {0, 0, 0, 0, 0, 0};
 //Interal Values
-float sum_gain[6] = {0, 0, 0, 0, 0, 0};
-float lastControlTime[6] = {0, 0, 0, 0, 0, 0};
+int sum_gain[6] = {0, 0, 0, 0, 0, 0};
+long int lastControlTime[6] = {0, 0, 0, 0, 0, 0};
 //Derivative Values
-float lastError[6] = {0, 0, 0, 0, 0, 0}; //[0],[1],[2] are currently unused
+int lastError[6] = {0, 0, 0, 0, 0, 0}; //[0],[1],[2] are currently unused
 
 char integralFreeze = 0;
 
 
-float controlSignalThrottle(float setpoint, float output, float time){
-    float dTime = time - lastControlTime[THROTTLE];
-    lastControlTime[THROTTLE] = time;
-    //To ensure that the time is valid and doesn't suddenly spike.
-    if (dTime > 1 || dTime <= 0){
-        dTime = 1;
-    }
-
-    float error = setpoint - output;
+int controlSignalThrottle(int setpoint, int output){
+    int error = setpoint - output;
     if (integralFreeze == 0){
-        sum_gain[THROTTLE] += (error * dTime);
+        sum_gain[THROTTLE] += error;
     }
-    float controlSignal = THROTTLE_SCALE_FACTOR * (error * kp_gain[THROTTLE] + sum_gain[THROTTLE] * ki_gain[THROTTLE]);
+    int controlSignal = (int)(THROTTLE_SCALE_FACTOR * (error * kp_gain[THROTTLE] + sum_gain[THROTTLE] * ki_gain[THROTTLE]));
     return controlSignal;
 }
 
-float controlSignalAltitude(float setpoint, float output, float time){
-    //Integral Calculations
-    float dTime = time - lastControlTime[ALTITUDE];
-    lastControlTime[ALTITUDE] = time;
-    //To ensure that the time is valid and doesn't suddenly spike.
-    if (dTime > 1 || dTime <= 0){
-        dTime = 1;
-    }
-
-    float error = setpoint - output;
+int controlSignalAltitude(int setpoint, int output){
+    int error = setpoint - output;
     if (integralFreeze == 0){
-        sum_gain[ALTITUDE] += (error * dTime);
+        sum_gain[ALTITUDE] += error;
     }
 
     //Derivative Calculations ---Not necessarily needed for altitude
-    float dValue = error - lastError[ALTITUDE];
+    int dValue = error - lastError[ALTITUDE];
     lastError[ALTITUDE] = error;
 
 
-    float controlSignal = ALTITUDE_PITCH_SCALE_FACTOR * (dValue/dTime * kd_gain[ALTITUDE] + error * kp_gain[ALTITUDE] + (sum_gain[ALTITUDE] * ki_gain[ALTITUDE]));
+    int controlSignal = (int)(ALTITUDE_PITCH_SCALE_FACTOR * ((dValue * kd_gain[ALTITUDE]) + (error * kp_gain[ALTITUDE]) + (sum_gain[ALTITUDE] * ki_gain[ALTITUDE])));
     return controlSignal;
 }
 
-float controlSignalHeading(float setpoint, float output, float time) { // function to find output based on gyro acceleration and PWM input
+int controlSignalHeading(int setpoint, int output) { // function to find output based on gyro acceleration and PWM input
 
     //Take into account Heading overflow (330 degrees and 30 degrees is a 60 degree difference)
-    if (setpoint - output > 180.0){
-        output += 360.0;
+    if (setpoint - output > 180){
+        output += 360;
     }
     
-    //Integral Calculations
-    float dTime = time - lastControlTime[HEADING];
-    lastControlTime[HEADING] = time;
-    //To ensure that the time is valid and doesn't suddenly spike.
-    if (dTime > 1 || dTime <= 0){
-        dTime = 1;
-    }
-
-    float error = setpoint - output;
+    int error = setpoint - output;
     if (integralFreeze == 0){
-        sum_gain[HEADING] += (error * dTime);
+        sum_gain[HEADING] += error;
     }
     
     //Derivative Calculations
-    float dValue = error - lastError[HEADING];
+    int dValue = error - lastError[HEADING];
     lastError[HEADING] = error;
 
-    float controlSignal = HEADING_ROLL_SCALE_FACTOR * ((dValue/dTime * kd_gain[HEADING]) + (error * kp_gain[HEADING]) + (sum_gain[HEADING] * ki_gain[HEADING]));
+    int controlSignal = (int)(HEADING_ROLL_SCALE_FACTOR * ((dValue * kd_gain[HEADING]) + (error * kp_gain[HEADING]) + (sum_gain[HEADING] * ki_gain[HEADING])));
     return controlSignal;
 }
-int controlSignalAngles(float setpoint, float output, unsigned char type, float SERVO_SCALE_FACTOR_ANGLES, float time) { // function to find output based on gyro acceleration and PWM input
-    float dTime = time - lastControlTime[type];
-    lastControlTime[type] = time;
-    //To ensure that the time is valid and doesn't suddenly spike.
-    if (dTime > 1){
-        dTime = 0;
-    }
+int controlSignalAngles(int setpoint, int output, unsigned char type, float SERVO_SCALE_FACTOR_ANGLES) { // function to find output based on gyro acceleration and PWM input
 
-    float error = setpoint - output;
+
+    int error = setpoint - output;
     if (integralFreeze == 0){
-        sum_gain[type] += (error * dTime);
+        sum_gain[type] += error;
     }
 
-    int controlSignal = SERVO_SCALE_FACTOR_ANGLES * (error * kp_gain[type] + (sum_gain[type] * ki_gain[type]));
+    int controlSignal = (int)(SERVO_SCALE_FACTOR_ANGLES * (error * kp_gain[type] + (sum_gain[type] * ki_gain[type])));
     return controlSignal;
 }
-int controlSignal(float setpoint, float output, unsigned char type) { // function to find output based on gyro acceleration and PWM input
-    int controlSignal = SERVO_SCALE_FACTOR * (setpoint - output * kd_gain[type]) + MIDDLE_PWM;
+int controlSignal(int setpoint, int output, unsigned char type) { // function to find output based on gyro acceleration and PWM input
+    int controlSignal = (int)(SERVO_SCALE_FACTOR * (setpoint - output * kd_gain[type])) + MIDDLE_PWM;
     return controlSignal;
 }
 

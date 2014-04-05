@@ -6,29 +6,29 @@
  */
 
 //Global Variables
+#define SAMPLE_TIME 0.02
 
 #define GAIN_KD 0
 #define GAIN_KP 1
 #define GAIN_KI 2
 
 //Maximum rates for PID loop outputs
-#define MAX_HEADING_RATE 10.0 //Max heading change of 10 degrees per second
-#define MAX_ROLL_ANGLE 40.0 // max allowed roll angle in degrees
-#define MAX_PITCH_ANGLE 15.0
+#define MAX_ROLL_ANGLE 40 // max allowed roll angle in degrees
+#define MAX_PITCH_ANGLE 15
 #define MAX_SPEED 17.0 // ???m/s
 
 // A scaling factor used in the PID control loops
 #define SERVO_SCALE_FACTOR (-(UPPER_PWM - MIDDLE_PWM) / 45)
 #define ALTITUDE_PITCH_SCALE_FACTOR 1 //0.1 degrees per meter in altitude change
-#define HEADING_ROLL_SCALE_FACTOR MAX_ROLL_ANGLE/360.0
+#define HEADING_ROLL_SCALE_FACTOR MAX_ROLL_ANGLE/45
 #define THROTTLE_SCALE_FACTOR SP_RANGE/MAX_PITCH_ANGLE
 
 
 
 //Function Prototypes
 //TODO: Add function comments here
-float controlSignalThrottle(float setpoint, float output, float time);
-float controlSignalAltitude(float sp_Altitude,float gps_Altitude, float time);
+int controlSignalThrottle(int setpoint, int output);
+int controlSignalAltitude(int sp_Altitude,int gps_Altitude);
 /*****************************************************************************
  * Function: float controlSignalHeading(float setpoint, float output, float time)
  *
@@ -49,7 +49,7 @@ float controlSignalAltitude(float sp_Altitude,float gps_Altitude, float time);
  *              (heading rate). This value is in degrees per second.
  *
  *****************************************************************************/
-float controlSignalHeading(float setpoint, float output, float time);
+int controlSignalHeading(int setpoint, int output);
 
 /*****************************************************************************
  * Function: int controlSignalAngles(float setpoint, float output, unsigned char type, float SERVO_SCALE_FACTOR_ANGLES, float time)
@@ -78,7 +78,7 @@ float controlSignalHeading(float setpoint, float output, float time);
  *
  *****************************************************************************/
 
-int controlSignalAngles(float setpoint, float output, unsigned char type, float SERVO_SCALE_FACTOR_ANGLES, float time);
+int controlSignalAngles(int setpoint, int output, unsigned char type, float SERVO_SCALE_FACTOR_ANGLES);
 
 /*****************************************************************************
  * Function: int controlSignal(float setpoint, float output, unsigned char type)
@@ -105,7 +105,7 @@ int controlSignalAngles(float setpoint, float output, unsigned char type, float 
  *
  *****************************************************************************/
 
-int controlSignal(float setpoint, float output, unsigned char type);
+int controlSignal(int setpoint, int output, unsigned char type);
 
 /*****************************************************************************
  * Function: void freezeIntegral()
