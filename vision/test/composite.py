@@ -22,6 +22,9 @@ def _mean_residual(a):
 Composite=collections.namedtuple("Composite","path ready to_gps find_images")
 class Map(object):
 	types=("nN",int),("xXyYrpy",float)
+	_make=r"C:\MinGW\bin\mingw32-make.exe"
+	if not os.path.exists(_make):
+		_make="make"
 	def _read_points(self,pts_pto_path):
 		"Read image paths and control points"
 		with open(pts_pto_path)as points_fd:
@@ -254,7 +257,7 @@ v TrY%d"""%(i,i,i),file=fd)
 		self.composites.append(composite)
 		def cb():
 			subprocess.check_call(("pto2mk",out_pto_path,"-o",out_mk_path,"-p",os.path.join(os.path.dirname(out_mk_path),"out")))
-			subprocess.call(("make","-j","-f",out_mk_path)) # could fail
+			subprocess.call((self._make,"-j","-f",out_mk_path)) # could fail
 			composite.ready.set()
 		threading.Thread(target=cb).start()
 		return len(self.composites)-1
