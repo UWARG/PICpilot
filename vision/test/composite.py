@@ -73,7 +73,7 @@ class Map(object):
 		idx=max((size(i,i),i)for i in xrange(len(self.images)))[1]
 		primary=[i for i,e in enumerate(index)if e==idx]
 		reverse={e:i for i,e in enumerate(primary)}
-		self.images=map(self.images.__getitem__,primary)
+		self.images=list(map(self.images.__getitem__,primary))
 		for point in points:
 			for field in"nN":
 				point[field]=reverse[point[field]]
@@ -203,7 +203,7 @@ v TrY%d"""%(i,i,i),file=fd)
 				"TrY":nu[img].imag,
 				"TrZ":m/2-1,
 				"r":(fields["r"].getValue()+mr+180)%360-180,
-			}.iteritems():
+			}.items():
 				fields[k].setValue(v)
 				p.updateVariable(img,fields[k])
 		def to_gps(py,px):
