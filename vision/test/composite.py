@@ -1,4 +1,5 @@
 #!/usr/bin/env python2
+from __future__ import print_function
 import csv
 import subprocess
 import threading
@@ -28,7 +29,7 @@ class Map(object):
 				if not line:
 					continue
 				if line[0]!='#':
-					#print line
+					#print(line)
 					vals={"line":line}
 					line=line.split()
 					for word in line[1:]:
@@ -77,16 +78,16 @@ class Map(object):
 	def _output_raw_pto(self,fd):
 		"Write a pto for autooptimiser"
 		for image in self.images:
-			print>>fd,image["comment"]
-			print>>fd,image["line"]
+			print(image["comment"],file=fd)
+			print(image["line"],file=fd)
 		for i in xrange(1,len(self.images)):
-			print>>fd,"""\
+			print("""\
 v r%d
 v TrX%d
-v TrY%d"""%(i,i,i)
-		print>>fd,"v"
+v TrY%d"""%(i,i,i),file=fd)
+		print("v",file=fd)
 		for point in self._points:
-			print>>fd,point["line"]
+			print(point["line"],file=fd)
 	def _deferred_init(self):
 		"Worker thread"
 		try:
@@ -160,7 +161,7 @@ v TrY%d"""%(i,i,i)
 			np.rollaxis(np.array([np.concatenate((u.real,u.imag)),np.concatenate((-u.imag,u.real))]),1),
 			np.concatenate((g.real*dlat,g.imag*dlon))
 		)
-		#print"gps ~ (%.3g+%.3gj) (x+yj), residual = %.3g"%(a,b,r)
+		#print("gps ~ (%.3g+%.3gj) (x+yj), residual = %.3g"%(a,b,r),file=fd)
 		# found z = (a+bj): g = zu, so find real k, unit w: k(1, 0) = zw(0, -1)
 		self._z=z=a+1j*b
 		g=z*u
@@ -214,9 +215,9 @@ v TrY%d"""%(i,i,i)
 				self.images
 			):
 				v=m*cmath.exp(1j*fields["r"].getValue()*(math.pi/180))
-				#print img,((px+1j*py)-nu[img])/v,
+				#print(img,((px+1j*py)-nu[img])/v,end='')
 				c=(((px+1j*py)-nu[img])/v+.5)*image["width"]+.5j*image["height"]
-				#print c
+				#print(c)
 				if 0<=c.real<image["width"]and 0<=c.imag<image["height"]:
 					ret.append((image["path"],c.imag,c.real))
 			return ret
@@ -288,17 +289,17 @@ v TrY%d"""%(i,i,i)
 def main():
 	import sys
 	path=sys.argv[1]
-	m=Map("test.csv")
+	m=Map(path)
 	cids=[]
 	for lat in xrange(2):
 		for lon in xrange(-1,3):
 			cids.append(m.createComposite(lat,lon,lat,lon+1,1000,1000))
-	print"started compositing",cids
-	print"done compositing","\n".join(map(m.composite2Path,cids))
-	print"images",m.composite2Images(cids[3],50,400)
-	print"GPS",m.composite2GPS(cids[3],50,400)#0,2.4
-	#print"images",m.composite2Images(m.createComposite(0,2,0,3,100,70),5,40)
-	#print"GPS",m.composite2GPS(m.createComposite(0,2,0,3,100,70),5,40)#0,2.4
+	print("started compositing",cids)
+	print("done compositing","\n".join(map(m.composite2Path,cids)))
+	print("images",m.composite2Images(cids[3],50,400))
+	print("GPS",m.composite2GPS(cids[3],50,400))#0,2.4
+	#print("images",m.composite2Images(m.createComposite(0,2,0,3,100,70),5,40))
+	#print("GPS",m.composite2GPS(m.createComposite(0,2,0,3,100,70),5,40))#0,2.4
 if __name__=="__main__":
 	main()
 # vim: set ts=4 sw=4:
