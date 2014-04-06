@@ -12,6 +12,10 @@ import numpy as np
 import os.path
 import datetime
 import multiprocessing
+try:
+	xrange
+except NameError:
+	xrange=range
 def _mean_residual(a):
 	m=np.array(a).mean()
 	return m,a-m
