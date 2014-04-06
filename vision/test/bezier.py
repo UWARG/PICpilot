@@ -21,6 +21,8 @@ class Bezier(object):
 		self.splines=[BezierSpline(**{k:np.array(v,dtype='float64') for k,v in p.iteritems()}) for p in o]
 		self._speed=np.vectorize(self.speed)
 		self.integrals=Memo(lambda i:scipy.integrate.quadrature(self._speed,i,i+1)[0])
+		self.sums=Memo(lambda i:self.sums[i-1]+self.integrals[i-1])
+		self.sums[0]=0
 	def displacement(self,t):
 		if t<0:
 			s=self.splines[0]
@@ -62,7 +64,7 @@ class Bezier(object):
 		t-=i
 		return 6*(1-t)*(s.l-2*r.r+r.c)+6*t*(s.c-2*s.l+r.r)
 	def distance(self,t):
-		return sum(map(self.integrals.__getitem__,xrange(int(t))))+scipy.integrate.quadrature(self._speed,int(t),t)[0]
+		return self.sums[max(0,int(t))]+scipy.integrate.quadrature(self._speed,int(t),t)[0]
 	def speed(self,t):
 		return np.linalg.norm(self.prime(t))
 	def accel(self,t):
@@ -70,7 +72,16 @@ class Bezier(object):
 	def speed_prime(self,t):
 		return np.dot(self.prime(t),self.prime2(t))/self.speed(t)
 	def distance_arc(self,d):
-		return scipy.optimize.newton(lambda t:self.distance(t)-d,0,fprime=self.speed,fprime2=self.speed_prime)
+		#return scipy.optimize.newton(lambda t:self.distance(t)-d,0,fprime=self.speed,fprime2=self.speed_prime,maxiter=100)
+		start=-1.
+		end=1.
+		while self.distance(end)<d:
+			start=end
+			end*=2
+		while self.distance(start)>d:
+			end=start
+			start*=2
+		return scipy.optimize.brentq(lambda t:self.distance(t)-d,start,end)
 	def displacement_arc(self,d):
 		return self.displacement(self.distance_arc(d))
 	def arclength(self):
