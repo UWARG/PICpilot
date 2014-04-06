@@ -7,6 +7,7 @@
 
 #include "main.h"
 #include "PathManager.h"
+#include "MPL3115A2.h"
 
 #if !(PATH_MANAGER && ATTITUDE_MANAGER && COMMUNICATION_MANAGER)
 #include "InterchipDMA.h"
@@ -48,6 +49,9 @@ void pathManagerInit(void) {
     //Communication with GPS
         init_SPI2();
         init_DMA2();
+
+        //Communication with Altimeter
+        initAltimeter();
 
     //Interchip Communication
 #if !ATTITUDE_MANAGER
@@ -326,13 +330,14 @@ void copyGPSData(){
     if (newGPSDataAvailable){
         newGPSDataAvailable = 0;
         pmData.time = gpsData.time;
-        pmData.altitude = gpsData.altitude;
         pmData.longitude = gpsData.longitude;
+        pmData.altitude = getAltitude();
         pmData.latitude = gpsData.latitude;
         pmData.heading = gpsData.heading;
         pmData.speed = gpsData.speed;
         pmData.satellites = (char)gpsData.satellites;
         pmData.positionFix = (char)gpsData.positionFix;
+        
     }
 }
 

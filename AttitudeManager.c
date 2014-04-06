@@ -75,6 +75,8 @@ float gps_Altitude = 0;
 char gps_Satellites = 0;
 char gps_PositionFix = 0;
 
+
+
 // System outputs (get from IMU)
 float imuData[3];
 float imu_RollRate = 0;
@@ -107,8 +109,10 @@ char altitudeTrigger = 0;
 void attitudeInit() {
     //Debug Mode initialize communication with the serial port (Computer)
     if (DEBUG) {
-        InitUART1();
+//        InitUART1();
     }
+    TRISFbits.TRISF3 = 0;
+    LATFbits.LATF3 = 1;
 
     //Initialize Interchip communication
     init_SPI1();
@@ -122,7 +126,8 @@ void attitudeInit() {
     VN100_initSPI();
     float offset[3] = {-79,0,13};
     setVNOrientationMatrix((float*)&offset);
-     VN100_SPI_SetFiltMeasVar(0, (float*)&filterVariance);
+    VN100_SPI_SetFiltMeasVar(0, (float*)&filterVariance);
+
     /* Initialize Input Capture and Output Compare Modules */
     if (DEBUG) {
         initIC(0b10001111);
@@ -143,9 +148,9 @@ void attitudeManagerRuntime() {
         gps_Time = pmData.time;
         gps_Heading = pmData.heading;
         gps_GroundSpeed = pmData.speed * 1000.0/3600.0; //Convert from km/h to m/s
-        gps_Altitude = pmData.altitude;
         gps_Longitude = pmData.longitude;
         gps_Latitude = pmData.latitude;
+        gps_Altitude = pmData.altitude;
         gps_Satellites = pmData.satellites;
         gps_PositionFix = pmData.positionFix;
         if (controlLevel & ALTITUDE_CONTROL_SOURCE)
@@ -199,8 +204,6 @@ void attitudeManagerRuntime() {
     imu_YawAngle = imuData[YAW];
     imu_PitchAngle = imuData[PITCH];
     imu_RollAngle = (imuData[ROLL]);
-
-
 
     /*****************************************************************************
      *****************************************************************************

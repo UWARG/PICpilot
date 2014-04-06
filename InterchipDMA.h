@@ -20,7 +20,7 @@ typedef struct _PMData {
     long double latitude;  //8 Bytes - ddd.mmmmmm
     long double longitude; //8 Bytes - ddd.mmmmmm
     float speed;    //KM/H
-    int altitude; // Meters
+    float altitude;
     int sp_Altitude; // Meters
     int heading;  //Degrees
     int sp_Heading; //Degrees

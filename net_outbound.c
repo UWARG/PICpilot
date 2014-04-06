@@ -48,7 +48,7 @@ struct telem_block *getDebugTelemetryBlock(void) {
         debugTelemetry->headingSetpoint = (int) 1;
         debugTelemetry->throttleSetpoint = (int) 1;
         debugTelemetry->altitudeSetpoint = (int) 1;
-        debugTelemetry->altitude = (int) 1;
+        debugTelemetry->altitude = (float) 1;
         debugTelemetry->cPitchSetpoint = (int) 1;
         debugTelemetry->cRollSetpoint = (int) 1;
         debugTelemetry->cYawSetpoint = (int) 1;
