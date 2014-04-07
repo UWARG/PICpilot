@@ -140,7 +140,7 @@ v TrY%d"""%(i,i,i),file=fd)
 		p.readData(ifs)
 		del ifs
 		po=p.getOptions()
-		po.enblendOptions="--primary-seam-generator=gc" # no --gpu
+		po.enblendOptions="--primary-seam-generator=graph-cut" # no --gpu
 		po.setProjection(hsi.PanoramaOptions.RECTILINEAR)
 		po.setHFOV(90)
 		del po
