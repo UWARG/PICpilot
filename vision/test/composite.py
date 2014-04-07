@@ -231,6 +231,7 @@ v TrY%d"""%(i,i,i),file=fd)
 
 		orig=p.getMemento()
 		po=p.getOptions()
+		po.outputImageType="png"
 		po.setWidth(widthPx)
 		po.setHeight(heightPx)
 		po.setROI(hsi.Rect2D(0,0,widthPx,heightPx))
@@ -249,7 +250,7 @@ v TrY%d"""%(i,i,i),file=fd)
 		p.setMemento(orig)
 		out_mk_path=out_pto_path+".mk"
 		composite=Composite(
-			path=self._base_path+"out.tif",
+			path=self._base_path+"out.png",
 			ready=threading.Event(),
 			to_gps=to_gps,
 			find_images=find_images,
