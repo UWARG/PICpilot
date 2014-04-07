@@ -124,7 +124,7 @@ void attitudeInit() {
     //IMU position matrix
     float filterVariance[10] = {1e-6, 1e-006, 1e-006, 1e-6, 1e2, 1e2, 1e2, 4, 4, 4};
     VN100_initSPI();
-    float offset[3] = {-79,0,13};
+    float offset[3] = {-81,0,6};
     setVNOrientationMatrix((float*)&offset);
     VN100_SPI_SetFiltMeasVar(0, (float*)&filterVariance);
 
@@ -247,7 +247,7 @@ void attitudeManagerRuntime() {
         // -(maxHeadingRate)/180.0,
             sp_HeadingRate = controlSignalHeading(sp_Heading, gps_Heading);
             //Approximating Roll angle from Heading
-            sp_RollAngle = (int)(atan((float)sp_HeadingRate/MAX_ROLL_ANGLE) * 180/PI);
+            sp_RollAngle = (int)(atan((float)(sp_HeadingRate)) * 180/PI);
 
         if (sp_RollAngle > MAX_ROLL_ANGLE)
             sp_RollAngle = MAX_ROLL_ANGLE;
