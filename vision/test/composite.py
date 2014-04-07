@@ -121,7 +121,7 @@ v TrY%d"""%(i,i,i),file=fd)
 		try:
 			self._read_points(pts_pto_path)
 		except IOError:
-			subprocess.check_call(["panomatic","-n",str(multiprocessing.cpu_count()),"-o",pts_pto_path,"--"]+[e["path"]for e in self.images])
+			subprocess.check_call(["panomatic","--linearmatch","--linearmatchlen","3","-n",str(multiprocessing.cpu_count()),"-o",pts_pto_path,"--"]+[e["path"]for e in self.images])
 			self._read_points(pts_pto_path)
 
 		opt_pto_path=self._root_path+"opt.pto"
@@ -295,6 +295,7 @@ v TrY%d"""%(i,i,i),file=fd)
 		self._worker.start()
 def main():
 	import sys
+	sys.setrecursionlimit(10000)
 	path=sys.argv[1]
 	m=Map(path)
 	cids=[]
