@@ -124,7 +124,7 @@ void attitudeInit() {
     //IMU position matrix
     float filterVariance[10] = {1e-6, 1e-006, 1e-006, 1e-6, 1e2, 1e2, 1e2, 4, 4, 4};
     VN100_initSPI();
-    float offset[3] = {-81,0,6};
+    float offset[3] = {-97,0,6};
     setVNOrientationMatrix((float*)&offset);
     VN100_SPI_SetFiltMeasVar(0, (float*)&filterVariance);
 
@@ -142,6 +142,7 @@ void attitudeInit() {
 void attitudeManagerRuntime() {
 
     //Transfer data from PATHMANAGER CHIP
+//        UART1_SendString("before");
 #if !PATH_MANAGER
     if (newDataAvailable){
         newDataAvailable = 0;
@@ -160,7 +161,7 @@ void attitudeManagerRuntime() {
     }
 #endif
 
-
+//    UART1_SendString("I");
     /*****************************************************************************
      *****************************************************************************
 
@@ -168,7 +169,6 @@ void attitudeManagerRuntime() {
 
      *****************************************************************************
      *****************************************************************************/
-
         int* icTimeDiff;
         icTimeDiff = getICValues();
 
@@ -187,6 +187,7 @@ void attitudeManagerRuntime() {
 //        sp_Value = icTimeDiff[6];
         sp_Switch = icTimeDiff[7];
 
+        UART1_SendString("IMU");
     /*****************************************************************************
      *****************************************************************************
 
@@ -212,8 +213,7 @@ void attitudeManagerRuntime() {
 
      *****************************************************************************
      *****************************************************************************/
-
-
+    UART1_SendString("CC");
     if (controlLevel & ALTITUDE_CONTROL_ON){
         sp_PitchAngle = controlSignalAltitude(sp_Altitude,(int)gps_Altitude);
         if (sp_PitchAngle > MAX_PITCH_ANGLE)
@@ -223,7 +223,7 @@ void attitudeManagerRuntime() {
     }
 
     if ((THROTTLE_CONTROL_SOURCE & controlLevel) >> 4 >= 1){
-        control_Throttle = sp_ThrottleRate - controlSignalThrottle(sp_PitchAngle, (int)imu_PitchAngle);
+        control_Throttle = sp_ThrottleRate + controlSignalThrottle(sp_Altitude, (int)gps_Altitude);
         //TODO: Fix decleration of these constants later - Maybe have a  controller.config file specific to each controller or something (make a script to generate this)
         if (control_Throttle > 890){
             control_Throttle = 890;
@@ -247,7 +247,7 @@ void attitudeManagerRuntime() {
         // -(maxHeadingRate)/180.0,
             sp_HeadingRate = controlSignalHeading(sp_Heading, gps_Heading);
             //Approximating Roll angle from Heading
-            sp_RollAngle = (int)(atan((float)(sp_HeadingRate)) * 180/PI);
+            sp_RollAngle = sp_HeadingRate;//(int)(atan((float)(sp_HeadingRate)) * PI/180.0);
 
         if (sp_RollAngle > MAX_ROLL_ANGLE)
             sp_RollAngle = MAX_ROLL_ANGLE;
@@ -297,11 +297,9 @@ void attitudeManagerRuntime() {
     }
 
     // Control Signals (Output compare value)
-    control_Throttle = control_Throttle;
     control_Roll = controlSignal((int)(sp_ComputedRollRate / SERVO_SCALE_FACTOR), (int)imu_RollRate, ROLL);
     control_Pitch = controlSignal((int)(sp_ComputedPitchRate / SERVO_SCALE_FACTOR), (int)imu_PitchRate, PITCH);
     control_Yaw = controlSignal((int)(sp_ComputedYawRate / SERVO_SCALE_FACTOR), (int)imu_YawRate, YAW);
-
     /*****************************************************************************
      *****************************************************************************
 
@@ -309,6 +307,7 @@ void attitudeManagerRuntime() {
 
      *****************************************************************************
      *****************************************************************************/
+    UART1_SendString("OC");
     if (DEBUG) {
 
     }
@@ -345,7 +344,7 @@ void attitudeManagerRuntime() {
         control_Yaw = MAX_YAW_PWM;
     if (control_Yaw < MIN_YAW_PWM)
         control_Yaw = MIN_YAW_PWM;
-
+    
     unsigned int pwmTemp = cameraPollingRuntime(gps_Latitude, gps_Longitude, sp_Switch);
     unsigned int gimblePWM = cameraGimbleStabilization(imu_RollAngle);
     // Sends the output signal to the servo motors
@@ -355,12 +354,13 @@ void attitudeManagerRuntime() {
     setPWM(4, control_Yaw + yawTrim);
     setPWM(5, pwmTemp);
     setPWM(6, gimblePWM);
-//    setPWM(7, (sp_HeadingRate)/10 * SP_RANGE + MIDDLE_PWM - 20);
+//    setPWM(7, sp_HeadingRate + MIDDLE_PWM - 20);
 
 #if COMMUNICATION_MANAGER
     readDatalink();
     writeDatalink(DATALINK_SEND_FREQUENCY); //pwmTemp>600?0?:0xFFFFFFFF;
 #endif
+    UART1_SendString("End");
 }
 
 #if COMMUNICATION_MANAGER
@@ -428,9 +428,23 @@ void readDatalink(void){
                 break;
             case SET_PATH_GAIN:
                 amData.pathGain = *(float*)(&cmd->data);
+                amData.command = PM_SET_PATH_GAIN;
+                int i = 0;
+                char checksum = 0;
+                for (i = 0; i < sizeof(AMData) - 2; i++){
+                    checksum += ((char *)&amData)[i];
+                }
+                amData.checksum = checksum;
                 break;
             case SET_ORBIT_GAIN:
                 amData.orbitGain = *(float*)(&cmd->data);
+                amData.command = PM_SET_ORBIT_GAIN;
+                i = 0;
+                checksum = 0;
+                for (i = 0; i < sizeof(AMData) - 2; i++){
+                    checksum += ((char *)&amData)[i];
+                }
+                amData.checksum = checksum;
                 break;
             case SHOW_GAIN:
                 displayGain = *(char*)(&cmd->data);
@@ -480,11 +494,25 @@ void readDatalink(void){
             case SET_SCALE_FACTOR:
                 scaleFactor = *(float*)(&cmd->data);
                 break;
+            case CALIBRATE_ALTIMETER:
+                amData.calibrationHeight = *(float*)(&cmd->data);
+                amData.command = PM_CALIBRATE_ALTIMETER;
+                i = 0;
+                checksum = 0;
+                for (i = 0; i < sizeof(AMData) - 2; i++){
+                    checksum += ((char *)&amData)[i];
+                }
+                amData.checksum = checksum;
+                break;
             case NEW_WAYPOINT:
-                amData.waypoint =  *(WaypointWrapper*)(&cmd->data);
-                amData.waypoint.command = PM_NEW_WAYPOINT;
-                int i = 0;
-                char checksum = 0;
+                amData.waypoint.altitude = (*(WaypointWrapper*)(&cmd->data)).altitude;
+                amData.waypoint.id = (*(WaypointWrapper*)(&cmd->data)).id;
+                amData.waypoint.latitude = (*(WaypointWrapper*)(&cmd->data)).latitude;
+                amData.waypoint.longitude = (*(WaypointWrapper*)(&cmd->data)).longitude;
+                amData.waypoint.radius = (*(WaypointWrapper*)(&cmd->data)).radius;
+                amData.command = PM_NEW_WAYPOINT;
+                i = 0;
+                checksum = 0;
                 for (i = 0; i < sizeof(AMData) - 2; i++){
                     checksum += ((char *)&amData)[i];
                 }

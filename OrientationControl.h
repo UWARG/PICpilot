@@ -13,15 +13,15 @@
 #define GAIN_KI 2
 
 //Maximum rates for PID loop outputs
-#define MAX_ROLL_ANGLE 40 // max allowed roll angle in degrees
+#define MAX_ROLL_ANGLE 30 // max allowed roll angle in degrees
 #define MAX_PITCH_ANGLE 15
 #define MAX_SPEED 17.0 // ???m/s
 
 // A scaling factor used in the PID control loops
 #define SERVO_SCALE_FACTOR (-(UPPER_PWM - MIDDLE_PWM) / 45)
 #define ALTITUDE_PITCH_SCALE_FACTOR 1 //0.1 degrees per meter in altitude change
-#define HEADING_ROLL_SCALE_FACTOR MAX_ROLL_ANGLE/45
-#define THROTTLE_SCALE_FACTOR SP_RANGE/MAX_PITCH_ANGLE
+#define HEADING_ROLL_SCALE_FACTOR 0.5
+#define THROTTLE_SCALE_FACTOR SP_RANGE
 
 
 

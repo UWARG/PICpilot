@@ -45,6 +45,7 @@
 #define SET_MAGNETIC_VARIANCE 34
 #define SET_ACCEL_VARIANCE 35
 #define SET_SCALE_FACTOR 36
+#define CALIBRATE_ALTIMETER 37
 
 //Multipart Commands
 #define NEW_WAYPOINT 128

@@ -26,7 +26,7 @@
 //Perform random clock things that came with the Sample Code (Keep in code)
 _FOSCSEL(FNOSC_FRC); // Internal FRC oscillator
 _FOSC(FCKSM_CSECMD & OSCIOFNC_OFF & POSCMD_NONE);
-_FWDT(FWDTEN_ON & WDTPOST_PS256 & WDTPRE_PR128); //32,128
+_FWDT(FWDTEN_ON & WDTPOST_PS2048 & WDTPRE_PR128); //32,128
 // Clock Switching is enabled and Fail Safe Clock Monitor is disabled
 // OSC2 Pin Function: OSC2 is Clock Output
 // Primary Oscillator Mode: XT Crystanl

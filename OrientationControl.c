@@ -14,8 +14,8 @@
 
 
 //TODO: Change these variable names to more generic names for inclusion of heading
-float kd_gain[6] = {0, 25.2125988006591, 16.5748023987, 0, 0, 0};
-float kp_gain[6] = {1, 3.15, 3.39895009995, 1, 1, 0.1};
+float kd_gain[6] = {0, 25.2125988006591, 16.5748023987, 40, 0, 0};
+float kp_gain[6] = {1, 1.5, 3.39895009995, 1.5, 1, 0.1};
 float ki_gain[6]= {0, 0, 0, 0, 0, 0};
 //Interal Values
 int sum_gain[6] = {0, 0, 0, 0, 0, 0};
@@ -51,10 +51,12 @@ int controlSignalAltitude(int setpoint, int output){
 }
 
 int controlSignalHeading(int setpoint, int output) { // function to find output based on gyro acceleration and PWM input
-
     //Take into account Heading overflow (330 degrees and 30 degrees is a 60 degree difference)
     if (setpoint - output > 180){
         output += 360;
+    }
+    else if (setpoint - output < -180){
+        output -= 360;
     }
     
     int error = setpoint - output;

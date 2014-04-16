@@ -13,7 +13,9 @@
 #define RELATIVE_LONGITUDE -80.5767466670668
 #define RELATIVE_LATITUDE 43.5305800001903
 
-#define PATH_BUFFER_SIZE 100
+#define PATH_BUFFER_SIZE 50
+#define PATH_FREE 0
+#define PATH_FULL 1
 
 #define PATH 0
 #define ORBIT 1
@@ -21,6 +23,9 @@
 //Waypoint Management Commands
 #define PM_DEBUG_TEST 0
 #define PM_NEW_WAYPOINT 1
+#define PM_CALIBRATE_ALTIMETER 32
+#define PM_SET_PATH_GAIN 64
+#define PM_SET_ORBIT_GAIN 65
 
 
 //Structs and typedefs
@@ -29,7 +34,6 @@ typedef struct _waypointWrapper{
     long double latitude;
     float altitude;
     float radius; //Radius of turn
-    char command;
     char id;    //Array ID
 
 }WaypointWrapper;
@@ -51,14 +55,18 @@ typedef struct _PathData{
 void pathManagerInit(void);
 void pathManagerRuntime(void);
 
-char followWaypoints(PathData* currentWaypoint, float* position, float heading, float* sp_Heading);
-float followLineSegment(PathData* currentWaypoint, float* position, float heading);
+char followWaypoints(PathData* currentWaypoint, float* position, float heading, int* sp_Heading);
+int followLineSegment(PathData* currentWaypoint, float* position, float heading);
 float followOrbit(float* center, float radius, char direction, float* position, float heading);
 float followStraightPath(float* waypointDirection, float* position, float heading);
 float maintainAltitude(PathData* cPath);
 void getCoordinates(long double longitude, long double latitude, float* xyCoordinates);
 PathData* initializePathNode(void);
+unsigned int destroyPathNode(PathData* node);
 PathData* initializePathNodeAndNext(void);
+unsigned int appendPathNode(PathData* node);
+unsigned int removePathNode(unsigned int ID);
+unsigned int insertPathNode(PathData* node, unsigned int previousID, unsigned int nextID);
 void copyGPSData(void);
 void checkAMData(void);
 #endif

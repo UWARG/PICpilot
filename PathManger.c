@@ -31,15 +31,17 @@ extern char newGPSDataAvailable;
 
 float k_gain[2] = {1, 1};
 
-unsigned int currentBufferIndex = 0;
-unsigned int currentNodeID = 0;
-unsigned int currentIndex = 0;
+unsigned int currentBufferIndex = 0; //Last index that was filled
+unsigned int currentNodeID = 0; //Last ID that was used
+unsigned int currentIndex = 0; //Current Index that is being followed
 
 char orbitPathStatus = 0;
 
 char lastAMDataChecksum = 0;
 
 PathData* path[PATH_BUFFER_SIZE];
+char pathStatus[PATH_BUFFER_SIZE];
+char pathCount = 0;
 
 void pathManagerInit(void) {
 #if DEBUG
@@ -50,9 +52,6 @@ void pathManagerInit(void) {
         init_SPI2();
         init_DMA2();
 
-        //Communication with Altimeter
-        initAltimeter();
-
     //Interchip Communication
 #if !ATTITUDE_MANAGER
     init_SPI1();
@@ -61,16 +60,23 @@ void pathManagerInit(void) {
     DMA1REQbits.FORCE = 1;
     while (DMA1REQbits.FORCE == 1);
 
-
+    //Communication with Altimeter
+    initAltimeter();
 #endif
 
-//    //Initialize first path nodes
-//    path[currentBufferIndex] = initializePathNodeAndNext();
-//    path[currentBufferIndex++]->index = 0;
-//    path[currentBufferIndex]->previous = path[0];
-//    path[currentBufferIndex] = path[currentBufferIndex -1]->next;
-//    path[currentBufferIndex++]->index = 1;
-//    currentIndex = 1;
+    //Initialize first path nodes
+//    PathData* node = initializePathNode();
+//    node->altitude = 10;
+//    node->latitude = 43.4731655738112;
+//    node->longitude = -80.5374240875244;
+//    node->radius = 10;
+//    appendPathNode(node);
+//    node = initializePathNode();
+//    node->altitude = 10;
+//    node->latitude = 43.4718886758826;
+//    node->longitude = -80.5391192436218;
+//    node->radius = 10;
+//    appendPathNode(node);
 }
 
 void pathManagerRuntime(void) {
@@ -86,26 +92,23 @@ void pathManagerRuntime(void) {
     //Check for new uplink command data
     checkAMData();
 #endif
+    float position[3];
+    float heading;
+    //Get the position of the plane (in meters)
+    getCoordinates(gpsData.longitude,gpsData.latitude,(float*)&position);
+    position[2] = gpsData.altitude;
+    heading = (float)gpsData.heading;
 
-
-//    float position[3];
-//    float heading;
-//
-//    //Get the position of the plane (in meters)
-//    getCoordinates(gpsData.longitude,gpsData.latitude,(float*)&position);
-//    position[2] = gpsData.altitude;
-//    heading = gpsData.heading;
-//
-//
-//    if (path[currentIndex]->next != 0 && path[currentIndex]->next->next != 0){
-//        currentIndex = followWaypoints(path[currentIndex], (float*)&position, heading, &pmData.sp_Heading);
-//    }
-//    else if (path[currentIndex]->next != 0){
-//        pmData.sp_Heading = followLineSegment(path[currentIndex], (float*)&position, heading);
-//    }
+    if (pathCount > 2){
+//        currentIndex = followWaypoints(path[currentIndex], (float*)&position, heading, (int*)&pmData.sp_Heading);
+//        UART1_SendString(">2 Points");
+    }
+    else if (pathCount > 1){
+        pmData.sp_Heading = followLineSegment(path[currentIndex], (float*)&position, heading);
+    }
 
 }
-char followWaypoints(PathData* currentWaypoint, float* position, float heading, float* sp_Heading){
+char followWaypoints(PathData* currentWaypoint, float* position, float heading, int* sp_Heading){
         float waypointPosition[3];
         getCoordinates(currentWaypoint->longitude, currentWaypoint->latitude, (float*)&waypointPosition);
         waypointPosition[2] = currentWaypoint->altitude;
@@ -147,7 +150,7 @@ char followWaypoints(PathData* currentWaypoint, float* position, float heading, 
             if (cosC > 0){
                 orbitPathStatus = ORBIT;
             }
-            *sp_Heading = followStraightPath((float*)&waypointDirection,(float*)&position, heading);
+            *sp_Heading = followStraightPath((float*)&waypointDirection,(float*)position, heading);
         }
         else{
             float halfPlane[3];
@@ -171,20 +174,20 @@ char followWaypoints(PathData* currentWaypoint, float* position, float heading, 
             turnCenter[0] = targetCoordinates[0] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[0] - waypointDirection[0])/euclideanWaypointDirection);
             turnCenter[1] = targetCoordinates[1] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[1] - waypointDirection[1])/euclideanWaypointDirection);
             turnCenter[2] = targetCoordinates[2] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[2] - waypointDirection[2])/euclideanWaypointDirection);
-            *sp_Heading = followOrbit((float*) &turnCenter,targetWaypoint->radius, turnDirection, (float*)&position, heading);
+            *sp_Heading = (int)followOrbit((float*) &turnCenter,targetWaypoint->radius, turnDirection, (float*)position, heading);
         }
 
         return currentWaypoint->index;
 
 }
-float followLineSegment(PathData* currentWaypoint, float* position, float heading){
+int followLineSegment(PathData* currentWaypoint, float* position, float heading){
         float waypointPosition[3];
         getCoordinates(currentWaypoint->longitude, currentWaypoint->latitude, (float*)&waypointPosition);
         waypointPosition[2] = currentWaypoint->altitude;
 
         PathData* targetWaypoint = currentWaypoint->next;
         float targetCoordinates[3];
-        getCoordinates(targetWaypoint->longitude, targetWaypoint->longitude, (float*)&targetCoordinates);
+        getCoordinates(targetWaypoint->longitude, targetWaypoint->latitude, (float*)&targetCoordinates);
         targetCoordinates[2] = targetWaypoint->altitude;
 
 
@@ -194,7 +197,7 @@ float followLineSegment(PathData* currentWaypoint, float* position, float headin
         waypointDirection[1] = (targetCoordinates[1] - waypointPosition[1])/norm;
         waypointDirection[2] = (targetCoordinates[2] - waypointPosition[2])/norm;
 
-        return followStraightPath((float*)&waypointDirection, (float*)&position, heading);
+        return (int)followStraightPath((float*)&waypointDirection, (float*)position, heading);
 }
 
 float followOrbit(float* center, float radius, char direction, float* position, float heading){//Heading in degrees (magnetic)
@@ -273,16 +276,18 @@ PathData* initializePathNodeAndNext(void) {
 unsigned int appendPathNode(PathData* node){
     int previousIndex = currentBufferIndex - 1;
     if (previousIndex == -1){
-        if (currentBufferIndex == 0){
-            path[currentBufferIndex++] = node;
-        }
+        path[currentBufferIndex] = node;
+        node->index = currentBufferIndex++;
+        pathCount++;
         return -1;
     }
     PathData* previousNode = path[previousIndex];
     node->previous = previousNode;
+    path[currentBufferIndex] = node;
+    node->index = currentBufferIndex++;
+    pathCount++;
     //Update previous node
     previousNode->next = node;
-
     return node->id;
     
 }
@@ -331,13 +336,12 @@ void copyGPSData(){
         newGPSDataAvailable = 0;
         pmData.time = gpsData.time;
         pmData.longitude = gpsData.longitude;
-        pmData.altitude = getAltitude();
+        pmData.altitude = getAltitude(); //gpsData.altitude;
         pmData.latitude = gpsData.latitude;
         pmData.heading = gpsData.heading;
         pmData.speed = gpsData.speed;
         pmData.satellites = (char)gpsData.satellites;
-        pmData.positionFix = (char)gpsData.positionFix;
-        
+        pmData.positionFix = (char)gpsData.positionFix;        
     }
 }
 
@@ -351,10 +355,7 @@ void checkAMData(){
         lastAMDataChecksum = checksum;
 
         // All commands/actions that need to be run go here
-        k_gain[PATH] = amData.pathGain;
-        k_gain[ORBIT] = amData.orbitGain;
-
-        switch (amData.waypoint.command){
+       switch (amData.command){
             case PM_DEBUG_TEST:
                 UART1_SendString("Test");
                 break;
@@ -365,6 +366,16 @@ void checkAMData(){
                 node->longitude = amData.waypoint.longitude;
                 node->radius = amData.waypoint.radius;
                 appendPathNode(node);
+                UART1_SendString("NODE");
+                break;
+            case PM_CALIBRATE_ALTIMETER:
+                calibrateAltimeter(amData.calibrationHeight);
+                break;
+            case PM_SET_PATH_GAIN:
+                k_gain[PATH] = amData.pathGain;
+                break;
+            case PM_SET_ORBIT_GAIN:
+                k_gain[ORBIT] = amData.orbitGain;
                 break;
             default:
                 break;

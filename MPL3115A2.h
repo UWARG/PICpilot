@@ -23,12 +23,17 @@ extern "C" {
 #define ALTITUDE_MSB_REGISTER 1
 #define ALTITUDE_CSB_REGISTER 2
 #define ALTITUDE_LSB_REGISTER 3
-#define DATA_READY_EVENT_REGISTER 0x13
-#define CONTROL_REGISTER1 0x26
 #define WHO_AM_I_REG 0x0C
+#define DATA_READY_EVENT_REGISTER 0x13
+#define BAR_IN_MSB 0x14
+#define BAR_IN_LSB 0x15
+#define CONTROL_REGISTER1 0x26
+
+
 
 //TODO: ADD BETTER FORMATTING TO THIS HEADER FILE
 void initAltimeter();
+void calibrateAltimeter(float altitude);
 float getAltitude();
 
 
