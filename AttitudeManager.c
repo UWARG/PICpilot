@@ -428,12 +428,12 @@ void readDatalink(void){
             case SET_PATH_GAIN:
                 amData.pathGain = *(float*)(&cmd->data);
                 amData.command = PM_SET_PATH_GAIN;
-                amData.checksum = generateAMDataChecksum()
+                amData.checksum = generateAMDataChecksum();
                 break;
             case SET_ORBIT_GAIN:
                 amData.orbitGain = *(float*)(&cmd->data);
                 amData.command = PM_SET_ORBIT_GAIN;
-                amData.checksum = generateAMDataChecksum()
+                amData.checksum = generateAMDataChecksum();
                 break;
             case SHOW_GAIN:
                 displayGain = *(char*)(&cmd->data);
@@ -486,11 +486,11 @@ void readDatalink(void){
             case CALIBRATE_ALTIMETER:
                 amData.calibrationHeight = *(float*)(&cmd->data);
                 amData.command = PM_CALIBRATE_ALTIMETER;
-                amData.checksum = generateAMDataChecksum()
+                amData.checksum = generateAMDataChecksum();
                 break;
             case CLEAR_WAYPOINTS:
                 amData.command = PM_CLEAR_WAYPOINTS;
-                amData.checksum = generateAMDataChecksum()
+                amData.checksum = generateAMDataChecksum();
                 break;
             case REMOVE_WAYPOINT:
                 amData.waypoint.id = (*(char *)(&cmd->data));

@@ -384,7 +384,7 @@ void checkAMData(){
             case PM_CLEAR_WAYPOINTS:
                 clearPathNodes();
             case PM_INSERT_WAYPOINT:
-                PathData* node = initializePathNode();
+                node = initializePathNode();
                 node->altitude = amData.waypoint.altitude;
                 node->latitude = amData.waypoint.latitude;
                 node->longitude = amData.waypoint.longitude;

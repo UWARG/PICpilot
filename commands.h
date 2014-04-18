@@ -48,6 +48,7 @@
 #define CALIBRATE_ALTIMETER 37
 #define CLEAR_WAYPOINTS 38
 #define REMOVE_WAYPOINT 39
+#define SET_CURRENT_WAYPOINT 40
 
 //Multipart Commands
 #define NEW_WAYPOINT 128
