@@ -151,5 +151,6 @@ void setAngularWalkVariance(float variance);
 void setGyroVariance(float variance);
 void setMagneticVariance(float variance);
 void setAccelVariance(float variance);
+char generateAMDataChecksum(void);
 #endif	/* ATTITUDEMANAGER_H */
 

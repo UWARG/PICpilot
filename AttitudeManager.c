@@ -131,7 +131,7 @@ void attitudeInit() {
     /* Initialize Input Capture and Output Compare Modules */
     if (DEBUG) {
         initIC(0b10001111);
-        initOC(0b111111); //Initialize only Output Compare 1,2,3 and 4,5,6
+        initOC(0b1111111); //Initialize only Output Compare 1,2,3 and 4,5,6
         UART1_SendString("START OF CODE BEFORE WHILE");
     } else {
         initIC(0b11110001);
@@ -354,13 +354,12 @@ void attitudeManagerRuntime() {
     setPWM(4, control_Yaw + yawTrim);
     setPWM(5, pwmTemp);
     setPWM(6, gimblePWM);
-//    setPWM(7, sp_HeadingRate + MIDDLE_PWM - 20);
+    setPWM(7, sp_HeadingRate + MIDDLE_PWM - 20);
 
 #if COMMUNICATION_MANAGER
     readDatalink();
     writeDatalink(DATALINK_SEND_FREQUENCY); //pwmTemp>600?0?:0xFFFFFFFF;
 #endif
-    UART1_SendString("End");
 }
 
 #if COMMUNICATION_MANAGER
@@ -429,22 +428,12 @@ void readDatalink(void){
             case SET_PATH_GAIN:
                 amData.pathGain = *(float*)(&cmd->data);
                 amData.command = PM_SET_PATH_GAIN;
-                int i = 0;
-                char checksum = 0;
-                for (i = 0; i < sizeof(AMData) - 2; i++){
-                    checksum += ((char *)&amData)[i];
-                }
-                amData.checksum = checksum;
+                amData.checksum = generateAMDataChecksum()
                 break;
             case SET_ORBIT_GAIN:
                 amData.orbitGain = *(float*)(&cmd->data);
                 amData.command = PM_SET_ORBIT_GAIN;
-                i = 0;
-                checksum = 0;
-                for (i = 0; i < sizeof(AMData) - 2; i++){
-                    checksum += ((char *)&amData)[i];
-                }
-                amData.checksum = checksum;
+                amData.checksum = generateAMDataChecksum()
                 break;
             case SHOW_GAIN:
                 displayGain = *(char*)(&cmd->data);
@@ -497,13 +486,21 @@ void readDatalink(void){
             case CALIBRATE_ALTIMETER:
                 amData.calibrationHeight = *(float*)(&cmd->data);
                 amData.command = PM_CALIBRATE_ALTIMETER;
-                i = 0;
-                checksum = 0;
-                for (i = 0; i < sizeof(AMData) - 2; i++){
-                    checksum += ((char *)&amData)[i];
-                }
-                amData.checksum = checksum;
+                amData.checksum = generateAMDataChecksum()
                 break;
+            case CLEAR_WAYPOINTS:
+                amData.command = PM_CLEAR_WAYPOINTS;
+                amData.checksum = generateAMDataChecksum()
+                break;
+            case REMOVE_WAYPOINT:
+                amData.waypoint.id = (*(char *)(&cmd->data));
+                amData.command = PM_REMOVE_WAYPOINT;
+                amData.checksum = generateAMDataChecksum();
+                break;
+            case SET_CURRENT_WAYPOINT:
+                amData.waypoint.id = *(char *)(&cmd->data);
+                amData.command = PM_SET_CURRENT_WAYPOINT;
+                amData.checksum = generateAMDataChecksum();
             case NEW_WAYPOINT:
                 amData.waypoint.altitude = (*(WaypointWrapper*)(&cmd->data)).altitude;
                 amData.waypoint.id = (*(WaypointWrapper*)(&cmd->data)).id;
@@ -511,12 +508,17 @@ void readDatalink(void){
                 amData.waypoint.longitude = (*(WaypointWrapper*)(&cmd->data)).longitude;
                 amData.waypoint.radius = (*(WaypointWrapper*)(&cmd->data)).radius;
                 amData.command = PM_NEW_WAYPOINT;
-                i = 0;
-                checksum = 0;
-                for (i = 0; i < sizeof(AMData) - 2; i++){
-                    checksum += ((char *)&amData)[i];
-                }
-                amData.checksum = checksum;
+                amData.checksum = generateAMDataChecksum();
+                break;
+            case INSERT_WAYPOINT:
+                amData.waypoint.altitude = (*(WaypointWrapper*)(&cmd->data)).altitude;
+                amData.waypoint.latitude = (*(WaypointWrapper*)(&cmd->data)).latitude;
+                amData.waypoint.longitude = (*(WaypointWrapper*)(&cmd->data)).longitude;
+                amData.waypoint.radius = (*(WaypointWrapper*)(&cmd->data)).radius;
+                amData.waypoint.nextId = (*(WaypointWrapper*)(&cmd->data)).nextId;
+                amData.waypoint.previousId = (*(WaypointWrapper*)(&cmd->data)).previousId;
+                amData.command = PM_INSERT_WAYPOINT;
+                amData.checksum = generateAMDataChecksum();
                 break;
             case TARE_IMU:
                 adjustVNOrientationMatrix((float*)(&cmd->data));
@@ -646,4 +648,12 @@ void setAccelVariance(float variance){
     previousVariance[9] = variance; //Z
     VN100_SPI_SetFiltMeasVar(0, (float*)&previousVariance);
     VN100_SPI_WriteSettings(0);
+}
+char generateAMDataChecksum(void){
+    int i = 0;
+    char checksum = 0;
+    for (i = 0; i < sizeof(AMData) - 2; i++){
+        checksum += ((char *)&amData)[i];
+    }
+    return checksum;
 }

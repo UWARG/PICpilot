@@ -100,8 +100,7 @@ void pathManagerRuntime(void) {
     heading = (float)gpsData.heading;
 
     if (pathCount > 2){
-//        currentIndex = followWaypoints(path[currentIndex], (float*)&position, heading, (int*)&pmData.sp_Heading);
-//        UART1_SendString(">2 Points");
+        currentIndex = followWaypoints(path[currentIndex], (float*)&position, heading, (int*)&pmData.sp_Heading);
     }
     else if (pathCount > 1){
         pmData.sp_Heading = followLineSegment(path[currentIndex], (float*)&position, heading);
@@ -201,9 +200,10 @@ int followLineSegment(PathData* currentWaypoint, float* position, float heading)
 }
 
 float followOrbit(float* center, float radius, char direction, float* position, float heading){//Heading in degrees (magnetic)
-    heading = deg2rad(heading - 90);
+    heading = deg2rad(90 - heading);
     float orbitDistance = sqrt(pow(position[0] - center[0],2) + pow(position[1] - center[1],2));
     float courseAngle = atan2(position[1] - center[1], position[0] - center[0]); // (y,x) format
+ 
     while (courseAngle - heading < -PI){
         courseAngle += 2 * PI;
     }
@@ -211,10 +211,10 @@ float followOrbit(float* center, float radius, char direction, float* position, 
         courseAngle -= 2 * PI;
     }
 
-    return rad2deg(courseAngle + direction * (PI/2 + atan(k_gain[ORBIT] * (orbitDistance - radius)/radius))) + 90; //Heading in degrees (magnetic)
+    return 90 - rad2deg(courseAngle + direction * (PI/2 + atan(k_gain[ORBIT] * (orbitDistance - radius)/radius))); //Heading in degrees (magnetic)
 }
 float followStraightPath(float* waypointDirection, float* position, float heading){ //Heading in degrees (magnetic)
-    heading = deg2rad(heading - 90);//heading - 90 = magnetic heading to cartesian heading
+    heading = deg2rad(90 - heading);//90 - heading = magnetic heading to cartesian heading
     float courseAngle = atan2(waypointDirection[1], waypointDirection[0]); // (y,x) format
     while (courseAngle - heading < -PI){ 
         courseAngle += 2 * PI;
@@ -223,7 +223,7 @@ float followStraightPath(float* waypointDirection, float* position, float headin
         courseAngle -= 2 * PI;
     }
     float pathError = -sin(courseAngle) * (position[0] - waypointDirection[0]) + cos(courseAngle) * (position[1] - waypointDirection[1]);
-    return 90 - (courseAngle - heading * 2/PI * atan(k_gain[PATH] * pathError)) * 180.0/PI ; //Heading in degrees (magnetic)
+    return 90 - rad2deg(courseAngle - MAX_PATH_APPROACH_ANGLE * 2/PI * atan(k_gain[PATH] * pathError)); //Heading in degrees (magnetic)
 
 }
 
@@ -307,6 +307,19 @@ unsigned int removePathNode(unsigned int ID){ //Also attempts to destroys the no
     path[nodeIndex] = 0;
     return ID;
 }
+void clearPathNodes(void){
+    int i = 0;
+    for (i = 0; i < PATH_BUFFER_SIZE; i++){
+        destroyPathNode(path[i]);
+        path[i] = 0;
+        pathStatus[i] = PATH_FREE;
+    }
+    pathCount = 0;
+    currentBufferIndex = 0; //Last index that was filled
+    currentNodeID = 0; //Last ID that was used
+    currentIndex = 0; //Current Index that is being followed
+}
+
 unsigned int insertPathNode(PathData* node, unsigned int previousID, unsigned int nextID){
     int nextIndex = getIndexFromID(nextID);
     int previousIndex = getIndexFromID(previousID);
@@ -368,6 +381,19 @@ void checkAMData(){
                 appendPathNode(node);
                 UART1_SendString("NODE");
                 break;
+            case PM_CLEAR_WAYPOINTS:
+                clearPathNodes();
+            case PM_INSERT_WAYPOINT:
+                PathData* node = initializePathNode();
+                node->altitude = amData.waypoint.altitude;
+                node->latitude = amData.waypoint.latitude;
+                node->longitude = amData.waypoint.longitude;
+                node->radius = amData.waypoint.radius;
+                insertPathNode(node,amData.waypoint.previousId,amData.waypoint.nextId);
+            case PM_REMOVE_WAYPOINT:
+                removePathNode(amData.waypoint.id);
+            case PM_SET_CURRENT_WAYPOINT:
+               currentIndex = getIndexFromID(amData.waypoint.id);
             case PM_CALIBRATE_ALTIMETER:
                 calibrateAltimeter(amData.calibrationHeight);
                 break;

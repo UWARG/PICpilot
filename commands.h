@@ -46,11 +46,14 @@
 #define SET_ACCEL_VARIANCE 35
 #define SET_SCALE_FACTOR 36
 #define CALIBRATE_ALTIMETER 37
+#define CLEAR_WAYPOINTS 38
+#define REMOVE_WAYPOINT 39
 
 //Multipart Commands
 #define NEW_WAYPOINT 128
-#define TARE_IMU 129
-#define SET_IMU 130
+#define INSERT_WAYPOINT 129
+#define TARE_IMU 130
+#define SET_IMU 131
 
 //Multipart Command Structs
 typedef struct _newwaypointwrapper {

@@ -26,6 +26,7 @@ void __attribute__((__interrupt__,no_auto_psv)) _SPI1Interrupt(void){
 }
 
 
+
 /*SPI RECEIVE OPERATION*/
 char transmitInitialized = 0; //0 = Nothing Received, 1 = Transmit Initialized
 char newDataAvailable = 0;
