@@ -26,6 +26,8 @@ typedef struct _PMData {
     int sp_Heading; //Degrees
     char satellites;    //1 Byte
     char positionFix;   //0 = No GPS, 1 = GPS fix, 2 = DGSP Fix
+    char currentWaypoint;
+    char waypointChecksum;
 } PMData;
 
 typedef struct _AMData {

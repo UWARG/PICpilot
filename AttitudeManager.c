@@ -74,6 +74,8 @@ long double gps_Latitude = 0;
 float gps_Altitude = 0;
 char gps_Satellites = 0;
 char gps_PositionFix = 0;
+char waypointIndex = 0;
+char waypointChecksum = 0;
 
 
 
@@ -559,7 +561,8 @@ int writeDatalink(long frequency){
         statusData->cPitchSetpoint = sp_PitchRate;
         statusData->cRollSetpoint = sp_RollRate;
         statusData->cYawSetpoint = sp_YawRate;
-        statusData->cThrottleSetpoint = (int) ((float) (sp_ThrottleRate - 454) / (890 - 454)*100);
+        statusData->waypointIndex = waypointIndex;
+        statusData->waypointChecksum = waypointChecksum;
         statusData->editing_gain = displayGain + ((sp_Switch < 600) << 4);
         statusData->gpsStatus = gps_Satellites + (gps_PositionFix << 4);
 

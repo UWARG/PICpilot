@@ -52,7 +52,8 @@ struct telem_block *getDebugTelemetryBlock(void) {
         debugTelemetry->cPitchSetpoint = (int) 1;
         debugTelemetry->cRollSetpoint = (int) 1;
         debugTelemetry->cYawSetpoint = (int) 1;
-        debugTelemetry->cThrottleSetpoint = (int) 1;
+        debugTelemetry->waypointIndex = (char)1;
+        debugTelemetry->waypointChecksum = (char)1;
         debugTelemetry->editing_gain = (char)1;
         debugTelemetry->gpsStatus = (char)1;
     }

@@ -88,6 +88,8 @@ void pathManagerRuntime(void) {
 #endif
     //Get GPS data
     copyGPSData();
+    pmData.currentWaypoint = path[currentIndex]->id;
+    pmData.waypointChecksum = getWaypointChecksum();
 #if !ATTITUDE_MANAGER
     //Check for new uplink command data
     checkAMData();
@@ -223,7 +225,7 @@ float followStraightPath(float* waypointDirection, float* position, float headin
         courseAngle -= 2 * PI;
     }
     float pathError = -sin(courseAngle) * (position[0] - waypointDirection[0]) + cos(courseAngle) * (position[1] - waypointDirection[1]);
-    return 90 - rad2deg(courseAngle - MAX_PATH_APPROACH_ANGLE * 2/PI * atan(k_gain[PATH] * pathError)); //Heading in degrees (magnetic)
+    return 90 - rad2deg(courseAngle + MAX_PATH_APPROACH_ANGLE * 2/PI * atan(k_gain[PATH] * pathError)); //Heading in degrees (magnetic)
 
 }
 
@@ -407,6 +409,15 @@ void checkAMData(){
                 break;
         }
     }
+}
+
+char getWaypointChecksum(void){
+    unsigned int i = 0;
+    char checksum = 0;
+    for (i = 0; i < pathCount; i++){
+        checksum ^= (char)(path[i]->latitude + path[i]->longitude + path[i]->altitude + path[i]->radius) & 0xFF;
+    }
+    return checksum;
 }
 #endif
 
