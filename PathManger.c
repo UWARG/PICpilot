@@ -33,10 +33,10 @@ PathData home;
 float k_gain[2] = {0, 0};
 
 unsigned int currentBufferIndex = 0; //Last index that was filled
-unsigned int currentNodeID = 1; //Last ID that was used
+unsigned int currentNodeID = 0; //Last ID that was used
 unsigned int currentIndex = 0; //Current Index that is being followed
 
-char orbitPathStatus = 0;
+char orbitPathStatus = PATH;
 
 char lastAMDataChecksum = 0;
 
@@ -62,8 +62,11 @@ void pathManagerInit(void) {
     while (DMA1REQbits.FORCE == 1);
 
     //Communication with Altimeter
-    initAltimeter();
-    calibrateAltimeter(getAltitude());
+    if (initAltimeter()){
+        float initialValue = 0;
+        while (initialValue == 0) initialValue = getAltitude();
+        calibrateAltimeter(initialValue);
+    }
 #endif
 
     //Initialize Home Location
@@ -97,8 +100,10 @@ void pathManagerRuntime(void) {
 #endif
     //Get GPS data
     copyGPSData();
-    pmData.targetWaypoint = path[currentIndex]->next->id;
-    pmData.waypointChecksum = getWaypointChecksum();
+    if (path[currentIndex]->next)
+        pmData.targetWaypoint = path[currentIndex]->next->id;
+    else
+        pmData.targetWaypoint = 0;
 #if !ATTITUDE_MANAGER
     //Check for new uplink command data
     checkAMData();
@@ -123,14 +128,16 @@ char followWaypoints(PathData* currentWaypoint, float* position, float heading, 
         getCoordinates(currentWaypoint->longitude, currentWaypoint->latitude, (float*)&waypointPosition);
         waypointPosition[2] = currentWaypoint->altitude;
 
+
+
         PathData* targetWaypoint = currentWaypoint->next;
         float targetCoordinates[3];
-        getCoordinates(targetWaypoint->longitude, targetWaypoint->longitude, (float*)&targetCoordinates);
+        getCoordinates(targetWaypoint->longitude, targetWaypoint->latitude, (float*)&targetCoordinates);
         targetCoordinates[2] = targetWaypoint->altitude;
                 
         PathData* nextWaypoint = targetWaypoint->next;
         float nextCoordinates[3];
-        getCoordinates(nextWaypoint->longitude, nextWaypoint->longitude, (float*)&nextCoordinates);
+        getCoordinates(nextWaypoint->longitude, nextWaypoint->latitude, (float*)&nextCoordinates);
         nextCoordinates[2] = nextWaypoint->altitude;
 
         float waypointDirection[3];
@@ -140,27 +147,36 @@ char followWaypoints(PathData* currentWaypoint, float* position, float heading, 
         waypointDirection[2] = (targetCoordinates[2] - waypointPosition[2])/norm;
 
         float nextWaypointDirection[3];
-        norm = sqrt(pow(nextCoordinates[0] - targetCoordinates[0],2) + pow(nextCoordinates[1] - targetCoordinates[1],2) + pow(nextCoordinates[2] - targetCoordinates[2],2));
-        nextWaypointDirection[0] = (nextCoordinates[0] - targetCoordinates[0])/norm;
-        nextWaypointDirection[1] = (nextCoordinates[1] - targetCoordinates[1])/norm;
-        nextWaypointDirection[2] = (nextCoordinates[2] - targetCoordinates[2])/norm;
+        float norm2 = sqrt(pow(nextCoordinates[0] - targetCoordinates[0],2) + pow(nextCoordinates[1] - targetCoordinates[1],2) + pow(nextCoordinates[2] - targetCoordinates[2],2));
+        nextWaypointDirection[0] = (nextCoordinates[0] - targetCoordinates[0])/norm2;
+        nextWaypointDirection[1] = (nextCoordinates[1] - targetCoordinates[1])/norm2;
+        nextWaypointDirection[2] = (nextCoordinates[2] - targetCoordinates[2])/norm2;
 
         float turningAngle = acos(-deg2rad(waypointDirection[0] * nextWaypointDirection[0] + waypointDirection[1] * nextWaypointDirection[1] + waypointDirection[2] * nextWaypointDirection[2]));
 
         if (orbitPathStatus == PATH){
+
             float halfPlane[3];
             halfPlane[0] = targetCoordinates[0] - (targetWaypoint->radius/tan(turningAngle/2)) * waypointDirection[0];
             halfPlane[1] = targetCoordinates[1] - (targetWaypoint->radius/tan(turningAngle/2)) * waypointDirection[1];
             halfPlane[2] = targetCoordinates[2] - (targetWaypoint->radius/tan(turningAngle/2)) * waypointDirection[2];
+            
+//            char str[16];
+//            sprintf(&str, "%f", halfPlane[0])
+//            UART1_SendString(&str);
+////            char str[16];
+//            sprintf(&str, "%f", halfPlane[1])
+//            UART1_SendString(&str);
 
             float eucNormal = sqrt(halfPlane[0] * halfPlane[0] + halfPlane[1] * halfPlane[1] + halfPlane[2] * halfPlane[2]) * (halfPlane[0] < 0?-1:1) * (halfPlane[1] < 0?-1:1) * (halfPlane[2] < 0?-1:1);
             float eucPosition = sqrt(pow(halfPlane[0] - position[0],2) + pow(halfPlane[1] - position[1],2) + pow(halfPlane[2] - position[2],2)) * ((halfPlane[0] - position[0]) < 0?-1:1) * ((halfPlane[1] - position[1]) < 0?-1:1) * ((halfPlane[2] - position[2]) < 0?-1:1);
-            float eucSum = sqrt(pow(2 * halfPlane[0] - position[0],2) + pow(2 * halfPlane[1] - position[1],2) + pow(2 * halfPlane[2] - position[2],2)) * ((2 * halfPlane[0] - position[0]) < 0?-1:1) * ((2 * halfPlane[1] - position[1]) < 0?-1:1) * ((2 * halfPlane[2] - position[2]) < 0?-1:1);
+            float eucSum = sqrt(pow(halfPlane[0] + position[0],2) + pow(halfPlane[1] + position[1],2) + pow(halfPlane[2] + position[2],2)) * ((halfPlane[0] + position[0]) < 0?-1:1) * ((halfPlane[1] + position[1]) < 0?-1:1) * ((halfPlane[2] + position[2]) < 0?-1:1);
             float cosC = (pow(eucSum,2) - pow(eucNormal,2) - pow(eucPosition,2))/(-2 * eucNormal * eucPosition);
             if (cosC > 0){
                 orbitPathStatus = ORBIT;
             }
-            *sp_Heading = followStraightPath((float*)&waypointDirection,(float*)position, heading);
+
+            *sp_Heading = (int)followStraightPath((float*)&waypointDirection,(float*)position, heading);
         }
         else{
             float halfPlane[3];
@@ -184,6 +200,7 @@ char followWaypoints(PathData* currentWaypoint, float* position, float heading, 
             turnCenter[0] = targetCoordinates[0] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[0] - waypointDirection[0])/euclideanWaypointDirection);
             turnCenter[1] = targetCoordinates[1] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[1] - waypointDirection[1])/euclideanWaypointDirection);
             turnCenter[2] = targetCoordinates[2] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[2] - waypointDirection[2])/euclideanWaypointDirection);
+
             *sp_Heading = (int)followOrbit((float*) &turnCenter,targetWaypoint->radius, turnDirection, (float*)position, heading);
         }
 
@@ -299,10 +316,11 @@ unsigned int appendPathNode(PathData* node){
     PathData* previousNode = path[previousIndex];
     node->previous = previousNode;
     node->next = &home; //Home is always the last node
-    if (node->index == 0){
+    if (node->index){
         path[currentBufferIndex] = node;
         node->index = currentBufferIndex++;
     }
+    
     pathCount++;
     //Update previous node
     previousNode->next = node;
@@ -325,6 +343,7 @@ unsigned int removePathNode(unsigned int ID){ //Also attempts to destroys the no
 
     destroyPathNode(node);
     path[nodeIndex] = 0;
+    pathCount--;
     return ID;
 }
 void clearPathNodes(void){
@@ -363,6 +382,7 @@ unsigned int insertPathNode(PathData* node, unsigned int previousID, unsigned in
     nextNode->previous = node;
     previousNode->next = node;
 
+    pathCount++;
     return node->id;
 }
 

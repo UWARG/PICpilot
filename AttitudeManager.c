@@ -113,10 +113,10 @@ char altitudeTrigger = 0;
 void attitudeInit() {
     //Debug Mode initialize communication with the serial port (Computer)
     if (DEBUG) {
-        InitUART1();
+//        InitUART1();
     }
-//    TRISFbits.TRISF3 = 0;
-//    LATFbits.LATF3 = 1;
+    TRISFbits.TRISF3 = 0;
+    LATFbits.LATF3 = 1;
 
     //Initialize Interchip communication
     init_SPI1();
@@ -135,7 +135,7 @@ void attitudeInit() {
     /* Initialize Input Capture and Output Compare Modules */
     if (DEBUG) {
         initIC(0b10001111);
-        initOC(0b1111111); //Initialize only Output Compare 1,2,3 and 4,5,6
+        initOC(0b111111); //Initialize only Output Compare 1,2,3 and 4,5,6
         UART1_SendString("START OF CODE BEFORE WHILE");
     } else {
         initIC(0b11110001);
@@ -162,7 +162,6 @@ void attitudeManagerRuntime() {
         if (controlLevel & HEADING_CONTROL_SOURCE)
             sp_Heading = pmData.sp_Heading;
         waypointIndex = pmData.targetWaypoint;
-        waypointChecksum = pmData.waypointChecksum;
     }
 #endif
 
@@ -346,7 +345,7 @@ void attitudeManagerRuntime() {
     if (control_Yaw < MIN_YAW_PWM)
         control_Yaw = MIN_YAW_PWM;
     
-    unsigned int pwmTemp = cameraPollingRuntime(gps_Latitude, gps_Longitude, sp_Switch);
+    unsigned int pwmTemp = cameraPollingRuntime(gps_Latitude, gps_Longitude);
     unsigned int gimblePWM = cameraGimbleStabilization(imu_RollAngle);
     // Sends the output signal to the servo motors
     setPWM(1, control_Roll + rollTrim);
@@ -355,7 +354,7 @@ void attitudeManagerRuntime() {
     setPWM(4, control_Yaw + yawTrim);
     setPWM(5, pwmTemp);
     setPWM(6, gimblePWM);
-    setPWM(7, sp_HeadingRate + MIDDLE_PWM - 20);
+//    setPWM(7, sp_HeadingRate + MIDDLE_PWM - 20);
 
 #if COMMUNICATION_MANAGER
     readDatalink();
@@ -673,6 +672,7 @@ void setAccelVariance(float variance){
     VN100_SPI_WriteSettings(0);
 }
 char generateAMDataChecksum(void){
+    //TODO: Fix so checksum includes command byte (which it currently doesn't)
     int i = 0;
     char checksum = 0;
     for (i = 0; i < sizeof(AMData) - 2; i++){

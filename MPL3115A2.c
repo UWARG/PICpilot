@@ -11,7 +11,7 @@ float lastKnownAltitude = 0;
 char altimeterConnected = 0;
 float altimeterOffset = 0;
 
-void initAltimeter() {
+char initAltimeter() {
     initI2C();
     altimeterConnected = checkDevicePresence(I2C_SLAVE_ADDRESS,WHO_AM_I_REG);
     if (altimeterConnected){
@@ -23,6 +23,7 @@ void initAltimeter() {
     else{
         UART1_SendString("Altimeter Device Not Connected!");
     }
+    return altimeterConnected;
 }
 
 void calibrateAltimeter(float altitude){

@@ -32,7 +32,7 @@ extern "C" {
 
 
 //TODO: ADD BETTER FORMATTING TO THIS HEADER FILE
-void initAltimeter();
+char initAltimeter();
 void calibrateAltimeter(float altitude);
 float getAltitude();
 

@@ -17,7 +17,7 @@
 #define GIMBLE_MOTION_LIMIT 17.5 //Range One way
 
 //TODO:Add a description here
-unsigned int cameraPollingRuntime(long double latitude, long double longitude, unsigned int cSwitch);
+unsigned int cameraPollingRuntime(long double latitude, long double longitude);
 unsigned int cameraGimbleStabilization(float imu_RollAngle);
 
 #endif	/* CAMERAMANAGER_H */

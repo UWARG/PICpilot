@@ -16,10 +16,11 @@
 float distance = 0;
 long double lastLongitude = 0;
 long double lastLatitude = 0;
+float pictureDistance = 25;
 
-unsigned int cameraPollingRuntime(long double latitude, long double longitude, unsigned int cSwitch){
+unsigned int cameraPollingRuntime(long double latitude, long double longitude){
     distance = getDistance(latitude, longitude, lastLatitude, lastLongitude);
-    if (distance >= 25 && cSwitch < 600){// && pitch <= 20 && pitch >= -20 && roll >= -20 && roll <= 20){
+    if (distance >= pictureDistance){// && pitch <= 20 && pitch >= -20 && roll >= -20 && roll <= 20){
         lastLongitude = longitude;
         lastLatitude = latitude;
         return UPPER_PWM;
