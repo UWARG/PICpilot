@@ -5,6 +5,7 @@
 #include "net.h"
 #include <stdlib.h>
 #include "p33FJ256GP710.h"
+#include "UART1.h"
 
 #define START_DELIMITER 0x7E
 
@@ -120,12 +121,16 @@ void __attribute__((__interrupt__, no_auto_psv)) _U2RXInterrupt(void) {
     switch ( payloadPos ) {
         case 0:
             if ( data != START_DELIMITER ) {
+//                if (U2STAbits.OERR == 1)
+//                    U2STAbits.OERR = 0;
+                IFS1bits.U2RXIF = 0;
                 return;
             }
             break;
         case 1:
             if ( data != 0 ) {
                 payloadPos = 0;
+                IFS1bits.U2RXIF = 0;
                 return;                 // packet length < 100 bytes, so msb == 0
             }
             break;

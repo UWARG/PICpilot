@@ -6,6 +6,7 @@
 
 #include <stdlib.h>
 #include "p33FJ256GP710.h"
+#include "UART1.h"
 
 struct telem_block *outBuffer [OUTBOUND_QUEUE_SIZE];
 int outbuff_start = 0;
@@ -52,8 +53,9 @@ struct telem_block *getDebugTelemetryBlock(void) {
         debugTelemetry->cPitchSetpoint = (int) 1;
         debugTelemetry->cRollSetpoint = (int) 1;
         debugTelemetry->cYawSetpoint = (int) 1;
+        debugTelemetry->lastCommandSent = (int) 1;
+        debugTelemetry->errorCodes = (int)1;
         debugTelemetry->waypointIndex = (char)1;
-        debugTelemetry->waypointChecksum = (char)1;
         debugTelemetry->editing_gain = (char)1;
         debugTelemetry->gpsStatus = (char)1;
     }

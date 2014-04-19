@@ -15,6 +15,7 @@
 #include "AttitudeManager.h"
 #include "commands.h"
 #include "cameraManager.h"
+#include "StartupErrorCodes.h"
 
 #if !(PATH_MANAGER && ATTITUDE_MANAGER && COMMUNICATION_MANAGER)
 #include "InterchipDMA.h"
@@ -104,6 +105,7 @@ float scaleFactor = 1.0119; //Change this
 
 char displayGain = 0;
 int controlLevel = 0;
+int lastCommandSentCode = 0;
 
 int headingCounter = 0;
 char altitudeTrigger = 0;
@@ -111,10 +113,10 @@ char altitudeTrigger = 0;
 void attitudeInit() {
     //Debug Mode initialize communication with the serial port (Computer)
     if (DEBUG) {
-//        InitUART1();
+        InitUART1();
     }
-    TRISFbits.TRISF3 = 0;
-    LATFbits.LATF3 = 1;
+//    TRISFbits.TRISF3 = 0;
+//    LATFbits.LATF3 = 1;
 
     //Initialize Interchip communication
     init_SPI1();
@@ -144,7 +146,6 @@ void attitudeInit() {
 void attitudeManagerRuntime() {
 
     //Transfer data from PATHMANAGER CHIP
-//        UART1_SendString("before");
 #if !PATH_MANAGER
     if (newDataAvailable){
         newDataAvailable = 0;
@@ -160,10 +161,11 @@ void attitudeManagerRuntime() {
             sp_Altitude = pmData.sp_Altitude;
         if (controlLevel & HEADING_CONTROL_SOURCE)
             sp_Heading = pmData.sp_Heading;
+        waypointIndex = pmData.targetWaypoint;
+        waypointChecksum = pmData.waypointChecksum;
     }
 #endif
 
-//    UART1_SendString("I");
     /*****************************************************************************
      *****************************************************************************
 
@@ -189,7 +191,6 @@ void attitudeManagerRuntime() {
 //        sp_Value = icTimeDiff[6];
         sp_Switch = icTimeDiff[7];
 
-        UART1_SendString("IMU");
     /*****************************************************************************
      *****************************************************************************
 
@@ -215,7 +216,6 @@ void attitudeManagerRuntime() {
 
      *****************************************************************************
      *****************************************************************************/
-    UART1_SendString("CC");
     if (controlLevel & ALTITUDE_CONTROL_ON){
         sp_PitchAngle = controlSignalAltitude(sp_Altitude,(int)gps_Altitude);
         if (sp_PitchAngle > MAX_PITCH_ANGLE)
@@ -309,7 +309,6 @@ void attitudeManagerRuntime() {
 
      *****************************************************************************
      *****************************************************************************/
-    UART1_SendString("OC");
     if (DEBUG) {
 
     }
@@ -369,6 +368,12 @@ void readDatalink(void){
     struct command* cmd = popCommand();
     //TODO: Add rudimentary input validation
     if ( cmd ) {
+        if (lastCommandSentCode == cmd->cmd){
+            lastCommandSentCode++;
+        }
+        else{
+            lastCommandSentCode = cmd->cmd * 100;
+        }
         switch (cmd->cmd) {
             case DEBUG_TEST:             // Debugging command, writes to debug UART
                 UART1_SendString( (char*) cmd->data);
@@ -491,6 +496,7 @@ void readDatalink(void){
                 amData.checksum = generateAMDataChecksum();
                 break;
             case CLEAR_WAYPOINTS:
+                amData.waypoint.id = (*(char *)(&cmd->data)); //Dummy Data
                 amData.command = PM_CLEAR_WAYPOINTS;
                 amData.checksum = generateAMDataChecksum();
                 break;
@@ -499,10 +505,16 @@ void readDatalink(void){
                 amData.command = PM_REMOVE_WAYPOINT;
                 amData.checksum = generateAMDataChecksum();
                 break;
-            case SET_CURRENT_WAYPOINT:
+            case SET_TARGET_WAYPOINT:
                 amData.waypoint.id = *(char *)(&cmd->data);
-                amData.command = PM_SET_CURRENT_WAYPOINT;
+                amData.command = PM_SET_TARGET_WAYPOINT;
                 amData.checksum = generateAMDataChecksum();
+                break;
+            case RETURN_HOME:
+                amData.command = PM_RETURN_HOME;
+                amData.checksum = generateAMDataChecksum();
+                break;
+
             case NEW_WAYPOINT:
                 amData.waypoint.altitude = (*(WaypointWrapper*)(&cmd->data)).altitude;
                 amData.waypoint.id = (*(WaypointWrapper*)(&cmd->data)).id;
@@ -520,6 +532,13 @@ void readDatalink(void){
                 amData.waypoint.nextId = (*(WaypointWrapper*)(&cmd->data)).nextId;
                 amData.waypoint.previousId = (*(WaypointWrapper*)(&cmd->data)).previousId;
                 amData.command = PM_INSERT_WAYPOINT;
+                amData.checksum = generateAMDataChecksum();
+                break;
+            case SET_RETURN_HOME_COORDINATES:
+                amData.waypoint.altitude = (*(WaypointWrapper*)(&cmd->data)).altitude;
+                amData.waypoint.latitude = (*(WaypointWrapper*)(&cmd->data)).latitude;
+                amData.waypoint.longitude = (*(WaypointWrapper*)(&cmd->data)).longitude;
+                amData.command = PM_SET_RETURN_HOME_COORDINATES;
                 amData.checksum = generateAMDataChecksum();
                 break;
             case TARE_IMU:
@@ -561,8 +580,9 @@ int writeDatalink(long frequency){
         statusData->cPitchSetpoint = sp_PitchRate;
         statusData->cRollSetpoint = sp_RollRate;
         statusData->cYawSetpoint = sp_YawRate;
+        statusData->lastCommandSent = lastCommandSentCode;
+        statusData->errorCodes = getErrorCodes();
         statusData->waypointIndex = waypointIndex;
-        statusData->waypointChecksum = waypointChecksum;
         statusData->editing_gain = displayGain + ((sp_Switch < 600) << 4);
         statusData->gpsStatus = gps_Satellites + (gps_PositionFix << 4);
 

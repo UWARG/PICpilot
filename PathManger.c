@@ -28,11 +28,12 @@ extern AMData amData;
 
 extern char newGPSDataAvailable;
 
+PathData home;
 
-float k_gain[2] = {1, 1};
+float k_gain[2] = {0, 0};
 
 unsigned int currentBufferIndex = 0; //Last index that was filled
-unsigned int currentNodeID = 0; //Last ID that was used
+unsigned int currentNodeID = 1; //Last ID that was used
 unsigned int currentIndex = 0; //Current Index that is being followed
 
 char orbitPathStatus = 0;
@@ -62,7 +63,15 @@ void pathManagerInit(void) {
 
     //Communication with Altimeter
     initAltimeter();
+    calibrateAltimeter(getAltitude());
 #endif
+
+    //Initialize Home Location
+    home.altitude = 400;
+    home.latitude = RELATIVE_LATITUDE;
+    home.longitude = RELATIVE_LONGITUDE;
+    home.radius = 1;
+    home.id = -1;
 
     //Initialize first path nodes
 //    PathData* node = initializePathNode();
@@ -88,7 +97,7 @@ void pathManagerRuntime(void) {
 #endif
     //Get GPS data
     copyGPSData();
-    pmData.currentWaypoint = path[currentIndex]->id;
+    pmData.targetWaypoint = path[currentIndex]->next->id;
     pmData.waypointChecksum = getWaypointChecksum();
 #if !ATTITUDE_MANAGER
     //Check for new uplink command data
@@ -101,10 +110,10 @@ void pathManagerRuntime(void) {
     position[2] = gpsData.altitude;
     heading = (float)gpsData.heading;
 
-    if (pathCount > 2){
+    if (pathCount - currentIndex > 2){
         currentIndex = followWaypoints(path[currentIndex], (float*)&position, heading, (int*)&pmData.sp_Heading);
     }
-    else if (pathCount > 1){
+    else if (pathCount - currentIndex >= 1){
         pmData.sp_Heading = followLineSegment(path[currentIndex], (float*)&position, heading);
     }
 
@@ -224,8 +233,12 @@ float followStraightPath(float* waypointDirection, float* position, float headin
     while (courseAngle - heading > PI){
         courseAngle -= 2 * PI;
     }
+
     float pathError = -sin(courseAngle) * (position[0] - waypointDirection[0]) + cos(courseAngle) * (position[1] - waypointDirection[1]);
-    return 90 - rad2deg(courseAngle + MAX_PATH_APPROACH_ANGLE * 2/PI * atan(k_gain[PATH] * pathError)); //Heading in degrees (magnetic)
+//        char str[16];
+//    sprintf(&str, "%f",atan(k_gain[PATH] * pathError));
+//    UART1_SendString(&str);
+    return 90 - rad2deg(courseAngle - MAX_PATH_APPROACH_ANGLE * 2/PI * atan(k_gain[PATH] * pathError)); //Heading in degrees (magnetic)
 
 }
 
@@ -285,13 +298,18 @@ unsigned int appendPathNode(PathData* node){
     }
     PathData* previousNode = path[previousIndex];
     node->previous = previousNode;
-    path[currentBufferIndex] = node;
-    node->index = currentBufferIndex++;
+    node->next = &home; //Home is always the last node
+    if (node->index == 0){
+        path[currentBufferIndex] = node;
+        node->index = currentBufferIndex++;
+    }
     pathCount++;
     //Update previous node
     previousNode->next = node;
+    //Update next node
+    home.previous = node;
+
     return node->id;
-    
 }
 unsigned int removePathNode(unsigned int ID){ //Also attempts to destroys the node.
 
@@ -312,7 +330,9 @@ unsigned int removePathNode(unsigned int ID){ //Also attempts to destroys the no
 void clearPathNodes(void){
     int i = 0;
     for (i = 0; i < PATH_BUFFER_SIZE; i++){
-        destroyPathNode(path[i]);
+        if (path[i]){
+            destroyPathNode(path[i]);
+        }
         path[i] = 0;
         pathStatus[i] = PATH_FREE;
     }
@@ -331,10 +351,10 @@ unsigned int insertPathNode(PathData* node, unsigned int previousID, unsigned in
 
     PathData* nextNode = path[nextIndex];
     PathData* previousNode = path[previousIndex];
-    //Setup the node object first
-    if (node->id == 0){ //If it hasn't been properly initialized.
-        node->id = currentNodeID++;
-        path[currentBufferIndex++] = node;
+    //Setup the node object first if it hasn't been initialized properly
+    if (node->index == 0){
+        path[currentBufferIndex] = node;
+        node->index = currentBufferIndex++;
     }
     node->next = nextNode;
     node->previous = previousNode;
@@ -368,7 +388,6 @@ void checkAMData(){
     }
     if (checksum != lastAMDataChecksum && amData.checksum == checksum){
         lastAMDataChecksum = checksum;
-
         // All commands/actions that need to be run go here
        switch (amData.command){
             case PM_DEBUG_TEST:
@@ -381,10 +400,10 @@ void checkAMData(){
                 node->longitude = amData.waypoint.longitude;
                 node->radius = amData.waypoint.radius;
                 appendPathNode(node);
-                UART1_SendString("NODE");
                 break;
             case PM_CLEAR_WAYPOINTS:
                 clearPathNodes();
+                break;
             case PM_INSERT_WAYPOINT:
                 node = initializePathNode();
                 node->altitude = amData.waypoint.altitude;
@@ -392,10 +411,39 @@ void checkAMData(){
                 node->longitude = amData.waypoint.longitude;
                 node->radius = amData.waypoint.radius;
                 insertPathNode(node,amData.waypoint.previousId,amData.waypoint.nextId);
+                break;
             case PM_REMOVE_WAYPOINT:
                 removePathNode(amData.waypoint.id);
-            case PM_SET_CURRENT_WAYPOINT:
-               currentIndex = getIndexFromID(amData.waypoint.id);
+                break;
+            case PM_SET_TARGET_WAYPOINT:
+                node = initializePathNode();
+                node->altitude = gpsData.altitude;
+                node->latitude = gpsData.latitude;
+                node->longitude = gpsData.longitude;
+                node->radius = 1; //Arbitrary value
+                if (path[getIndexFromID(amData.waypoint.id)] && path[getIndexFromID(amData.waypoint.id)]->previous){
+                    insertPathNode(node,path[getIndexFromID(amData.waypoint.id)]->previous->id,amData.waypoint.id);
+                    currentIndex = node->index;
+                }
+
+                break;
+            case PM_SET_RETURN_HOME_COORDINATES:
+                home.altitude = amData.waypoint.altitude;
+                home.latitude = amData.waypoint.latitude;
+                home.longitude = amData.waypoint.longitude;
+                home.radius = 1;
+                home.id = -1;
+                break;
+            case PM_RETURN_HOME:
+                node = initializePathNode();
+                node->altitude = gpsData.altitude;
+                node->latitude = gpsData.latitude;
+                node->longitude = gpsData.longitude;
+                node->radius = 1; //Arbitrary value
+                insertPathNode(node,path[pathCount - 1]->id,home.id);
+                currentIndex = node->index;
+                break;
+
             case PM_CALIBRATE_ALTIMETER:
                 calibrateAltimeter(amData.calibrationHeight);
                 break;

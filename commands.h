@@ -48,13 +48,15 @@
 #define CALIBRATE_ALTIMETER 37
 #define CLEAR_WAYPOINTS 38
 #define REMOVE_WAYPOINT 39
-#define SET_CURRENT_WAYPOINT 40
+#define SET_TARGET_WAYPOINT 40
+#define RETURN_HOME 41
 
 //Multipart Commands
 #define NEW_WAYPOINT 128
 #define INSERT_WAYPOINT 129
-#define TARE_IMU 130
-#define SET_IMU 131
+#define SET_RETURN_HOME_COORDINATES 130
+#define TARE_IMU 131
+#define SET_IMU 132
 
 //Multipart Command Structs
 typedef struct _newwaypointwrapper {

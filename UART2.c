@@ -59,9 +59,9 @@ void InitUART2()
 	IPC7 = 0x4400;	// Mid Range Interrupt Priority level, no urgent reason
 
 	IFS1bits.U2TXIF = 0;	// Clear the Transmit Interrupt Flag
-	IEC1bits.U2TXIE = 0;	// Enable Transmit Interrupts
+	IEC1bits.U2TXIE = 0;	// Disable Transmit Interrupts
 	IFS1bits.U2RXIF = 0;	// Clear the Recieve Interrupt Flag
-	IEC1bits.U2RXIE = 0;	// Enable Recieve Interrupts
+	IEC1bits.U2RXIE = 0;	// Disable Recieve Interrupts
 
 	U2MODEbits.UARTEN = 1;	// And turn the peripheral on
 
