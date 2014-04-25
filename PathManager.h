@@ -70,6 +70,7 @@ float followOrbit(float* center, float radius, char direction, float* position, 
 float followStraightPath(float* waypointDirection, float* position, float heading);
 float maintainAltitude(PathData* cPath);
 void getCoordinates(long double longitude, long double latitude, float* xyCoordinates);
+int calculateHeadingHome(PathData home, float* position, float heading);
 PathData* initializePathNode(void);
 unsigned int destroyPathNode(PathData* node);
 PathData* initializePathNodeAndNext(void);

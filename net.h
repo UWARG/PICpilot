@@ -29,6 +29,8 @@
 
 #define RAW_PACKET_BUFFER_SIZE 8    // Number of buffer regions to allow for incoming commands
 
+#define HEARTBEAT_TIMEOUT 30000 //In Milliseconds
+
 struct telem_block {
     long double lat, lon; // Latitude and longitude from gps    // 8Byte
     float millis;        // Timestamp UTC  // 4Byte

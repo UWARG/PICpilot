@@ -1133,6 +1133,19 @@ VN100_SPI_Packet* VN100_SPI_SetAccGain(unsigned char sensorID, VN100_AccGainType
   return VN100_SPI_WriteRegister(sensorID, VN100_REG_ACG, 1, &regValue);
 }
 /*******************************************************************************
+* Function Name  : VN100_SPI_VelocityCompensationMeasurement(unsigned char sensorID, float* velocity)
+* Description    : Sets the current velocity of the VN100 chip with respect to the chip's standard sensor axis.
+* Input          : sensorID -> The sensor to get the requested data from.
+*                : velocity -> A 3-component velocity vector
+* Output         : None
+* Return         : Pointer to SPI packet returned by the sensor
+*******************************************************************************/
+VN100_SPI_Packet* VN100_SPI_VelocityCompensationMeasurement(unsigned char sensorID, float* velocity){
+
+  /* Write register and return SPI packet*/
+  return VN100_SPI_WriteRegister(sensorID, VN100_REG_VCM, 12, (unsigned long*) velocity);
+}
+/*******************************************************************************
 * Function Name  : VN100_SPI_WriteSettings(unsigned char sensorID)
 * Description    : Command the given sensor to save its settings.
 * Input          : sensorID -> The sensor to get the requested data from.

@@ -30,7 +30,7 @@ extern char newGPSDataAvailable;
 
 PathData home;
 
-float k_gain[2] = {0, 0};
+float k_gain[2] = {1, 1};
 
 unsigned int currentBufferIndex = 0; //Last index that was filled
 unsigned int currentNodeID = 0; //Last ID that was used
@@ -43,6 +43,9 @@ char lastAMDataChecksum = 0;
 PathData* path[PATH_BUFFER_SIZE];
 char pathStatus[PATH_BUFFER_SIZE];
 char pathCount = 0;
+
+int lastKnownHeadingHome = 0;
+char returnHome = 0;
 
 void pathManagerInit(void) {
 #if DEBUG
@@ -115,12 +118,21 @@ void pathManagerRuntime(void) {
     position[2] = gpsData.altitude;
     heading = (float)gpsData.heading;
 
-    if (pathCount - currentIndex > 2){
-        currentIndex = followWaypoints(path[currentIndex], (float*)&position, heading, (int*)&pmData.sp_Heading);
+    if (returnHome || (pathCount - currentIndex >= 1 && pathCount >= 0)){
+        pmData.sp_Heading = lastKnownHeadingHome;
+    }else{
+        if (pathCount - currentIndex > 2){
+            currentIndex = followWaypoints(path[currentIndex], (float*)&position, heading, (int*)&pmData.sp_Heading);
+        }
+        else if (pathCount - currentIndex >= 1){
+            pmData.sp_Heading = followLineSegment(path[currentIndex], (float*)&position, heading);
+        }
     }
-    else if (pathCount - currentIndex >= 1){
-        pmData.sp_Heading = followLineSegment(path[currentIndex], (float*)&position, heading);
+    if (pmData.positionFix >= 1){
+        lastKnownHeadingHome = calculateHeadingHome(home, (float*)&position, heading);
     }
+
+
 
 }
 char followWaypoints(PathData* currentWaypoint, float* position, float heading, int* sp_Heading){
@@ -161,12 +173,6 @@ char followWaypoints(PathData* currentWaypoint, float* position, float heading, 
             halfPlane[1] = targetCoordinates[1] - (targetWaypoint->radius/tan(turningAngle/2)) * waypointDirection[1];
             halfPlane[2] = targetCoordinates[2] - (targetWaypoint->radius/tan(turningAngle/2)) * waypointDirection[2];
             
-//            char str[16];
-//            sprintf(&str, "%f", halfPlane[0])
-//            UART1_SendString(&str);
-////            char str[16];
-//            sprintf(&str, "%f", halfPlane[1])
-//            UART1_SendString(&str);
 
             float eucNormal = sqrt(halfPlane[0] * halfPlane[0] + halfPlane[1] * halfPlane[1] + halfPlane[2] * halfPlane[2]) * (halfPlane[0] < 0?-1:1) * (halfPlane[1] < 0?-1:1) * (halfPlane[2] < 0?-1:1);
             float eucPosition = sqrt(pow(halfPlane[0] - position[0],2) + pow(halfPlane[1] - position[1],2) + pow(halfPlane[2] - position[2],2)) * ((halfPlane[0] - position[0]) < 0?-1:1) * ((halfPlane[1] - position[1]) < 0?-1:1) * ((halfPlane[2] - position[2]) < 0?-1:1);
@@ -252,9 +258,7 @@ float followStraightPath(float* waypointDirection, float* position, float headin
     }
 
     float pathError = -sin(courseAngle) * (position[0] - waypointDirection[0]) + cos(courseAngle) * (position[1] - waypointDirection[1]);
-//        char str[16];
-//    sprintf(&str, "%f",atan(k_gain[PATH] * pathError));
-//    UART1_SendString(&str);
+
     return 90 - rad2deg(courseAngle - MAX_PATH_APPROACH_ANGLE * 2/PI * atan(k_gain[PATH] * pathError)); //Heading in degrees (magnetic)
 
 }
@@ -268,6 +272,29 @@ float maintainAltitude(PathData* cPath){
 void getCoordinates(long double longitude, long double latitude, float* xyCoordinates){
     xyCoordinates[0] = getDistance(RELATIVE_LATITUDE, RELATIVE_LONGITUDE, RELATIVE_LATITUDE, longitude);//Longitude relative to (0,0)
     xyCoordinates[1] = getDistance(RELATIVE_LATITUDE, RELATIVE_LONGITUDE, latitude, RELATIVE_LONGITUDE);
+}
+
+int calculateHeadingHome(PathData home, float* position, float heading){
+        float waypointPosition[3];
+        getCoordinates(position[0], position[1], (float*)&waypointPosition);
+        waypointPosition[2] = position[2];
+
+        float targetCoordinates[3];
+        getCoordinates(home.longitude, home.latitude, (float*)&targetCoordinates);
+        targetCoordinates[2] = home.altitude;
+
+
+        float waypointDirection[3];
+        float norm = sqrt(pow(targetCoordinates[0] - waypointPosition[0],2) + pow(targetCoordinates[1] - waypointPosition[1],2) + pow(targetCoordinates[2] - waypointPosition[2],2));
+        waypointDirection[0] = (targetCoordinates[0] - waypointPosition[0])/norm;
+        waypointDirection[1] = (targetCoordinates[1] - waypointPosition[1])/norm;
+        waypointDirection[2] = (targetCoordinates[2] - waypointPosition[2])/norm;
+
+        heading = deg2rad(90 - heading);//90 - heading = magnetic heading to cartesian heading
+        float courseAngle = atan2(waypointDirection[1], waypointDirection[0]);
+
+        //Don't use follow straight path in emergency situations (the gains will give you a heading that will converge over time, but not instantaneously)
+        return (int)(90 - rad2deg(courseAngle));
 }
 
 unsigned int getIndexFromID(unsigned int id) {
@@ -315,7 +342,6 @@ unsigned int appendPathNode(PathData* node){
     }
     PathData* previousNode = path[previousIndex];
     node->previous = previousNode;
-    node->next = &home; //Home is always the last node
     if (node->index){
         path[currentBufferIndex] = node;
         node->index = currentBufferIndex++;
@@ -324,8 +350,6 @@ unsigned int appendPathNode(PathData* node){
     pathCount++;
     //Update previous node
     previousNode->next = node;
-    //Update next node
-    home.previous = node;
 
     return node->id;
 }
@@ -403,7 +427,7 @@ void copyGPSData(){
 void checkAMData(){
     int i = 0;
     char checksum = 0;
-    for (i = 0; i < sizeof(AMData) - 2; i++){
+    for (i = 0; i < sizeof(AMData) - 1; i++){
         checksum += ((char *)&amData)[i];
     }
     if (checksum != lastAMDataChecksum && amData.checksum == checksum){
@@ -445,6 +469,7 @@ void checkAMData(){
                     insertPathNode(node,path[getIndexFromID(amData.waypoint.id)]->previous->id,amData.waypoint.id);
                     currentIndex = node->index;
                 }
+                returnHome = 0;
 
                 break;
             case PM_SET_RETURN_HOME_COORDINATES:
@@ -455,13 +480,7 @@ void checkAMData(){
                 home.id = -1;
                 break;
             case PM_RETURN_HOME:
-                node = initializePathNode();
-                node->altitude = gpsData.altitude;
-                node->latitude = gpsData.latitude;
-                node->longitude = gpsData.longitude;
-                node->radius = 1; //Arbitrary value
-                insertPathNode(node,path[pathCount - 1]->id,home.id);
-                currentIndex = node->index;
+                returnHome = 1;
                 break;
 
             case PM_CALIBRATE_ALTIMETER:

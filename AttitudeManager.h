@@ -152,5 +152,7 @@ void setGyroVariance(float variance);
 void setMagneticVariance(float variance);
 void setAccelVariance(float variance);
 char generateAMDataChecksum(void);
+void checkHeartbeat(long int cTime);
+void getVelocityComponents(float* velocityComponents, float groundSpeed, float altitude, long int time);
 #endif	/* ATTITUDEMANAGER_H */
 

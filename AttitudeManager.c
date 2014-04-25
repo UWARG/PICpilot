@@ -31,6 +31,8 @@ extern char newDataAvailable;
 
 long int time = 0;
 long int lastTime = 0;
+long int heartbeatTimer = 0;
+char heartbeatTrigger = 0;
 void __attribute__((__interrupt__, no_auto_psv)) _T2Interrupt(void){
     //Timer Interrupt used for the control loops and data link
     time += 20;
@@ -110,6 +112,10 @@ int lastCommandSentCode = 0;
 int headingCounter = 0;
 char altitudeTrigger = 0;
 
+float refRotationMatrix[9];
+float lastAltitude = 0;
+long int lastAltitudeTime = 0;
+
 void attitudeInit() {
     //Debug Mode initialize communication with the serial port (Computer)
     if (DEBUG) {
@@ -126,9 +132,9 @@ void attitudeInit() {
 
     /* Initialize IMU with correct orientation matrix and filter settings */
     //IMU position matrix
-    float filterVariance[10] = {1e-6, 1e-006, 1e-006, 1e-6, 1e2, 1e2, 1e2, 4, 4, 4};
+    float filterVariance[10] = {1e-10, 1e-6, 1e-6, 1e-6, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2};
     VN100_initSPI();
-    float offset[3] = {-97,0,6};
+    float offset[3] = {-90,0,0};
     setVNOrientationMatrix((float*)&offset);
     VN100_SPI_SetFiltMeasVar(0, (float*)&filterVariance);
 
@@ -208,6 +214,14 @@ void attitudeManagerRuntime() {
     imu_PitchAngle = imuData[PITCH];
     imu_RollAngle = (imuData[ROLL]);
 
+    //Do we need this??? Might make it more accurate
+//    if (gps_PositionFix == 2){
+//        float velocity[3];
+//        getVelocityComponents((float*)&velocity, gps_GroundSpeed, gps_Altitude, time);
+//        VN100_SPI_VelocityComponentMeasurement(0, (float*)&velocity);
+//
+//    }
+
     /*****************************************************************************
      *****************************************************************************
 
@@ -246,7 +260,7 @@ void attitudeManagerRuntime() {
         if (sp_Heading < 0)
             sp_Heading +=360;
         // -(maxHeadingRate)/180.0,
-            sp_HeadingRate = controlSignalHeading(sp_Heading, gps_Heading);
+            sp_HeadingRate = controlSignalHeading(sp_Heading, gps_PositionFix==2?gps_Heading:imu_YawAngle);
             //Approximating Roll angle from Heading
             sp_RollAngle = sp_HeadingRate;//(int)(atan((float)(sp_HeadingRate)) * PI/180.0);
 
@@ -345,7 +359,7 @@ void attitudeManagerRuntime() {
     if (control_Yaw < MIN_YAW_PWM)
         control_Yaw = MIN_YAW_PWM;
     
-    unsigned int pwmTemp = cameraPollingRuntime(gps_Latitude, gps_Longitude);
+    unsigned int pwmTemp = cameraPollingRuntime(gps_Latitude, gps_Longitude, time);
     unsigned int gimblePWM = cameraGimbleStabilization(imu_RollAngle);
     // Sends the output signal to the servo motors
     setPWM(1, control_Roll + rollTrim);
@@ -359,6 +373,7 @@ void attitudeManagerRuntime() {
 #if COMMUNICATION_MANAGER
     readDatalink();
     writeDatalink(DATALINK_SEND_FREQUENCY); //pwmTemp>600?0?:0xFFFFFFFF;
+    checkHeartbeat(time);
 #endif
 }
 
@@ -513,6 +528,15 @@ void readDatalink(void){
                 amData.command = PM_RETURN_HOME;
                 amData.checksum = generateAMDataChecksum();
                 break;
+            case SEND_HEARTBEAT:
+                heartbeatTimer = time;
+                break;
+            case TRIGGER_CAMERA:
+                triggerCamera(*(unsigned int*)(&cmd->data));
+                break;
+            case SET_TRIGGER_DISTANCE:
+                setTriggerDistance(*(float*)(&cmd->data));
+                break;
 
             case NEW_WAYPOINT:
                 amData.waypoint.altitude = (*(WaypointWrapper*)(&cmd->data)).altitude;
@@ -626,9 +650,18 @@ void setVNOrientationMatrix(float* angleOffset){
     angleOffset[0] = deg2rad(angleOffset[0]);
     angleOffset[1] = deg2rad(angleOffset[1]);
     angleOffset[2] = deg2rad(angleOffset[2]);
-    float refRotationMatrix[9] = {cos(angleOffset[1]) * cos(angleOffset[2]), -cos(angleOffset[1]) * sin(angleOffset[2]), sin(angleOffset[1]),
-        sin(angleOffset[0]) * sin(angleOffset[1]) * cos(angleOffset[2]) + sin(angleOffset[2]) * cos(angleOffset[0]), -sin(angleOffset[0]) * sin(angleOffset[1]) * sin(angleOffset[2]) + cos(angleOffset[2]) * cos(angleOffset[0]), -sin(angleOffset[0]) * cos(angleOffset[1]),
-        -cos(angleOffset[0]) * sin(angleOffset[1]) * cos(angleOffset[2]) + sin(angleOffset[2]) * sin(angleOffset[0]), cos(angleOffset[0]) * sin(angleOffset[1]) * sin(angleOffset[2]) + cos(angleOffset[2]) * sin(angleOffset[0]), cos(angleOffset[0]) * cos(angleOffset[1])};
+    
+    refRotationMatrix[0] = cos(angleOffset[1]) * cos(angleOffset[2]);
+    refRotationMatrix[1] = -cos(angleOffset[1]) * sin(angleOffset[2]);
+    refRotationMatrix[2] = sin(angleOffset[1]);
+
+    refRotationMatrix[3] = sin(angleOffset[0]) * sin(angleOffset[1]) * cos(angleOffset[2]) + sin(angleOffset[2]) * cos(angleOffset[0]);
+    refRotationMatrix[4] = -sin(angleOffset[0]) * sin(angleOffset[1]) * sin(angleOffset[2]) + cos(angleOffset[2]) * cos(angleOffset[0]);
+    refRotationMatrix[5] = -sin(angleOffset[0]) * cos(angleOffset[1]);
+
+    refRotationMatrix[6] = -cos(angleOffset[0]) * sin(angleOffset[1]) * cos(angleOffset[2]) + sin(angleOffset[2]) * sin(angleOffset[0]);
+    refRotationMatrix[7] = cos(angleOffset[0]) * sin(angleOffset[1]) * sin(angleOffset[2]) + cos(angleOffset[2]) * sin(angleOffset[0]);
+    refRotationMatrix[8] = cos(angleOffset[0]) * cos(angleOffset[1]);
 
     VN100_SPI_SetRefFrameRot(0, (float*)&refRotationMatrix);
     VN100_SPI_WriteSettings(0);
@@ -675,8 +708,33 @@ char generateAMDataChecksum(void){
     //TODO: Fix so checksum includes command byte (which it currently doesn't)
     int i = 0;
     char checksum = 0;
-    for (i = 0; i < sizeof(AMData) - 2; i++){
+    for (i = 0; i < sizeof(AMData) - 1; i++){
         checksum += ((char *)&amData)[i];
     }
     return checksum;
+}
+
+void checkHeartbeat(long int cTime){
+    if (cTime - heartbeatTimer > HEARTBEAT_TIMEOUT && !heartbeatTrigger){
+        heartbeatTrigger = 1;
+        amData.command = PM_RETURN_HOME;
+        amData.checksum = generateAMDataChecksum();
+    }
+}
+
+void getVelocityComponents(float* velocityComponents, float groundSpeed, float altitude, long int time){
+    long int timeChange = time - lastAltitudeTime;
+    lastAltitudeTime = time;
+
+    float altitudeChange = (altitude - lastAltitude)/ timeChange;
+    lastAltitude = altitude;
+
+    //Matrix Multiplication...the VN100 doesn't do this, so we must do it instead.
+    //The velocity vector is:
+    //x:groundSpeed * cos(gps_Heading - imu_YawAngle);
+    //y:groundSpeed * sin(gps_Heading - imu_YawAngle);
+    //z:altitudeChange;
+    velocityComponents[0] = (groundSpeed * cos(deg2rad(gps_Heading - imu_YawAngle))) * refRotationMatrix[0] + (groundSpeed * sin(gps_Heading - imu_YawAngle)) * refRotationMatrix[1] +  altitudeChange * refRotationMatrix[2];
+    velocityComponents[1] = (groundSpeed * cos(deg2rad(gps_Heading - imu_YawAngle))) * refRotationMatrix[3] + (groundSpeed * sin(gps_Heading - imu_YawAngle)) * refRotationMatrix[4] +  altitudeChange * refRotationMatrix[5];
+    velocityComponents[2] = (groundSpeed * cos(deg2rad(gps_Heading - imu_YawAngle))) * refRotationMatrix[6] + (groundSpeed * sin(gps_Heading - imu_YawAngle)) * refRotationMatrix[7] +  altitudeChange * refRotationMatrix[8];
 }

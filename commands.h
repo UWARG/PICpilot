@@ -50,6 +50,9 @@
 #define REMOVE_WAYPOINT 39
 #define SET_TARGET_WAYPOINT 40
 #define RETURN_HOME 41
+#define SEND_HEARTBEAT 42
+#define TRIGGER_CAMERA 43
+#define SET_TRIGGER_DISTANCE 44
 
 //Multipart Commands
 #define NEW_WAYPOINT 128

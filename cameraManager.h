@@ -17,7 +17,9 @@
 #define GIMBLE_MOTION_LIMIT 17.5 //Range One way
 
 //TODO:Add a description here
-unsigned int cameraPollingRuntime(long double latitude, long double longitude);
+unsigned int cameraPollingRuntime(long double latitude, long double longitude, long int time);
+void triggerCamera(unsigned int pwmSignal);
+void setTriggerDistance(float distance);
 unsigned int cameraGimbleStabilization(float imu_RollAngle);
 
 #endif	/* CAMERAMANAGER_H */
