@@ -116,6 +116,8 @@ float refRotationMatrix[9];
 float lastAltitude = 0;
 long int lastAltitudeTime = 0;
 
+unsigned int cameraPWM = 0;
+
 void attitudeInit() {
     //Debug Mode initialize communication with the serial port (Computer)
     if (DEBUG) {
@@ -255,9 +257,9 @@ void attitudeManagerRuntime() {
         //Estimation of Roll angle based on heading:
         //TODO: Add if statement to use rudder for small heading changes
 
-        if (sp_Heading > 360)
+        while (sp_Heading > 360)
             sp_Heading -=360;
-        if (sp_Heading < 0)
+        while (sp_Heading < 0)
             sp_Heading +=360;
         // -(maxHeadingRate)/180.0,
             sp_HeadingRate = controlSignalHeading(sp_Heading, gps_PositionFix==2?gps_Heading:imu_YawAngle);
@@ -283,13 +285,13 @@ void attitudeManagerRuntime() {
 
     // Output to servos based on requested angle and actual angle (using a gain value)
     if (controlLevel & ROLL_CONTROL_TYPE || controlLevel & HEADING_CONTROL_ON){
-        sp_ComputedRollRate = controlSignalAngles(sp_RollAngle,  (int)imu_RollAngle, ROLL, -(SP_RANGE) / (MAX_ROLL_ANGLE));
+        sp_ComputedRollRate = controlSignalAngles(sp_RollAngle,  imu_RollAngle, ROLL, -(SP_RANGE) / (MAX_ROLL_ANGLE));
     }
     else{
         sp_ComputedRollRate = sp_RollRate;
     }
     if (controlLevel & PITCH_CONTROL_TYPE || controlLevel & ALTITUDE_CONTROL_ON){
-        sp_ComputedPitchRate = controlSignalAngles(sp_PitchAngle, (int)imu_PitchAngle, PITCH, -(SP_RANGE) / (MAX_PITCH_ANGLE));
+        sp_ComputedPitchRate = controlSignalAngles(sp_PitchAngle, imu_PitchAngle, PITCH, -(SP_RANGE) / (MAX_PITCH_ANGLE));
     }
     else{
         sp_ComputedPitchRate = sp_PitchRate;
@@ -312,9 +314,9 @@ void attitudeManagerRuntime() {
     }
 
     // Control Signals (Output compare value)
-    control_Roll = controlSignal((int)(sp_ComputedRollRate / SERVO_SCALE_FACTOR), (int)imu_RollRate, ROLL);
-    control_Pitch = controlSignal((int)(sp_ComputedPitchRate / SERVO_SCALE_FACTOR), (int)imu_PitchRate, PITCH);
-    control_Yaw = controlSignal((int)(sp_ComputedYawRate / SERVO_SCALE_FACTOR), (int)imu_YawRate, YAW);
+    control_Roll = controlSignal((sp_ComputedRollRate / SERVO_SCALE_FACTOR), imu_RollRate, ROLL);
+    control_Pitch = controlSignal((sp_ComputedPitchRate / SERVO_SCALE_FACTOR), imu_PitchRate, PITCH);
+    control_Yaw = controlSignal((sp_ComputedYawRate / SERVO_SCALE_FACTOR), imu_YawRate, YAW);
     /*****************************************************************************
      *****************************************************************************
 
@@ -359,14 +361,14 @@ void attitudeManagerRuntime() {
     if (control_Yaw < MIN_YAW_PWM)
         control_Yaw = MIN_YAW_PWM;
     
-    unsigned int pwmTemp = cameraPollingRuntime(gps_Latitude, gps_Longitude, time);
+    cameraPWM = cameraPollingRuntime(gps_Latitude, gps_Longitude, time);
     unsigned int gimblePWM = cameraGimbleStabilization(imu_RollAngle);
     // Sends the output signal to the servo motors
     setPWM(1, control_Roll + rollTrim);
     setPWM(2, control_Pitch + pitchTrim);
     setPWM(3, control_Throttle);
     setPWM(4, control_Yaw + yawTrim);
-    setPWM(5, pwmTemp);
+    setPWM(5, cameraPWM);
     setPWM(6, gimblePWM);
 //    setPWM(7, sp_HeadingRate + MIDDLE_PWM - 20);
 
@@ -528,6 +530,10 @@ void readDatalink(void){
                 amData.command = PM_RETURN_HOME;
                 amData.checksum = generateAMDataChecksum();
                 break;
+            case CANCEL_RETURN_HOME:
+                amData.command = PM_CANCEL_RETURN_HOME;
+                amData.checksum = generateAMDataChecksum();
+                break;
             case SEND_HEARTBEAT:
                 heartbeatTimer = time;
                 break;
@@ -536,6 +542,9 @@ void readDatalink(void){
                 break;
             case SET_TRIGGER_DISTANCE:
                 setTriggerDistance(*(float*)(&cmd->data));
+                break;
+            case SET_GIMBLE_OFFSET:
+                setGimbleOffset(*(unsigned int*)(&cmd->data));
                 break;
 
             case NEW_WAYPOINT:
@@ -608,6 +617,7 @@ int writeDatalink(long frequency){
         statusData->waypointIndex = waypointIndex;
         statusData->editing_gain = displayGain + ((sp_Switch < 600) << 4);
         statusData->gpsStatus = gps_Satellites + (gps_PositionFix << 4);
+        statusData->cameraStatus = cameraPWM <= LOWER_PWM;
 
         if (BLOCKING_MODE) {
             sendTelemetryBlock(statusData);

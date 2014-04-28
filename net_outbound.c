@@ -58,6 +58,7 @@ struct telem_block *getDebugTelemetryBlock(void) {
         debugTelemetry->waypointIndex = (char)1;
         debugTelemetry->editing_gain = (char)1;
         debugTelemetry->gpsStatus = (char)1;
+        debugTelemetry->cameraStatus = (char)1;
     }
     return debugTelemetry;
 }

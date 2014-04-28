@@ -78,7 +78,7 @@ int controlSignalHeading(int setpoint, int output);
  *
  *****************************************************************************/
 
-int controlSignalAngles(int setpoint, int output, unsigned char type, float SERVO_SCALE_FACTOR_ANGLES);
+int controlSignalAngles(float setpoint, float output, unsigned char type, float SERVO_SCALE_FACTOR_ANGLES);
 
 /*****************************************************************************
  * Function: int controlSignal(float setpoint, float output, unsigned char type)
@@ -105,7 +105,7 @@ int controlSignalAngles(int setpoint, int output, unsigned char type, float SERV
  *
  *****************************************************************************/
 
-int controlSignal(int setpoint, int output, unsigned char type);
+int controlSignal(float setpoint, float output, unsigned char type);
 
 /*****************************************************************************
  * Function: void freezeIntegral()

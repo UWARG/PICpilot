@@ -20,6 +20,7 @@ long int cameraTimerCount = 0;
 float pictureDistance = 20; //In meters
 unsigned int lastSignal = LOWER_PWM;
 unsigned int triggerSignal = 600;
+unsigned int gimbleOffset = MIDDLE_PWM - 50;
 char overrideTrigger = 0;
 
 unsigned int cameraPollingRuntime(long double latitude, long double longitude, long int time){
@@ -35,14 +36,10 @@ unsigned int cameraPollingRuntime(long double latitude, long double longitude, l
             lastLatitude = latitude;
             lastSignal = LOWER_PWM;
             overrideTrigger = 0;
-//            UART1_SendString("PIC");
         }
         else
             lastSignal = triggerSignal;
     }
-//    lastSignal = 10000;
-//    sprintf(&str, "%d", lastSignal);
-//    UART1_SendString(&str);
     return lastSignal;
 }
 
@@ -63,5 +60,9 @@ unsigned int cameraGimbleStabilization(float rollAngle){
         rollAngle = -GIMBLE_MOTION_LIMIT;
     }
 
-    return GIMBLE_PWM_OFFSET + GIMBLE_PWM_RANGE/GIMBLE_MOTION_RANGE * rollAngle;
+    return gimbleOffset + GIMBLE_PWM_RANGE/GIMBLE_MOTION_RANGE * rollAngle;
+}
+
+void setGimbleOffset(unsigned int pwmSignal){
+    gimbleOffset = pwmSignal + MIDDLE_PWM;
 }

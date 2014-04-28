@@ -118,15 +118,15 @@ void pathManagerRuntime(void) {
     position[2] = gpsData.altitude;
     heading = (float)gpsData.heading;
 
-    if (returnHome || (pathCount - currentIndex >= 1 && pathCount >= 0)){
+    if (returnHome || (pathCount - currentIndex < 1 && pathCount >= 0)){
         pmData.sp_Heading = lastKnownHeadingHome;
-    }else{
-        if (pathCount - currentIndex > 2){
+    }else if (pathCount - currentIndex >= 1){
+//        if (pathCount - currentIndex >= 2){
             currentIndex = followWaypoints(path[currentIndex], (float*)&position, heading, (int*)&pmData.sp_Heading);
-        }
-        else if (pathCount - currentIndex >= 1){
-            pmData.sp_Heading = followLineSegment(path[currentIndex], (float*)&position, heading);
-        }
+//        }
+//        else if (pathCount - currentIndex >= 1){
+//            pmData.sp_Heading = followLineSegment(path[currentIndex], (float*)&position, heading);
+//        }
     }
     if (pmData.positionFix >= 1){
         lastKnownHeadingHome = calculateHeadingHome(home, (float*)&position, heading);
@@ -173,28 +173,21 @@ char followWaypoints(PathData* currentWaypoint, float* position, float heading, 
             halfPlane[1] = targetCoordinates[1] - (targetWaypoint->radius/tan(turningAngle/2)) * waypointDirection[1];
             halfPlane[2] = targetCoordinates[2] - (targetWaypoint->radius/tan(turningAngle/2)) * waypointDirection[2];
             
-
-            float eucNormal = sqrt(halfPlane[0] * halfPlane[0] + halfPlane[1] * halfPlane[1] + halfPlane[2] * halfPlane[2]) * (halfPlane[0] < 0?-1:1) * (halfPlane[1] < 0?-1:1) * (halfPlane[2] < 0?-1:1);
-            float eucPosition = sqrt(pow(halfPlane[0] - position[0],2) + pow(halfPlane[1] - position[1],2) + pow(halfPlane[2] - position[2],2)) * ((halfPlane[0] - position[0]) < 0?-1:1) * ((halfPlane[1] - position[1]) < 0?-1:1) * ((halfPlane[2] - position[2]) < 0?-1:1);
-            float eucSum = sqrt(pow(halfPlane[0] + position[0],2) + pow(halfPlane[1] + position[1],2) + pow(halfPlane[2] + position[2],2)) * ((halfPlane[0] + position[0]) < 0?-1:1) * ((halfPlane[1] + position[1]) < 0?-1:1) * ((halfPlane[2] + position[2]) < 0?-1:1);
-            float cosC = (pow(eucSum,2) - pow(eucNormal,2) - pow(eucPosition,2))/(-2 * eucNormal * eucPosition);
-            if (cosC > 0){
+            float dotProduct = waypointDirection[0] * (position[0] - halfPlane[0]) + waypointDirection[1] * (position[1] - halfPlane[1]) + waypointDirection[2] * (position[2] - halfPlane[2]);
+            if (dotProduct > 0){
                 orbitPathStatus = ORBIT;
             }
 
-            *sp_Heading = (int)followStraightPath((float*)&waypointDirection,(float*)position, heading);
+            *sp_Heading = (int)followStraightPath((float*)&waypointDirection, (float*)targetCoordinates, (float*)position, heading);
         }
         else{
             float halfPlane[3];
-            halfPlane[0] = targetCoordinates[0] + (targetWaypoint->radius/tan(turningAngle/2)) * waypointDirection[0];
-            halfPlane[1] = targetCoordinates[1] + (targetWaypoint->radius/tan(turningAngle/2)) * waypointDirection[1];
-            halfPlane[2] = targetCoordinates[2] + (targetWaypoint->radius/tan(turningAngle/2)) * waypointDirection[2];
+            halfPlane[0] = targetCoordinates[0] + (targetWaypoint->radius/tan(turningAngle/2)) * nextWaypointDirection[0];
+            halfPlane[1] = targetCoordinates[1] + (targetWaypoint->radius/tan(turningAngle/2)) * nextWaypointDirection[1];
+            halfPlane[2] = targetCoordinates[2] + (targetWaypoint->radius/tan(turningAngle/2)) * nextWaypointDirection[2];
 
-            float eucNormal = sqrt(halfPlane[0] * halfPlane[0] + halfPlane[1] * halfPlane[1] + halfPlane[2] * halfPlane[2]) * (halfPlane[0] < 0?-1:1) * (halfPlane[1] < 0?-1:1) * (halfPlane[2] < 0?-1:1);
-            float eucPosition = sqrt(pow(halfPlane[0] - position[0],2) + pow(halfPlane[1] - position[1],2) + pow(halfPlane[2] - position[2],2)) * ((halfPlane[0] - position[0]) < 0?-1:1) * ((halfPlane[1] - position[1]) < 0?-1:1) * ((halfPlane[2] - position[2]) < 0?-1:1);
-            float eucSum = sqrt(pow(2 * halfPlane[0] - position[0],2) + pow(2 * halfPlane[1] - position[1],2) + pow(2 * halfPlane[2] - position[2],2)) * ((2 * halfPlane[0] - position[0]) < 0?-1:1) * ((2 * halfPlane[1] - position[1]) < 0?-1:1) * ((2 * halfPlane[2] - position[2]) < 0?-1:1);
-            float cosC = (pow(eucSum,2) - pow(eucNormal,2) - pow(eucPosition,2))/(-2 * eucNormal * eucPosition);
-            if (cosC > 0){
+            float dotProduct = nextWaypointDirection[0] * (position[0] - halfPlane[0]) + nextWaypointDirection[1] * (position[1] - halfPlane[1]) + nextWaypointDirection[2] * (position[2] - halfPlane[2]);
+            if (dotProduct > 0){
                 orbitPathStatus = PATH;
                 return targetWaypoint->index;
             }
@@ -202,6 +195,12 @@ char followWaypoints(PathData* currentWaypoint, float* position, float heading, 
             char turnDirection = waypointDirection[0] * nextWaypointDirection[1] - waypointDirection[1] * nextWaypointDirection[0]>0?1:-1;
             float euclideanWaypointDirection = sqrt(pow(nextWaypointDirection[0] - waypointDirection[0],2) + pow(nextWaypointDirection[1] - waypointDirection[1],2) + pow(nextWaypointDirection[2] - waypointDirection[2],2)) * ((nextWaypointDirection[0] - waypointDirection[0]) < 0?-1:1) * ((nextWaypointDirection[1] - waypointDirection[1]) < 0?-1:1) * ((nextWaypointDirection[2] - waypointDirection[2]) < 0?-1:1);
             
+            //If two waypoints are parallel to each other (no turns)
+            if (euclideanWaypointDirection == 0){
+                orbitPathStatus = PATH;
+                return targetWaypoint->index;
+            }
+
             float turnCenter[3];
             turnCenter[0] = targetCoordinates[0] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[0] - waypointDirection[0])/euclideanWaypointDirection);
             turnCenter[1] = targetCoordinates[1] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[1] - waypointDirection[1])/euclideanWaypointDirection);
@@ -230,11 +229,13 @@ int followLineSegment(PathData* currentWaypoint, float* position, float heading)
         waypointDirection[1] = (targetCoordinates[1] - waypointPosition[1])/norm;
         waypointDirection[2] = (targetCoordinates[2] - waypointPosition[2])/norm;
 
-        return (int)followStraightPath((float*)&waypointDirection, (float*)position, heading);
+        return (int)followStraightPath((float*)&waypointDirection, (float*)targetCoordinates, (float*)position, heading);
 }
 
 float followOrbit(float* center, float radius, char direction, float* position, float heading){//Heading in degrees (magnetic)
     heading = deg2rad(90 - heading);
+
+
     float orbitDistance = sqrt(pow(position[0] - center[0],2) + pow(position[1] - center[1],2));
     float courseAngle = atan2(position[1] - center[1], position[0] - center[0]); // (y,x) format
  
@@ -247,7 +248,7 @@ float followOrbit(float* center, float radius, char direction, float* position, 
 
     return 90 - rad2deg(courseAngle + direction * (PI/2 + atan(k_gain[ORBIT] * (orbitDistance - radius)/radius))); //Heading in degrees (magnetic)
 }
-float followStraightPath(float* waypointDirection, float* position, float heading){ //Heading in degrees (magnetic)
+float followStraightPath(float* waypointDirection, float* targetWaypoint, float* position, float heading){ //Heading in degrees (magnetic)
     heading = deg2rad(90 - heading);//90 - heading = magnetic heading to cartesian heading
     float courseAngle = atan2(waypointDirection[1], waypointDirection[0]); // (y,x) format
     while (courseAngle - heading < -PI){ 
@@ -257,7 +258,7 @@ float followStraightPath(float* waypointDirection, float* position, float headin
         courseAngle -= 2 * PI;
     }
 
-    float pathError = -sin(courseAngle) * (position[0] - waypointDirection[0]) + cos(courseAngle) * (position[1] - waypointDirection[1]);
+    float pathError = -sin(courseAngle) * (position[0] - targetWaypoint[0]) + cos(courseAngle) * (position[1] - targetWaypoint[1]);
 
     return 90 - rad2deg(courseAngle - MAX_PATH_APPROACH_ANGLE * 2/PI * atan(k_gain[PATH] * pathError)); //Heading in degrees (magnetic)
 
@@ -481,6 +482,9 @@ void checkAMData(){
                 break;
             case PM_RETURN_HOME:
                 returnHome = 1;
+                break;
+            case PM_CANCEL_RETURN_HOME:
+                returnHome = 0;
                 break;
 
             case PM_CALIBRATE_ALTIMETER:

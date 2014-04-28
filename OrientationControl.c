@@ -71,18 +71,17 @@ int controlSignalHeading(int setpoint, int output) { // function to find output 
     int controlSignal = (int)(HEADING_ROLL_SCALE_FACTOR * ((dValue * kd_gain[HEADING]) + (error * kp_gain[HEADING]) + (sum_gain[HEADING] * ki_gain[HEADING])));
     return controlSignal;
 }
-int controlSignalAngles(int setpoint, int output, unsigned char type, float SERVO_SCALE_FACTOR_ANGLES) { // function to find output based on gyro acceleration and PWM input
+int controlSignalAngles(float setpoint, float output, unsigned char type, float SERVO_SCALE_FACTOR_ANGLES) { // function to find output based on gyro acceleration and PWM input
 
-
-    int error = setpoint - output;
+    float error = setpoint - output;
     if (integralFreeze == 0){
-        sum_gain[type] += error;
+        sum_gain[type] += (int)error;
     }
 
     int controlSignal = (int)(SERVO_SCALE_FACTOR_ANGLES * (error * kp_gain[type] + (sum_gain[type] * ki_gain[type])));
     return controlSignal;
 }
-int controlSignal(int setpoint, int output, unsigned char type) { // function to find output based on gyro acceleration and PWM input
+int controlSignal(float setpoint, float output, unsigned char type) { // function to find output based on gyro acceleration and PWM input
     int controlSignal = (int)(SERVO_SCALE_FACTOR * (setpoint - output * kd_gain[type])) + MIDDLE_PWM;
     return controlSignal;
 }

@@ -10,8 +10,8 @@
 
 //Constants
 #define EARTH_RADIUS 6378.137
-#define RELATIVE_LONGITUDE -80.5767466670668
-#define RELATIVE_LATITUDE 43.5305800001903
+#define RELATIVE_LONGITUDE -80.577362
+#define RELATIVE_LATITUDE 43.53069
 
 #define MAX_PATH_APPROACH_ANGLE PI/2 //In Radians or (90 degrees)
 
@@ -31,6 +31,7 @@
 #define PM_SET_TARGET_WAYPOINT 5
 #define PM_SET_RETURN_HOME_COORDINATES 6
 #define PM_RETURN_HOME 7
+#define PM_CANCEL_RETURN_HOME 8
 #define PM_CALIBRATE_ALTIMETER 32
 #define PM_SET_PATH_GAIN 64
 #define PM_SET_ORBIT_GAIN 65
@@ -67,7 +68,7 @@ void pathManagerRuntime(void);
 char followWaypoints(PathData* currentWaypoint, float* position, float heading, int* sp_Heading);
 int followLineSegment(PathData* currentWaypoint, float* position, float heading);
 float followOrbit(float* center, float radius, char direction, float* position, float heading);
-float followStraightPath(float* waypointDirection, float* position, float heading);
+float followStraightPath(float* waypointDirection, float* targetWaypoint, float* position, float heading);
 float maintainAltitude(PathData* cPath);
 void getCoordinates(long double longitude, long double latitude, float* xyCoordinates);
 int calculateHeadingHome(PathData home, float* position, float heading);
