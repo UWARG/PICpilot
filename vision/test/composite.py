@@ -73,11 +73,12 @@ class Map(object):
 				return 0
 			index[cur]=idx
 			return 1+sum(size(idx,neigh)for neigh in adj[cur])
-		idx=max((size(i,i),i)for i in xrange(len(self.images)))[1]
-		primary=[i for i,e in enumerate(index)if e==idx]
-		reverse={e:i for i,e in enumerate(primary)}
-		self.images=list(map(self.images.__getitem__,primary))
-		new_points = []
+		idx={i for i in xrange(len(self.images))if size(i,i)>=10} # XXX at least 10 images
+		components=[{i for i,e in enumerate(index)if e==j}for j in idx]
+		reverse={e:i for i,e in enumerate(x for primary in components for x in primary)}
+		self._components=[sorted([reverse[i]for i in primary])for primary in components]
+		self.images=[self.images[x]for primary in components for x in primary]
+		new_points=[]
 		for point in points:
 			for field in"nN":
 				try:
@@ -93,9 +94,10 @@ class Map(object):
 		for image in self.images:
 			print(image["comment"],file=fd)
 			print(image["line"],file=fd)
-		print("v r0",file=fd)
-		for i in xrange(1,len(self.images)): # XXX first image gets way off whack
-			print("""\
+		for primary in self._components:
+			print("v r%d"%primary[0],file=fd)
+			for i in primary[1:]: # XXX first image gets way off whack
+				print("""\
 v r%d
 v TrX%d
 v TrY%d"""%(i,i,i),file=fd)
@@ -166,30 +168,42 @@ v TrY%d"""%(i,i,i),file=fd)
 		return (1-f)**2*a/alpha,math.cos(lat)*a
 	def _estimate_gps(self):
 		"Estimate lat/lon values using regression"
+		nr=len(self.images)
+		self._z=np.zeros(nr,dtype="complex")
+		self._u0=np.zeros(nr,dtype="complex")
+		self._u=np.zeros(nr,dtype="complex")
+		self._g0=np.zeros(nr,dtype="complex")
+		self._dgps=np.zeros((nr,2))
 		p=self.panorama
-		#self._u0,self._u=u0,u=_mean_residual([fields["TrX"].getValue()+1j*fields["TrY"].getValue()for fields in p.getVariables()])
-		vals=[fields["TrX"].getValue()+1j*fields["TrY"].getValue()for fields in p.getVariables()]
-		u0,u=_mean_residual(vals[1:])
-		self._u0,self._u=u0,np.concatenate(([vals[0]-u0],u))
-		g0,g=_mean_residual([image["lat"]+1j*image["lon"]for image in self.images])
-		self._g0=g0
-		self._dgps=dlat,dlon=self.meters_per_radian(g0.real)
-		(a,b),(r,),_,_=np.linalg.lstsq(
-			np.rollaxis(np.array([np.concatenate((u.real,u.imag)),np.concatenate((-u.imag,u.real))]),1),
-			np.concatenate((g[1:].real*dlat,g[1:].imag*dlon))
-		)
-		u=self._u
-		#print("gps ~ (%.3g+%.3gj) (x+yj), residual = %.3g"%(a,b,r))
-		# found z = (a+bj): g = zu, so find real k, unit w: k(1, 0) = zw(0, -1)
-		self._z=z=a+1j*b
-		g=z*u
-		for image,clat,clon in zip(
-			self.images,
-			g0.real+g.real/dlat,
-			g0.imag+g.imag/dlon
-		):
-			image["lat"]=clat
-			image["lon"]=clon
+		for primary in self._components:#XXX XXX self
+			set_primary=set(primary)
+			vals=[fields["TrX"].getValue()+1j*fields["TrY"].getValue()for i,fields in enumerate(p.getVariables())if i in set_primary]
+			u0,u=_mean_residual(vals[1:])
+			u_all=np.concatenate(([vals[0]-u0],u))
+			images=[self.images[i]for i in primary]
+			g0,g=_mean_residual([image["lat"]+1j*image["lon"]for image in images])
+			dlat,dlon=self.meters_per_radian(g0.real)
+			(a,b),(r,),_,_=np.linalg.lstsq(
+				np.rollaxis(np.array([np.concatenate((u.real,u.imag)),np.concatenate((-u.imag,u.real))]),1),
+				np.concatenate((g[1:].real*dlat,g[1:].imag*dlon))
+			)
+			u=u_all
+			#print("gps ~ (%.3g+%.3gj) (x+yj), residual = %.3g"%(a,b,r))
+			# found z = (a+bj): g = zu, so find real k, unit w: k(1, 0) = zw(0, -1)
+			z=a+1j*b
+			g=z*u
+			for image,clat,clon in zip(
+				images,
+				g0.real+g.real/dlat,
+				g0.imag+g.imag/dlon
+			):
+				image["lat"]=clat
+				image["lon"]=clon
+			self._z[primary]=z
+			self._u0[primary]=u0
+			self._u[primary]=u_all
+			self._g0[primary]=g0
+			self._dgps[primary]=dlat,dlon
 	def createComposite(self,topLeftLat,topLeftLon,topRightLat,topRightLon,widthPx,heightPx):
 		"Starts creating a composite image. Returns composite id immediately."
 		topLeftLat*=math.pi/180
@@ -200,20 +214,25 @@ v TrY%d"""%(i,i,i),file=fd)
 		p=self.panorama
 		u=self._u
 		z=self._z # g = zu
-		dlat,dlon=self._dgps
+		dlat,dlon=self._dgps.transpose()
 		g0=self._g0
 		tl=(topLeftLat -g0.real)*dlat+(topLeftLon -g0.imag)*dlon*1j
 		tr=(topRightLat-g0.real)*dlat+(topRightLon-g0.imag)*dlon*1j
 
 		z*=1j # conversion factor
 		nz=(tr-tl)/2 # new z, (tr-tl)/(2*math.tan(hfov/2))*-1j==(tr-tl)/2*-1j
-		m,phi=cmath.polar(z/nz)
+		#m,phi=cmath.polar(z/nz)
+		z_nz=z/nz
+		m=np.abs(z_nz)
+		phi=np.angle(z_nz)
 		mr=phi*(180/math.pi)
 		nu=(u*z-tl)/nz # math.tan(hfov/2)==1
-		for img,fields,image in zip(
+		for img,fields,image,m,mr in zip(
 			p.getActiveImages(),
 			p.getVariables(),
 			self.images,
+			m,
+			mr,
 		):
 			nu[img]-=1+1j*image["height"]/image["width"]
 			for k,v in{
