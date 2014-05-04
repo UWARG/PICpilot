@@ -77,17 +77,24 @@ class Map(object):
 		primary=[i for i,e in enumerate(index)if e==idx]
 		reverse={e:i for i,e in enumerate(primary)}
 		self.images=list(map(self.images.__getitem__,primary))
+		new_points = []
 		for point in points:
 			for field in"nN":
-				point[field]=reverse[point[field]]
-			point["line"]="c n%(n)d N%(N)d x%(x)f y%(y)f X%(X)f Y%(Y)f"%point
-		self._points=points
+				try:
+					point[field]=reverse[point[field]]
+				except KeyError:
+					break
+			else:
+				point["line"]="c n%(n)d N%(N)d x%(x)f y%(y)f X%(X)f Y%(Y)f"%point
+				new_points.append(point)
+		self._points=new_points
 	def _output_raw_pto(self,fd):
 		"Write a pto for autooptimiser"
 		for image in self.images:
 			print(image["comment"],file=fd)
 			print(image["line"],file=fd)
-		for i in xrange(1,len(self.images)):
+		print("v r0",file=fd)
+		for i in xrange(1,len(self.images)): # XXX first image gets way off whack
 			print("""\
 v r%d
 v TrX%d
@@ -160,15 +167,19 @@ v TrY%d"""%(i,i,i),file=fd)
 	def _estimate_gps(self):
 		"Estimate lat/lon values using regression"
 		p=self.panorama
-		self._u0,self._u=u0,u=_mean_residual([fields["TrX"].getValue()+1j*fields["TrY"].getValue()for fields in p.getVariables()])
+		#self._u0,self._u=u0,u=_mean_residual([fields["TrX"].getValue()+1j*fields["TrY"].getValue()for fields in p.getVariables()])
+		vals=[fields["TrX"].getValue()+1j*fields["TrY"].getValue()for fields in p.getVariables()]
+		u0,u=_mean_residual(vals[1:])
+		self._u0,self._u=u0,np.concatenate(([vals[0]-u0],u))
 		g0,g=_mean_residual([image["lat"]+1j*image["lon"]for image in self.images])
 		self._g0=g0
 		self._dgps=dlat,dlon=self.meters_per_radian(g0.real)
 		(a,b),(r,),_,_=np.linalg.lstsq(
 			np.rollaxis(np.array([np.concatenate((u.real,u.imag)),np.concatenate((-u.imag,u.real))]),1),
-			np.concatenate((g.real*dlat,g.imag*dlon))
+			np.concatenate((g[1:].real*dlat,g[1:].imag*dlon))
 		)
-		#print("gps ~ (%.3g+%.3gj) (x+yj), residual = %.3g"%(a,b,r),file=fd)
+		u=self._u
+		#print("gps ~ (%.3g+%.3gj) (x+yj), residual = %.3g"%(a,b,r))
 		# found z = (a+bj): g = zu, so find real k, unit w: k(1, 0) = zw(0, -1)
 		self._z=z=a+1j*b
 		g=z*u
@@ -181,20 +192,24 @@ v TrY%d"""%(i,i,i),file=fd)
 			image["lon"]=clon
 	def createComposite(self,topLeftLat,topLeftLon,topRightLat,topRightLon,widthPx,heightPx):
 		"Starts creating a composite image. Returns composite id immediately."
+		topLeftLat*=math.pi/180
+		topLeftLon*=math.pi/180
+		topRightLat*=math.pi/180
+		topRightLon*=math.pi/180
 		self._initialized.wait()
 		p=self.panorama
 		u=self._u
 		z=self._z # g = zu
 		dlat,dlon=self._dgps
 		g0=self._g0
-		tl=((topLeftLat -g0.real)*dlat+(topLeftLon -g0.imag)*dlon*1j)*(math.pi/180)
-		tr=((topRightLat-g0.real)*dlat+(topRightLon-g0.imag)*dlon*1j)*(math.pi/180)
+		tl=(topLeftLat -g0.real)*dlat+(topLeftLon -g0.imag)*dlon*1j
+		tr=(topRightLat-g0.real)*dlat+(topRightLon-g0.imag)*dlon*1j
 
 		z*=1j # conversion factor
 		nz=(tr-tl)/2 # new z, (tr-tl)/(2*math.tan(hfov/2))*-1j==(tr-tl)/2*-1j
 		m,phi=cmath.polar(z/nz)
 		mr=phi*(180/math.pi)
-		nu=((u+self._u0)*z-tl)/nz # math.tan(hfov/2)==1
+		nu=(u*z-tl)/nz # math.tan(hfov/2)==1
 		for img,fields,image in zip(
 			p.getActiveImages(),
 			p.getVariables(),
@@ -210,8 +225,8 @@ v TrY%d"""%(i,i,i),file=fd)
 				fields[k].setValue(v)
 				p.updateVariable(img,fields[k])
 		def to_gps(py,px):
-			g=(tl+(tr-tl)*((px+1j*py)/widthPx))*(180/math.pi)
-			return g0.real+g.real/dlat,g0.imag+g.imag/dlon
+			g=tl+(tr-tl)*((px+1j*py)/widthPx)
+			return(g0.real+g.real/dlat)*(180/math.pi),(g0.imag+g.imag/dlon)*(180/math.pi)
 		def find_images(py,px):
 			ret=[]
 			px=(2.*px-widthPx)/widthPx
@@ -300,13 +315,11 @@ def main():
 	path=sys.argv[1]
 	m=Map(path)
 	cids=[]
-	for lat in xrange(2):
-		for lon in xrange(-1,3):
-			cids.append(m.createComposite(lat,lon,lat,lon+1,1000,1000))
+	cids.append(m.createComposite(49.911688877,-98.285622596,49.911523060,-98.267898559,1000,1000))
 	print("started compositing",cids)
 	print("done compositing","\n".join(map(m.composite2Path,cids)))
-	print("images",m.composite2Images(cids[3],50,400))
-	print("GPS",m.composite2GPS(cids[3],50,400))#0,2.4
+	#print("images",m.composite2Images(cids[3],50,400))
+	#print("GPS",m.composite2GPS(cids[3],50,400))#0,2.4
 	#print("images",m.composite2Images(m.createComposite(0,2,0,3,100,70),5,40))
 	#print("GPS",m.composite2GPS(m.createComposite(0,2,0,3,100,70),5,40))#0,2.4
 if __name__=="__main__":
