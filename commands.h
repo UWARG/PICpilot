@@ -55,6 +55,8 @@
 #define TRIGGER_CAMERA 44
 #define SET_TRIGGER_DISTANCE 45
 #define SET_GIMBLE_OFFSET 46
+#define KILL_PLANE 47
+#define UNKILL_PLANE 48
 
 //Multipart Commands
 #define NEW_WAYPOINT 128

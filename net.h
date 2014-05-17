@@ -6,8 +6,8 @@
 #define BLOCKING_MODE 0
 
 #define OUTBOUND_QUEUE_SIZE 20
-#define INBOUND_QUEUE_SIZE 10
-#define MAX_PACKET_SIZE 100
+#define INBOUND_QUEUE_SIZE 100
+#define MAX_PACKET_SIZE 20
 
 #define EDIT_NONE 0
 #define EDIT_PITCH_GAIN 1
@@ -27,9 +27,13 @@
 
 #define BROADCAST_RADIUS 1 //0 is infinite number of hops to reach target
 
-#define RAW_PACKET_BUFFER_SIZE 8    // Number of buffer regions to allow for incoming commands
+#define RAW_PACKET_BUFFER_SIZE 16   // Number of buffer regions to allow for incoming commands
 
-#define HEARTBEAT_TIMEOUT 30000 //In Milliseconds
+#define HEARTBEAT_TIMEOUT 10000 //In Milliseconds
+
+#define GPS_TIMEOUT 30000 //In Milliseconds
+
+#define HEARTBEAT_KILL_TIMEOUT 120000 //In Milliseconds
 
 struct telem_block {
     long double lat, lon; // Latitude and longitude from gps    // 8Byte
@@ -45,8 +49,9 @@ struct telem_block {
     int cPitchSetpoint, cRollSetpoint, cYawSetpoint;  //Controller input // 2Byte
     int lastCommandSent;
     int errorCodes;
+    int cameraStatus;
     char waypointIndex;
-    char editing_gain, gpsStatus, cameraStatus;                              // 1Byte
+    char editing_gain, gpsStatus;                              // 1Byte
     // TODO: Add additional telemetry to be sent here
 };
 

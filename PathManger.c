@@ -30,7 +30,7 @@ extern char newGPSDataAvailable;
 
 PathData home;
 
-float k_gain[2] = {1, 1};
+float k_gain[2] = {0.01, 0.05};
 
 unsigned int currentBufferIndex = 0; //Last index that was filled
 unsigned int currentNodeID = 0; //Last ID that was used
@@ -44,7 +44,7 @@ PathData* path[PATH_BUFFER_SIZE];
 char pathStatus[PATH_BUFFER_SIZE];
 char pathCount = 0;
 
-int lastKnownHeadingHome = 0;
+int lastKnownHeadingHome = 10;
 char returnHome = 0;
 
 void pathManagerInit(void) {
@@ -103,7 +103,10 @@ void pathManagerRuntime(void) {
 #endif
     //Get GPS data
     copyGPSData();
-    if (path[currentIndex]->next)
+    if (returnHome){
+        pmData.targetWaypoint = -1;
+    }
+    else if (path[currentIndex]->next)
         pmData.targetWaypoint = path[currentIndex]->next->id;
     else
         pmData.targetWaypoint = 0;
@@ -121,12 +124,12 @@ void pathManagerRuntime(void) {
     if (returnHome || (pathCount - currentIndex < 1 && pathCount >= 0)){
         pmData.sp_Heading = lastKnownHeadingHome;
     }else if (pathCount - currentIndex >= 1){
-//        if (pathCount - currentIndex >= 2){
+        if (pathCount - currentIndex >= 2){
             currentIndex = followWaypoints(path[currentIndex], (float*)&position, heading, (int*)&pmData.sp_Heading);
-//        }
-//        else if (pathCount - currentIndex >= 1){
-//            pmData.sp_Heading = followLineSegment(path[currentIndex], (float*)&position, heading);
-//        }
+        }
+        else if (pathCount - currentIndex >= 1){
+            pmData.sp_Heading = followLastLineSegment(path[currentIndex], (float*)&position, heading);
+        }
     }
     if (pmData.positionFix >= 1){
         lastKnownHeadingHome = calculateHeadingHome(home, (float*)&position, heading);
@@ -228,6 +231,31 @@ int followLineSegment(PathData* currentWaypoint, float* position, float heading)
         waypointDirection[0] = (targetCoordinates[0] - waypointPosition[0])/norm;
         waypointDirection[1] = (targetCoordinates[1] - waypointPosition[1])/norm;
         waypointDirection[2] = (targetCoordinates[2] - waypointPosition[2])/norm;
+
+        return (int)followStraightPath((float*)&waypointDirection, (float*)targetCoordinates, (float*)position, heading);
+}
+
+int followLastLineSegment(PathData* currentWaypoint, float* position, float heading){
+            float waypointPosition[3];
+        getCoordinates(currentWaypoint->longitude, currentWaypoint->latitude, (float*)&waypointPosition);
+        waypointPosition[2] = currentWaypoint->altitude;
+
+        PathData* targetWaypoint = currentWaypoint->next;
+        float targetCoordinates[3];
+        getCoordinates(targetWaypoint->longitude, targetWaypoint->latitude, (float*)&targetCoordinates);
+        targetCoordinates[2] = targetWaypoint->altitude;
+
+
+        float waypointDirection[3];
+        float norm = sqrt(pow(targetCoordinates[0] - waypointPosition[0],2) + pow(targetCoordinates[1] - waypointPosition[1],2) + pow(targetCoordinates[2] - waypointPosition[2],2));
+        waypointDirection[0] = (targetCoordinates[0] - waypointPosition[0])/norm;
+        waypointDirection[1] = (targetCoordinates[1] - waypointPosition[1])/norm;
+        waypointDirection[2] = (targetCoordinates[2] - waypointPosition[2])/norm;
+
+        float dotProduct = waypointDirection[0] * (position[0] - targetCoordinates[0]) + waypointDirection[1] * (position[1] - targetCoordinates[1]) + waypointDirection[2] * (position[2] - targetCoordinates[2]);
+        if (dotProduct > 0){
+            returnHome = 1;
+        }
 
         return (int)followStraightPath((float*)&waypointDirection, (float*)targetCoordinates, (float*)position, heading);
 }

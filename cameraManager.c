@@ -17,28 +17,34 @@ float distance = 0;
 long double lastLongitude = 0;
 long double lastLatitude = 0;
 long int cameraTimerCount = 0;
-float pictureDistance = 20; //In meters
+float pictureDistance = 40; //In meters
 unsigned int lastSignal = LOWER_PWM;
 unsigned int triggerSignal = 600;
-unsigned int gimbleOffset = MIDDLE_PWM - 50;
+unsigned int gimbleOffset = MIDDLE_PWM - 20;
+int rollLimit = 30;
 char overrideTrigger = 0;
+char resting = 1;
 
-unsigned int cameraPollingRuntime(long double latitude, long double longitude, long int time){
+unsigned int cameraPollingRuntime(long double latitude, long double longitude, long int time, unsigned int* pictureCount, int rollAngle, int pitchAngle){
     distance = getDistance(latitude, longitude, lastLatitude, lastLongitude);
 //    char str[16];
 //    sprintf(&str, "%f", distance);
 //    UART1_SendString(&str);
 
-    if (time - cameraTimerCount > 1000){
+    if (time - cameraTimerCount > 1350){
         cameraTimerCount = time;
-        if (distance >= pictureDistance || distance <= -pictureDistance || overrideTrigger){// && pitch <= 20 && pitch >= -20 && roll >= -20 && roll <= 20){
+        if (((((distance >= pictureDistance || distance <= -pictureDistance) && (rollAngle <= rollLimit || rollAngle >= -rollLimit) && (pitchAngle <= rollLimit || pitchAngle >= -rollLimit)))|| overrideTrigger) && resting){// && pitch <= 20 && pitch >= -20 && roll >= -20 && roll <= 20){
             lastLongitude = longitude;
             lastLatitude = latitude;
             lastSignal = LOWER_PWM;
             overrideTrigger = 0;
+            (*pictureCount)++;
+            resting = 0;
         }
-        else
+        else{
+            resting = 1;
             lastSignal = triggerSignal;
+        }
     }
     return lastSignal;
 }
@@ -60,7 +66,7 @@ unsigned int cameraGimbleStabilization(float rollAngle){
         rollAngle = -GIMBLE_MOTION_LIMIT;
     }
 
-    return gimbleOffset + GIMBLE_PWM_RANGE/GIMBLE_MOTION_RANGE * rollAngle;
+    return gimbleOffset - GIMBLE_PWM_RANGE/GIMBLE_MOTION_RANGE * rollAngle;
 }
 
 void setGimbleOffset(unsigned int pwmSignal){

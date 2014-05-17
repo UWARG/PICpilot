@@ -14,7 +14,8 @@
 
 
 //TODO: Change these variable names to more generic names for inclusion of heading
-float kd_gain[6] = {0, 25.2125988006591, 16.5748023987, 15, 20, 50};
+//25.2125988006591
+float kd_gain[6] = {0, 20, 16.5748023987, 15, 20, 50};
 float kp_gain[6] = {1, 0.5, 1.5, 1.5, 1.25, 0.05};
 float ki_gain[6]= {0, 0, 0, 0, 0, 0};
 //Interal Values

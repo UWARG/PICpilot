@@ -10,8 +10,8 @@
 
 //Constants
 #define EARTH_RADIUS 6378.137
-#define RELATIVE_LONGITUDE -80.577362
-#define RELATIVE_LATITUDE 43.53069
+#define RELATIVE_LONGITUDE -98.268628
+#define RELATIVE_LATITUDE 49.910528
 
 #define MAX_PATH_APPROACH_ANGLE PI/2 //In Radians or (90 degrees)
 
@@ -67,6 +67,7 @@ void pathManagerRuntime(void);
 
 char followWaypoints(PathData* currentWaypoint, float* position, float heading, int* sp_Heading);
 int followLineSegment(PathData* currentWaypoint, float* position, float heading);
+int followLastLineSegment(PathData* currentWaypoint, float* position, float heading);
 float followOrbit(float* center, float radius, char direction, float* position, float heading);
 float followStraightPath(float* waypointDirection, float* targetWaypoint, float* position, float heading);
 float maintainAltitude(PathData* cPath);

@@ -32,6 +32,7 @@ extern char newDataAvailable;
 long int time = 0;
 long int lastTime = 0;
 long int heartbeatTimer = 0;
+long int gpsTimer = 0;
 char heartbeatTrigger = 0;
 void __attribute__((__interrupt__, no_auto_psv)) _T2Interrupt(void){
     //Timer Interrupt used for the control loops and data link
@@ -53,7 +54,7 @@ int sp_ComputedYawRate = 0;
 int sp_Value = 0; //0=Roll, 1= Pitch, 2=Yaw
 int sp_Type = 0; //0 = Saved Value, 1 = Edit Mode
 int sp_Switch = 0;
-int sp_GearSwitch = 0;
+int sp_UHFSwitch = 0;
 char currentGain = 0;
 
 int sp_PitchAngle = 0;
@@ -106,7 +107,7 @@ int control_Yaw = MIDDLE_PWM;
 float scaleFactor = 1.0119; //Change this
 
 char displayGain = 0;
-int controlLevel = 0;
+int controlLevel = 976;
 int lastCommandSentCode = 0;
 
 int headingCounter = 0;
@@ -116,7 +117,9 @@ float refRotationMatrix[9];
 float lastAltitude = 0;
 long int lastAltitudeTime = 0;
 
-unsigned int cameraPWM = 0;
+unsigned int cameraCounter = 0;
+
+char killingPlane = 0;
 
 void attitudeInit() {
     //Debug Mode initialize communication with the serial port (Computer)
@@ -142,11 +145,11 @@ void attitudeInit() {
 
     /* Initialize Input Capture and Output Compare Modules */
     if (DEBUG) {
-        initIC(0b10001111);
+        initIC(0b10011111);
         initOC(0b111111); //Initialize only Output Compare 1,2,3 and 4,5,6
         UART1_SendString("START OF CODE BEFORE WHILE");
     } else {
-        initIC(0b11110001);
+        initIC(0b10011111);
         initOC(0b111111); //Initialize only Output Compare 1,2,3 and 4,5,6
     }
 }
@@ -167,8 +170,11 @@ void attitudeManagerRuntime() {
         gps_PositionFix = pmData.positionFix;
         if (controlLevel & ALTITUDE_CONTROL_SOURCE)
             sp_Altitude = pmData.sp_Altitude;
-        if (controlLevel & HEADING_CONTROL_SOURCE)
-            sp_Heading = pmData.sp_Heading;
+        if (controlLevel & HEADING_CONTROL_SOURCE){
+            if (gps_PositionFix){
+                sp_Heading = pmData.sp_Heading;
+            }
+        }
         waypointIndex = pmData.targetWaypoint;
     }
 #endif
@@ -193,7 +199,7 @@ void attitudeManagerRuntime() {
             sp_ThrottleRate = (icTimeDiff[2]);
         sp_YawRate = (icTimeDiff[3] - MIDDLE_PWM);
 
-//        sp_GearSwitch = icTimeDiff[4];
+        sp_UHFSwitch = icTimeDiff[4];
 //        sp_Type = icTimeDiff[5];
 //        sp_Value = icTimeDiff[6];
         sp_Switch = icTimeDiff[7];
@@ -245,7 +251,7 @@ void attitudeManagerRuntime() {
         if (control_Throttle > 890){
             control_Throttle = 890;
         }
-        else if (sp_ThrottleRate < 454){
+        else if (control_Throttle < 454){
             control_Throttle = 454;
         }
     }
@@ -361,15 +367,23 @@ void attitudeManagerRuntime() {
     if (control_Yaw < MIN_YAW_PWM)
         control_Yaw = MIN_YAW_PWM;
     
-    cameraPWM = cameraPollingRuntime(gps_Latitude, gps_Longitude, time);
+    unsigned int cameraPWM = cameraPollingRuntime(gps_Latitude, gps_Longitude, time, &cameraCounter, imu_RollAngle, imu_PitchAngle);
     unsigned int gimblePWM = cameraGimbleStabilization(imu_RollAngle);
     // Sends the output signal to the servo motors
-    setPWM(1, control_Roll + rollTrim);
-    setPWM(2, control_Pitch + pitchTrim);
-    setPWM(3, control_Throttle);
-    setPWM(4, control_Yaw + yawTrim);
-    setPWM(5, cameraPWM);
-    setPWM(6, gimblePWM);
+
+    if (killingPlane){
+        setPWM(1, MAX_ROLL_PWM);
+        setPWM(2, MIDDLE_PWM-10);
+        setPWM(3, LOWER_PWM);
+        setPWM(4, MAX_YAW_PWM - 50);
+    }else{
+        setPWM(1, control_Roll + rollTrim);
+        setPWM(2, control_Pitch + pitchTrim);
+        setPWM(3, control_Throttle);
+        setPWM(4, control_Yaw + yawTrim);
+        setPWM(5, cameraPWM);
+        setPWM(6, gimblePWM);
+    }
 //    setPWM(7, sp_HeadingRate + MIDDLE_PWM - 20);
 
 #if COMMUNICATION_MANAGER
@@ -377,6 +391,7 @@ void attitudeManagerRuntime() {
     writeDatalink(DATALINK_SEND_FREQUENCY); //pwmTemp>600?0?:0xFFFFFFFF;
     checkHeartbeat(time);
 #endif
+//    checkGPS(time);
 }
 
 #if COMMUNICATION_MANAGER
@@ -546,6 +561,14 @@ void readDatalink(void){
             case SET_GIMBLE_OFFSET:
                 setGimbleOffset(*(unsigned int*)(&cmd->data));
                 break;
+            case KILL_PLANE:
+                if (*(int*)(&cmd->data) == 1234)
+                    killingPlane = 1;
+                break;
+            case UNKILL_PLANE:
+                if (*(int*)(&cmd->data) == 1234)
+                    killingPlane = 0;
+                break;
 
             case NEW_WAYPOINT:
                 amData.waypoint.altitude = (*(WaypointWrapper*)(&cmd->data)).altitude;
@@ -613,11 +636,12 @@ int writeDatalink(long frequency){
         statusData->cRollSetpoint = sp_RollRate;
         statusData->cYawSetpoint = sp_YawRate;
         statusData->lastCommandSent = lastCommandSentCode;
-        statusData->errorCodes = getErrorCodes();
+        statusData->errorCodes = getErrorCodes() + ((sp_UHFSwitch < 600)<<11);
+        statusData->cameraStatus = cameraCounter;
         statusData->waypointIndex = waypointIndex;
         statusData->editing_gain = displayGain + ((sp_Switch < 600) << 4);
         statusData->gpsStatus = gps_Satellites + (gps_PositionFix << 4);
-        statusData->cameraStatus = cameraPWM <= LOWER_PWM;
+        
 
         if (BLOCKING_MODE) {
             sendTelemetryBlock(statusData);
@@ -725,12 +749,26 @@ char generateAMDataChecksum(void){
 }
 
 void checkHeartbeat(long int cTime){
-    if (cTime - heartbeatTimer > HEARTBEAT_TIMEOUT && !heartbeatTrigger){
-        heartbeatTrigger = 1;
+    if (cTime - heartbeatTimer > HEARTBEAT_TIMEOUT){
         amData.command = PM_RETURN_HOME;
         amData.checksum = generateAMDataChecksum();
     }
+    else if (cTime - heartbeatTimer > HEARTBEAT_KILL_TIMEOUT){
+//        char str[16];
+//        sprintf(&str, "%")
+//        UART1_SendString(cTime);
+//        UART1_SendString("");
+        killingPlane = 1;
+    }
 }
+
+//void checkGPS(long int cTime){
+//    if (cTime - gpsTimer > GPS_TIMEOUT){
+//        gpsTimer = cTime;
+//        if (gps_PositionFix == 0)
+//            killingPlane = 1;
+//    }
+//}
 
 void getVelocityComponents(float* velocityComponents, float groundSpeed, float altitude, long int time){
     long int timeChange = time - lastAltitudeTime;
