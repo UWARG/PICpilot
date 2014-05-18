@@ -139,7 +139,7 @@ void attitudeInit() {
     //IMU position matrix
     float filterVariance[10] = {1e-10, 1e-6, 1e-6, 1e-6, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2};
     VN100_initSPI();
-    float offset[3] = {-90,0,0};
+    float offset[3] = {-90,-90,0};
     setVNOrientationMatrix((float*)&offset);
     VN100_SPI_SetFiltMeasVar(0, (float*)&filterVariance);
 
@@ -320,7 +320,7 @@ void attitudeManagerRuntime() {
     }
 
     // Control Signals (Output compare value)
-    control_Roll = controlSignal((sp_ComputedRollRate / SERVO_SCALE_FACTOR), imu_RollRate, ROLL);
+    control_Roll = controlSignal(( -1 * sp_ComputedRollRate / SERVO_SCALE_FACTOR), imu_RollRate, ROLL);
     control_Pitch = controlSignal((sp_ComputedPitchRate / SERVO_SCALE_FACTOR), imu_PitchRate, PITCH);
     control_Yaw = controlSignal((sp_ComputedYawRate / SERVO_SCALE_FACTOR), imu_YawRate, YAW);
     /*****************************************************************************
@@ -373,7 +373,7 @@ void attitudeManagerRuntime() {
 
     if (killingPlane){
         setPWM(1, MAX_ROLL_PWM);
-        setPWM(2, MIDDLE_PWM-10);
+        setPWM(2, MIDDLE_PWM + 50);
         setPWM(3, LOWER_PWM);
         setPWM(4, MAX_YAW_PWM - 50);
     }else{
@@ -758,7 +758,7 @@ void checkHeartbeat(long int cTime){
 //        sprintf(&str, "%")
 //        UART1_SendString(cTime);
 //        UART1_SendString("");
-        killingPlane = 1;
+//        killingPlane = 1;
     }
 }
 

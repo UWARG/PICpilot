@@ -30,7 +30,7 @@ extern char newGPSDataAvailable;
 
 PathData home;
 
-float k_gain[2] = {0.01, 0.05};
+float k_gain[2] = {0.01, 1};
 
 unsigned int currentBufferIndex = 0; //Last index that was filled
 unsigned int currentNodeID = 0; //Last ID that was used
