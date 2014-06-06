@@ -129,6 +129,9 @@ void attitudeInit() {
     TRISFbits.TRISF3 = 0;
     LATFbits.LATF3 = 1;
 
+    TRISDbits.TRISD14 = 0;
+    LATDbits.LATD14 = 0;
+
     //Initialize Interchip communication
     init_SPI1();
     init_DMA0();
@@ -158,6 +161,7 @@ void attitudeManagerRuntime() {
 
     //Transfer data from PATHMANAGER CHIP
 #if !PATH_MANAGER
+
     if (newDataAvailable){
         newDataAvailable = 0;
         gps_Time = pmData.time;
@@ -203,7 +207,6 @@ void attitudeManagerRuntime() {
 //        sp_Type = icTimeDiff[5];
 //        sp_Value = icTimeDiff[6];
         sp_Switch = icTimeDiff[7];
-
     /*****************************************************************************
      *****************************************************************************
 
@@ -211,12 +214,13 @@ void attitudeManagerRuntime() {
 
      *****************************************************************************
      *****************************************************************************/
-    VN100_SPI_GetRates(0, (float*) &imuData);
+                       
+        VN100_SPI_GetRates(0, (float*) &imuData);
+                           
     //Outputs in order: Roll,Pitch,Yaw
     imu_RollRate = (imuData[IMU_ROLL_RATE]);
     imu_PitchRate = imuData[IMU_PITCH_RATE];
     imu_YawRate = imuData[IMU_YAW_RATE];
-
     VN100_SPI_GetYPR(0, &imuData[YAW], &imuData[PITCH], &imuData[ROLL]);
     imu_YawAngle = imuData[YAW];
     imu_PitchAngle = imuData[PITCH];
@@ -237,6 +241,7 @@ void attitudeManagerRuntime() {
 
      *****************************************************************************
      *****************************************************************************/
+
     if (controlLevel & ALTITUDE_CONTROL_ON){
         sp_PitchAngle = controlSignalAltitude(sp_Altitude,(int)gps_Altitude);
         if (sp_PitchAngle > MAX_PITCH_ANGLE)
@@ -277,7 +282,7 @@ void attitudeManagerRuntime() {
         if (sp_RollAngle < -MAX_ROLL_ANGLE)
             sp_RollAngle = -MAX_ROLL_ANGLE;
     }
-    
+
 
     // If we are getting input from the controller convert sp_xxxxRate to an sp_xxxxAngle in degrees
 
@@ -288,7 +293,6 @@ void attitudeManagerRuntime() {
 
     //sp_YawRate = controlSignalAngles(sp_YawAngle, imu_YawAngle, kd_Accel_Yaw, -(SP_RANGE) / (maxYawAngle)) ;
     //sp_ComputedYawRate = sp_YawRate;
-
     // Output to servos based on requested angle and actual angle (using a gain value)
     if (controlLevel & ROLL_CONTROL_TYPE || controlLevel & HEADING_CONTROL_ON){
         sp_ComputedRollRate = controlSignalAngles(sp_RollAngle,  imu_RollAngle, ROLL, -(SP_RANGE) / (MAX_ROLL_ANGLE));
@@ -303,7 +307,6 @@ void attitudeManagerRuntime() {
         sp_ComputedPitchRate = sp_PitchRate;
     }
     sp_ComputedYawRate = sp_YawRate;
-
     // CONTROLLER INPUT INTERPRETATION CODE
     if (sp_Switch < 600) {
         unfreezeIntegral();
@@ -384,6 +387,7 @@ void attitudeManagerRuntime() {
         setPWM(5, cameraPWM);
         setPWM(6, gimblePWM);
     }
+
 //    setPWM(7, sp_HeadingRate + MIDDLE_PWM - 20);
 
 #if COMMUNICATION_MANAGER
@@ -396,6 +400,7 @@ void attitudeManagerRuntime() {
 
 #if COMMUNICATION_MANAGER
 void readDatalink(void){
+  
     struct command* cmd = popCommand();
     //TODO: Add rudimentary input validation
     if ( cmd ) {
@@ -607,11 +612,15 @@ void readDatalink(void){
         }
         destroyCommand( cmd );
     }
+ 
 }
 int writeDatalink(long frequency){
+ 
     if (time - lastTime > frequency) {
         lastTime = time;
+    
         struct telem_block* statusData = createTelemetryBlock();//getDebugTelemetryBlock();//createTelemetryBlock();
+  
         statusData->lat = gps_Latitude;
         statusData->lon = gps_Longitude;
         statusData->millis = gps_Time;
@@ -647,11 +656,12 @@ int writeDatalink(long frequency){
             sendTelemetryBlock(statusData);
             destroyTelemetryBlock(statusData);
         } else {
-
             return pushOutboundTelemetryQueue(statusData);
         }
     }
+         
     return 0;
+
 }
 #endif
 

@@ -10,9 +10,9 @@ CND_CONF=default
 CND_DISTDIR=dist
 TMPDIR=build/${CND_CONF}/${IMAGE_TYPE}/tmp-packaging
 TMPDIRNAME=tmp-packaging
-OUTPUT_PATH=dist/${CND_CONF}/${IMAGE_TYPE}/Autopilot.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
-OUTPUT_BASENAME=Autopilot.X.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
-PACKAGE_TOP_DIR=autopilot.x/
+OUTPUT_PATH=dist/${CND_CONF}/${IMAGE_TYPE}/Fixed-Wing-Autopilot.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
+OUTPUT_BASENAME=Fixed-Wing-Autopilot.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
+PACKAGE_TOP_DIR=fixed-wing-autopilot/
 
 # Functions
 function checkReturnCode
@@ -57,15 +57,15 @@ mkdir -p ${TMPDIR}
 
 # Copy files and create directories and links
 cd "${TOP}"
-makeDirectory ${TMPDIR}/autopilot.x/bin
+makeDirectory ${TMPDIR}/fixed-wing-autopilot/bin
 copyFileToTmpDir "${OUTPUT_PATH}" "${TMPDIR}/${PACKAGE_TOP_DIR}bin/${OUTPUT_BASENAME}" 0755
 
 
 # Generate tar file
 cd "${TOP}"
-rm -f ${CND_DISTDIR}/${CND_CONF}/package/autopilot.x.tar
+rm -f ${CND_DISTDIR}/${CND_CONF}/package/fixed-wing-autopilot.tar
 cd ${TMPDIR}
-tar -vcf ../../../../${CND_DISTDIR}/${CND_CONF}/package/autopilot.x.tar *
+tar -vcf ../../../../${CND_DISTDIR}/${CND_CONF}/package/fixed-wing-autopilot.tar *
 checkReturnCode
 
 # Cleanup

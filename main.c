@@ -35,7 +35,7 @@ _FWDT(FWDTEN_ON & WDTPOST_PS2048 & WDTPRE_PR128); //32,128
  *
  */
 int main(int argc, char** argv) {
-    
+
 #if PATH_MANAGER
     pathManagerInit();
 #endif
@@ -55,6 +55,8 @@ int main(int argc, char** argv) {
 
 
     while (1) {
+       PORTDbits.RD14 ^= 1;
+
 #if PATH_MANAGER
         pathManagerRuntime();
 #endif
