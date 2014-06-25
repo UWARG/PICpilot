@@ -34,11 +34,16 @@ long int lastTime = 0;
 long int heartbeatTimer = 0;
 long int gpsTimer = 0;
 char heartbeatTrigger = 0;
+
+#if ATTITUDE_MANAGER
+
 void __attribute__((__interrupt__, no_auto_psv)) _T2Interrupt(void){
     //Timer Interrupt used for the control loops and data link
     time += 20;
     IFS0bits.T2IF = 0;
 }
+
+#endif
 
 // Setpoints (From radio transmitter or autopilot)
 int sp_PitchRate = MIDDLE_PWM;
@@ -80,7 +85,7 @@ char gps_Satellites = 0;
 char gps_PositionFix = 0;
 char waypointIndex = 0;
 char waypointChecksum = 0;
-
+char batteryLevel = 0;
 
 
 // System outputs (get from IMU)
@@ -180,6 +185,7 @@ void attitudeManagerRuntime() {
             }
         }
         waypointIndex = pmData.targetWaypoint;
+        batteryLevel = pmData.batteryLevel;
     }
 #endif
 
@@ -650,6 +656,7 @@ int writeDatalink(long frequency){
         statusData->waypointIndex = waypointIndex;
         statusData->editing_gain = displayGain + ((sp_Switch < 600) << 4);
         statusData->gpsStatus = gps_Satellites + (gps_PositionFix << 4);
+        statusData->batteryLevel = batteryLevel;
         
 
         if (BLOCKING_MODE) {

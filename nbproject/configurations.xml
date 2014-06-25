@@ -61,6 +61,8 @@
       <itemPath>MPL3115A2.c</itemPath>
       <itemPath>StartupErrorCodes.c</itemPath>
       <itemPath>fmath.c</itemPath>
+      <itemPath>voltageSensor.c</itemPath>
+      <itemPath>voltageSensor.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

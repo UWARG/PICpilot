@@ -8,6 +8,7 @@
 #include "main.h"
 #include "PathManager.h"
 #include "MPL3115A2.h"
+#include "voltageSensor.h"
 
 #if !(PATH_MANAGER && ATTITUDE_MANAGER && COMMUNICATION_MANAGER)
 #include "InterchipDMA.h"
@@ -55,6 +56,7 @@ void pathManagerInit(void) {
     //Communication with GPS
         init_SPI2();
         init_DMA2();
+        initBatterySensor();
 
     //Interchip Communication
 #if !ATTITUDE_MANAGER
@@ -449,7 +451,8 @@ void copyGPSData(){
         pmData.heading = gpsData.heading;
         pmData.speed = gpsData.speed;
         pmData.satellites = (char)gpsData.satellites;
-        pmData.positionFix = (char)gpsData.positionFix;        
+        pmData.positionFix = (char)gpsData.positionFix;
+        pmData.batteryLevel = getCurrentPercent();
     }
 }
 

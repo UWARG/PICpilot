@@ -13,17 +13,12 @@ extern "C" {
 #endif
 
 
-#define vTimeInterval 4.461/60
-
 //Function Prototypes
 //TODO: Add descriptions for each function
 void initBatterySensor();
-float timeRemaining();
+//float timeRemaining();
 char getCurrentPercent();
-char initTimer();
-char checkBattery();
 void initADC();
-int readADC();
 
 #ifdef	__cplusplus
 }
