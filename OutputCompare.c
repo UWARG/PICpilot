@@ -1,5 +1,5 @@
 /* 
- * File:   main.c
+ * File:   OutputCompare.c
  *
  * Created on February 9, 2010, 10:53 AM
  */
@@ -101,7 +101,7 @@ void setPeriod(double time)
          PR2 = (unsigned int)(time * MSEC);
 }
 
-void setPWM(int ocPin, int time)
+void setOCValue(int ocPin, int time)
 {
     //Sets the PWM for subsequent pulses
     if (ocPin == 1)

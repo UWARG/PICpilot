@@ -6,4 +6,4 @@
  */
 //TODO: Add descriptions to these functions
 void checkErrorCodes();
-int getErrorCodes();
+unsigned int getErrorCodes();

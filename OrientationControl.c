@@ -19,7 +19,7 @@ float kd_gain[6] = {0, 20, 16.5748023987, 15, 20, 50};
 float kp_gain[6] = {1, 0.5, 1.5, 1.5, 1.25, 0.05};
 float ki_gain[6]= {0, 0, 0, 0, 0, 0};
 //Interal Values
-int sum_gain[6] = {0, 0, 0, 0, 0, 0};
+float sum_gain[6] = {0, 0, 0, 0, 0, 0};
 long int lastControlTime[6] = {0, 0, 0, 0, 0, 0};
 //Derivative Values
 int lastError[6] = {0, 0, 0, 0, 0, 0}; //[0],[1],[2] are currently unused
@@ -30,7 +30,7 @@ char integralFreeze = 0;
 int controlSignalThrottle(int setpoint, int output){
     int error = setpoint - output;
     if (integralFreeze == 0){
-        sum_gain[THROTTLE] += error;
+        sum_gain[THROTTLE] += (float)error;
     }
     int controlSignal = (int)(THROTTLE_SCALE_FACTOR * (error * kp_gain[THROTTLE] + sum_gain[THROTTLE] * ki_gain[THROTTLE]));
     return controlSignal;
@@ -39,7 +39,7 @@ int controlSignalThrottle(int setpoint, int output){
 int controlSignalAltitude(int setpoint, int output){
     int error = setpoint - output;
     if (integralFreeze == 0){
-        sum_gain[ALTITUDE] += error;
+        sum_gain[ALTITUDE] += (float)error;
     }
 
     //Derivative Calculations ---Not necessarily needed for altitude
@@ -62,7 +62,7 @@ int controlSignalHeading(int setpoint, int output) { // function to find output 
     
     int error = setpoint - output;
     if (integralFreeze == 0){
-        sum_gain[HEADING] += error;
+        sum_gain[HEADING] += (float)error;
     }
     
     //Derivative Calculations
@@ -76,7 +76,7 @@ int controlSignalAngles(float setpoint, float output, unsigned char type, float 
 
     float error = setpoint - output;
     if (integralFreeze == 0){
-        sum_gain[type] += (int)error;
+        sum_gain[type] += error;
     }
 
     int controlSignal = (int)(SERVO_SCALE_FACTOR_ANGLES * (error * kp_gain[type] + (sum_gain[type] * ki_gain[type])));

@@ -1,5 +1,5 @@
 /*
- * File:   main.c
+ * File:   InputCapture.c
  *
  * Created on February 9, 2010, 10:53 AM
  */
@@ -16,14 +16,14 @@
 //                  channel values (from IC1 - IC8)
 
 
-int t1[8];            // time one and time two capture for
+int t1[8];            // Time 1 and Time 2 capture for
 int t2[8];            // each input channel
 
-short checkic[8];     // flag bit
-int icTimeDiff[8];
+short icInterruptFlag[8];     // Flag bit
+unsigned int icTime[8];       // Time between interrupts (time between each pulse)
 
-// time calculation stored in an array
-void init_t2(void)    // Initialize and enable Timer2
+// Time calculation stored in an array
+void initTimer2(void)    // Initialize and enable Timer2
 {
     T2CONbits.TON = 0; // Disable Timer
     T2CONbits.TCS = 0; // Select internal instruction cycle clock
@@ -48,7 +48,7 @@ void __attribute__((__interrupt__,no_auto_psv)) _IC1Interrupt(void)
     else                       // set t2 to buffer
     {
         t2[0]=IC1BUF;
-        checkic[0] = 1;
+        icInterruptFlag[0] = 1;
     }
     IFS0bits.IC1IF=0;
 }
@@ -61,7 +61,7 @@ void __attribute__((__interrupt__,no_auto_psv)) _IC2Interrupt(void)
     else
     {
         t2[1]=IC2BUF;
-        checkic[1] = 1;
+        icInterruptFlag[1] = 1;
     }
     IFS0bits.IC2IF=0;
 }
@@ -74,7 +74,7 @@ void __attribute__((__interrupt__,no_auto_psv)) _IC3Interrupt(void)
     else
     {
         t2[2]=IC3BUF;
-        checkic[2] = 1;
+        icInterruptFlag[2] = 1;
     }
     IFS2bits.IC3IF=0;
 }
@@ -87,7 +87,7 @@ void __attribute__((__interrupt__,no_auto_psv)) _IC4Interrupt(void)
     else
     {
         t2[3]=IC4BUF;
-        checkic[3] = 1;
+        icInterruptFlag[3] = 1;
     }
     IFS2bits.IC4IF=0;
 }
@@ -100,7 +100,7 @@ void __attribute__((__interrupt__,no_auto_psv)) _IC5Interrupt(void)
     else
     {
         t2[4]=IC5BUF;
-        checkic[4] = 1;
+        icInterruptFlag[4] = 1;
     }
     IFS2bits.IC5IF=0;
 }
@@ -113,7 +113,7 @@ void __attribute__((__interrupt__,no_auto_psv)) _IC6Interrupt(void)
     else
     {
         t2[5]=IC6BUF;
-        checkic[5] = 1;
+        icInterruptFlag[5] = 1;
     }
     IFS2bits.IC6IF=0;
 }
@@ -126,7 +126,7 @@ void __attribute__((__interrupt__,no_auto_psv)) _IC7Interrupt(void)
     else
     {
         t2[6]=IC7BUF;
-        checkic[6] = 1;
+        icInterruptFlag[6] = 1;
     }
     IFS1bits.IC7IF=0;
 }
@@ -139,7 +139,7 @@ void __attribute__((__interrupt__,no_auto_psv)) _IC8Interrupt(void)
     else
     {
         t2[7]=IC8BUF;
-        checkic[7] = 1;
+        icInterruptFlag[7] = 1;
     }
     IFS1bits.IC8IF=0;
 }
@@ -165,9 +165,9 @@ void initInputCapture(char initIC)     // Capture Interrupt Service Routine
         IC2CONbits.ICM = 0b001; // Generate capture event on every Rising edge
 
         // Enable Capture Interrupt And Timer2
-        IPC1bits.IC2IP = 7; // Setup IC1 interrupt priority level - Highest
-        IFS0bits.IC2IF = 0; // Clear IC1 Interrupt Status Flag
-        IEC0bits.IC2IE = 1; // Enable IC1 interrupt
+        IPC1bits.IC2IP = 7; // Setup IC2 interrupt priority level - Highest
+        IFS0bits.IC2IF = 0; // Clear IC2 Interrupt Status Flag
+        IEC0bits.IC2IE = 1; // Enable IC2 interrupt
     }
     if (initIC & 0b100){
         IC3CONbits.ICM = 0b00; // Disable Input Capture 3 module
@@ -176,9 +176,9 @@ void initInputCapture(char initIC)     // Capture Interrupt Service Routine
         IC3CONbits.ICM = 0b001; // Generate capture event on every Rising edge
 
         // Enable Capture Interrupt And Timer2
-        IPC9bits.IC3IP = 7; // Setup IC1 interrupt priority level - Highest
-        IFS2bits.IC3IF = 0; // Clear IC1 Interrupt Status Flag
-        IEC2bits.IC3IE = 1; // Enable IC1 interrupt
+        IPC9bits.IC3IP = 7; // Setup IC3 interrupt priority level - Highest
+        IFS2bits.IC3IF = 0; // Clear IC3 Interrupt Status Flag
+        IEC2bits.IC3IE = 1; // Enable IC3 interrupt
     }
     if (initIC & 0b1000){
         IC4CONbits.ICM = 0b00; // Disable Input Capture 4 module
@@ -187,53 +187,53 @@ void initInputCapture(char initIC)     // Capture Interrupt Service Routine
         IC4CONbits.ICM = 0b001; // Generate capture event on every Rising edge
 
         // Enable Capture Interrupt And Timer2
-        IPC9bits.IC4IP = 7; // Setup IC1 interrupt priority level - Highest
-        IFS2bits.IC4IF = 0; // Clear IC1 Interrupt Status Flag
-        IEC2bits.IC4IE = 1; // Enable IC1 interrupt
+        IPC9bits.IC4IP = 7; // Setup IC4 interrupt priority level - Highest
+        IFS2bits.IC4IF = 0; // Clear IC4 Interrupt Status Flag
+        IEC2bits.IC4IE = 1; // Enable IC4 interrupt
     }
     if (initIC & 0b10000){
-        IC5CONbits.ICM = 0b00; // Disable Input Capture 6 module
+        IC5CONbits.ICM = 0b00; // Disable Input Capture 5 module
         IC5CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
         IC5CONbits.ICI = 0b11; // Interrupt on every capture event
         IC5CONbits.ICM = 0b001; // Generate capture event on every Rising edge
 
         // Enable Capture Interrupt And Timer2
-        IPC9bits.IC5IP = 7; // Setup IC1 interrupt priority level - Highest
-        IFS2bits.IC5IF = 0; // Clear IC1 Interrupt Status Flag
-        IEC2bits.IC5IE = 1; // Enable IC1 interrupt
+        IPC9bits.IC5IP = 7; // Setup IC5 interrupt priority level - Highest
+        IFS2bits.IC5IF = 0; // Clear IC5 Interrupt Status Flag
+        IEC2bits.IC5IE = 1; // Enable IC5 interrupt
     }
     if (initIC & 0b100000){
-        IC6CONbits.ICM = 0b00; // Disable Input Capture 7 module
+        IC6CONbits.ICM = 0b00; // Disable Input Capture 6 module
         IC6CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
         IC6CONbits.ICI = 0b11; // Interrupt on every capture event
         IC6CONbits.ICM = 0b001; // Generate capture event on every Rising edge
 
         // Enable Capture Interrupt And Timer2
-        IPC10bits.IC6IP = 7; // Setup IC1 interrupt priority level - Highest
-        IFS2bits.IC6IF = 0; // Clear IC1 Interrupt Status Flag
-        IEC2bits.IC6IE = 1; // Enable IC1 interrupt
+        IPC10bits.IC6IP = 7; // Setup IC6 interrupt priority level - Highest
+        IFS2bits.IC6IF = 0; // Clear IC6 Interrupt Status Flag
+        IEC2bits.IC6IE = 1; // Enable IC6 interrupt
     }
     if (initIC & 0b1000000){
-        IC7CONbits.ICM = 0b00; // Disable Input Capture 8 module
+        IC7CONbits.ICM = 0b00; // Disable Input Capture 7 module
         IC7CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
         IC7CONbits.ICI = 0b11; // Interrupt on every capture event
         IC7CONbits.ICM = 0b001; // Generate capture event on every Rising edge
 
         // Enable Capture Interrupt And Timer2
-        IPC5bits.IC7IP = 7; // Setup IC1 interrupt priority level - Highest
-        IFS1bits.IC7IF = 0; // Clear IC1 Interrupt Status Flag
-        IEC1bits.IC7IE = 1; // Enable IC1 interrupt
+        IPC5bits.IC7IP = 7; // Setup IC7 interrupt priority level - Highest
+        IFS1bits.IC7IF = 0; // Clear IC7 Interrupt Status Flag
+        IEC1bits.IC7IE = 1; // Enable IC7 interrupt
     }
     if (initIC & 0b10000000){
-        IC8CONbits.ICM = 0b00; // Disable Input Capture 9 module
+        IC8CONbits.ICM = 0b00; // Disable Input Capture 8 module
         IC8CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
         IC8CONbits.ICI = 0b11; // Interrupt on every capture event
         IC8CONbits.ICM = 0b001; // Generate capture event on every Rising edge
 
         // Enable Capture Interrupt And Timer2
-        IPC5bits.IC8IP = 7; // Setup IC1 interrupt priority level - Highest
-        IFS1bits.IC8IF = 0; // Clear IC1 Interrupt Status Flag
-        IEC1bits.IC8IE = 1; // Enable IC1 interrupt
+        IPC5bits.IC8IP = 7; // Setup IC8 interrupt priority level - Highest
+        IFS1bits.IC8IF = 0; // Clear IC8 Interrupt Status Flag
+        IEC1bits.IC8IE = 1; // Enable IC8 interrupt
     }
 
 }
@@ -245,31 +245,31 @@ void initInputCapture(char initIC)     // Capture Interrupt Service Routine
         for (ic = 0; ic < 8; ic++)
         {
             //If new data has been received on the given channel
-            if (checkic[ic] == 1)
+            if (icInterruptFlag[ic] == 1)
             {
               //If the second time is greater than the first time then we have not met roll over
               if(t2[ic] > t1[ic])
               {
-                 icTimeDiff[ic] = (t2[ic] - t1[ic]);
-                 checkic[ic] = 0;
+                 icTime[ic] = (t2[ic] - t1[ic]);
+                 icInterruptFlag[ic] = 0;
               }
               //Roll over has been made, therefore do math to find the time difference
               //(Max time - t1) is the upper difference
               //Adding the second time (time from 0) gives you the total time difference
               else
               {
-                 icTimeDiff[ic] = ((PR2 - t1[ic]) + t2[ic]);
-                 checkic[ic] = 0;
+                 icTime[ic] = ((PR2 - t1[ic]) + t2[ic]);
+                 icInterruptFlag[ic] = 0;
 
               }
             }
         }
-        return icTimeDiff;
+        return icTime;
 }
 
 // initialize function
 void initIC(char initIC)
 {
     initInputCapture(initIC);
-    init_t2();
+    initTimer2();
 }

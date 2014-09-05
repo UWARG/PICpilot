@@ -43,7 +43,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
 #if !PATH_MANAGER
     if (!transmitInitialized){
         transmitInitialized = 1;
-                DMA1REQbits.FORCE = 1;
+        DMA1REQbits.FORCE = 1;
     while (DMA1REQbits.FORCE == 1);
     }   
 #endif

@@ -5,17 +5,22 @@
  * Created on March 4, 2013, 10:31 PM
  */
 
-extern int icTimeDiff[];
-extern int t1[8];
-extern int t2[8];
+#ifndef INPUTCAPTURE_H
+#define	INPUTCAPTURE_H
 
-extern short checkic[8];
+#ifdef	__cplusplus
+extern "C" {
+#endif
 
-//function prototypes
-void delay (void);
+//Function Prototypes
 void initInputCapture(char initIC);
-//void initTimer(void);
 void initIC(char initIC);
-void init_t2(void);
-void init_EasyVarNames();
+void initTimer2();
 int* getICValues();
+int getICValue(char ic);
+
+#ifdef	__cplusplus
+}
+#endif
+
+#endif	/* INPUTCAPTURE_H */

@@ -112,7 +112,7 @@ int control_Yaw = MIDDLE_PWM;
 float scaleFactor = 1.0119; //Change this
 
 char displayGain = 0;
-int controlLevel = 976;
+int controlLevel = 0;
 int lastCommandSentCode = 0;
 
 int headingCounter = 0;
@@ -220,8 +220,10 @@ void attitudeManagerRuntime() {
 
      *****************************************************************************
      *****************************************************************************/
-                       
-        VN100_SPI_GetRates(0, (float*) &imuData);
+
+
+
+    VN100_SPI_GetRates(0, (float*) &imuData);
                            
     //Outputs in order: Roll,Pitch,Yaw
     imu_RollRate = (imuData[IMU_ROLL_RATE]);
@@ -279,7 +281,7 @@ void attitudeManagerRuntime() {
         while (sp_Heading < 0)
             sp_Heading +=360;
         // -(maxHeadingRate)/180.0,
-            sp_HeadingRate = controlSignalHeading(sp_Heading, gps_PositionFix==2?gps_Heading:imu_YawAngle);
+            sp_HeadingRate = controlSignalHeading(sp_Heading, gps_PositionFix==2?gps_Heading:(int)imu_YawAngle);
             //Approximating Roll angle from Heading
             sp_RollAngle = sp_HeadingRate;//(int)(atan((float)(sp_HeadingRate)) * PI/180.0);
 
@@ -293,7 +295,7 @@ void attitudeManagerRuntime() {
     // If we are getting input from the controller convert sp_xxxxRate to an sp_xxxxAngle in degrees
 
     if ((controlLevel & ROLL_CONTROL_SOURCE) == 0 && (controlLevel & HEADING_CONTROL_ON) == 0)
-        sp_RollAngle = (int)((-sp_RollRate / ((float)SP_RANGE / MAX_ROLL_ANGLE) - 1/1.5) * 45.0/50.0);
+        sp_RollAngle = (int)((-sp_RollRate / ((float)SP_RANGE / MAX_ROLL_ANGLE) ));
     if ((controlLevel & PITCH_CONTROL_SOURCE) == 0 && (controlLevel & ALTITUDE_CONTROL_ON) == 0)
         sp_PitchAngle = (int)(-sp_PitchRate / ((float)SP_RANGE / MAX_PITCH_ANGLE));
 
@@ -329,7 +331,7 @@ void attitudeManagerRuntime() {
     }
 
     // Control Signals (Output compare value)
-    control_Roll = controlSignal(( -1 * sp_ComputedRollRate / SERVO_SCALE_FACTOR), imu_RollRate, ROLL);
+    control_Roll = controlSignal((sp_ComputedRollRate / SERVO_SCALE_FACTOR), imu_RollRate, ROLL);
     control_Pitch = controlSignal((sp_ComputedPitchRate / SERVO_SCALE_FACTOR), imu_PitchRate, PITCH);
     control_Yaw = controlSignal((sp_ComputedYawRate / SERVO_SCALE_FACTOR), imu_YawRate, YAW);
     /*****************************************************************************
@@ -380,19 +382,12 @@ void attitudeManagerRuntime() {
     unsigned int gimblePWM = cameraGimbleStabilization(imu_RollAngle);
     // Sends the output signal to the servo motors
 
-    if (killingPlane){
-        setPWM(1, MAX_ROLL_PWM);
-        setPWM(2, MIDDLE_PWM + 50);
-        setPWM(3, LOWER_PWM);
-        setPWM(4, MAX_YAW_PWM - 50);
-    }else{
-        setPWM(1, control_Roll + rollTrim);
-        setPWM(2, control_Pitch + pitchTrim);
-        setPWM(3, control_Throttle);
-        setPWM(4, control_Yaw + yawTrim);
-        setPWM(5, cameraPWM);
-        setPWM(6, gimblePWM);
-    }
+    setPWM(1, control_Roll + rollTrim);
+    setPWM(2, control_Pitch + pitchTrim);
+    setPWM(3, control_Throttle);
+    setPWM(4, control_Yaw + yawTrim);
+    setPWM(5, cameraPWM);
+    setPWM(6, gimblePWM);
 
 //    setPWM(7, sp_HeadingRate + MIDDLE_PWM - 20);
 

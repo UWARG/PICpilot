@@ -45,11 +45,11 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/Clock.o ${OBJECTDIR}/delay.o ${OBJECTDIR}/FullInitialize.o ${OBJECTDIR}/InputCapture.o ${OBJECTDIR}/OutputCompare.o ${OBJECTDIR}/SPI.o ${OBJECTDIR}/VN100.o ${OBJECTDIR}/VN_lib.o ${OBJECTDIR}/VN_math.o ${OBJECTDIR}/VN_user.o ${OBJECTDIR}/UART2.o ${OBJECTDIR}/OrientationControl.o ${OBJECTDIR}/UART1.o ${OBJECTDIR}/main.o ${OBJECTDIR}/AttitudeManager.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/PathManger.o ${OBJECTDIR}/net_common.o ${OBJECTDIR}/net_inbound.o ${OBJECTDIR}/net_outbound.o ${OBJECTDIR}/cameraManager.o ${OBJECTDIR}/I2C.o ${OBJECTDIR}/MPL3115A2.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/fmath.o ${OBJECTDIR}/voltageSensor.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/Clock.o.d ${OBJECTDIR}/delay.o.d ${OBJECTDIR}/FullInitialize.o.d ${OBJECTDIR}/InputCapture.o.d ${OBJECTDIR}/OutputCompare.o.d ${OBJECTDIR}/SPI.o.d ${OBJECTDIR}/VN100.o.d ${OBJECTDIR}/VN_lib.o.d ${OBJECTDIR}/VN_math.o.d ${OBJECTDIR}/VN_user.o.d ${OBJECTDIR}/UART2.o.d ${OBJECTDIR}/OrientationControl.o.d ${OBJECTDIR}/UART1.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/AttitudeManager.o.d ${OBJECTDIR}/InterchipDMA.o.d ${OBJECTDIR}/PathManger.o.d ${OBJECTDIR}/net_common.o.d ${OBJECTDIR}/net_inbound.o.d ${OBJECTDIR}/net_outbound.o.d ${OBJECTDIR}/cameraManager.o.d ${OBJECTDIR}/I2C.o.d ${OBJECTDIR}/MPL3115A2.o.d ${OBJECTDIR}/StartupErrorCodes.o.d ${OBJECTDIR}/fmath.o.d ${OBJECTDIR}/voltageSensor.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/Clock.o ${OBJECTDIR}/delay.o ${OBJECTDIR}/FullInitialize.o ${OBJECTDIR}/SPI.o ${OBJECTDIR}/VN100.o ${OBJECTDIR}/VN_lib.o ${OBJECTDIR}/VN_math.o ${OBJECTDIR}/VN_user.o ${OBJECTDIR}/UART2.o ${OBJECTDIR}/OrientationControl.o ${OBJECTDIR}/UART1.o ${OBJECTDIR}/main.o ${OBJECTDIR}/AttitudeManager.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/PathManger.o ${OBJECTDIR}/net_common.o ${OBJECTDIR}/net_inbound.o ${OBJECTDIR}/net_outbound.o ${OBJECTDIR}/cameraManager.o ${OBJECTDIR}/I2C.o ${OBJECTDIR}/MPL3115A2.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/fmath.o ${OBJECTDIR}/voltageSensor.o ${OBJECTDIR}/InputCapture.o ${OBJECTDIR}/OutputCompare.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/Clock.o.d ${OBJECTDIR}/delay.o.d ${OBJECTDIR}/FullInitialize.o.d ${OBJECTDIR}/SPI.o.d ${OBJECTDIR}/VN100.o.d ${OBJECTDIR}/VN_lib.o.d ${OBJECTDIR}/VN_math.o.d ${OBJECTDIR}/VN_user.o.d ${OBJECTDIR}/UART2.o.d ${OBJECTDIR}/OrientationControl.o.d ${OBJECTDIR}/UART1.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/AttitudeManager.o.d ${OBJECTDIR}/InterchipDMA.o.d ${OBJECTDIR}/PathManger.o.d ${OBJECTDIR}/net_common.o.d ${OBJECTDIR}/net_inbound.o.d ${OBJECTDIR}/net_outbound.o.d ${OBJECTDIR}/cameraManager.o.d ${OBJECTDIR}/I2C.o.d ${OBJECTDIR}/MPL3115A2.o.d ${OBJECTDIR}/StartupErrorCodes.o.d ${OBJECTDIR}/fmath.o.d ${OBJECTDIR}/voltageSensor.o.d ${OBJECTDIR}/InputCapture.o.d ${OBJECTDIR}/OutputCompare.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/Clock.o ${OBJECTDIR}/delay.o ${OBJECTDIR}/FullInitialize.o ${OBJECTDIR}/InputCapture.o ${OBJECTDIR}/OutputCompare.o ${OBJECTDIR}/SPI.o ${OBJECTDIR}/VN100.o ${OBJECTDIR}/VN_lib.o ${OBJECTDIR}/VN_math.o ${OBJECTDIR}/VN_user.o ${OBJECTDIR}/UART2.o ${OBJECTDIR}/OrientationControl.o ${OBJECTDIR}/UART1.o ${OBJECTDIR}/main.o ${OBJECTDIR}/AttitudeManager.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/PathManger.o ${OBJECTDIR}/net_common.o ${OBJECTDIR}/net_inbound.o ${OBJECTDIR}/net_outbound.o ${OBJECTDIR}/cameraManager.o ${OBJECTDIR}/I2C.o ${OBJECTDIR}/MPL3115A2.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/fmath.o ${OBJECTDIR}/voltageSensor.o
+OBJECTFILES=${OBJECTDIR}/Clock.o ${OBJECTDIR}/delay.o ${OBJECTDIR}/FullInitialize.o ${OBJECTDIR}/SPI.o ${OBJECTDIR}/VN100.o ${OBJECTDIR}/VN_lib.o ${OBJECTDIR}/VN_math.o ${OBJECTDIR}/VN_user.o ${OBJECTDIR}/UART2.o ${OBJECTDIR}/OrientationControl.o ${OBJECTDIR}/UART1.o ${OBJECTDIR}/main.o ${OBJECTDIR}/AttitudeManager.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/PathManger.o ${OBJECTDIR}/net_common.o ${OBJECTDIR}/net_inbound.o ${OBJECTDIR}/net_outbound.o ${OBJECTDIR}/cameraManager.o ${OBJECTDIR}/I2C.o ${OBJECTDIR}/MPL3115A2.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/fmath.o ${OBJECTDIR}/voltageSensor.o ${OBJECTDIR}/InputCapture.o ${OBJECTDIR}/OutputCompare.o
 
 
 CFLAGS=
@@ -90,18 +90,6 @@ ${OBJECTDIR}/FullInitialize.o: FullInitialize.c  nbproject/Makefile-${CND_CONF}.
 	@${RM} ${OBJECTDIR}/FullInitialize.o.d 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  FullInitialize.c  -o ${OBJECTDIR}/FullInitialize.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/FullInitialize.o.d"        -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1  -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/FullInitialize.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
-	
-${OBJECTDIR}/InputCapture.o: InputCapture.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} ${OBJECTDIR} 
-	@${RM} ${OBJECTDIR}/InputCapture.o.d 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  InputCapture.c  -o ${OBJECTDIR}/InputCapture.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/InputCapture.o.d"        -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1  -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
-	@${FIXDEPS} "${OBJECTDIR}/InputCapture.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
-	
-${OBJECTDIR}/OutputCompare.o: OutputCompare.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} ${OBJECTDIR} 
-	@${RM} ${OBJECTDIR}/OutputCompare.o.d 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  OutputCompare.c  -o ${OBJECTDIR}/OutputCompare.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/OutputCompare.o.d"        -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1  -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
-	@${FIXDEPS} "${OBJECTDIR}/OutputCompare.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 ${OBJECTDIR}/SPI.o: SPI.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
@@ -229,6 +217,18 @@ ${OBJECTDIR}/voltageSensor.o: voltageSensor.c  nbproject/Makefile-${CND_CONF}.mk
 	${MP_CC} $(MP_EXTRA_CC_PRE)  voltageSensor.c  -o ${OBJECTDIR}/voltageSensor.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/voltageSensor.o.d"        -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1  -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/voltageSensor.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
+${OBJECTDIR}/InputCapture.o: InputCapture.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/InputCapture.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  InputCapture.c  -o ${OBJECTDIR}/InputCapture.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/InputCapture.o.d"        -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1  -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/InputCapture.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/OutputCompare.o: OutputCompare.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/OutputCompare.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  OutputCompare.c  -o ${OBJECTDIR}/OutputCompare.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/OutputCompare.o.d"        -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1  -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/OutputCompare.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
 else
 ${OBJECTDIR}/Clock.o: Clock.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
@@ -247,18 +247,6 @@ ${OBJECTDIR}/FullInitialize.o: FullInitialize.c  nbproject/Makefile-${CND_CONF}.
 	@${RM} ${OBJECTDIR}/FullInitialize.o.d 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  FullInitialize.c  -o ${OBJECTDIR}/FullInitialize.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/FullInitialize.o.d"        -g -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/FullInitialize.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
-	
-${OBJECTDIR}/InputCapture.o: InputCapture.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} ${OBJECTDIR} 
-	@${RM} ${OBJECTDIR}/InputCapture.o.d 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  InputCapture.c  -o ${OBJECTDIR}/InputCapture.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/InputCapture.o.d"        -g -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
-	@${FIXDEPS} "${OBJECTDIR}/InputCapture.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
-	
-${OBJECTDIR}/OutputCompare.o: OutputCompare.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} ${OBJECTDIR} 
-	@${RM} ${OBJECTDIR}/OutputCompare.o.d 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  OutputCompare.c  -o ${OBJECTDIR}/OutputCompare.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/OutputCompare.o.d"        -g -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
-	@${FIXDEPS} "${OBJECTDIR}/OutputCompare.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 ${OBJECTDIR}/SPI.o: SPI.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
@@ -385,6 +373,18 @@ ${OBJECTDIR}/voltageSensor.o: voltageSensor.c  nbproject/Makefile-${CND_CONF}.mk
 	@${RM} ${OBJECTDIR}/voltageSensor.o.d 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  voltageSensor.c  -o ${OBJECTDIR}/voltageSensor.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/voltageSensor.o.d"        -g -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/voltageSensor.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/InputCapture.o: InputCapture.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/InputCapture.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  InputCapture.c  -o ${OBJECTDIR}/InputCapture.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/InputCapture.o.d"        -g -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/InputCapture.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/OutputCompare.o: OutputCompare.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/OutputCompare.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  OutputCompare.c  -o ${OBJECTDIR}/OutputCompare.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/OutputCompare.o.d"        -g -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/OutputCompare.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 endif
 

@@ -8,8 +8,6 @@
       <itemPath>delay.h</itemPath>
       <itemPath>FullInitialize.h</itemPath>
       <itemPath>lcd.h</itemPath>
-      <itemPath>InputCapture.h</itemPath>
-      <itemPath>OutputCompare.h</itemPath>
       <itemPath>VN_user.h</itemPath>
       <itemPath>VN_type.h</itemPath>
       <itemPath>VN100.h</itemPath>
@@ -28,6 +26,10 @@
       <itemPath>fmath.h</itemPath>
       <itemPath>InterchipDMA.h</itemPath>
       <itemPath>MPL3115A2.h</itemPath>
+      <itemPath>InputCapture.h</itemPath>
+      <itemPath>OutputCompare.h</itemPath>
+      <itemPath>voltageSensor.h</itemPath>
+      <itemPath>commands.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -39,8 +41,6 @@
       <itemPath>Clock.c</itemPath>
       <itemPath>delay.c</itemPath>
       <itemPath>FullInitialize.c</itemPath>
-      <itemPath>InputCapture.c</itemPath>
-      <itemPath>OutputCompare.c</itemPath>
       <itemPath>SPI.c</itemPath>
       <itemPath>VN100.c</itemPath>
       <itemPath>VN_lib.c</itemPath>
@@ -62,7 +62,8 @@
       <itemPath>StartupErrorCodes.c</itemPath>
       <itemPath>fmath.c</itemPath>
       <itemPath>voltageSensor.c</itemPath>
-      <itemPath>voltageSensor.h</itemPath>
+      <itemPath>InputCapture.c</itemPath>
+      <itemPath>OutputCompare.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

@@ -5,6 +5,13 @@
  * Created on March 3, 2013, 12:42 AM
  */
 
+#ifndef OUTPUTCAPTURE_H
+#define	OUTPUTCAPTURE_H
+
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 #define MSEC 470
 #define UPPER_PWM 941
 #define LOWER_PWM 470
@@ -178,7 +185,7 @@ void initOC(char OC);
  *
  *****************************************************************************/
 
-void setPWM(int ocPin, int time);
+void setOCValue(int ocPin, int time);
 
 /*****************************************************************************
  * Function: setPeriod
@@ -196,3 +203,9 @@ void setPWM(int ocPin, int time);
  *****************************************************************************/
 
 void setPeriod(double time);
+
+#ifdef	__cplusplus
+}
+#endif
+
+#endif	/* OUTPUTCAPTURE_H */

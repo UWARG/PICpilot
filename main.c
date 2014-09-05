@@ -48,14 +48,11 @@ int main(int argc, char** argv) {
     initDataLink();
 #endif
 
-#if DEBUG
-    checkErrorCodes();
-#endif
+checkErrorCodes();
 
 
 
     while (1) {
-       PORTDbits.RD14 ^= 1;
 
 #if PATH_MANAGER
         pathManagerRuntime();

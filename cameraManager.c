@@ -20,7 +20,7 @@ long int cameraTimerCount = 0;
 float pictureDistance = 40; //In meters
 unsigned int lastSignal = LOWER_PWM;
 unsigned int triggerSignal = 600;
-unsigned int gimbleOffset = MIDDLE_PWM - 20;
+unsigned int gimbleOffset = MIDDLE_PWM - 42;
 int rollLimit = 30;
 char overrideTrigger = 0;
 char resting = 1;
@@ -59,14 +59,14 @@ void setTriggerDistance(float distance){
 }
 
 unsigned int cameraGimbleStabilization(float rollAngle){
-    if (rollAngle > GIMBLE_MOTION_LIMIT){
-        rollAngle = GIMBLE_MOTION_LIMIT;
+    if (rollAngle > RIGHT_GIMBLE_MOTION_LIMIT){
+        rollAngle = RIGHT_GIMBLE_MOTION_LIMIT;
     }
-    if (rollAngle < -GIMBLE_MOTION_LIMIT){
-        rollAngle = -GIMBLE_MOTION_LIMIT;
+    if (rollAngle < -LEFT_GIMBLE_MOTION_LIMIT){
+        rollAngle = -LEFT_GIMBLE_MOTION_LIMIT;
     }
 
-    return gimbleOffset - GIMBLE_PWM_RANGE/GIMBLE_MOTION_RANGE * rollAngle;
+    return gimbleOffset + GIMBLE_PWM_RANGE/GIMBLE_MOTION_RANGE * rollAngle;
 }
 
 void setGimbleOffset(unsigned int pwmSignal){
