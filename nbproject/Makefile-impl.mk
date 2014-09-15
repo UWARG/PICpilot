@@ -24,7 +24,7 @@ CLEAN_SUBPROJECTS=${CLEAN_SUBPROJECTS_${SUBPROJECTS}}
 
 
 # Project Name
-PROJECTNAME=Fixed-Wing-Autopilot
+PROJECTNAME=PICpilot
 
 # Active Configuration
 DEFAULTCONF=default

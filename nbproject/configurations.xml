@@ -4,32 +4,55 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
-      <itemPath>Clock.h</itemPath>
-      <itemPath>delay.h</itemPath>
-      <itemPath>FullInitialize.h</itemPath>
-      <itemPath>lcd.h</itemPath>
-      <itemPath>VN_user.h</itemPath>
-      <itemPath>VN_type.h</itemPath>
-      <itemPath>VN100.h</itemPath>
-      <itemPath>UART1.h</itemPath>
-      <itemPath>VN_lib.h</itemPath>
-      <itemPath>VN_math.h</itemPath>
-      <itemPath>net.h</itemPath>
-      <itemPath>UART2.h</itemPath>
-      <itemPath>OrientationControl.h</itemPath>
+      <logicalFolder name="f6" displayName="Altimeter" projectFiles="true">
+        <itemPath>MPL3115A2.h</itemPath>
+        <itemPath>I2C.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f9" displayName="Attitude Management" projectFiles="true">
+        <itemPath>AttitudeManager.h</itemPath>
+        <itemPath>OrientationControl.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f1" displayName="Debugging" projectFiles="true">
+        <itemPath>UART1.h</itemPath>
+        <itemPath>StartupErrorCodes.h</itemPath>
+        <itemPath>debug.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f3" displayName="Network" projectFiles="true">
+        <itemPath>commands.h</itemPath>
+        <itemPath>net.h</itemPath>
+        <itemPath>UART2.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f10" displayName="Other Peripherals" projectFiles="true">
+        <itemPath>cameraManager.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f2"
+                     displayName="Path Management and GPS"
+                     projectFiles="true">
+        <itemPath>InterchipDMA.h</itemPath>
+        <itemPath>PathManager.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f4" displayName="PWM Management" projectFiles="true">
+        <itemPath>OutputCompare.h</itemPath>
+        <itemPath>InputCapture.h</itemPath>
+        <itemPath>PWM.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f5" displayName="Utilities" projectFiles="true">
+        <itemPath>delay.h</itemPath>
+        <itemPath>fmath.h</itemPath>
+        <itemPath>Clock.h</itemPath>
+        <itemPath>StringUtils.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f7" displayName="VectorNav" projectFiles="true">
+        <itemPath>VN100.h</itemPath>
+        <itemPath>VN_lib.h</itemPath>
+        <itemPath>VN_math.h</itemPath>
+        <itemPath>VN_type.h</itemPath>
+        <itemPath>VN_user.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f8" displayName="Voltage Sensor" projectFiles="true">
+        <itemPath>voltageSensor.h</itemPath>
+      </logicalFolder>
       <itemPath>main.h</itemPath>
-      <itemPath>AttitudeManager.h</itemPath>
-      <itemPath>PathManager.h</itemPath>
-      <itemPath>I2C.h</itemPath>
-      <itemPath>StartupErrorCodes.h</itemPath>
-      <itemPath>cameraManager.h</itemPath>
-      <itemPath>fmath.h</itemPath>
-      <itemPath>InterchipDMA.h</itemPath>
-      <itemPath>MPL3115A2.h</itemPath>
-      <itemPath>InputCapture.h</itemPath>
-      <itemPath>OutputCompare.h</itemPath>
-      <itemPath>voltageSensor.h</itemPath>
-      <itemPath>commands.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -38,32 +61,54 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
-      <itemPath>Clock.c</itemPath>
-      <itemPath>delay.c</itemPath>
-      <itemPath>FullInitialize.c</itemPath>
-      <itemPath>SPI.c</itemPath>
-      <itemPath>VN100.c</itemPath>
-      <itemPath>VN_lib.c</itemPath>
-      <itemPath>VN_math.c</itemPath>
-      <itemPath>VN_user.c</itemPath>
-      <itemPath>UART2.c</itemPath>
-      <itemPath>OrientationControl.c</itemPath>
-      <itemPath>UART1.c</itemPath>
+      <logicalFolder name="f8" displayName="Altimeter" projectFiles="true">
+        <itemPath>MPL3115A2.c</itemPath>
+        <itemPath>I2C.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f10" displayName="Attitude Management" projectFiles="true">
+        <itemPath>AttitudeManager.c</itemPath>
+        <itemPath>OrientationControl.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f1" displayName="Debugging" projectFiles="true">
+        <itemPath>UART1.c</itemPath>
+        <itemPath>StartupErrorCodes.c</itemPath>
+        <itemPath>debug.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f3" displayName="Network" projectFiles="true">
+        <itemPath>net_outbound.c</itemPath>
+        <itemPath>net_inbound.c</itemPath>
+        <itemPath>net_common.c</itemPath>
+        <itemPath>UART2.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f9" displayName="Other Peripherals" projectFiles="true">
+        <itemPath>cameraManager.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f2"
+                     displayName="Path Management and GPS"
+                     projectFiles="true">
+        <itemPath>PathManger.c</itemPath>
+        <itemPath>InterchipDMA.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f4" displayName="PWM Management" projectFiles="true">
+        <itemPath>InputCapture.c</itemPath>
+        <itemPath>OutputCompare.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f5" displayName="Utilities" projectFiles="true">
+        <itemPath>fmath.c</itemPath>
+        <itemPath>delay.c</itemPath>
+        <itemPath>Clock.c</itemPath>
+        <itemPath>StringUtils.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f6" displayName="VectorNav" projectFiles="true">
+        <itemPath>VN100.c</itemPath>
+        <itemPath>VN_lib.c</itemPath>
+        <itemPath>VN_math.c</itemPath>
+        <itemPath>VN_user.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f7" displayName="Voltage Sensor" projectFiles="true">
+        <itemPath>voltageSensor.c</itemPath>
+      </logicalFolder>
       <itemPath>main.c</itemPath>
-      <itemPath>AttitudeManager.c</itemPath>
-      <itemPath>InterchipDMA.c</itemPath>
-      <itemPath>PathManger.c</itemPath>
-      <itemPath>net_common.c</itemPath>
-      <itemPath>net_inbound.c</itemPath>
-      <itemPath>net_outbound.c</itemPath>
-      <itemPath>cameraManager.c</itemPath>
-      <itemPath>I2C.c</itemPath>
-      <itemPath>MPL3115A2.c</itemPath>
-      <itemPath>StartupErrorCodes.c</itemPath>
-      <itemPath>fmath.c</itemPath>
-      <itemPath>voltageSensor.c</itemPath>
-      <itemPath>InputCapture.c</itemPath>
-      <itemPath>OutputCompare.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
