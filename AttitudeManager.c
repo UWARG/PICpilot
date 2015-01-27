@@ -11,6 +11,7 @@
 #include "InputCapture.h"
 #include "OutputCompare.h"
 #include "net.h"
+#include "PWM.h"
 #include "OrientationControl.h"
 #include "AttitudeManager.h"
 #include "commands.h"

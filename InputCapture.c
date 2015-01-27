@@ -238,7 +238,14 @@ void initInputCapture(char initIC)     // Capture Interrupt Service Routine
 
 }
 
- int* getICValues(){
+// initialize function
+void initIC(char initIC)
+{
+    initInputCapture(initIC);
+    initTimer2();
+}
+
+unsigned int* getICValues(){
             //Calculate and Update the Input Values
 
         short ic;
@@ -267,9 +274,26 @@ void initInputCapture(char initIC)     // Capture Interrupt Service Routine
         return icTime;
 }
 
-// initialize function
-void initIC(char initIC)
-{
-    initInputCapture(initIC);
-    initTimer2();
+unsigned int getICValue(unsigned char channel){
+    unsigned int ic = (unsigned int)channel;
+    //If new data has been received on the given channel
+    if (icInterruptFlag[ic] == 1)
+    {
+      //If the second time is greater than the first time then we have not met roll over
+      if(t2[ic] > t1[ic])
+      {
+         icTime[ic] = (t2[ic] - t1[ic]);
+         icInterruptFlag[ic] = 0;
+      }
+      //Roll over has been made, therefore do math to find the time difference
+      //(Max time - t1) is the upper difference
+      //Adding the second time (time from 0) gives you the total time difference
+      else
+      {
+         icTime[ic] = ((PR2 - t1[ic]) + t2[ic]);
+         icInterruptFlag[ic] = 0;
+
+      }
+    }
+    return icTime[ic];
 }
