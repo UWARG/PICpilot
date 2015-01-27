@@ -12,12 +12,15 @@
 extern "C" {
 #endif
 
+// Includes
+#include "main.h"
+//TODO: Finish these function prototype descriptions
 //Function Prototypes
 void initInputCapture(char initIC);
 void initIC(char initIC);
 void initTimer2();
-int* getICValues();
-int getICValue(char ic);
+unsigned int* getICValues();
+unsigned int getICValue(unsigned char channel);
 
 #ifdef	__cplusplus
 }

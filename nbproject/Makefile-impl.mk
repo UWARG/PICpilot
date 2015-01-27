@@ -24,7 +24,7 @@ CLEAN_SUBPROJECTS=${CLEAN_SUBPROJECTS_${SUBPROJECTS}}
 
 
 # Project Name
-PROJECTNAME=PICpilot
+PROJECTNAME=PicPilot
 
 # Active Configuration
 DEFAULTCONF=default
