@@ -52,6 +52,23 @@ int sp_ThrottleRate = 0;
 int sp_YawRate = MIDDLE_PWM;
 int sp_RollRate = MIDDLE_PWM;
 
+
+/*****************************************************/
+
+int tail_Type = 0;  //0 for standard, 1 for vtail, 2 for inverse v
+int vTail_Balance = 0.5;
+int tail_Output1;   //replacing standard tail pitch
+int tail_Output2;
+float rudderProportion;
+float elevatorProportion;
+
+//rudderProportion=(1-VTailElevatorPortion)/2
+//elevatorProportion=VTailElevatorPortion/2
+//VTailElevatorPortion refers to the decimal percentage
+//of the control surface range of motion dedicated to the elevator component.
+
+/*****************************************************/
+
 int sp_ComputedPitchRate = 0;
 //int sp_ComputedThrottleRate = 0;
 int sp_ComputedRollRate = 0;
@@ -214,6 +231,14 @@ void attitudeManagerRuntime() {
 //        sp_Type = icTimeDiff[5];
 //        sp_Value = icTimeDiff[6];
         sp_Switch = icTimeDiff[7];
+
+
+
+        /***************************************************************************************************************/
+        vTail_Balance = icTimeDiff[5];  //pot on steves controller, for calculating vTail control ratio
+        /***************************************************************************************************************/
+
+
     /*****************************************************************************
      *****************************************************************************
 
@@ -309,6 +334,7 @@ void attitudeManagerRuntime() {
     else{
         sp_ComputedRollRate = sp_RollRate;
     }
+
     if (controlLevel & PITCH_CONTROL_TYPE || controlLevel & ALTITUDE_CONTROL_ON){
         sp_ComputedPitchRate = controlSignalAngles(sp_PitchAngle, imu_PitchAngle, PITCH, -(SP_RANGE) / (MAX_PITCH_ANGLE));
     }
@@ -323,6 +349,9 @@ void attitudeManagerRuntime() {
         freezeIntegral();
     }
 
+
+
+
     //Feed forward Term when turning
     if (controlLevel & ALTITUDE_CONTROL_ON){
 //        sp_ComputedPitchRate += abs((int)(scaleFactor * sin(deg2rad(sp_RollAngle)))) * SP_RANGE; //Sinusoidal Function
@@ -335,6 +364,13 @@ void attitudeManagerRuntime() {
     control_Roll = controlSignal((sp_ComputedRollRate / SERVO_SCALE_FACTOR), imu_RollRate, ROLL);
     control_Pitch = controlSignal((sp_ComputedPitchRate / SERVO_SCALE_FACTOR), imu_PitchRate, PITCH);
     control_Yaw = controlSignal((sp_ComputedYawRate / SERVO_SCALE_FACTOR), imu_YawRate, YAW);
+
+
+
+
+
+
+
     /*****************************************************************************
      *****************************************************************************
 
@@ -383,10 +419,51 @@ void attitudeManagerRuntime() {
     unsigned int gimblePWM = cameraGimbleStabilization(imu_RollAngle);
     // Sends the output signal to the servo motors
 
+ 
+
+
+
+/*****************************************************/
+
+
+    //begin code for different tail configurations
+
+    if(tail_Type == 0)    //is a normal t-tail
+    {
+        tail_Output1 = control_Pitch + pitchTrim;
+        tail_Output2 = control_Yaw + yawTrim;
+    }
+    else    //must be one of the two v-tails
+    {
+        //shared things for the two v-tails go here
+
+        //get input from control knob
+        rudderProportion =  vTail_Balance * 0.0004 + 0.1;    //divide by 2000, multiply by 0.8 and then add 0.1 to map to 0.1 -> 0.9
+        elevatorProportion = 1 - rudderProportion;
+
+        //will likely need to add some more negative 1s depending on servo setup
+        //include pitch and yaw trim values?
+        if(tail_Type == 1)    //V-tail
+        {
+            tail_Output1 = -1 * control_Yaw * (rudderProportion-MIDDLE_PWM) + control_Pitch * (elevatorProportion-MIDDLE_PWM) + MIDDLE_PWM;
+            tail_Output2 =      control_Yaw * (rudderProportion-MIDDLE_PWM) + control_Pitch * (elevatorProportion-MIDDLE_PWM) + MIDDLE_PWM;           
+        }
+
+        if(tail_Type == 2)    //Inverse V-Tail
+        {
+            tail_Output1 = -1 * control_Yaw * (rudderProportion-MIDDLE_PWM) + control_Pitch * (elevatorProportion-MIDDLE_PWM) + MIDDLE_PWM;
+            tail_Output2 =      control_Yaw * (rudderProportion-MIDDLE_PWM) + control_Pitch * (elevatorProportion-MIDDLE_PWM) + MIDDLE_PWM;
+        }
+    }
+
+
+/*****************************************************/
+
+
     setPWM(1, control_Roll + rollTrim);
-    setPWM(2, control_Pitch + pitchTrim);
+    setPWM(2, tail_Output1);
     setPWM(3, control_Throttle);
-    setPWM(4, control_Yaw + yawTrim);
+    setPWM(4, tail_Output2);
     setPWM(5, cameraPWM);
     setPWM(6, gimblePWM);
 
