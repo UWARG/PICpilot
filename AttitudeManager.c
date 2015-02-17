@@ -52,22 +52,16 @@ int sp_ThrottleRate = 0;
 int sp_YawRate = MIDDLE_PWM;
 int sp_RollRate = MIDDLE_PWM;
 
-
-/*****************************************************/
-
-int tail_Type = 0;  //0 for standard, 1 for vtail, 2 for inverse v
 int vTail_Balance = 0.5;
 int tail_Output1;   //replacing standard tail pitch
 int tail_Output2;
 float rudderProportion;
 float elevatorProportion;
-
 //rudderProportion=(1-VTailElevatorPortion)/2
 //elevatorProportion=VTailElevatorPortion/2
 //VTailElevatorPortion refers to the decimal percentage
 //of the control surface range of motion dedicated to the elevator component.
 
-/*****************************************************/
 
 int sp_ComputedPitchRate = 0;
 //int sp_ComputedThrottleRate = 0;
@@ -419,21 +413,14 @@ void attitudeManagerRuntime() {
     unsigned int gimblePWM = cameraGimbleStabilization(imu_RollAngle);
     // Sends the output signal to the servo motors
 
- 
-
-
-
-/*****************************************************/
-
 
     //begin code for different tail configurations
-
-    if(tail_Type == 0)    //is a normal t-tail
+    #if(TAIL_TYPE == STANDARD_TAIL)    //is a normal t-tail
     {
         tail_Output1 = control_Pitch + pitchTrim;
         tail_Output2 = control_Yaw + yawTrim;
     }
-    else    //must be one of the two v-tails
+    #else    //must be one of the two v-tails
     {
         //shared things for the two v-tails go here
 
@@ -443,21 +430,18 @@ void attitudeManagerRuntime() {
 
         //will likely need to add some more negative 1s depending on servo setup
         //include pitch and yaw trim values?
-        if(tail_Type == 1)    //V-tail
+        #if(TAIL_TYPE == V_TAIL)    //V-tail
         {
             tail_Output1 = -1 * control_Yaw * (rudderProportion-MIDDLE_PWM) + control_Pitch * (elevatorProportion-MIDDLE_PWM) + MIDDLE_PWM;
             tail_Output2 =      control_Yaw * (rudderProportion-MIDDLE_PWM) + control_Pitch * (elevatorProportion-MIDDLE_PWM) + MIDDLE_PWM;           
         }
 
-        if(tail_Type == 2)    //Inverse V-Tail
+        #if(TAIL_TYPE == INV_V_TAIL)    //Inverse V-Tail
         {
             tail_Output1 = -1 * control_Yaw * (rudderProportion-MIDDLE_PWM) + control_Pitch * (elevatorProportion-MIDDLE_PWM) + MIDDLE_PWM;
             tail_Output2 =      control_Yaw * (rudderProportion-MIDDLE_PWM) + control_Pitch * (elevatorProportion-MIDDLE_PWM) + MIDDLE_PWM;
         }
     }
-
-
-/*****************************************************/
 
 
     setPWM(1, control_Roll + rollTrim);
