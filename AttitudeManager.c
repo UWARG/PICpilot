@@ -420,6 +420,7 @@ void attitudeManagerRuntime() {
         tail_Output1 = control_Pitch + pitchTrim;
         tail_Output2 = control_Yaw + yawTrim;
     }
+    
     #else    //must be one of the two v-tails
     {
         //shared things for the two v-tails go here
@@ -435,13 +436,16 @@ void attitudeManagerRuntime() {
             tail_Output1 = -1 * control_Yaw * (rudderProportion-MIDDLE_PWM) + control_Pitch * (elevatorProportion-MIDDLE_PWM) + MIDDLE_PWM;
             tail_Output2 =      control_Yaw * (rudderProportion-MIDDLE_PWM) + control_Pitch * (elevatorProportion-MIDDLE_PWM) + MIDDLE_PWM;           
         }
+        #endif
 
         #if(TAIL_TYPE == INV_V_TAIL)    //Inverse V-Tail
         {
             tail_Output1 = -1 * control_Yaw * (rudderProportion-MIDDLE_PWM) + control_Pitch * (elevatorProportion-MIDDLE_PWM) + MIDDLE_PWM;
             tail_Output2 =      control_Yaw * (rudderProportion-MIDDLE_PWM) + control_Pitch * (elevatorProportion-MIDDLE_PWM) + MIDDLE_PWM;
         }
+        #endif
     }
+    #endif
 
 
     setPWM(1, control_Roll + rollTrim);
