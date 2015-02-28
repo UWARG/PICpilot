@@ -417,10 +417,6 @@ void attitudeManagerRuntime() {
     unsigned int gimblePWM = cameraGimbleStabilization(imu_RollAngle);
     // Sends the output signal to the servo motors
 
-
-<<<<<<< HEAD
-
-    
     setOCValue(1, control_Roll + rollTrim);
     setOCValue(2, control_Pitch + pitchTrim);
     setOCValue(3, control_Throttle);
@@ -432,7 +428,6 @@ void attitudeManagerRuntime() {
     setPWM(2, control_Pitch + pitchTrim);
     setPWM(3, sp_ThrottleRate);//control_Throttle);
     setPWM(4, control_Yaw + yawTrim);
-=======
     //begin code for different tail configurations
     #if(TAIL_TYPE == STANDARD_TAIL)    //is a normal t-tail
     {
@@ -471,7 +466,6 @@ void attitudeManagerRuntime() {
     setPWM(2, tail_Output1);
     setPWM(3, control_Throttle);
     setPWM(4, tail_Output2);
->>>>>>> origin/master
     setPWM(5, cameraPWM);
     setPWM(6, gimblePWM);
 */
