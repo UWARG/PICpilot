@@ -154,13 +154,16 @@ void attitudeInit() {
 
     /* Initialize Input Capture and Output Compare Modules */
     if (DEBUG) {
-        initIC(0b10011111);
-        initOC(0b111111); //Initialize only Output Compare 1,2,3 and 4,5,6
+        initPWM(0b10011111, 0b111111);
+//        initIC(0b10011111);
+//        initOC(0b111111); //Initialize only Output Compare 1,2,3 and 4,5,6
         UART1_SendString("START OF CODE BEFORE WHILE");
     } else {
-        initIC(0b10011111);
-        initOC(0b111111); //Initialize only Output Compare 1,2,3 and 4,5,6
+        initPWM(0b10011111, 0b111111);
+//        initIC(0b10011111);
+//        initOC(0b111111); //Initialize only Output Compare 1,2,3 and 4,5,6
     }
+
 }
 
 void attitudeManagerRuntime() {
@@ -317,7 +320,7 @@ void attitudeManagerRuntime() {
     }
     sp_ComputedYawRate = sp_YawRate;
     // CONTROLLER INPUT INTERPRETATION CODE
-    if (sp_Switch < 600) {
+    if (sp_Switch > 450 && sp_Switch < 460) {
         unfreezeIntegral();
     } else {
         freezeIntegral();
@@ -342,6 +345,7 @@ void attitudeManagerRuntime() {
 
      *****************************************************************************
      *****************************************************************************/
+
     if (DEBUG) {
 
     }
@@ -383,13 +387,23 @@ void attitudeManagerRuntime() {
     unsigned int gimblePWM = cameraGimbleStabilization(imu_RollAngle);
     // Sends the output signal to the servo motors
 
+
+
+    
+    setOCValue(1, control_Roll + rollTrim);
+    setOCValue(2, control_Pitch + pitchTrim);
+    setOCValue(3, control_Throttle);
+    setOCValue(4, control_Yaw + yawTrim);
+    setOCValue(5, cameraPWM);
+    setOCValue(6, gimblePWM);
+    /*
     setPWM(1, control_Roll + rollTrim);
     setPWM(2, control_Pitch + pitchTrim);
-    setPWM(3, control_Throttle);
+    setPWM(3, sp_ThrottleRate);//control_Throttle);
     setPWM(4, control_Yaw + yawTrim);
     setPWM(5, cameraPWM);
     setPWM(6, gimblePWM);
-
+*/
 //    setPWM(7, sp_HeadingRate + MIDDLE_PWM - 20);
 
 #if COMMUNICATION_MANAGER
@@ -650,7 +664,7 @@ int writeDatalink(long frequency){
         statusData->errorCodes = getErrorCodes() + ((sp_UHFSwitch < 600)<<11);
         statusData->cameraStatus = cameraCounter;
         statusData->waypointIndex = waypointIndex;
-        statusData->editing_gain = displayGain + ((sp_Switch < 600) << 4);
+        statusData->editing_gain = displayGain + ((sp_Switch > 800) << 4);//> 450 & sp_Switch < 460) << 4);
         statusData->gpsStatus = gps_Satellites + (gps_PositionFix << 4);
         statusData->batteryLevel = batteryLevel;
         

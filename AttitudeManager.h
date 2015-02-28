@@ -12,15 +12,15 @@
 #include "main.h"
 
 //Bit masks for levels of control
-#define PITCH_CONTROL_TYPE 0b00000001 //Pitch Rate(0) or Pitch Angles(1)
-#define PITCH_CONTROL_SOURCE 0b00000010 //Controller(0) or Ground Station(1)
-#define ROLL_CONTROL_TYPE 0b00000100 //Roll Rates(0) or Roll Angles(1)
-#define ROLL_CONTROL_SOURCE 0b00001000 //Controller(0) or Ground Station(1)
-#define THROTTLE_CONTROL_SOURCE 0b00110000 //Controller(0) or Ground Station(1) or Autopilot(2)(Controlled by the GroundSpeed).
-#define ALTITUDE_CONTROL_SOURCE 0b01000000 //Ground Station(0) or Autopilot(1)
-#define ALTITUDE_CONTROL_ON 0b10000000 //Off(0) or On(1)
-#define HEADING_CONTROL_SOURCE 0b0000000100000000 // Ground Station(0) or Autopilot(1)
-#define HEADING_CONTROL_ON 0b0000001000000000 //Off(0) or On(1)
+#define PITCH_CONTROL_TYPE 0b00000000 //Pitch Rate(0) or Pitch Angles(1) 0b00000001
+#define PITCH_CONTROL_SOURCE 0b00000000 //Controller(0) or Ground Station(1) 0b00000010
+#define ROLL_CONTROL_TYPE 0b00000100 //Roll Rates(0) or Roll Angles(1) 0b00000100
+#define ROLL_CONTROL_SOURCE 0b00000000 //Controller(0) or Ground Station(1) 0b00001000
+#define THROTTLE_CONTROL_SOURCE 0b0000000 //Controller(0) or Ground Station(1) or Autopilot(2)(Controlled by the GroundSpeed). 0b00110000
+#define ALTITUDE_CONTROL_SOURCE 0b00000000 //Ground Station(0) or Autopilot(1) 0b01000000
+#define ALTITUDE_CONTROL_ON 0b00000000 //Off(0) or On(1) 0b10000000
+#define HEADING_CONTROL_SOURCE 0b0000000000000000 // Ground Station(0) or Autopilot(1) 0b0000000100000000
+#define HEADING_CONTROL_ON 0b0000000000000000 //Off(0) or On(1) 0b0000001000000000
 
 //Defined Orientation Parameter constants
 #define YAW     0
