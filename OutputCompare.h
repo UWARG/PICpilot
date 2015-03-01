@@ -16,7 +16,7 @@ extern "C" {
 #define UPPER_PWM 941
 #define LOWER_PWM 470
 #define MIDDLE_PWM 706
-#define SP_RANGE (UPPER_PWM - MIDDLE_PWM)
+#define SP_RANGE MAX_PWM//(UPPER_PWM - MIDDLE_PWM)
 
 
 

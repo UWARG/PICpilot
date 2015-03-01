@@ -83,7 +83,7 @@ int controlSignalAngles(float setpoint, float output, unsigned char type, float 
     return controlSignal;
 }
 int controlSignal(float setpoint, float output, unsigned char type) { // function to find output based on gyro acceleration and PWM input
-    int controlSignal = (int)(SERVO_SCALE_FACTOR * (setpoint - output * kd_gain[type])) + MIDDLE_PWM;
+    int controlSignal = (int)(SERVO_SCALE_FACTOR * (setpoint - output * kd_gain[type]));
     return controlSignal;
 }
 
@@ -107,7 +107,7 @@ float getGain(unsigned char YPRH, unsigned char type){
         return kd_gain[YPRH];
     }
     else if (type == GAIN_KP){
-         return kp_gain[YPRH];
+        return kp_gain[YPRH];
     }
     else if (type == GAIN_KI){
         return ki_gain[YPRH];
@@ -120,7 +120,7 @@ void setGain(unsigned char YPRH, unsigned char type, float value){
         kd_gain[YPRH] = value;
     }
     else if (type == GAIN_KP){
-         kp_gain[YPRH] = value;
+        kp_gain[YPRH] = value;
     }
     else if (type == GAIN_KI){
         ki_gain[YPRH] = value;
