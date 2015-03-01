@@ -11,18 +11,18 @@
 //Header Files
 #include "main.h"
 
-//Bit masks for levels of control
-#define PITCH_CONTROL_TYPE 0b00000000 //Pitch Rate(0) or Pitch Angles(1) 0b00000001
-#define PITCH_CONTROL_SOURCE 0b00000000 //Controller(0) or Ground Station(1) 0b00000010
-#define ROLL_CONTROL_TYPE 0b00000100 //Roll Rates(0) or Roll Angles(1) 0b00000100
-#define ROLL_CONTROL_SOURCE 0b00000000 //Controller(0) or Ground Station(1) 0b00001000
-#define THROTTLE_CONTROL_SOURCE 0b0000000 //Controller(0) or Ground Station(1) or Autopilot(2)(Controlled by the GroundSpeed). 0b00110000
-#define ALTITUDE_CONTROL_SOURCE 0b00000000 //Ground Station(0) or Autopilot(1) 0b01000000
-#define ALTITUDE_CONTROL_ON 0b00000000 //Off(0) or On(1) 0b10000000
-#define HEADING_CONTROL_SOURCE 0b0000000000000000 // Ground Station(0) or Autopilot(1) 0b0000000100000000
-#define HEADING_CONTROL_ON 0b0000000000000000 //Off(0) or On(1) 0b0000001000000000
+//Bit masks for levels of control - DON'T CHANGE THESE FOR SHITS AND GIGGLES
+#define PITCH_CONTROL_TYPE 0b00000001 //Pitch Rate(0) or Pitch Angles(1)
+#define PITCH_CONTROL_SOURCE 0b00000010 //Controller(0) or Ground Station(1)
+#define ROLL_CONTROL_TYPE 0b00000100 //Roll Rates(0) or Roll Angles(1)
+#define ROLL_CONTROL_SOURCE 0b00001000 //Controller(0) or Ground Station(1)
+#define THROTTLE_CONTROL_SOURCE 0b00110000 //Controller(0) or Ground Station(1) or Autopilot(2)(Controlled by the GroundSpeed).
+#define ALTITUDE_CONTROL_SOURCE 0b01000000 //Ground Station(0) or Autopilot(1)
+#define ALTITUDE_CONTROL_ON 0b10000000 //Off(0) or On(1)
+#define HEADING_CONTROL_SOURCE 0b0000000100000000 // Ground Station(0) or Autopilot(1)
+#define HEADING_CONTROL_ON 0b0000001000000000 //Off(0) or On(1)
 
-#define TAIL_TYPE 2 // Standard (0) or V-Tail (1) or Inverse V-Tail (2)
+#define TAIL_TYPE 0 // Standard (0) or V-Tail (1) or Inverse V-Tail (2)
 #define STANDARD_TAIL 0
 #define V_TAIL 1
 #define INV_V_TAIL 2
@@ -41,12 +41,12 @@
 #define IMU_PITCH_RATE   1
 #define IMU_ROLL_RATE    0
 
-#define MAX_ROLL_PWM UPPER_PWM - 20
-#define MIN_ROLL_PWM LOWER_PWM + 40
-#define MAX_PITCH_PWM UPPER_PWM - 25
-#define MIN_PITCH_PWM LOWER_PWM + 25
-#define MAX_YAW_PWM UPPER_PWM - 25
-#define MIN_YAW_PWM LOWER_PWM + 25
+#define MAX_ROLL_PWM MAX_PWM - 20//UPPER_PWM - 20
+#define MIN_ROLL_PWM MIN_PWM + 40//LOWER_PWM + 40
+#define MAX_PITCH_PWM MAX_PWM - 25//UPPER_PWM - 25
+#define MIN_PITCH_PWM MIN_PWM + 25//LOWER_PWM + 25
+#define MAX_YAW_PWM MAX_PWM - 25//UPPER_PWM - 25
+#define MIN_YAW_PWM MIN_PWM + 25//LOWER_PWM + 25
 
 /* FUNCTION PROTOTYPES */
 /*****************************************************************************  
