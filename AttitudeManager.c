@@ -249,7 +249,7 @@ void attitudeManagerRuntime() {
     VN100_SPI_GetRates(0, (float*) &imuData);
                            
     //Outputs in order: Roll,Pitch,Yaw
-    imu_RollRate = (-1*imuData[IMU_ROLL_RATE]);
+    imu_RollRate = (-imuData[IMU_ROLL_RATE]); //This is a reminder for me to figure out a more elegant way to fix improper derivative control (based on configuration of the sensor), adding this negative is a temporary fix.
     imu_PitchRate = imuData[IMU_PITCH_RATE];
     imu_YawRate = imuData[IMU_YAW_RATE];
     VN100_SPI_GetYPR(0, &imuData[YAW], &imuData[PITCH], &imuData[ROLL]);
@@ -284,11 +284,11 @@ void attitudeManagerRuntime() {
     if ((THROTTLE_CONTROL_SOURCE & controlLevel) >> 4 >= 1){
         control_Throttle = sp_ThrottleRate + controlSignalThrottle(sp_Altitude, (int)gps_Altitude);
         //TODO: Fix decleration of these constants later - Maybe have a  controller.config file specific to each controller or something (make a script to generate this)
-        if (control_Throttle > 890){
-            control_Throttle = 890;
+        if (control_Throttle > MAX_PWM){
+            control_Throttle = MAX_PWM;
         }
-        else if (control_Throttle < 454){
-            control_Throttle = 454;
+        else if (control_Throttle < MIN_PWM){
+            control_Throttle = MIN_PWM;
         }
     }
     else
@@ -340,7 +340,7 @@ void attitudeManagerRuntime() {
     }
     sp_ComputedYawRate = sp_YawRate;
     // CONTROLLER INPUT INTERPRETATION CODE
-    if (sp_Switch > MIN_PWM && sp_Switch < MIN_PWM) {
+    if (sp_Switch > MIN_PWM && sp_Switch < MIN_PWM + 50) {
         unfreezeIntegral();
     } else {
         freezeIntegral();
@@ -576,7 +576,7 @@ void readDatalink(void){
                 sp_Heading = *(int*)(&cmd->data);
                 break;
             case SET_THROTTLE:
-                sp_ThrottleRate = (int)(*(int*)(&cmd->data) / 100.0  * (MAX_PWM));
+                sp_ThrottleRate = (int)(*(int*)(&cmd->data) * MAX_PWM / 100.0);
                 break;
             case SET_AUTONOMOUS_LEVEL:
                 controlLevel = *(int*)(&cmd->data);
@@ -708,17 +708,17 @@ int writeDatalink(long frequency){
         statusData->pitchSetpoint = sp_PitchAngle;
         statusData->rollSetpoint = sp_RollAngle;
         statusData->headingSetpoint = sp_Heading;
-        statusData->throttleSetpoint = (int) ((float) (sp_ThrottleRate) / (MAX_PWM)*100);
+        statusData->throttleSetpoint = (int) ((float) (sp_ThrottleRate) / (MAX_PWM * 100));
         statusData->altitudeSetpoint = sp_Altitude;
         statusData->altitude = gps_Altitude;
         statusData->cPitchSetpoint = sp_PitchRate;
         statusData->cRollSetpoint = sp_RollRate;
         statusData->cYawSetpoint = sp_YawRate;
         statusData->lastCommandSent = lastCommandSentCode;
-        statusData->errorCodes = getErrorCodes() + ((sp_UHFSwitch < 0)<<11);
+        statusData->errorCodes = getErrorCodes() + ((sp_UHFSwitch < -429)<<11);
         statusData->cameraStatus = cameraCounter;
         statusData->waypointIndex = waypointIndex;
-        statusData->editing_gain = displayGain + ((sp_Switch > 0) << 4);
+        statusData->editing_gain = displayGain + ((sp_Switch > 380) << 4);
         statusData->gpsStatus = gps_Satellites + (gps_PositionFix << 4);
         statusData->batteryLevel = batteryLevel;
         
