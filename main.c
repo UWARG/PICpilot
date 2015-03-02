@@ -1,12 +1,19 @@
-/* 
+/*
  * File:   main.c
  * Author: Chris Hajduk
  *
  * Created on January 26, 2014, 4:39 PM
  */
 
-#include <stdio.h>
-#include <stdlib.h>
+/*************************************************************************
+ * PicPilot Software
+ *
+ * Originally developed by Chris Hajduk, Mitchell Hatfield, Andrew Crichton, et al. in 2013-2014.
+ * Rev. Spike+ V1.0
+ *
+ * See documentation for further details.
+ **************************************************************************/
+
 #include "main.h"
 #include "StartupErrorCodes.h"
 
@@ -35,6 +42,11 @@ _FWDT(FWDTEN_ON & WDTPOST_PS2048 & WDTPRE_PR128); //32,128
  *
  */
 int main(int argc, char** argv) {
+
+//Debug Mode initialize communication with the serial port (Computer)
+#if DEBUG
+    initDebug();
+#endif
 
 #if PATH_MANAGER
     pathManagerInit();

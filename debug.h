@@ -14,13 +14,38 @@ extern "C" {
     
 // Includes
 #include "main.h"
+#include "UART1.h"
+
+// 50 character debug strings
+#define DEBUG_BUFFER_LENGTH 50
+//Debug character prefixes
+#define DEBUG_TAG_STRING "[debug]"
+#define DEBUG_TAG_STRING_LENGTH 7
+#define ERROR_TAG_STRING "[error]"
+#define ERROR_TAG_STRING_LENGTH 7
+#define WARNING_TAG_STRING "[warning]"
+#define WARNING_TAG_STRING_LENGTH 9
 
 // Function Prototypes    
-    
+    /*****************************************************************************
+ * Function: void initDebug(void)
+ *
+ * Preconditions: None.
+ *
+ * Overview: Initializes the UART1 port for debugging purposes.
+ * 
+ *
+ * Input: None.
+ *
+ * Output: None.
+ *
+ *****************************************************************************/
+void initDebug(void);
+
 /*****************************************************************************
  * Function: void error(char* message)
  *
- * Preconditions: UART2 must have been initialized.
+ * Preconditions: UART1 must have been initialized.
  *
  * Overview: Provides an error message over the debugging UART port. Prefixes
  *  the message with a "[error]".
@@ -36,7 +61,7 @@ void error(char* message);
 /*****************************************************************************
  * Function: void warning(char* message)
  *
- * Preconditions: UART2 must have been initialized.
+ * Preconditions: UART1 must have been initialized.
  *
  * Overview: Provides an warning message over the debugging UART port. Prefixes
  *  the message with a "[warning]".
@@ -52,7 +77,7 @@ void warning(char* message);
 /*****************************************************************************
  * Function: void debug(char* message)
  *
- * Preconditions: UART2 must have been initialized.
+ * Preconditions: UART1 must have been initialized.
  *
  * Overview: Sends a message to the the debug UART port.
  *

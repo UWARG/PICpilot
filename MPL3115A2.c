@@ -21,7 +21,7 @@ char initAltimeter() {
         sendMessage(I2C_SLAVE_ADDRESS, CONTROL_REGISTER1, &data[2], 1, WRITE);
     }
     else{
-        UART1_SendString("Altimeter Device Not Connected!");
+        warning("Altimeter Device Not Connected!");
     }
     return altimeterConnected;
 }

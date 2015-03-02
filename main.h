@@ -42,5 +42,5 @@
 #define rad2deg(RAD) ((RAD) * 180.0/PI)
 
 #if DEBUG
-    #include "UART1.h"
+    #include "debug.h"
 #endif
