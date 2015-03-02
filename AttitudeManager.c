@@ -576,7 +576,7 @@ void readDatalink(void){
                 sp_Heading = *(int*)(&cmd->data);
                 break;
             case SET_THROTTLE:
-                sp_ThrottleRate = (int)(*(int*)(&cmd->data) * MAX_PWM / 100.0);
+                sp_ThrottleRate = (*(int*)(&cmd->data) * MAX_PWM / 100);
                 break;
             case SET_AUTONOMOUS_LEVEL:
                 controlLevel = *(int*)(&cmd->data);
@@ -708,7 +708,7 @@ int writeDatalink(long frequency){
         statusData->pitchSetpoint = sp_PitchAngle;
         statusData->rollSetpoint = sp_RollAngle;
         statusData->headingSetpoint = sp_Heading;
-        statusData->throttleSetpoint = (int) ((float) (sp_ThrottleRate) / (MAX_PWM * 100));
+        statusData->throttleSetpoint = (int) ((float) (sp_ThrottleRate * 100) / MAX_PWM);
         statusData->altitudeSetpoint = sp_Altitude;
         statusData->altitude = gps_Altitude;
         statusData->cPitchSetpoint = sp_PitchRate;

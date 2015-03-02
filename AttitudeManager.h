@@ -41,12 +41,12 @@
 #define IMU_PITCH_RATE   1
 #define IMU_ROLL_RATE    0
 
-#define MAX_ROLL_PWM MAX_PWM - 20//UPPER_PWM - 20
-#define MIN_ROLL_PWM MIN_PWM + 40//LOWER_PWM + 40
-#define MAX_PITCH_PWM MAX_PWM - 25//UPPER_PWM - 25
-#define MIN_PITCH_PWM MIN_PWM + 25//LOWER_PWM + 25
-#define MAX_YAW_PWM MAX_PWM - 25//UPPER_PWM - 25
-#define MIN_YAW_PWM MIN_PWM + 25//LOWER_PWM + 25
+#define MAX_ROLL_PWM (MAX_PWM - 87) //This was - 20
+#define MIN_ROLL_PWM (MIN_PWM + 174) //This was + 40
+#define MAX_PITCH_PWM (MAX_PWM - 109) //This was - 25
+#define MIN_PITCH_PWM (MIN_PWM + 109) //This was + 25
+#define MAX_YAW_PWM (MAX_PWM - 109) //This was - 25
+#define MIN_YAW_PWM (MIN_PWM + 109) //This was + 25
 
 /* FUNCTION PROTOTYPES */
 /*****************************************************************************  
