@@ -708,7 +708,7 @@ int writeDatalink(long frequency){
         statusData->pitchSetpoint = sp_PitchAngle;
         statusData->rollSetpoint = sp_RollAngle;
         statusData->headingSetpoint = sp_Heading;
-        statusData->throttleSetpoint = (int) ((float) (sp_ThrottleRate * 100) / MAX_PWM);
+        statusData->throttleSetpoint = (sp_ThrottleRate * 100) / MAX_PWM;
         statusData->altitudeSetpoint = sp_Altitude;
         statusData->altitude = gps_Altitude;
         statusData->cPitchSetpoint = sp_PitchRate;
