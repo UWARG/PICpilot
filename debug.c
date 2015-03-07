@@ -3,8 +3,6 @@
  *
  * Created on August 24, 2014, 05:38 PM
  */
-#include <stdlib.h>
-#include <string.h>
 #include "debug.h"
 
 void initDebug(){
@@ -31,7 +29,7 @@ void error(char* message){
     for (i = 0; i < mLength; i++){
         errorMessage[i + ERROR_TAG_STRING_LENGTH] = message[i];
     }
-
+    errorMessage[i + ERROR_TAG_STRING_LENGTH] = '\0';
     UART1_SendString(errorMessage);
 }
 
@@ -55,7 +53,7 @@ void warning(char* message){
     for (i = 0; i < mLength; i++){
         warningMessage[i + WARNING_TAG_STRING_LENGTH] = message[i];
     }
-
+    warningMessage[i + ERROR_TAG_STRING_LENGTH] = '\0';
     UART1_SendString(warningMessage);
 }
 
@@ -79,6 +77,6 @@ void debug(char* message){
     for (i = 0; i < mLength; i++){
         debugMessage[i + DEBUG_TAG_STRING_LENGTH] = message[i];
     }
-
+    debugMessage[i + ERROR_TAG_STRING_LENGTH] = '\0';
     UART1_SendString(debugMessage);
 }
