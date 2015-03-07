@@ -121,6 +121,10 @@ int control_Pitch = MIDDLE_PWM;
 int control_Throttle = 0;
 int control_Yaw = MIDDLE_PWM;
 
+//Possible solution
+int flap_Value = MIDDLE_PWN;  // might not be middle_pwn since the servo only moves in one direction
+//
+
 float scaleFactor = 1.0119; //Change this
 
 char displayGain = 0;
@@ -272,7 +276,7 @@ void attitudeManagerRuntime() {
 
      *****************************************************************************
      *****************************************************************************/
-
+    // Pitches up or down depending on where the planes is compared to the desired altitude
     if (controlLevel & ALTITUDE_CONTROL_ON){
         sp_PitchAngle = controlSignalAltitude(sp_Altitude,(int)gps_Altitude);
         if (sp_PitchAngle > MAX_PITCH_ANGLE)
@@ -281,7 +285,9 @@ void attitudeManagerRuntime() {
             sp_PitchAngle = -MAX_PITCH_ANGLE;
     }
 
+    // Throttle control (for autopilot and ground station)
     if ((THROTTLE_CONTROL_SOURCE & controlLevel) >> 4 >= 1){
+        // ask why you feed in altitude to throttle //
         control_Throttle = sp_ThrottleRate + controlSignalThrottle(sp_Altitude, (int)gps_Altitude);
         //TODO: Fix decleration of these constants later - Maybe have a  controller.config file specific to each controller or something (make a script to generate this)
         if (control_Throttle > MAX_PWM){
@@ -290,10 +296,34 @@ void attitudeManagerRuntime() {
         else if (control_Throttle < MIN_PWM){
             control_Throttle = MIN_PWM;
         }
+        
+        //possible solution
+        if ((gps_GroundSpeed - sp_groundspeed) > 5.0){
+            //Deploy Flap only if flap isn't already being used
+            if (flap_Value != 2){
+                flap_Value = 2;
+            }
+        }
+        else {
+            if (flap_Value != MIDDLE_PWN){ //Might not be middle_pwn since flaps move in one direction
+                //Revert Flap
+                flap_Value = MIDDLE_PWN;
+            }
+        }
+        //
+        
     }
-    else
+    // (for controller)
+    else {
         control_Throttle = sp_ThrottleRate;
-
+        
+        //Possible solution
+        if (flap_Value != MIDDLE_PWN){
+            //revert flap
+            flap_Value = MIDDLE_PWN;
+        }
+        //
+    }
 
     if (controlLevel & HEADING_CONTROL_ON){
         //Estimation of Roll angle based on heading:
@@ -372,7 +402,7 @@ void attitudeManagerRuntime() {
      *****************************************************************************
 
                                 OUTPUT COMPARE
-
+    
      *****************************************************************************
      *****************************************************************************/
 
@@ -460,6 +490,10 @@ void attitudeManagerRuntime() {
 
 //    setPWM(7, sp_HeadingRate + MIDDLE_PWM - 20);
 
+//possible changes
+   setOCValue(8, flap_Value); //Didn't bother touching PWM since it's 'toggle'
+//
+   
 #if COMMUNICATION_MANAGER
     readDatalink();
     writeDatalink(DATALINK_SEND_FREQUENCY); //pwmTemp>600?0?:0xFFFFFFFF;
