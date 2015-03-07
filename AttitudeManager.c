@@ -285,9 +285,7 @@ void attitudeManagerRuntime() {
             sp_PitchAngle = -MAX_PITCH_ANGLE;
     }
 
-    // Throttle control (for autopilot and ground station)
     if ((THROTTLE_CONTROL_SOURCE & controlLevel) >> 4 >= 1){
-        // ask why you feed in altitude to throttle //
         control_Throttle = sp_ThrottleRate + controlSignalThrottle(sp_Altitude, (int)gps_Altitude);
         //TODO: Fix decleration of these constants later - Maybe have a  controller.config file specific to each controller or something (make a script to generate this)
         if (control_Throttle > MAX_PWM){
@@ -313,7 +311,6 @@ void attitudeManagerRuntime() {
         //
         
     }
-    // (for controller)
     else {
         control_Throttle = sp_ThrottleRate;
         
