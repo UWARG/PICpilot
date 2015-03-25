@@ -446,7 +446,7 @@ void copyGPSData(){
         newGPSDataAvailable = 0;
         pmData.time = gpsData.time;
         pmData.longitude = gpsData.longitude;
-        pmData.altitude = getAltitude(); //gpsData.altitude;
+        //pmData.altitude = getAltitude(); //gpsData.altitude;
         pmData.latitude = gpsData.latitude;
         pmData.heading = gpsData.heading;
         pmData.speed = gpsData.speed;
@@ -454,6 +454,7 @@ void copyGPSData(){
         pmData.positionFix = (char)gpsData.positionFix;
         pmData.batteryLevel = getCurrentPercent();
     }
+    pmData.altitude = getAltitude(); //gpsData.altitude; //want to get altitude regardless of if there is new GPS data
 }
 
 void checkAMData(){

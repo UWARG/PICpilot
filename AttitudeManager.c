@@ -202,7 +202,7 @@ void attitudeManagerRuntime() {
         waypointIndex = pmData.targetWaypoint;
         batteryLevel = pmData.batteryLevel;
     }
-#endif
+//#endif
 
     /*****************************************************************************
      *****************************************************************************
@@ -452,13 +452,15 @@ void attitudeManagerRuntime() {
 
 
     setPWM(1, control_Roll + rollTrim);
-    setPWM(2, tail_Output1);
+    setPWM(2, tail_Output1); //Pitch
     setPWM(3, control_Throttle);
-    setPWM(4, tail_Output2);
+    setPWM(4, tail_Output2); //Yaw
 //    setPWM(5, cameraPWM);
 //    setPWM(6, gimblePWM);
 
 //    setPWM(7, sp_HeadingRate + MIDDLE_PWM - 20);
+#endif
+
 
 #if COMMUNICATION_MANAGER
     readDatalink();
