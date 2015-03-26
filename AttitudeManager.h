@@ -22,7 +22,7 @@
 #define HEADING_CONTROL_SOURCE 0b0000000100000000 // Ground Station(0) or Autopilot(1)
 #define HEADING_CONTROL_ON 0b0000001000000000 //Off(0) or On(1)
 
-#define TAIL_TYPE 0 // Standard (0) or V-Tail (1) or Inverse V-Tail (2)
+#define TAIL_TYPE 2 // Standard (0) or V-Tail (1) or Inverse V-Tail (2)
 #define STANDARD_TAIL 0
 #define V_TAIL 1
 #define INV_V_TAIL 2
@@ -45,8 +45,10 @@
 #define MIN_ROLL_PWM (MIN_PWM + 174) //This was + 40
 #define MAX_PITCH_PWM (MAX_PWM - 109) //This was - 25
 #define MIN_PITCH_PWM (MIN_PWM + 109) //This was + 25
+#define MIDDLE_PITCH_PWM (MAX_PITCH_PWM-MIN_PITCH_PWM)/2
 #define MAX_YAW_PWM (MAX_PWM - 109) //This was - 25
 #define MIN_YAW_PWM (MIN_PWM + 109) //This was + 25
+#define MIDDLE_YAW_PWM (MAX_YAW_PWM-MIN_YAW_PWM)/2
 
 /* FUNCTION PROTOTYPES */
 /*****************************************************************************  
