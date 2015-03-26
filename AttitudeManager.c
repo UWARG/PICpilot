@@ -121,9 +121,7 @@ int control_Pitch = MIDDLE_PWM;
 int control_Throttle = 0;
 int control_Yaw = MIDDLE_PWM;
 
-//Possible solution
-int flap_Value = MIDDLE_PWN;  // might not be middle_pwn since the servo only moves in one direction
-//
+int control_Flap = 0;  // Control Signal for both Flaps and Slats
 
 float scaleFactor = 1.0119; //Change this
 
@@ -233,12 +231,9 @@ void attitudeManagerRuntime() {
 //        sp_Value = icTimeDiff[6];
         sp_Switch = icTimeDiff[7];
 
-
-
         /***************************************************************************************************************/
         vTail_Balance = icTimeDiff[5];  //pot on steves controller, for calculating vTail control ratio
         /***************************************************************************************************************/
-
 
     /*****************************************************************************
      *****************************************************************************
@@ -295,31 +290,17 @@ void attitudeManagerRuntime() {
             control_Throttle = MIN_PWM;
         }
         
-        //possible solution
-        if ((gps_GroundSpeed - sp_groundspeed) > 5.0){
-            //Deploy Flap only if flap isn't already being used
-            if (flap_Value != 2){
-                flap_Value = 2;
-            }
+        // flap control when autopilot/groundstation is enabled
+        if ((gps_GroundSpeed - sp_GroundSpeed) >= 5){
+            control_Flap = 1300;
         }
-        else {
-            if (flap_Value != MIDDLE_PWN){ //Might not be middle_pwn since flaps move in one direction
-                //Revert Flap
-                flap_Value = MIDDLE_PWN;
-            }
+        else{
+            control_Flap = 0;
         }
-        //
         
     }
     else {
         control_Throttle = sp_ThrottleRate;
-        
-        //Possible solution
-        if (flap_Value != MIDDLE_PWN){
-            //revert flap
-            flap_Value = MIDDLE_PWN;
-        }
-        //
     }
 
     if (controlLevel & HEADING_CONTROL_ON){
@@ -487,8 +468,8 @@ void attitudeManagerRuntime() {
 
 //    setPWM(7, sp_HeadingRate + MIDDLE_PWM - 20);
 
-//possible changes
-   setOCValue(8, flap_Value); //Didn't bother touching PWM since it's 'toggle'
+// setPWM for flap control
+    setPWM(5, control_Flap); // might have to change the output pwm
 //
    
 #if COMMUNICATION_MANAGER
