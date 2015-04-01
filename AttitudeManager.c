@@ -213,7 +213,26 @@ void attitudeManagerRuntime() {
         }
         if ((THROTTLE_CONTROL_SOURCE & controlLevel) == 0)
             sp_ThrottleRate = (icTimeDiff[2]);
-        sp_YawRate = icTimeDiff[3];
+        
+
+        #if(TAIL_TYPE == STANDARD_TAIL)
+        {
+            if ((PITCH_CONTROL_SOURCE & controlLevel) == 0)
+            {
+            sp_PitchRate = icTimeDiff[1];
+            }
+            sp_YawRate = icTimeDiff[3];
+        }
+        #endif
+        #if(TAIL_TYPE == INV_V_TAIL)
+        {
+            if ((PITCH_CONTROL_SOURCE & controlLevel) == 0)
+            {
+                sp_PitchRate = (icTimeDiff[1] - icTimeDiff[3]) / (2 * 0.75);
+            }
+            sp_YawRate = (icTimeDiff[1] + icTimeDiff[3] ) / (2 * 0.75);
+        }
+        #endif
 
         sp_UHFSwitch = icTimeDiff[4];
 //        sp_Type = icTimeDiff[5];
