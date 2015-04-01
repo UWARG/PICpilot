@@ -101,7 +101,7 @@ void pathManagerRuntime(void) {
 #if DEBUG
 //        char str[16];
 //        sprintf(&str,"%f",pmData.time);
-//        UART1_SendString(&str);
+//        debug(&str);
 #endif
     //Get GPS data
     copyGPSData();
@@ -468,7 +468,7 @@ void checkAMData(){
         // All commands/actions that need to be run go here
        switch (amData.command){
             case PM_DEBUG_TEST:
-                UART1_SendString("Test");
+                debug("Test");
                 break;
             case PM_NEW_WAYPOINT:;
                 PathData* node = initializePathNode();

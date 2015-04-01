@@ -139,26 +139,21 @@ unsigned int cameraCounter = 0;
 char killingPlane = 0;
 
 void attitudeInit() {
-    //Debug Mode initialize communication with the serial port (Computer)
-    if (DEBUG) {
-        InitUART1();
-    }
+    //Initialize Interchip communication
     TRISFbits.TRISF3 = 0;
     LATFbits.LATF3 = 1;
 
     TRISDbits.TRISD14 = 0;
     LATDbits.LATD14 = 0;
 
-    //Initialize Interchip communication
     init_SPI1();
     init_DMA0();
     init_DMA1();
 
-
     /* Initialize IMU with correct orientation matrix and filter settings */
-    //IMU position matrix
     float filterVariance[10] = {1e-10, 1e-6, 1e-6, 1e-6, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2};
     VN100_initSPI();
+    //IMU position matrix
     float offset[3] = {-90,90,0};
     setVNOrientationMatrix((float*)&offset);
     VN100_SPI_SetFiltMeasVar(0, (float*)&filterVariance);
@@ -166,13 +161,9 @@ void attitudeInit() {
     /* Initialize Input Capture and Output Compare Modules */
     if (DEBUG) {
         initPWM(0b10011111, 0b111111);
-//        initIC(0b10011111);
-//        initOC(0b111111); //Initialize only Output Compare 1,2,3 and 4,5,6
-        UART1_SendString("START OF CODE BEFORE WHILE");
+        debug("INITIALIZATION - ATTITUDE MANAGER");
     } else {
         initPWM(0b10011111, 0b111111);
-//        initIC(0b10011111);
-//        initOC(0b111111); //Initialize only Output Compare 1,2,3 and 4,5,6
     }
 
 }
@@ -483,7 +474,7 @@ void readDatalink(void){
         }
         switch (cmd->cmd) {
             case DEBUG_TEST:             // Debugging command, writes to debug UART
-                UART1_SendString( (char*) cmd->data);
+                debug( (char*) cmd->data);
                 break;
             case SET_PITCH_KD_GAIN:
                 setGain(PITCH, GAIN_KD, *(float*)(&cmd->data));
@@ -832,14 +823,10 @@ char generateAMDataChecksum(void){
 
 void checkHeartbeat(long int cTime){
     if (cTime - heartbeatTimer > HEARTBEAT_TIMEOUT){
-        amData.command = PM_RETURN_HOME;
-        amData.checksum = generateAMDataChecksum();
+//        amData.command = PM_RETURN_HOME;
+//        amData.checksum = generateAMDataChecksum();
     }
     else if (cTime - heartbeatTimer > HEARTBEAT_KILL_TIMEOUT){
-//        char str[16];
-//        sprintf(&str, "%")
-//        UART1_SendString(cTime);
-//        UART1_SendString("");
 //        killingPlane = 1;
     }
 }

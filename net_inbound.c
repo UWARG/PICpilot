@@ -66,12 +66,6 @@ struct command* createCommand( char* rawPacket ) {
         cmd->data[j++] = rawPacket[i];
     }
     cmd->data[j] = '\0';    // Null terminate the string so can use SendUart
-//    if ( cmd->data[0] == 0 ) {
-////        UART1_SendString("ERROR");
-//        int zero = 1;
-//        zero += 1;
-//        return 0;
-//    }
     return cmd;
 }
 
