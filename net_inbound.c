@@ -5,7 +5,7 @@
 #include "net.h"
 #include <stdlib.h>
 #include "p33FJ256GP710.h"
-#include "UART1.h"
+#include "UART2.h"
 
 #define START_DELIMITER 0x7E
 
@@ -62,7 +62,7 @@ struct command* createCommand( char* rawPacket ) {
     cmd->cmd = rawPacket[15];
     int i;
     int j = 0;
-    for ( i = 16; i < 15 + cmd->data_length - 12; i++ ) {   // Received packet payload starts at 15 and has 12 bytes before len 
+    for ( i = 16; i < 15 + cmd->data_length - 12; i++ ) {   // Received packet payload starts at 15 and has 12 bytes before len
         cmd->data[j++] = rawPacket[i];
     }
     cmd->data[j] = '\0';    // Null terminate the string so can use SendUart
@@ -105,6 +105,7 @@ void inboundBufferMaintenance(void) {
     }
 }
 
+#if !PATH_MANAGER
 void __attribute__((__interrupt__, no_auto_psv)) _U2RXInterrupt(void) {
     unsigned char data = U2RXREG;
     if ( rawPacketStatus[packetPos] != BUSY ) {    // no buffer available to write
@@ -145,3 +146,4 @@ void __attribute__((__interrupt__, no_auto_psv)) _U2RXInterrupt(void) {
     }
     IFS1bits.U2RXIF = 0;
 }
+#endif

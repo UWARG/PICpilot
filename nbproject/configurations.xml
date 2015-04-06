@@ -30,6 +30,7 @@
                      projectFiles="true">
         <itemPath>InterchipDMA.h</itemPath>
         <itemPath>PathManager.h</itemPath>
+        <itemPath>NMEAparser.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f4" displayName="PWM Management" projectFiles="true">
         <itemPath>OutputCompare.h</itemPath>
@@ -86,8 +87,9 @@
       <logicalFolder name="f2"
                      displayName="Path Management and GPS"
                      projectFiles="true">
-        <itemPath>PathManger.c</itemPath>
         <itemPath>InterchipDMA.c</itemPath>
+        <itemPath>NMEAparser.c</itemPath>
+        <itemPath>PathManager.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f4" displayName="PWM Management" projectFiles="true">
         <itemPath>InputCapture.c</itemPath>
@@ -191,7 +193,6 @@
         <property key="use-cci" value="false"/>
       </C30>
       <C30-AR>
-        <property key="additional-options-chop-files" value="false"/>
       </C30-AR>
       <C30-AS>
         <property key="assembler-symbols" value=""/>

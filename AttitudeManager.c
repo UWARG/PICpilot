@@ -256,13 +256,13 @@ void attitudeManagerRuntime() {
     VN100_SPI_GetRates(0, (float*) &imuData);
                            
     //Outputs in order: Roll,Pitch,Yaw
-    imu_RollRate = (-imuData[IMU_ROLL_RATE]); //This is a reminder for me to figure out a more elegant way to fix improper derivative control (based on configuration of the sensor), adding this negative is a temporary fix.
-    imu_PitchRate = imuData[IMU_PITCH_RATE];
+    imu_RollRate = (-imuData[IMU_ROLL_RATE]); //This is a reminder for me to figure out a more elegant way to fix improper derivative control (based on configuration of the sensor), adding this negative is a temporary fix. ****MITCH REMOVED NEGATIVE
+    imu_PitchRate = imuData[IMU_PITCH_RATE]; //**************MITCH HACK FIX TO CHANGE WHICH WAY IT THINKS THE PITCH ANGLE IS added negative
     imu_YawRate = imuData[IMU_YAW_RATE];
     VN100_SPI_GetYPR(0, &imuData[YAW], &imuData[PITCH], &imuData[ROLL]);
     imu_YawAngle = imuData[YAW];
-    imu_PitchAngle = imuData[PITCH];
-    imu_RollAngle = (imuData[ROLL]);
+    imu_PitchAngle = -imuData[PITCH]; //**************MITCH HACK FIX TO CHANGE WHICH WAY IT THINKS THE PITCH ANGLE IS added negative
+    imu_RollAngle = (-imuData[ROLL]); //**************MITCH HACK FIX TO CHANGE WHICH WAY IT THINKS THE PITCH ANGLE IS, added negative
 
     //Do we need this??? Might make it more accurate
 //    if (gps_PositionFix == 2){
@@ -327,7 +327,7 @@ void attitudeManagerRuntime() {
     if ((controlLevel & ROLL_CONTROL_SOURCE) == 0 && (controlLevel & HEADING_CONTROL_ON) == 0)
         sp_RollAngle = (int)((-sp_RollRate / ((float)SP_RANGE / MAX_ROLL_ANGLE) ));
     if ((controlLevel & PITCH_CONTROL_SOURCE) == 0 && (controlLevel & ALTITUDE_CONTROL_ON) == 0)
-        sp_PitchAngle = (int)(-sp_PitchRate / ((float)SP_RANGE / MAX_PITCH_ANGLE));
+        sp_PitchAngle = (int)(sp_PitchRate / ((float)SP_RANGE / MAX_PITCH_ANGLE));
 
     //sp_YawRate = controlSignalAngles(sp_YawAngle, imu_YawAngle, kd_Accel_Yaw, -(SP_RANGE) / (maxYawAngle)) ;
     //sp_ComputedYawRate = sp_YawRate;
@@ -340,7 +340,7 @@ void attitudeManagerRuntime() {
     }
 
     if (controlLevel & PITCH_CONTROL_TYPE || controlLevel & ALTITUDE_CONTROL_ON){
-        sp_ComputedPitchRate = controlSignalAngles(sp_PitchAngle, imu_PitchAngle, PITCH, -(SP_RANGE) / (MAX_PITCH_ANGLE));
+        sp_ComputedPitchRate = controlSignalAngles(sp_PitchAngle, imu_PitchAngle, PITCH, (SP_RANGE) / (MAX_PITCH_ANGLE)); //Removed negative
     }
     else{
         sp_ComputedPitchRate = sp_PitchRate;

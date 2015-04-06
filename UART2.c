@@ -1,6 +1,9 @@
-
 #include <p33FJ256GP710.h>
 #include "UART2.h"
+
+#if PATH_MANAGER
+UART_RX_Buffer _buff;
+#endif
 
 void InitUART2()
 {
@@ -14,9 +17,9 @@ void InitUART2()
 	//U2MODEbits.notimplemented;	// Bit14
 	U2MODEbits.USIDL = 0;	// Bit13 Continue in Idle
 	U2MODEbits.IREN = 0;	// Bit12 No IR translation
-	U2MODEbits.RTSMD = 0;	// Bit11 Flow Control Mode = 0/ Simplex = 1
+	U2MODEbits.RTSMD = 0;	// Bit11 Simplex Mode
 	//U2MODEbits.notimplemented;	// Bit10
-	U2MODEbits.UEN = 0b00;		// Bits8,9 TX,RX,enabled, RTS not used CTS not used
+	U2MODEbits.UEN = 0;		// Bits8,9 TX,RX enabled, CTS,RTS not
 	U2MODEbits.WAKE = 0;	// Bit7 No Wake up (since we don't sleep here)
 	U2MODEbits.LPBACK = 0;	// Bit6 No Loop Back
 	U2MODEbits.ABAUD = 0;	// Bit5 No Autobaud (would require sending '55')
@@ -56,16 +59,29 @@ void InitUART2()
 	U2STAbits.OERR = 0;		//Bit1 *Read Only Bit*
 	U2STAbits.URXDA = 0;	//Bit0 *Read Only Bit*
 
-	IPC7 = 0x4400;	// Mid Range Interrupt Priority level, no urgent reason
+//	IPC7 = 0x4400;	// Mid Range Interrupt Priority level, no urgent reason
+
+        IPC7 = 0x4400;	// Mid Range Interrupt Priority level, no urgent reason
 
 	IFS1bits.U2TXIF = 0;	// Clear the Transmit Interrupt Flag
-	IEC1bits.U2TXIE = 0;	// Disable Transmit Interrupts
+	IEC1bits.U2TXIE = 0;	// Enable Transmit Interrupts
 	IFS1bits.U2RXIF = 0;	// Clear the Recieve Interrupt Flag
-	IEC1bits.U2RXIE = 0;	// Disable Recieve Interrupts
 
+#if PATH_MANAGER
+	IEC1bits.U2RXIE = 1;	// Enable Recieve Interrupts
+#else
+        IEC1bits.U2RXIE = 0;	// Enable Recieve Interrupts
+#endif
+
+#if PATH_MANAGER
+	U1MODEbits.UARTEN = 1;	// And turn the peripheral on
+	U1STAbits.UTXEN = 1;
+#endif
 	U2MODEbits.UARTEN = 1;	// And turn the peripheral on
 
 	U2STAbits.UTXEN = 1;
+
+        //PORTBbits.RB14 = 0;
 	// I think I have the thing working now.
 
 
@@ -77,11 +93,14 @@ void InitUART2()
             i++;
         }
 }
+
 void UART2_SendChar(char data)
 {
     U2TXREG = data;
     while(U2STAbits.TRMT == 0);
+#if !PATH_MANAGER
     U2STAbits.TRMT = 0;
+#endif
 }
 
 void UART2_SendString(char *s)
@@ -95,3 +114,49 @@ void UART2_SendString(char *s)
 
           UART2_SendChar('\n');
 }
+
+#if PATH_MANAGER
+void __attribute__((interrupt, no_auto_psv)) _U2RXInterrupt( void )
+{
+    write_rx_buffer(U2RXREG,&_buff);
+    IFS1bits.U2RXIF = 0;
+}
+
+void init_rx_buffer(UART_RX_Buffer *buff)
+{
+    buff->get = 0;
+    buff->put = 1;
+}
+void write_rx_buffer(char c, UART_RX_Buffer *buff)
+{
+    buff->data[buff->put] = c;
+    if(buff->put < 255)
+        buff->put++;
+    else
+        buff->put = 0;
+
+    if(buff->put == buff->get)
+    {
+        buff->get++;
+        if(buff->get > 255)
+            buff->get = 0;
+    }
+}
+char read_rx_buffer(UART_RX_Buffer *buff)
+{
+    char c = buff->data[buff->get];
+    short oldGet = buff->get;
+    if(buff->get < 255)
+        buff->get++;
+    else
+        buff->get = 0;
+
+    if(buff->get == buff->put)
+    {
+        buff->get = oldGet;
+        return 0;
+    }
+
+    return c;
+}
+#endif

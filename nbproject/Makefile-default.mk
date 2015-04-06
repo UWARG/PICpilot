@@ -45,17 +45,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=MPL3115A2.c I2C.c AttitudeManager.c OrientationControl.c UART1.c StartupErrorCodes.c debug.c net_outbound.c net_inbound.c net_common.c UART2.c cameraManager.c PathManger.c InterchipDMA.c InputCapture.c OutputCompare.c PWM.c fmath.c delay.c Clock.c StringUtils.c VN100.c VN_lib.c VN_math.c VN_user.c voltageSensor.c main.c
+SOURCEFILES_QUOTED_IF_SPACED=MPL3115A2.c I2C.c AttitudeManager.c OrientationControl.c UART1.c StartupErrorCodes.c debug.c net_outbound.c net_inbound.c net_common.c UART2.c cameraManager.c InterchipDMA.c NMEAparser.c PathManager.c InputCapture.c OutputCompare.c PWM.c fmath.c delay.c Clock.c StringUtils.c VN100.c VN_lib.c VN_math.c VN_user.c voltageSensor.c main.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/MPL3115A2.o ${OBJECTDIR}/I2C.o ${OBJECTDIR}/AttitudeManager.o ${OBJECTDIR}/OrientationControl.o ${OBJECTDIR}/UART1.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/debug.o ${OBJECTDIR}/net_outbound.o ${OBJECTDIR}/net_inbound.o ${OBJECTDIR}/net_common.o ${OBJECTDIR}/UART2.o ${OBJECTDIR}/cameraManager.o ${OBJECTDIR}/PathManger.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/InputCapture.o ${OBJECTDIR}/OutputCompare.o ${OBJECTDIR}/PWM.o ${OBJECTDIR}/fmath.o ${OBJECTDIR}/delay.o ${OBJECTDIR}/Clock.o ${OBJECTDIR}/StringUtils.o ${OBJECTDIR}/VN100.o ${OBJECTDIR}/VN_lib.o ${OBJECTDIR}/VN_math.o ${OBJECTDIR}/VN_user.o ${OBJECTDIR}/voltageSensor.o ${OBJECTDIR}/main.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/MPL3115A2.o.d ${OBJECTDIR}/I2C.o.d ${OBJECTDIR}/AttitudeManager.o.d ${OBJECTDIR}/OrientationControl.o.d ${OBJECTDIR}/UART1.o.d ${OBJECTDIR}/StartupErrorCodes.o.d ${OBJECTDIR}/debug.o.d ${OBJECTDIR}/net_outbound.o.d ${OBJECTDIR}/net_inbound.o.d ${OBJECTDIR}/net_common.o.d ${OBJECTDIR}/UART2.o.d ${OBJECTDIR}/cameraManager.o.d ${OBJECTDIR}/PathManger.o.d ${OBJECTDIR}/InterchipDMA.o.d ${OBJECTDIR}/InputCapture.o.d ${OBJECTDIR}/OutputCompare.o.d ${OBJECTDIR}/PWM.o.d ${OBJECTDIR}/fmath.o.d ${OBJECTDIR}/delay.o.d ${OBJECTDIR}/Clock.o.d ${OBJECTDIR}/StringUtils.o.d ${OBJECTDIR}/VN100.o.d ${OBJECTDIR}/VN_lib.o.d ${OBJECTDIR}/VN_math.o.d ${OBJECTDIR}/VN_user.o.d ${OBJECTDIR}/voltageSensor.o.d ${OBJECTDIR}/main.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/MPL3115A2.o ${OBJECTDIR}/I2C.o ${OBJECTDIR}/AttitudeManager.o ${OBJECTDIR}/OrientationControl.o ${OBJECTDIR}/UART1.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/debug.o ${OBJECTDIR}/net_outbound.o ${OBJECTDIR}/net_inbound.o ${OBJECTDIR}/net_common.o ${OBJECTDIR}/UART2.o ${OBJECTDIR}/cameraManager.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/NMEAparser.o ${OBJECTDIR}/PathManager.o ${OBJECTDIR}/InputCapture.o ${OBJECTDIR}/OutputCompare.o ${OBJECTDIR}/PWM.o ${OBJECTDIR}/fmath.o ${OBJECTDIR}/delay.o ${OBJECTDIR}/Clock.o ${OBJECTDIR}/StringUtils.o ${OBJECTDIR}/VN100.o ${OBJECTDIR}/VN_lib.o ${OBJECTDIR}/VN_math.o ${OBJECTDIR}/VN_user.o ${OBJECTDIR}/voltageSensor.o ${OBJECTDIR}/main.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/MPL3115A2.o.d ${OBJECTDIR}/I2C.o.d ${OBJECTDIR}/AttitudeManager.o.d ${OBJECTDIR}/OrientationControl.o.d ${OBJECTDIR}/UART1.o.d ${OBJECTDIR}/StartupErrorCodes.o.d ${OBJECTDIR}/debug.o.d ${OBJECTDIR}/net_outbound.o.d ${OBJECTDIR}/net_inbound.o.d ${OBJECTDIR}/net_common.o.d ${OBJECTDIR}/UART2.o.d ${OBJECTDIR}/cameraManager.o.d ${OBJECTDIR}/InterchipDMA.o.d ${OBJECTDIR}/NMEAparser.o.d ${OBJECTDIR}/PathManager.o.d ${OBJECTDIR}/InputCapture.o.d ${OBJECTDIR}/OutputCompare.o.d ${OBJECTDIR}/PWM.o.d ${OBJECTDIR}/fmath.o.d ${OBJECTDIR}/delay.o.d ${OBJECTDIR}/Clock.o.d ${OBJECTDIR}/StringUtils.o.d ${OBJECTDIR}/VN100.o.d ${OBJECTDIR}/VN_lib.o.d ${OBJECTDIR}/VN_math.o.d ${OBJECTDIR}/VN_user.o.d ${OBJECTDIR}/voltageSensor.o.d ${OBJECTDIR}/main.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/MPL3115A2.o ${OBJECTDIR}/I2C.o ${OBJECTDIR}/AttitudeManager.o ${OBJECTDIR}/OrientationControl.o ${OBJECTDIR}/UART1.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/debug.o ${OBJECTDIR}/net_outbound.o ${OBJECTDIR}/net_inbound.o ${OBJECTDIR}/net_common.o ${OBJECTDIR}/UART2.o ${OBJECTDIR}/cameraManager.o ${OBJECTDIR}/PathManger.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/InputCapture.o ${OBJECTDIR}/OutputCompare.o ${OBJECTDIR}/PWM.o ${OBJECTDIR}/fmath.o ${OBJECTDIR}/delay.o ${OBJECTDIR}/Clock.o ${OBJECTDIR}/StringUtils.o ${OBJECTDIR}/VN100.o ${OBJECTDIR}/VN_lib.o ${OBJECTDIR}/VN_math.o ${OBJECTDIR}/VN_user.o ${OBJECTDIR}/voltageSensor.o ${OBJECTDIR}/main.o
+OBJECTFILES=${OBJECTDIR}/MPL3115A2.o ${OBJECTDIR}/I2C.o ${OBJECTDIR}/AttitudeManager.o ${OBJECTDIR}/OrientationControl.o ${OBJECTDIR}/UART1.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/debug.o ${OBJECTDIR}/net_outbound.o ${OBJECTDIR}/net_inbound.o ${OBJECTDIR}/net_common.o ${OBJECTDIR}/UART2.o ${OBJECTDIR}/cameraManager.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/NMEAparser.o ${OBJECTDIR}/PathManager.o ${OBJECTDIR}/InputCapture.o ${OBJECTDIR}/OutputCompare.o ${OBJECTDIR}/PWM.o ${OBJECTDIR}/fmath.o ${OBJECTDIR}/delay.o ${OBJECTDIR}/Clock.o ${OBJECTDIR}/StringUtils.o ${OBJECTDIR}/VN100.o ${OBJECTDIR}/VN_lib.o ${OBJECTDIR}/VN_math.o ${OBJECTDIR}/VN_user.o ${OBJECTDIR}/voltageSensor.o ${OBJECTDIR}/main.o
 
 # Source Files
-SOURCEFILES=MPL3115A2.c I2C.c AttitudeManager.c OrientationControl.c UART1.c StartupErrorCodes.c debug.c net_outbound.c net_inbound.c net_common.c UART2.c cameraManager.c PathManger.c InterchipDMA.c InputCapture.c OutputCompare.c PWM.c fmath.c delay.c Clock.c StringUtils.c VN100.c VN_lib.c VN_math.c VN_user.c voltageSensor.c main.c
+SOURCEFILES=MPL3115A2.c I2C.c AttitudeManager.c OrientationControl.c UART1.c StartupErrorCodes.c debug.c net_outbound.c net_inbound.c net_common.c UART2.c cameraManager.c InterchipDMA.c NMEAparser.c PathManager.c InputCapture.c OutputCompare.c PWM.c fmath.c delay.c Clock.c StringUtils.c VN100.c VN_lib.c VN_math.c VN_user.c voltageSensor.c main.c
 
 
 CFLAGS=
@@ -166,19 +166,26 @@ ${OBJECTDIR}/cameraManager.o: cameraManager.c  nbproject/Makefile-${CND_CONF}.mk
 	${MP_CC} $(MP_EXTRA_CC_PRE)  cameraManager.c  -o ${OBJECTDIR}/cameraManager.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/cameraManager.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/cameraManager.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
-${OBJECTDIR}/PathManger.o: PathManger.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/PathManger.o.d 
-	@${RM} ${OBJECTDIR}/PathManger.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  PathManger.c  -o ${OBJECTDIR}/PathManger.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/PathManger.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
-	@${FIXDEPS} "${OBJECTDIR}/PathManger.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
-	
 ${OBJECTDIR}/InterchipDMA.o: InterchipDMA.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
 	@${RM} ${OBJECTDIR}/InterchipDMA.o.d 
 	@${RM} ${OBJECTDIR}/InterchipDMA.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  InterchipDMA.c  -o ${OBJECTDIR}/InterchipDMA.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/InterchipDMA.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/InterchipDMA.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/NMEAparser.o: NMEAparser.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/NMEAparser.o.d 
+	@${RM} ${OBJECTDIR}/NMEAparser.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  NMEAparser.c  -o ${OBJECTDIR}/NMEAparser.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/NMEAparser.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/NMEAparser.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/PathManager.o: PathManager.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/PathManager.o.d 
+	@${RM} ${OBJECTDIR}/PathManager.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  PathManager.c  -o ${OBJECTDIR}/PathManager.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/PathManager.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/PathManager.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 ${OBJECTDIR}/InputCapture.o: InputCapture.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
@@ -356,19 +363,26 @@ ${OBJECTDIR}/cameraManager.o: cameraManager.c  nbproject/Makefile-${CND_CONF}.mk
 	${MP_CC} $(MP_EXTRA_CC_PRE)  cameraManager.c  -o ${OBJECTDIR}/cameraManager.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/cameraManager.o.d"        -g -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/cameraManager.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
-${OBJECTDIR}/PathManger.o: PathManger.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/PathManger.o.d 
-	@${RM} ${OBJECTDIR}/PathManger.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  PathManger.c  -o ${OBJECTDIR}/PathManger.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/PathManger.o.d"        -g -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
-	@${FIXDEPS} "${OBJECTDIR}/PathManger.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
-	
 ${OBJECTDIR}/InterchipDMA.o: InterchipDMA.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
 	@${RM} ${OBJECTDIR}/InterchipDMA.o.d 
 	@${RM} ${OBJECTDIR}/InterchipDMA.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  InterchipDMA.c  -o ${OBJECTDIR}/InterchipDMA.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/InterchipDMA.o.d"        -g -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/InterchipDMA.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/NMEAparser.o: NMEAparser.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/NMEAparser.o.d 
+	@${RM} ${OBJECTDIR}/NMEAparser.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  NMEAparser.c  -o ${OBJECTDIR}/NMEAparser.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/NMEAparser.o.d"        -g -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/NMEAparser.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/PathManager.o: PathManager.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/PathManager.o.d 
+	@${RM} ${OBJECTDIR}/PathManager.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  PathManager.c  -o ${OBJECTDIR}/PathManager.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/PathManager.o.d"        -g -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/PathManager.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 ${OBJECTDIR}/InputCapture.o: InputCapture.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 

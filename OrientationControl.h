@@ -14,8 +14,8 @@
 #define GAIN_KI 2
 
 //Maximum rates for PID loop outputs
-#define MAX_ROLL_ANGLE 30 // max allowed roll angle in degrees
-#define MAX_PITCH_ANGLE 15
+#define MAX_ROLL_ANGLE 35 // max allowed roll angle in degrees
+#define MAX_PITCH_ANGLE 20
 #define MAX_SPEED 17.0 // ???m/s
 
 // A scaling factor used in the PID control loops
