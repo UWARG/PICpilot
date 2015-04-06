@@ -52,15 +52,8 @@ int sp_ThrottleRate = 0;
 int sp_YawRate = MIDDLE_PWM;
 int sp_RollRate = MIDDLE_PWM;
 
-int vTail_Balance = 0.5;
-int tail_OutputR;   //replacing standard tail pitch
+int tail_OutputR;   //what the rudder used to be
 int tail_OutputL;
-float rudderProportion;
-float elevatorProportion;
-//rudderProportion=(1-VTailElevatorPortion)/2
-//elevatorProportion=VTailElevatorPortion/2
-//VTailElevatorPortion refers to the decimal percentage
-//of the control surface range of motion dedicated to the elevator component.
 
 
 int sp_ComputedPitchRate = 0;
@@ -228,9 +221,9 @@ void attitudeManagerRuntime() {
         {
             if ((PITCH_CONTROL_SOURCE & controlLevel) == 0)
             {
-                sp_PitchRate = (icTimeDiff[1] - icTimeDiff[3]) / (2 * 0.75);
+                sp_PitchRate = (icTimeDiff[1] - icTimeDiff[3]) / (2 * ELEVATOR_PROPORTION);
             }
-            sp_YawRate = (icTimeDiff[1] + icTimeDiff[3] ) / (2 * 0.75);
+            sp_YawRate = (icTimeDiff[1] + icTimeDiff[3] ) / (2 * RUDDER_PROPORTION);
         }
         #endif
 
@@ -238,10 +231,6 @@ void attitudeManagerRuntime() {
 //        sp_Type = icTimeDiff[5];
 //        sp_Value = icTimeDiff[6];
         sp_Switch = icTimeDiff[7];
-
-
-        //vTail_Balance = icTimeDiff[5];  //pot on steves controller, for calculating vTail control ratio
-        
 
     /*****************************************************************************
      *****************************************************************************
@@ -430,34 +419,19 @@ void attitudeManagerRuntime() {
         tail_OutputR = control_Pitch + pitchTrim;
         tail_OutputL = control_Yaw + yawTrim;
     }
-    
-    #else    //must be one of the two v-tails
+        
+    #elif(TAIL_TYPE == V_TAIL)    //V-tail
     {
-        //shared things for the two v-tails go here
+        //place holder
+    }
 
-        //get input from control knob
-        rudderProportion =  .75; //vTail_Balance * 0.0004 + 0.1;    //divide by 2000, multiply by 0.8 and then add 0.1 to map to 0.1 -> 0.9
-        elevatorProportion = 1.5 - rudderProportion;
-
-        //will likely need to add some more negative 1s depending on servo setup
-        //include pitch and yaw trim values?
-        #if(TAIL_TYPE == V_TAIL)    //V-tail
-        {           
-            //place holder
-        }
-        #endif
-
-        #if(TAIL_TYPE == INV_V_TAIL)    //Inverse V-Tail
-        {
-            tail_OutputR =  (control_Yaw-MIDDLE_YAW_PWM +1000) * rudderProportion + (control_Pitch-MIDDLE_PITCH_PWM +1100) * elevatorProportion - MIDDLE_PWM +650; //left
-            tail_OutputL =  (control_Yaw-MIDDLE_YAW_PWM -750) * rudderProportion - (control_Pitch-MIDDLE_PITCH_PWM + 1100 ) * elevatorProportion + MIDDLE_PWM +350;  //right
-
-            //tail_OutputR = -MIDDLE_PWM + 650;
-            //tail_OutputL = MIDDLE_PWM - 750;
-        }
-        #endif
+    #elif(TAIL_TYPE == INV_V_TAIL)    //Inverse V-Tail
+    {
+        tail_OutputR =  control_Yaw * RUDDER_PROPORTION + control_Pitch * ELEVATOR_PROPORTION ;
+        tail_OutputL =  control_Yaw * RUDDER_PROPORTION - control_Pitch * ELEVATOR_PROPORTION ;
     }
     #endif
+    
 
 
     setPWM(1, control_Roll + rollTrim);
