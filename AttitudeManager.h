@@ -27,6 +27,9 @@
 #define V_TAIL 1
 #define INV_V_TAIL 2
 
+#define RUDDER_PROPORTION 0.75
+#define ELEVATOR_PROPORTION 0.75
+
 //Defined Orientation Parameter constants
 #define YAW     0
 #define PITCH   1
@@ -45,10 +48,8 @@
 #define MIN_ROLL_PWM (MIN_PWM + 174) //This was + 40
 #define MAX_PITCH_PWM (MAX_PWM - 109) //This was - 25
 #define MIN_PITCH_PWM (MIN_PWM + 109) //This was + 25
-#define MIDDLE_PITCH_PWM (MAX_PITCH_PWM-MIN_PITCH_PWM)/2
 #define MAX_YAW_PWM (MAX_PWM - 109) //This was - 25
 #define MIN_YAW_PWM (MIN_PWM + 109) //This was + 25
-#define MIDDLE_YAW_PWM (MAX_YAW_PWM-MIN_YAW_PWM)/2
 
 /* FUNCTION PROTOTYPES */
 /*****************************************************************************  
