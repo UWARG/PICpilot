@@ -42,8 +42,8 @@ typedef struct _AMData {
 
 #if PATH_MANAGER
 typedef struct _GPSData {
-    double latitude;  //8 Bytes
-    double longitude; //8 Bytes
+    long double latitude;  //
+    long double longitude; //
     float time;     //4 Bytes
     float speed;
     int altitude;
