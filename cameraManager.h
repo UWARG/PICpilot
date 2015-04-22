@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   cameraManager.h
  * Author: Chris Hajduk
  *
@@ -11,17 +11,26 @@
 #include "OutputCompare.h"
 
 //Constants
-#define GIMBLE_PWM_RANGE SP_RANGE //Range one way (IE. Positive or Negative range, not both)
-#define GIMBLE_MOTION_RANGE 40.0 //Range one way
-#define LEFT_GIMBLE_MOTION_LIMIT 13 //Range Left way
-#define RIGHT_GIMBLE_MOTION_LIMIT 20 //Range Right way
+#define GIMBAL_PWM_RANGE SP_RANGE //Range one way (IE. Positive or Negative range, not both)
+#define GIMBAL_MOTION_RANGE 30 //Range one way
+#define LEFT_GIMBAL_MOTION_LIMIT 30 //Range Left way
+#define RIGHT_GIMBAL_MOTION_LIMIT 30 //Range Right way
+#define GOPRO_GIMBAL_MOTION_RANGE 30 //Range one way
+#define LEFT_GIMBAL_GOPRO_MOTION_LIMIT 30 //Range Left way
+#define RIGHT_GIMBAL_GOPRO_MOTION_LIMIT 30 //Range Right way
+#define VERTICAL_MOTION_RANGE 30 //Range one way
+#define UP_MOTION_LIMIT 30 //Range up
+#define DOWN_MOTION_LIMIT 30 //Range down
 
 //TODO:Add a description here
 unsigned int cameraPollingRuntime(long double latitude, long double longitude, long int time, unsigned int* cameraCounter, int rollAngle, int pitchAngle);
 void triggerCamera(unsigned int pwmSignal);
 void setTriggerDistance(float distance);
-unsigned int cameraGimbleStabilization(float imu_RollAngle);
-void setGimbleOffset(unsigned int pwmSignal);
+int cameraGimbalStabilization(float imu_RollAngle);
+void setGimbalOffset(int pwmSignal);
+int goProGimbalStabilization(float rollAngle);
+void setGoProGimbalOffset(int pwmSignal);
+int goProVerticalstabilization(float pitchAngle);
+void setVerticalOffset(int pwmSignal);
 
 #endif	/* CAMERAMANAGER_H */
-

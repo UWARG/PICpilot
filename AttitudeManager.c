@@ -409,8 +409,10 @@ void attitudeManagerRuntime() {
     if (control_Yaw < MIN_YAW_PWM)
         control_Yaw = MIN_YAW_PWM;
     
-//    unsigned int cameraPWM = cameraPollingRuntime(gps_Latitude, gps_Longitude, time, &cameraCounter, imu_RollAngle, imu_PitchAngle);
-//    unsigned int gimblePWM = cameraGimbleStabilization(imu_RollAngle);
+//   unsigned int cameraPWM = cameraPollingRuntime(gps_Latitude, gps_Longitude, time, &cameraCounter, imu_RollAngle, imu_PitchAngle);
+     unsigned int gimbalPWM = cameraGimbalStabilization(imu_RollAngle);
+     unsigned int goProgimbalPWM = goProGimbalStabilization(imu_RollAngle);
+     unsigned int verticalGoProPWM = goProVerticalstabilization(imu_PitchAngle);
     // Sends the output signal to the servo motors
 
     //begin code for different tail configurations
@@ -440,6 +442,7 @@ void attitudeManagerRuntime() {
     setPWM(4, tail_OutputL); //Yaw
 //    setPWM(5, cameraPWM);
 //    setPWM(6, gimblePWM);
+//need to add outputs for goProGimbalPWM, and verticalGoProPWM
 
 //    setPWM(7, sp_HeadingRate + MIDDLE_PWM - 20);
 #endif
