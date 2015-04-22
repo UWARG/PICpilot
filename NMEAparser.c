@@ -31,7 +31,7 @@ VTG:
 
 #if PATH_MANAGER && !GPS_OLD
 
-extern GPSData gpsData;
+GPSData gpsData;
 extern UART_RX_Buffer _buff;
 char nMsg[255];
 char dmsg[] = "$GPGGA,092725.00,4717.11399,N,00833.91590,W,1,8,1.01,499.6,M,48.0,M,,0*5B";

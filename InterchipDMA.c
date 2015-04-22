@@ -174,8 +174,6 @@ void init_SPI1(){
 }
 #endif
 
-GPSData gpsData __attribute__((space(dma)));
-
 #if PATH_MANAGER && GPS_OLD
     void init_SPI2(){
     //Set interrupts
@@ -221,7 +219,7 @@ GPSData gpsData __attribute__((space(dma)));
     char spiChecksum = 0;
 char GPSDataFlag = 0;
 
-//GPSData gpsData __attribute__((space(dma))); //Moved line outside Compiler Statement for a Quick Fix.... Needs to be turned on either wa for both GPS's
+GPSData gpsData __attribute__((space(dma))); //Moved line outside Compiler Statement for a Quick Fix.... Needs to be turned on either wa for both GPS's
 /*
  *
  */
