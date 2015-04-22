@@ -411,7 +411,7 @@ void attitudeManagerRuntime() {
     
 //   unsigned int cameraPWM = cameraPollingRuntime(gps_Latitude, gps_Longitude, time, &cameraCounter, imu_RollAngle, imu_PitchAngle);
      unsigned int gimbalPWM = cameraGimbalStabilization(imu_RollAngle);
-     unsigned int goProgimbalPWM = goProGimbalStabilization(imu_RollAngle);
+     unsigned int goProGimbalPWM = goProGimbalStabilization(imu_RollAngle);
      unsigned int verticalGoProPWM = goProVerticalstabilization(imu_PitchAngle);
     // Sends the output signal to the servo motors
 
@@ -436,12 +436,14 @@ void attitudeManagerRuntime() {
     
 
 
-    setPWM(1, control_Roll + rollTrim);
+    //setPWM(1, control_Roll + rollTrim);
     setPWM(2, tail_OutputR); //Pitch
     setPWM(3, control_Throttle);
     setPWM(4, tail_OutputL); //Yaw
-//    setPWM(5, cameraPWM);
-//    setPWM(6, gimblePWM);
+    //setPWM(5, cameraPWM);
+    setPWM(5, goProGimbalPWM);
+    setPWM(6, gimbalPWM);
+    setPWM(1, verticalGoProPWM);
 //need to add outputs for goProGimbalPWM, and verticalGoProPWM
 
 //    setPWM(7, sp_HeadingRate + MIDDLE_PWM - 20);
@@ -622,7 +624,7 @@ void readDatalink(void){
                 setTriggerDistance(*(float*)(&cmd->data));
                 break;
             case SET_GIMBLE_OFFSET:
-                setGimbleOffset(*(unsigned int*)(&cmd->data));
+                setGimbalOffset(*(unsigned int*)(&cmd->data));
                 break;
             case KILL_PLANE:
                 if (*(int*)(&cmd->data) == 1234)

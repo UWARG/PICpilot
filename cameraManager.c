@@ -69,9 +69,9 @@ int cameraGimbalStabilization(float rollAngle){
         rollAngle = -RIGHT_GIMBAL_MOTION_LIMIT;
     }
 
-    return gimbalOffset + 675/GIMBAL_MOTION_RANGE * rollAngle;//1024 is the same as GIMBAL_PWM_RANGE; 675 for some reason gives better stabiization with motion range at 30
+    return gimbalOffset - 675/GIMBAL_MOTION_RANGE * rollAngle;//1024 is the same as GIMBAL_PWM_RANGE; 675 for some reason gives better stabiization with motion range at 30
     //compared to 1024 with range at 60. This is being used for all of the stabilization codes (camera, GoPro, vertical)
-    // there is a minus because the servo is facing the opposite way in terms of the camera gimbal servo
+    
 }
 
 void setGimbalOffset(int pwmSignal){
@@ -87,8 +87,8 @@ int goProGimbalStabilization(float rollAngle){
         rollAngle = - RIGHT_GIMBAL_GOPRO_MOTION_LIMIT;
     }
 
-    return goProgimbalOffset - 675/GOPRO_GIMBAL_MOTION_RANGE * rollAngle;
-}
+    return goProgimbalOffset + 675/GOPRO_GIMBAL_MOTION_RANGE * rollAngle;
+}// there is a plus because the servo is facing the opposite way in terms of the camera gimbal servo
 
 void setGoProGimbalOffset(int pwmSignal){
     goProgimbalOffset =  pwmSignal; // + MIDDLE_PWM;
@@ -103,7 +103,7 @@ int goProVerticalstabilization(float pitchAngle){
         pitchAngle = - DOWN_MOTION_LIMIT;
     }
 
-    return verticalOffset + 675/VERTICAL_MOTION_RANGE * pitchAngle;
+    return verticalOffset - 675/VERTICAL_MOTION_RANGE * pitchAngle;
 }
 
 void setVerticalOffset(int pwmSignal){
