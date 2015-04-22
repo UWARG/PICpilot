@@ -58,7 +58,7 @@ void init_DMA0();
 void init_DMA1();
 void init_SPI1();
 
-#if PATH_MANAGER
+#if PATH_MANAGER && GPS_OLD
 void init_SPI2();
 void init_DMA2();
 #endif

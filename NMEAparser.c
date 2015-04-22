@@ -29,7 +29,7 @@ VTG:
 -
 */
 
-#if PATH_MANAGER
+#if PATH_MANAGER && !GPS_OLD
 
 extern GPSData gpsData;
 extern UART_RX_Buffer _buff;

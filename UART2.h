@@ -15,7 +15,7 @@ void UART2_SendChar(char data);
 
 void __attribute__((interrupt, no_auto_psv)) _U2RXInterrupt( void );
 
-#if PATH_MANAGER
+#if PATH_MANAGER && !GPS_OLD
 
  typedef struct _UART_RX_Buffer {
      char data[256];

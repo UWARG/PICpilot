@@ -1,7 +1,7 @@
 #include <p33FJ256GP710.h>
 #include "UART2.h"
 
-#if PATH_MANAGER
+#if PATH_MANAGER && !GPS_OLD
 UART_RX_Buffer _buff;
 #endif
 
@@ -67,13 +67,13 @@ void InitUART2()
 	IEC1bits.U2TXIE = 0;	// Enable Transmit Interrupts
 	IFS1bits.U2RXIF = 0;	// Clear the Recieve Interrupt Flag
 
-#if PATH_MANAGER
+#if PATH_MANAGER && !GPS_OLD
 	IEC1bits.U2RXIE = 1;	// Enable Recieve Interrupts
 #else
         IEC1bits.U2RXIE = 0;	// Enable Recieve Interrupts
 #endif
 
-#if PATH_MANAGER
+#if PATH_MANAGER && !GPS_OLD
 	U1MODEbits.UARTEN = 1;	// And turn the peripheral on
 	U1STAbits.UTXEN = 1;
 #endif
@@ -115,7 +115,7 @@ void UART2_SendString(char *s)
           UART2_SendChar('\n');
 }
 
-#if PATH_MANAGER
+#if PATH_MANAGER && !GPS_OLD
 void __attribute__((interrupt, no_auto_psv)) _U2RXInterrupt( void )
 {
     write_rx_buffer(U2RXREG,&_buff);

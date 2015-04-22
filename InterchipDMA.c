@@ -174,7 +174,9 @@ void init_SPI1(){
 }
 #endif
 
-#if PATH_MANAGER
+GPSData gpsData __attribute__((space(dma)));
+
+#if PATH_MANAGER && GPS_OLD
     void init_SPI2(){
     //Set interrupts
     IFS2bits.SPI2IF = 0;
@@ -219,14 +221,14 @@ void init_SPI1(){
     char spiChecksum = 0;
 char GPSDataFlag = 0;
 
-GPSData gpsData __attribute__((space(dma)));
+//GPSData gpsData __attribute__((space(dma))); //Moved line outside Compiler Statement for a Quick Fix.... Needs to be turned on either wa for both GPS's
 /*
  *
  */
 
 void __attribute__((__interrupt__, no_auto_psv)) _DMA2Interrupt(void){
     newGPSDataAvailable = 1;
-    IFS1bits.DMA2IF = 0;// Clear the DMA0 Interrupt Flag
+    IFS1bits.DMA2IF = 0;// Clear the DMA2 Interrupt Flag
 }
 void init_DMA2(){
     IFS1bits.DMA2IF = 0;

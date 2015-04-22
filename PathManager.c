@@ -57,8 +57,10 @@ void pathManagerInit(void) {
 
     //Communication with GPS
     InitUART2();
+#if GPS_OLD
     init_SPI2();
     init_DMA2();
+#endif
     initBatterySensor();
 
     //Interchip Communication
@@ -107,7 +109,10 @@ void pathManagerRuntime(void) {
 //        UART1_SendString(&str);
 #endif
     //Get GPS data
+#if !GPS_OLD
     assembleNEMAMessage();
+#endif
+
     copyGPSData();
     
     if (returnHome){
