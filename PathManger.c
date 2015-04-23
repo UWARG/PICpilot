@@ -497,7 +497,7 @@ void checkAMData(){
                 node->latitude = gpsData.latitude;
                 node->longitude = gpsData.longitude;
                 node->radius = 1; //Arbitrary value
-                if (path[getIndexFromID(amData.waypoint.id)] && path[getIndexFromID(amData.waypoint.id)]->previous){
+                if (getIndexFromID(amData.waypoint.id) != -1 && path[getIndexFromID(amData.waypoint.id)]->previous){
                     insertPathNode(node,path[getIndexFromID(amData.waypoint.id)]->previous->id,amData.waypoint.id);
                     currentIndex = node->index;
                 }
