@@ -9,6 +9,8 @@
 #include "PathManager.h"
 #include "MPL3115A2.h"
 #include "voltageSensor.h"
+#include "UART2.h"
+#include "NMEAparser.h"
 
 #if !(PATH_MANAGER && ATTITUDE_MANAGER && COMMUNICATION_MANAGER)
 #include "InterchipDMA.h"
@@ -54,9 +56,12 @@ void pathManagerInit(void) {
 #endif
 
     //Communication with GPS
-        init_SPI2();
-        init_DMA2();
-        initBatterySensor();
+    InitUART2();
+#if GPS_OLD
+    init_SPI2();
+    init_DMA2();
+#endif
+    initBatterySensor();
 
     //Interchip Communication
 #if !ATTITUDE_MANAGER
@@ -101,10 +106,15 @@ void pathManagerRuntime(void) {
 #if DEBUG
 //        char str[16];
 //        sprintf(&str,"%f",pmData.time);
-//        debug(&str);
+//        UART1_SendString(&str);
 #endif
     //Get GPS data
+#if !GPS_OLD
+    assembleNEMAMessage();
+#endif
+
     copyGPSData();
+    
     if (returnHome){
         pmData.targetWaypoint = -1;
     }
@@ -442,7 +452,7 @@ unsigned int insertPathNode(PathData* node, unsigned int previousID, unsigned in
 }
 
 void copyGPSData(){
-    if (newGPSDataAvailable){
+//    if (newGPSDataAvailable){
         newGPSDataAvailable = 0;
         pmData.time = gpsData.time;
         pmData.longitude = gpsData.longitude;
@@ -453,7 +463,7 @@ void copyGPSData(){
         pmData.satellites = (char)gpsData.satellites;
         pmData.positionFix = (char)gpsData.positionFix;
         pmData.batteryLevel = getCurrentPercent();
-    }
+//    }
     pmData.altitude = getAltitude(); //gpsData.altitude; //want to get altitude regardless of if there is new GPS data
 }
 
@@ -468,7 +478,7 @@ void checkAMData(){
         // All commands/actions that need to be run go here
        switch (amData.command){
             case PM_DEBUG_TEST:
-                debug("Test");
+//                UART1_SendString("Test");
                 break;
             case PM_NEW_WAYPOINT:;
                 PathData* node = initializePathNode();
@@ -498,7 +508,7 @@ void checkAMData(){
                 node->latitude = gpsData.latitude;
                 node->longitude = gpsData.longitude;
                 node->radius = 1; //Arbitrary value
-                if (getIndexFromID(amData.waypoint.id) != -1 && path[getIndexFromID(amData.waypoint.id)]->previous){
+                if (path[getIndexFromID(amData.waypoint.id)] && path[getIndexFromID(amData.waypoint.id)]->previous){
                     insertPathNode(node,path[getIndexFromID(amData.waypoint.id)]->previous->id,amData.waypoint.id);
                     currentIndex = node->index;
                 }

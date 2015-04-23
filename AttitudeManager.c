@@ -52,15 +52,8 @@ int sp_ThrottleRate = 0;
 int sp_YawRate = MIDDLE_PWM;
 int sp_RollRate = MIDDLE_PWM;
 
-int vTail_Balance = 0.5;
-int tail_Output1;   //replacing standard tail pitch
-int tail_Output2;
-float rudderProportion;
-float elevatorProportion;
-//rudderProportion=(1-VTailElevatorPortion)/2
-//elevatorProportion=VTailElevatorPortion/2
-//VTailElevatorPortion refers to the decimal percentage
-//of the control surface range of motion dedicated to the elevator component.
+int tail_OutputR;   //what the rudder used to be
+int tail_OutputL;
 
 
 int sp_ComputedPitchRate = 0;
@@ -193,7 +186,7 @@ void attitudeManagerRuntime() {
         waypointIndex = pmData.targetWaypoint;
         batteryLevel = pmData.batteryLevel;
     }
-#endif
+//#endif
 
     /*****************************************************************************
      *****************************************************************************
@@ -213,19 +206,31 @@ void attitudeManagerRuntime() {
         }
         if ((THROTTLE_CONTROL_SOURCE & controlLevel) == 0)
             sp_ThrottleRate = (icTimeDiff[2]);
-        sp_YawRate = icTimeDiff[3];
+        
+
+        #if(TAIL_TYPE == STANDARD_TAIL)
+        {
+            if ((PITCH_CONTROL_SOURCE & controlLevel) == 0)
+            {
+            sp_PitchRate = icTimeDiff[1];
+            }
+            sp_YawRate = icTimeDiff[3];
+        }
+        #endif
+        #if(TAIL_TYPE == INV_V_TAIL)
+        {
+            if ((PITCH_CONTROL_SOURCE & controlLevel) == 0)
+            {
+                sp_PitchRate = (icTimeDiff[1] - icTimeDiff[3]) / (2 * ELEVATOR_PROPORTION);
+            }
+            sp_YawRate = (icTimeDiff[1] + icTimeDiff[3] ) / (2 * RUDDER_PROPORTION);
+        }
+        #endif
 
         sp_UHFSwitch = icTimeDiff[4];
 //        sp_Type = icTimeDiff[5];
 //        sp_Value = icTimeDiff[6];
         sp_Switch = icTimeDiff[7];
-
-
-
-        /***************************************************************************************************************/
-        vTail_Balance = icTimeDiff[5];  //pot on steves controller, for calculating vTail control ratio
-        /***************************************************************************************************************/
-
 
     /*****************************************************************************
      *****************************************************************************
@@ -240,13 +245,13 @@ void attitudeManagerRuntime() {
     VN100_SPI_GetRates(0, (float*) &imuData);
                            
     //Outputs in order: Roll,Pitch,Yaw
-    imu_RollRate = (-imuData[IMU_ROLL_RATE]); //This is a reminder for me to figure out a more elegant way to fix improper derivative control (based on configuration of the sensor), adding this negative is a temporary fix.
-    imu_PitchRate = imuData[IMU_PITCH_RATE];
+    imu_RollRate = (-imuData[IMU_ROLL_RATE]); //This is a reminder for me to figure out a more elegant way to fix improper derivative control (based on configuration of the sensor), adding this negative is a temporary fix. ****MITCH REMOVED NEGATIVE
+    imu_PitchRate = imuData[IMU_PITCH_RATE]; //**************MITCH HACK FIX TO CHANGE WHICH WAY IT THINKS THE PITCH ANGLE IS added negative
     imu_YawRate = imuData[IMU_YAW_RATE];
     VN100_SPI_GetYPR(0, &imuData[YAW], &imuData[PITCH], &imuData[ROLL]);
     imu_YawAngle = imuData[YAW];
-    imu_PitchAngle = imuData[PITCH];
-    imu_RollAngle = (imuData[ROLL]);
+    imu_PitchAngle = -imuData[PITCH]; //**************MITCH HACK FIX TO CHANGE WHICH WAY IT THINKS THE PITCH ANGLE IS added negative
+    imu_RollAngle = (-imuData[ROLL]); //**************MITCH HACK FIX TO CHANGE WHICH WAY IT THINKS THE PITCH ANGLE IS, added negative
 
     //Do we need this??? Might make it more accurate
 //    if (gps_PositionFix == 2){
@@ -311,7 +316,7 @@ void attitudeManagerRuntime() {
     if ((controlLevel & ROLL_CONTROL_SOURCE) == 0 && (controlLevel & HEADING_CONTROL_ON) == 0)
         sp_RollAngle = (int)((-sp_RollRate / ((float)SP_RANGE / MAX_ROLL_ANGLE) ));
     if ((controlLevel & PITCH_CONTROL_SOURCE) == 0 && (controlLevel & ALTITUDE_CONTROL_ON) == 0)
-        sp_PitchAngle = (int)(-sp_PitchRate / ((float)SP_RANGE / MAX_PITCH_ANGLE));
+        sp_PitchAngle = (int)(sp_PitchRate / ((float)SP_RANGE / MAX_PITCH_ANGLE));
 
     //sp_YawRate = controlSignalAngles(sp_YawAngle, imu_YawAngle, kd_Accel_Yaw, -(SP_RANGE) / (maxYawAngle)) ;
     //sp_ComputedYawRate = sp_YawRate;
@@ -324,7 +329,7 @@ void attitudeManagerRuntime() {
     }
 
     if (controlLevel & PITCH_CONTROL_TYPE || controlLevel & ALTITUDE_CONTROL_ON){
-        sp_ComputedPitchRate = controlSignalAngles(sp_PitchAngle, imu_PitchAngle, PITCH, -(SP_RANGE) / (MAX_PITCH_ANGLE));
+        sp_ComputedPitchRate = controlSignalAngles(sp_PitchAngle, imu_PitchAngle, PITCH, (SP_RANGE) / (MAX_PITCH_ANGLE)); //Removed negative
     }
     else{
         sp_ComputedPitchRate = sp_PitchRate;
@@ -404,52 +409,46 @@ void attitudeManagerRuntime() {
     if (control_Yaw < MIN_YAW_PWM)
         control_Yaw = MIN_YAW_PWM;
     
-//    unsigned int cameraPWM = cameraPollingRuntime(gps_Latitude, gps_Longitude, time, &cameraCounter, imu_RollAngle, imu_PitchAngle);
-//    unsigned int gimblePWM = cameraGimbleStabilization(imu_RollAngle);
+//   unsigned int cameraPWM = cameraPollingRuntime(gps_Latitude, gps_Longitude, time, &cameraCounter, imu_RollAngle, imu_PitchAngle);
+     unsigned int gimbalPWM = cameraGimbalStabilization(imu_RollAngle);
+     unsigned int goProGimbalPWM = goProGimbalStabilization(imu_RollAngle);
+     unsigned int verticalGoProPWM = goProVerticalstabilization(imu_PitchAngle);
     // Sends the output signal to the servo motors
 
     //begin code for different tail configurations
     #if(TAIL_TYPE == STANDARD_TAIL)    //is a normal t-tail
     {
-        tail_Output1 = control_Pitch + pitchTrim;
-        tail_Output2 = control_Yaw + yawTrim;
+        tail_OutputR = control_Pitch + pitchTrim;
+        tail_OutputL = control_Yaw + yawTrim;
     }
-    
-    #else    //must be one of the two v-tails
+        
+    #elif(TAIL_TYPE == V_TAIL)    //V-tail
     {
-        //shared things for the two v-tails go here
+        //place holder
+    }
 
-        //get input from control knob
-        rudderProportion =  vTail_Balance * 0.0004 + 0.1;    //divide by 2000, multiply by 0.8 and then add 0.1 to map to 0.1 -> 0.9
-        elevatorProportion = 1 - rudderProportion;
-
-        //will likely need to add some more negative 1s depending on servo setup
-        //include pitch and yaw trim values?
-        #if(TAIL_TYPE == V_TAIL)    //V-tail
-        {
-            tail_Output1 = -1 * control_Yaw * (rudderProportion-MIDDLE_PWM) + control_Pitch * (elevatorProportion-MIDDLE_PWM) + MIDDLE_PWM;
-            tail_Output2 =      control_Yaw * (rudderProportion-MIDDLE_PWM) + control_Pitch * (elevatorProportion-MIDDLE_PWM) + MIDDLE_PWM;           
-        }
-        #endif
-
-        #if(TAIL_TYPE == INV_V_TAIL)    //Inverse V-Tail
-        {
-            tail_Output1 = -1 * control_Yaw * (rudderProportion-MIDDLE_PWM) + control_Pitch * (elevatorProportion-MIDDLE_PWM) + MIDDLE_PWM;
-            tail_Output2 =      control_Yaw * (rudderProportion-MIDDLE_PWM) + control_Pitch * (elevatorProportion-MIDDLE_PWM) + MIDDLE_PWM;
-        }
-        #endif
+    #elif(TAIL_TYPE == INV_V_TAIL)    //Inverse V-Tail
+    {
+        tail_OutputR =  control_Yaw * RUDDER_PROPORTION + control_Pitch * ELEVATOR_PROPORTION ;
+        tail_OutputL =  control_Yaw * RUDDER_PROPORTION - control_Pitch * ELEVATOR_PROPORTION ;
     }
     #endif
+    
 
 
-    setPWM(1, control_Roll + rollTrim);
-    setPWM(2, tail_Output1);
+    //setPWM(1, control_Roll + rollTrim);
+    setPWM(2, tail_OutputR); //Pitch
     setPWM(3, control_Throttle);
-    setPWM(4, tail_Output2);
-//    setPWM(5, cameraPWM);
-//    setPWM(6, gimblePWM);
+    setPWM(4, tail_OutputL); //Yaw
+    //setPWM(5, cameraPWM);
+    setPWM(5, goProGimbalPWM);
+    setPWM(6, gimbalPWM);
+    setPWM(1, verticalGoProPWM);
+//need to add outputs for goProGimbalPWM, and verticalGoProPWM
 
 //    setPWM(7, sp_HeadingRate + MIDDLE_PWM - 20);
+#endif
+
 
 #if COMMUNICATION_MANAGER
     readDatalink();
@@ -625,7 +624,7 @@ void readDatalink(void){
                 setTriggerDistance(*(float*)(&cmd->data));
                 break;
             case SET_GIMBLE_OFFSET:
-                setGimbleOffset(*(unsigned int*)(&cmd->data));
+                setGimbalOffset(*(unsigned int*)(&cmd->data));
                 break;
             case KILL_PLANE:
                 if (*(int*)(&cmd->data) == 1234)

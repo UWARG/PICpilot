@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   InterchipDMA.h
  * Author: Chris Hajduk
  *
@@ -42,8 +42,8 @@ typedef struct _AMData {
 
 #if PATH_MANAGER
 typedef struct _GPSData {
-    long double latitude;  //8 Bytes
-    long double longitude; //8 Bytes
+    long double latitude;  //
+    long double longitude; //
     float time;     //4 Bytes
     float speed;
     int altitude;
@@ -58,7 +58,7 @@ void init_DMA0();
 void init_DMA1();
 void init_SPI1();
 
-#if PATH_MANAGER
+#if PATH_MANAGER && GPS_OLD
 void init_SPI2();
 void init_DMA2();
 #endif
