@@ -8,9 +8,9 @@
 ********************************************************************************
 * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING
 * CUSTOMERS WITH EXAMPLE CODE IN ORDER TO SAVE THEM TIME. AS A RESULT,
-* VECTORNAV SHALL NOT BE HELD LIABLE FOR ANY DIRECT, INDIRECT OR 
-* CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING FROM THE 
-* CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE 
+* VECTORNAV SHALL NOT BE HELD LIABLE FOR ANY DIRECT, INDIRECT OR
+* CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING FROM THE
+* CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
 * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
 *******************************************************************************/
 
@@ -25,12 +25,12 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Buffer used for SPI read and write responses */
-/* Both the read and write register SPI routines below use this packet 
-   to store the returned SPI response. None of the write register commands 
-   implemented in this library check the data that is returned by the sensor 
+/* Both the read and write register SPI routines below use this packet
+   to store the returned SPI response. None of the write register commands
+   implemented in this library check the data that is returned by the sensor
    to ensure that it is consistent with the data that was sent.  For normal
    cases this isn't necessary however if you wish to implement your own
-   checking then this is the structure that you need to check after each 
+   checking then this is the structure that you need to check after each
    register set command.  The structure has the following form:
    VN_SPI_LastReceivedPacket.CmdID -> This is the ID for the command that
                                    the response is for
@@ -88,7 +88,7 @@ void VN100_initSPI(){
 /*******************************************************************************
 * Function Name  : VN100_SPI_ReadRegister(unsigned char sensorID, unsigned char regID, unsigned char regWidth)
 * Description    : Read the register with the ID regID on a VN-100 sensor
-*                  using the SPI interface.                                     
+*                  using the SPI interface.
 * Input          : sensorID -> The sensor to get the requested data from.
 *                : regID -> The requested register ID number
 *                : regWidth -> The width of the requested register in 32-bit words
@@ -116,17 +116,17 @@ VN100_SPI_Packet* VN100_SPI_ReadRegister(unsigned char sensorID, unsigned char r
   }
 
   /* Pull SS line high to end SPI transaction */
-  VN_SPI_SetSS(sensorID, VN_PIN_HIGH);  
+  VN_SPI_SetSS(sensorID, VN_PIN_HIGH);
   VN_Delay(50);
 
   /* Return Error code */
-  return &VN_SPI_LastReceivedPacket;  
+  return &VN_SPI_LastReceivedPacket;
 }
 
 /*******************************************************************************
 * Function Name  : VN100_SPI_WriteRegister(unsigned char sensorID, unsigned char regID, unsigned char regWidth, unsigned long* ptrWriteValues)
 * Description    : Write to the register with the ID regID on VN-100 sensor
-*                  using the SPI interface.                                        
+*                  using the SPI interface.
 * Input          : sensorID -> The sensor to write the requested data to.
 *                : regID -> The register ID number
 *                : regWidth -> The width of the register in 32-bit words
@@ -161,7 +161,7 @@ VN100_SPI_Packet* VN100_SPI_WriteRegister(unsigned char sensorID, unsigned char 
   }
 
   /* Pull SS line high to end SPI transaction */
-  VN_SPI_SetSS(sensorID, VN_PIN_HIGH);  
+  VN_SPI_SetSS(sensorID, VN_PIN_HIGH);
 
 
   /* Return pointer to SPI packet */
@@ -170,7 +170,7 @@ VN100_SPI_Packet* VN100_SPI_WriteRegister(unsigned char sensorID, unsigned char 
 
 /*******************************************************************************
 * Function Name  : VN100_SPI_GetModel(unsigned char sensorID, char* model)
-* Description    : Read the model number from the sensor.                                       
+* Description    : Read the model number from the sensor.
 * Input          : sensorID -> The sensor to get the model number from.
 * Output         : model -> Pointer to a character array where the requested
 *                           model number is placed. This needs to be a character
@@ -195,7 +195,7 @@ VN100_SPI_Packet* VN100_SPI_GetModel(unsigned char sensorID, char* model){
 
 /*******************************************************************************
 * Function Name  : VN100_SPI_GetHWRev(unsigned char sensorID, unsigned long* revision)
-* Description    : Get the hardware revision for the sensor.                                        
+* Description    : Get the hardware revision for the sensor.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : revision -> The hardware revision requested.
 * Return         : Pointer to SPI packet returned by the sensor
@@ -203,18 +203,18 @@ VN100_SPI_Packet* VN100_SPI_GetModel(unsigned char sensorID, char* model){
 VN100_SPI_Packet* VN100_SPI_GetHWRev(unsigned char sensorID, unsigned long* revision){
 
   /* Read register */
-  VN100_SPI_ReadRegister(sensorID, VN100_REG_HWREV, 1);  
-  
+  VN100_SPI_ReadRegister(sensorID, VN100_REG_HWREV, 1);
+
   /* Get hardware revision */
   *revision = VN_SPI_LastReceivedPacket.Data[0].UInt;
-    
+
   /* Return pointer to SPI packet */
   return &VN_SPI_LastReceivedPacket;
 }
 
 /*******************************************************************************
 * Function Name  : VN100_SPI_GetSerial(unsigned char sensorID, unsigned long* serialNumber)
-* Description    : Get the serial number from the requested sensor.                                        
+* Description    : Get the serial number from the requested sensor.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : serialNumber -> The serial number returned by the sensor.
 * Return         : Pointer to SPI packet returned by the sensor
@@ -224,20 +224,20 @@ VN100_SPI_Packet* VN100_SPI_GetSerial(unsigned char sensorID, unsigned long* ser
   unsigned long i;
 
   /* Read register */
-  VN100_SPI_ReadRegister(sensorID, VN100_REG_SN, 3);  
-  
+  VN100_SPI_ReadRegister(sensorID, VN100_REG_SN, 3);
+
   /* Get model number */
   for(i=0;i<3;i++){
     *(serialNumber + i) = VN_SPI_LastReceivedPacket.Data[i].UInt;
   }
-    
+
   /* Return pointer to SPI packet */
   return &VN_SPI_LastReceivedPacket;
 }
 
 /*******************************************************************************
 * Function Name  : VN100_SPI_GetFWVer(unsigned char sensorID, unsigned long* firmwareVersion)
-* Description    : Get the firmware version from the requested sensor.                                        
+* Description    : Get the firmware version from the requested sensor.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : firmwareVersion -> The firmware version returned.
 * Return         : Pointer to SPI packet returned by the sensor
@@ -245,18 +245,18 @@ VN100_SPI_Packet* VN100_SPI_GetSerial(unsigned char sensorID, unsigned long* ser
 VN100_SPI_Packet* VN100_SPI_GetFWVer(unsigned char sensorID, unsigned long* firmwareVersion){
 
   /* Read register */
-  VN100_SPI_ReadRegister(sensorID, VN100_REG_FWVER, 1);  
-  
+  VN100_SPI_ReadRegister(sensorID, VN100_REG_FWVER, 1);
+
   /* Get hardware revision */
   *firmwareVersion = VN_SPI_LastReceivedPacket.Data[0].UInt;
-    
+
   /* Return pointer to SPI packet */
   return &VN_SPI_LastReceivedPacket;
 }
 
 /*******************************************************************************
 * Function Name  : VN100_SPI_GetBaudRate(unsigned char sensorID, VN100_BaudType baudRate)
-* Description    : Get the serial baud rate from the requested sensor.                                        
+* Description    : Get the serial baud rate from the requested sensor.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : baudRate -> The baud rate returned by the sensor.
 * Return         : Pointer to SPI packet returned by the sensor
@@ -264,18 +264,18 @@ VN100_SPI_Packet* VN100_SPI_GetFWVer(unsigned char sensorID, unsigned long* firm
 VN100_SPI_Packet* VN100_SPI_GetBaudRate(unsigned char sensorID, VN100_BaudType* baudRate){
 
   /* Read register */
-  VN100_SPI_ReadRegister(sensorID, VN100_REG_SBAUD, 1);  
-  
+  VN100_SPI_ReadRegister(sensorID, VN100_REG_SBAUD, 1);
+
   /* Get hardware revision */
   *baudRate = (VN100_BaudType)VN_SPI_LastReceivedPacket.Data[0].UInt;
-    
+
   /* Return pointer to SPI packet */
   return &VN_SPI_LastReceivedPacket;
 }
 
 /*******************************************************************************
 * Function Name  : VN100_SPI_SetBaudRate(unsigned char sensorID, VN100_BaudType baudRate)
-* Description    : Set the serial baud rate for the requested sensor.                                        
+* Description    : Set the serial baud rate for the requested sensor.
 * Input          : sensorID -> The sensor to set.
 * Output         : baudRate -> The baud rate to set on the sensor.
 * Return         : Pointer to SPI packet returned by the sensor
@@ -290,7 +290,7 @@ VN100_SPI_Packet* VN100_SPI_SetBaudRate(unsigned char sensorID, VN100_BaudType b
 
 /*******************************************************************************
 * Function Name  : VN100_SPI_GetADOR(unsigned char sensorID, VN100_ADORType ADOR)
-* Description    : Get the ADOR register value from the requested sensor.                                        
+* Description    : Get the ADOR register value from the requested sensor.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : ADOR -> The value returned for the ADOR register.
 * Return         : Pointer to SPI packet returned by the sensor
@@ -298,18 +298,18 @@ VN100_SPI_Packet* VN100_SPI_SetBaudRate(unsigned char sensorID, VN100_BaudType b
 VN100_SPI_Packet* VN100_SPI_GetADOR(unsigned char sensorID, VN100_ADORType* ADOR){
 
   /* Read register */
-  VN100_SPI_ReadRegister(sensorID, VN100_REG_ADOR, 1);  
-  
+  VN100_SPI_ReadRegister(sensorID, VN100_REG_ADOR, 1);
+
   /* Get hardware revision */
   *ADOR = (VN100_ADORType)VN_SPI_LastReceivedPacket.Data[0].UInt;
-    
+
   /* Return pointer to SPI packet */
   return &VN_SPI_LastReceivedPacket;
 }
 
 /*******************************************************************************
 * Function Name  : VN100_SPI_SetADOR(unsigned char sensorID, VN100_ADORType ADOR)
-* Description    : Set the ADOR register value from the requested sensor.                                
+* Description    : Set the ADOR register value from the requested sensor.
 * Input          : sensorID -> The sensor to set.
 * Output         : ADOR -> The value to set the ADOR register to.
 * Return         : Pointer to SPI packet returned by the sensor
@@ -324,7 +324,7 @@ VN100_SPI_Packet* VN100_SPI_SetADOR(unsigned char sensorID, VN100_ADORType ADOR)
 
 /*******************************************************************************
 * Function Name  : VN100_SPI_GetADOF(unsigned char sensorID, VN100_ADOFType ADOF)
-* Description    : Get the async data output frequency.                                        
+* Description    : Get the async data output frequency.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : ADOR -> The frequency returned for the ADOF register.
 * Return         : Pointer to SPI packet returned by the sensor
@@ -332,11 +332,11 @@ VN100_SPI_Packet* VN100_SPI_SetADOR(unsigned char sensorID, VN100_ADORType ADOR)
 VN100_SPI_Packet* VN100_SPI_GetADOF(unsigned char sensorID, VN100_ADOFType* ADOF){
 
   /* Read register */
-  VN100_SPI_ReadRegister(sensorID, VN100_REG_ADOF, 1);  
-  
+  VN100_SPI_ReadRegister(sensorID, VN100_REG_ADOF, 1);
+
   /* Get hardware revision */
   *ADOF = (VN100_ADOFType)VN_SPI_LastReceivedPacket.Data[0].UInt;
-    
+
   /* Return pointer to SPI packet */
   return &VN_SPI_LastReceivedPacket;
 }
@@ -358,7 +358,7 @@ VN100_SPI_Packet* VN100_SPI_SetADOF(unsigned char sensorID, VN100_ADOFType ADOF)
 
 /*******************************************************************************
 * Function Name  : VN100_SPI_GetYPR(unsigned char sensorID, float yaw, float pitch, float roll)
-* Description    : Get the measured yaw, pitch, roll orientation angles.                                        
+* Description    : Get the measured yaw, pitch, roll orientation angles.
 * Input          : sensorID -> The sensor to set.
 * Output         : yaw -> The yaw angle measured in degrees.
 *                  pitch -> The pitch angle measured in degrees.
@@ -369,12 +369,12 @@ VN100_SPI_Packet* VN100_SPI_GetYPR(unsigned char sensorID, float* yaw, float* pi
 
   /* Read register */
   VN100_SPI_ReadRegister(sensorID, VN100_REG_YPR, 3);
-  
+
   /* Get Yaw, Pitch, Roll */
   *yaw   = VN_SPI_LastReceivedPacket.Data[0].Float;
   *pitch = VN_SPI_LastReceivedPacket.Data[1].Float;
   *roll  = VN_SPI_LastReceivedPacket.Data[2].Float;
-  
+
   /* Return pointer to SPI packet */
   return &VN_SPI_LastReceivedPacket;
 }
@@ -383,24 +383,24 @@ VN100_SPI_Packet* VN100_SPI_GetYPR(unsigned char sensorID, float* yaw, float* pi
 * Function Name  : VN100_SPI_GetQuat(unsigned char sensorID, float* q)
 * Description    : Get the measured attitude quaternion. The quaternion is a 4x1
 *                  vector unit vector with the fourth term q[3] as the scalar
-*                  term.                                        
+*                  term.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : q -> The address of the location to write the returned
-*                       measured quaternion (4x1). 
+*                       measured quaternion (4x1).
 * Return         : Pointer to SPI packet returned by the sensor
 *******************************************************************************/
 VN100_SPI_Packet* VN100_SPI_GetQuat(unsigned char sensorID, float* q){
 
   unsigned long i;
-  
+
   /* Read register */
   VN100_SPI_ReadRegister(sensorID, VN100_REG_QTN, 4);
-  
+
   /* Get Quaternion */
   for(i=0;i<4;i++){
     q[i] = VN_SPI_LastReceivedPacket.Data[i].Float;
   }
-  
+
   /* Return pointer to SPI packet */
   return &VN_SPI_LastReceivedPacket;
 }
@@ -412,7 +412,7 @@ VN100_SPI_Packet* VN100_SPI_GetQuat(unsigned char sensorID, float* q){
 *                  the scalar term. The magnetic is a 3x1 vector.  The measured
 *                  magnetic vector does not have any usable units.  The magnetic
 *                  vector is calibrated at the factory to have a magnitude of
-*                  one on the XY plane.                                        
+*                  one on the XY plane.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : q -> The address of the location to write the returned
 *                       measured quaternion (4x1).
@@ -422,20 +422,20 @@ VN100_SPI_Packet* VN100_SPI_GetQuat(unsigned char sensorID, float* q){
 VN100_SPI_Packet* VN100_SPI_GetQuatMag(unsigned char sensorID, float* q, float* mag){
 
   unsigned long i;
-  
+
   /* Read register */
   VN100_SPI_ReadRegister(sensorID, VN100_REG_QTM, 7);
-  
+
   /* Get Quaternion */
   for(i=0;i<4;i++){
     q[i] = VN_SPI_LastReceivedPacket.Data[i].Float;
   }
-  
+
   /* Get Magnetic */
   for(i=0;i<3;i++){
     mag[i] = VN_SPI_LastReceivedPacket.Data[i+4].Float;
   }
-    
+
   /* Return pointer to SPI packet */
   return &VN_SPI_LastReceivedPacket;
 }
@@ -444,7 +444,7 @@ VN100_SPI_Packet* VN100_SPI_GetQuatMag(unsigned char sensorID, float* q, float* 
 * Function Name  : VN100_SPI_GetQuatAcc(unsigned char sensorID, float* q, float* acc)
 * Description    : Get the measured attitude quaternion and acceleration vector.
 *                  The quaternion is a 4x1 unit vector with the fourth term q[3]
-*                  as the scalar term.                                        
+*                  as the scalar term.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : q -> Measured quaternion (4x1).
 *                  acc -> Measured acceleration (3x1) in m/s^2.
@@ -453,27 +453,27 @@ VN100_SPI_Packet* VN100_SPI_GetQuatMag(unsigned char sensorID, float* q, float* 
 VN100_SPI_Packet* VN100_SPI_GetQuatAcc(unsigned char sensorID, float* q, float* Acc){
 
   unsigned long i;
-  
+
   /* Read register */
   VN100_SPI_ReadRegister(sensorID, VN100_REG_QTA, 7);
-  
+
   /* Get Quaternion */
   for(i=0;i<4;i++){
     q[i] = VN_SPI_LastReceivedPacket.Data[i].Float;
   }
-  
+
   /* Get Acceleration */
   for(i=0;i<3;i++){
     Acc[i] = VN_SPI_LastReceivedPacket.Data[i+4].Float;
   }
-    
+
   /* Return pointer to SPI packet */
   return &VN_SPI_LastReceivedPacket;
 }
 
 /*******************************************************************************
 * Function Name  : VN100_SPI_GetQuatRates(unsigned char sensorID, float* q, float* rates)
-* Description    : Get the measured attitude quaternion and angular rates.                                       
+* Description    : Get the measured attitude quaternion and angular rates.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : q -> Measured quaternion (4x1).
 *                  rates -> Measured angular rates (3x1) in rad/s.
@@ -482,27 +482,27 @@ VN100_SPI_Packet* VN100_SPI_GetQuatAcc(unsigned char sensorID, float* q, float* 
 VN100_SPI_Packet* VN100_SPI_GetQuatRates(unsigned char sensorID, float* q, float* rates){
 
   unsigned long i;
-  
+
   /* Read register */
   VN100_SPI_ReadRegister(sensorID, VN100_REG_QTR, 7);
-  
+
   /* Get Quaternion */
   for(i=0;i<4;i++){
     q[i] = VN_SPI_LastReceivedPacket.Data[i].Float;
   }
-  
+
   /* Get Angular Rates */
   for(i=0;i<3;i++){
     rates[i] = VN_SPI_LastReceivedPacket.Data[i+4].Float;
   }
-    
+
   /* Return pointer to SPI packet */
   return &VN_SPI_LastReceivedPacket;
 }
 
 /*******************************************************************************
 * Function Name  : VN100_SPI_GetQuatMagAcc(unsigned char sensorID, float* q, float* mag, float* acc)
-* Description    : Get the measured attitude quaternion, magnetic and acceleration.                                        
+* Description    : Get the measured attitude quaternion, magnetic and acceleration.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : q -> Measured quaternion (4x1).
 *                  mag -> The magnetic measured vector (3x1).
@@ -512,32 +512,32 @@ VN100_SPI_Packet* VN100_SPI_GetQuatRates(unsigned char sensorID, float* q, float
 VN100_SPI_Packet* VN100_SPI_GetQuatMagAcc(unsigned char sensorID, float* q, float* mag, float* Acc){
 
   unsigned long i;
-  
+
   /* Read register */
   VN100_SPI_ReadRegister(sensorID, VN100_REG_QMA, 10);
-  
+
   /* Get Quaternion */
   for(i=0;i<4;i++){
     q[i] = VN_SPI_LastReceivedPacket.Data[i].Float;
   }
-  
+
   /* Get Magnetic */
   for(i=0;i<3;i++){
     mag[i] = VN_SPI_LastReceivedPacket.Data[i+4].Float;
   }
-  
+
   /* Get Acceleration */
   for(i=0;i<3;i++){
     Acc[i] = VN_SPI_LastReceivedPacket.Data[i+7].Float;
   }
-    
+
   /* Return pointer to SPI packet */
   return &VN_SPI_LastReceivedPacket;
 }
 
 /*******************************************************************************
 * Function Name  : VN100_SPI_GetQuatAccRates(unsigned char sensorID, float* q, float* acc, float* rates)
-* Description    : Get the measured attitude quaternion, acceleration, and angular rates.                                        
+* Description    : Get the measured attitude quaternion, acceleration, and angular rates.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : q -> Measured quaternion (4x1).
 *                  acc -> Measured acceleration (3x1) in m/s^2.
@@ -547,32 +547,32 @@ VN100_SPI_Packet* VN100_SPI_GetQuatMagAcc(unsigned char sensorID, float* q, floa
 VN100_SPI_Packet* VN100_SPI_GetQuatAccRates(unsigned char sensorID, float* q, float* acc, float* rates){
 
   unsigned long i;
-  
+
   /* Read register */
   VN100_SPI_ReadRegister(sensorID, VN100_REG_QAR, 10);
-  
+
   /* Get Quaternion */
   for(i=0;i<4;i++){
     q[i] = VN_SPI_LastReceivedPacket.Data[i].Float;
   }
-  
+
   /* Get Acceleration */
   for(i=0;i<3;i++){
     acc[i] = VN_SPI_LastReceivedPacket.Data[i+4].Float;
   }
-  
+
   /* Get Angular Rates */
   for(i=0;i<3;i++){
     rates[i] = VN_SPI_LastReceivedPacket.Data[i+7].Float;
   }
-    
+
   /* Return pointer to SPI packet */
   return &VN_SPI_LastReceivedPacket;
 }
 
 /*******************************************************************************
 * Function Name  : VN100_SPI_GetQuatMagAccRates(unsigned char sensorID, float* q, float* mag, float* acc, float* rates)
-* Description    : Get the measured attitude quaternion, magnetic, acceleration, and angular rates.                                        
+* Description    : Get the measured attitude quaternion, magnetic, acceleration, and angular rates.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : q -> Measured quaternion (4x1).
 *                  mag -> The magnetic measured vector (3x1).
@@ -583,37 +583,37 @@ VN100_SPI_Packet* VN100_SPI_GetQuatAccRates(unsigned char sensorID, float* q, fl
 VN100_SPI_Packet* VN100_SPI_GetQuatMagAccRates(unsigned char sensorID, float* q, float* mag, float* acc, float* rates){
 
   unsigned long i;
-  
+
   /* Read register */
   VN100_SPI_ReadRegister(sensorID, VN100_REG_QMR, 13);
-  
+
   /* Get Quaternion */
   for(i=0;i<4;i++){
     q[i] = VN_SPI_LastReceivedPacket.Data[i].Float;
   }
-  
+
   /* Get Magnetic */
   for(i=0;i<3;i++){
     mag[i] = VN_SPI_LastReceivedPacket.Data[i+4].Float;
-  }  
-  
+  }
+
   /* Get Acceleration */
   for(i=0;i<3;i++){
     acc[i] = VN_SPI_LastReceivedPacket.Data[i+7].Float;
   }
-  
+
   /* Get Angular Rates */
   for(i=0;i<3;i++){
     rates[i] = VN_SPI_LastReceivedPacket.Data[i+10].Float;
   }
-    
+
   /* Return pointer to SPI packet */
   return &VN_SPI_LastReceivedPacket;
 }
 
 /*******************************************************************************
 * Function Name  : VN100_SPI_GetYPRMagAccRates(unsigned char sensorID, float* YPR, float* mag, float* acc, float* rates)
-* Description    : Get the yaw, pitch, roll, magnetic, acceleration, and angular rates.                                        
+* Description    : Get the yaw, pitch, roll, magnetic, acceleration, and angular rates.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : YPR -> Euler angles (Yaw, Pitch, Roll) in deg.
 *                  mag -> The magnetic measured vector (3x1).
@@ -624,37 +624,37 @@ VN100_SPI_Packet* VN100_SPI_GetQuatMagAccRates(unsigned char sensorID, float* q,
 VN100_SPI_Packet* VN100_SPI_GetYPRMagAccRates(unsigned char sensorID, float* YPR, float* mag, float* acc, float* rates){
 
   unsigned long i;
-  
+
   /* Read register */
   VN100_SPI_ReadRegister(sensorID, VN100_REG_YMR, 12);
-  
+
   /* Get Euler angles */
   for(i=0;i<3;i++){
     YPR[i] = VN_SPI_LastReceivedPacket.Data[i].Float;
   }
-  
+
   /* Get Magnetic */
   for(i=0;i<3;i++){
     mag[i] = VN_SPI_LastReceivedPacket.Data[i+3].Float;
-  }  
-  
+  }
+
   /* Get Acceleration */
   for(i=0;i<3;i++){
     acc[i] = VN_SPI_LastReceivedPacket.Data[i+6].Float;
   }
-  
+
   /* Get Angular Rates */
   for(i=0;i<3;i++){
     rates[i] = VN_SPI_LastReceivedPacket.Data[i+9].Float;
   }
-    
+
   /* Return pointer to SPI packet */
   return &VN_SPI_LastReceivedPacket;
 }
 
 /*******************************************************************************
 * Function Name  : VN100_SPI_GetDCM(unsigned char sensorID, float* DCM)
-* Description    : Get the measured attitude as a directional cosine matrix.                                        
+* Description    : Get the measured attitude as a directional cosine matrix.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : DCM -> Directional Cosine Matrix (9x1). The order of the terms
 *                         in the matrix is {first row, second row, third row}.
@@ -663,17 +663,17 @@ VN100_SPI_Packet* VN100_SPI_GetYPRMagAccRates(unsigned char sensorID, float* YPR
 VN100_SPI_Packet* VN100_SPI_GetDCM(unsigned char sensorID, float **DCM){
 
   unsigned long i,j;
-  
+
   /* Read register */
   VN100_SPI_ReadRegister(sensorID, VN100_REG_DCM, 9);
-  
+
   /* Get Directional Cosine Matrix */
   for(i=0;i<3;i++){
     for(j=0;j<3;j++){
       DCM[i][j] = VN_SPI_LastReceivedPacket.Data[i*3+j].Float;
     }
   }
-    
+
   /* Return pointer to SPI packet */
   return &VN_SPI_LastReceivedPacket;
 }
@@ -683,7 +683,7 @@ VN100_SPI_Packet* VN100_SPI_GetDCM(unsigned char sensorID, float **DCM){
 * Description    : Get the measured magnetic field. The measured magnetic field
 *                  does not have any usable units.  The magnetic vector is
 *                  calibrated at the factory to have a magnitude of one on the
-*                  XY plane.                                                
+*                  XY plane.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : mag -> The magnetic measured vector (3x1).
 * Return         : Pointer to SPI packet returned by the sensor
@@ -691,15 +691,15 @@ VN100_SPI_Packet* VN100_SPI_GetDCM(unsigned char sensorID, float **DCM){
 VN100_SPI_Packet* VN100_SPI_GetMag(unsigned char sensorID, float* mag){
 
   unsigned long i;
-  
+
   /* Read register */
   VN100_SPI_ReadRegister(sensorID, VN100_REG_MAG, 3);
-  
+
   /* Get Magnetic */
   for(i=0;i<3;i++){
     mag[i] = VN_SPI_LastReceivedPacket.Data[i].Float;
   }
-    
+
   /* Return pointer to SPI packet */
   return &VN_SPI_LastReceivedPacket;
 }
@@ -708,7 +708,7 @@ VN100_SPI_Packet* VN100_SPI_GetMag(unsigned char sensorID, float* mag){
 * Function Name  : VN100_SPI_GetAcc(unsigned char sensorID, float* Acc)
 * Description    : Get the measured acceleration. The measured acceleration has
 *                  the units of m/s^2 and its range is dependent upon the gain
-*                  set by the VN100_SPI_SetAccGain() function.                                                
+*                  set by the VN100_SPI_SetAccGain() function.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : Acc -> The measured acceleration (3x1) in m/s^2.
 * Return         : Pointer to SPI packet returned by the sensor
@@ -716,15 +716,15 @@ VN100_SPI_Packet* VN100_SPI_GetMag(unsigned char sensorID, float* mag){
 VN100_SPI_Packet* VN100_SPI_GetAcc(unsigned char sensorID, float* Acc){
 
   unsigned long i;
-  
+
   /* Read register */
   VN100_SPI_ReadRegister(sensorID, VN100_REG_ACC, 3);
-  
+
   /* Get Acceleration */
   for(i=0;i<3;i++){
     Acc[i] = VN_SPI_LastReceivedPacket.Data[i].Float;
   }
-    
+
   /* Return pointer to SPI packet */
   return &VN_SPI_LastReceivedPacket;
 }
@@ -734,7 +734,7 @@ VN100_SPI_Packet* VN100_SPI_GetAcc(unsigned char sensorID, float* Acc){
 * Description    : Get the measured angular rates. The measured angular rates
 *                  have units of rad/s. This is the filtered angular rate and is
 *                  compensated by the onboard Kalman filter to account for gyro
-*                  bias drift.                                                
+*                  bias drift.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : rates -> The measured angular rates (3x1) in rad/s.
 * Return         : Pointer to SPI packet returned by the sensor
@@ -757,7 +757,7 @@ VN100_SPI_Packet* VN100_SPI_GetRates(unsigned char sensorID, float* rates){
 /*******************************************************************************
 * Function Name  : VN100_SPI_GetMagAccRates(unsigned char sensorID, float* mag, float* Acc, float* rates)
 * Description    : Get the measured magnetic, acceleration, and angular rates.
-*                  The measurements are taken in the body reference frame.                                        
+*                  The measurements are taken in the body reference frame.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : mag -> Measured magnetic field (3x1) [Non-dimensional].
 *                  Acc -> Measured acceleration (3x1) [m/s^2].
@@ -767,25 +767,25 @@ VN100_SPI_Packet* VN100_SPI_GetRates(unsigned char sensorID, float* rates){
 VN100_SPI_Packet* VN100_SPI_GetMagAccRates(unsigned char sensorID, float* mag, float* Acc, float* rates){
 
   unsigned long i;
-  
+
   /* Read register */
   VN100_SPI_ReadRegister(sensorID, VN100_REG_MAR, 9);
-  
+
   /* Get Magnetic */
   for(i=0;i<3;i++){
     mag[i] = VN_SPI_LastReceivedPacket.Data[i].Float;
   }
-  
+
   /* Get Acceleration */
   for(i=0;i<3;i++){
     Acc[i] = VN_SPI_LastReceivedPacket.Data[i+3].Float;
-  }    
-  
+  }
+
   /* Get Angular Rates */
   for(i=0;i<3;i++){
     rates[i] = VN_SPI_LastReceivedPacket.Data[i+6].Float;
   }
-    
+
   /* Return pointer to SPI packet */
   return &VN_SPI_LastReceivedPacket;
 }
@@ -795,7 +795,7 @@ VN100_SPI_Packet* VN100_SPI_GetMagAccRates(unsigned char sensorID, float* mag, f
 * Description    : Get the magnetic and acceleration reference vectors. The
 *                  reference vectors are the vectors measured by the magnetomter
 *                  and Accerometer respectively in the inertial reference
-*                  frame.  The inertial reference frame is NED (North, East, Down).                                        
+*                  frame.  The inertial reference frame is NED (North, East, Down).
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : refMag -> The reference vector for the magnetic field.
 *                  refAcc -> The reference vector for the Accerometer (gravity).
@@ -804,20 +804,20 @@ VN100_SPI_Packet* VN100_SPI_GetMagAccRates(unsigned char sensorID, float* mag, f
 VN100_SPI_Packet* VN100_SPI_GetMagAccRef(unsigned char sensorID, float* refMag, float* refAcc){
 
   unsigned long i;
-  
+
   /* Read register */
   VN100_SPI_ReadRegister(sensorID, VN100_REG_REF, 6);
-  
+
   /* Get magnetic reference */
   for(i=0;i<3;i++){
     refMag[i] = VN_SPI_LastReceivedPacket.Data[i].Float;
   }
-  
+
   /* Get acceleration reference */
   for(i=0;i<3;i++){
     refAcc[i] = VN_SPI_LastReceivedPacket.Data[i+3].Float;
   }
-    
+
   /* Return pointer to SPI packet */
   return &VN_SPI_LastReceivedPacket;
 }
@@ -827,7 +827,7 @@ VN100_SPI_Packet* VN100_SPI_GetMagAccRef(unsigned char sensorID, float* refMag, 
 * Description    : Set the magnetic and acceleration reference vectors. The
 *                  reference vectors are the vectors measured by the magnetometer
 *                  and accelerometer respectively in the inertial reference
-*                  frame.  The inertial reference frame is NED (North, East, Down).                                        
+*                  frame.  The inertial reference frame is NED (North, East, Down).
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : refMag -> The reference vector for the magnetic field.
 *                  refAcc -> The reference vector for the Accelerometer (gravity).
@@ -836,7 +836,7 @@ VN100_SPI_Packet* VN100_SPI_GetMagAccRef(unsigned char sensorID, float* refMag, 
 VN100_SPI_Packet* VN100_SPI_SetMagAccRef(unsigned char sensorID, float* refMag, float* refAcc){
 
   float ref[6];
-  
+
   ref[0] = refMag[0];
   ref[1] = refMag[1];
   ref[2] = refMag[2];
@@ -855,7 +855,7 @@ VN100_SPI_Packet* VN100_SPI_SetMagAccRef(unsigned char sensorID, float* refMag, 
 *                  variance parameters controls how much weight the Kalman filter
 *                  will place on each measurement.  See application note A001 for
 *                  more details on how to set these values for your specific
-*                  application.                                        
+*                  application.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : measVar -> The variance on the measured inputs to the
 *                             filter. This is a (10x1) vector.
@@ -864,15 +864,15 @@ VN100_SPI_Packet* VN100_SPI_SetMagAccRef(unsigned char sensorID, float* refMag, 
 VN100_SPI_Packet* VN100_SPI_GetFiltMeasVar(unsigned char sensorID, float* measVar){
 
   unsigned long i;
-  
+
   /* Read register */
   VN100_SPI_ReadRegister(sensorID, VN100_REG_SIG, 10);
-  
+
   /* Get filter measurement variance */
   for(i=0;i<10;i++){
     measVar[i] = VN_SPI_LastReceivedPacket.Data[i].Float;
   }
-    
+
   /* Return pointer to SPI packet */
   return &VN_SPI_LastReceivedPacket;
 }
@@ -884,7 +884,7 @@ VN100_SPI_Packet* VN100_SPI_GetFiltMeasVar(unsigned char sensorID, float* measVa
 *                  variance parameters controls how much weight the Kalman filter
 *                  will place on each measurement.  See application note A001 for
 *                  more details on how to set these values for your specific
-*                  application.                                        
+*                  application.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : measVar -> The variance on the measured inputs to the
 *                                  filter. This is a (10x1) vector.
@@ -902,7 +902,7 @@ VN100_SPI_Packet* VN100_SPI_SetFiltMeasVar(unsigned char sensorID, float* measVa
 *                  values allow the magnetometer to compensate for distortions in
 *                  the local magnetic field due to ferromagnetic materials in the
 *                  vacinity of the sensor. More information on the parameters can
-*                  be found in the User Manual in Section 6.23.                                        
+*                  be found in the User Manual in Section 6.23.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : HSI -> magnetic hard/soft iron paramteters (12x1).
 * Return         : Pointer to SPI packet returned by the sensor
@@ -910,15 +910,15 @@ VN100_SPI_Packet* VN100_SPI_SetFiltMeasVar(unsigned char sensorID, float* measVa
 VN100_SPI_Packet* VN100_SPI_GetHardSoftIronComp(unsigned char sensorID, float* HSI){
 
   unsigned long i;
-  
+
   /* Read register */
   VN100_SPI_ReadRegister(sensorID, VN100_REG_HSI, 12);
-  
+
   /* Get magnetic hard/soft iron compensation parameters */
   for(i=0;i<12;i++){
     HSI[i] = VN_SPI_LastReceivedPacket.Data[i].Float;
   }
-    
+
   /* Return pointer to SPI packet */
   return &VN_SPI_LastReceivedPacket;
 }
@@ -929,7 +929,7 @@ VN100_SPI_Packet* VN100_SPI_GetHardSoftIronComp(unsigned char sensorID, float* H
 *                  values allow the magnetometer to compensate for distortions in
 *                  the local magnetic field due to ferromagnetic materials in the
 *                  vacinity of the sensor. More information on the parameters can
-*                  be found in the User Manual in Section 6.23.                                        
+*                  be found in the User Manual in Section 6.23.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : HSI -> magnetic hard/soft iron parameters (12x1).
 * Return         : Pointer to SPI packet returned by the sensor
@@ -946,7 +946,7 @@ VN100_SPI_Packet* VN100_SPI_SetHardSoftIronComp(unsigned char sensorID, float* H
 *                  parameters control how the filter handles dynamic disturbances
 *                  in both magnetic and acceleration.  These values are not needed
 *                  for normal operation.  More on these parameters can be found in
-*                  the User Manual in Section 6.24.                                        
+*                  the User Manual in Section 6.24.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : gainM -> Magnetic Disturbance Gain
 *                  gainA -> Acceleration Disturbance Gain
@@ -955,19 +955,19 @@ VN100_SPI_Packet* VN100_SPI_SetHardSoftIronComp(unsigned char sensorID, float* H
 * Return         : Pointer to SPI packet returned by the sensor
 *******************************************************************************/
 VN100_SPI_Packet* VN100_SPI_GetFiltActTuning(unsigned char sensorID, float* gainM, float* gainA, float* memM, float* memA){
-  
+
   /* Read register */
   VN100_SPI_ReadRegister(sensorID, VN100_REG_ATP, 6);
-  
+
   /* Get magnetic gain */
   *gainM = VN_SPI_LastReceivedPacket.Data[0].Float;
-  
+
   /* Get acceleration gain */
   *gainA = VN_SPI_LastReceivedPacket.Data[3].Float;
-  
+
   /* Get magnetic memory */
   *memM = VN_SPI_LastReceivedPacket.Data[6].Float;
-  
+
   /* Get acceleration memory */
   *memA = VN_SPI_LastReceivedPacket.Data[9].Float;
 
@@ -981,7 +981,7 @@ VN100_SPI_Packet* VN100_SPI_GetFiltActTuning(unsigned char sensorID, float* gain
 *                  parameters control how the filter handles dynamic disturbances
 *                  in both magnetic and acceleration.  These values are not needed
 *                  for normal operation.  More on these parameters can be found in
-*                  the User Manual in Section 6.24.                                        
+*                  the User Manual in Section 6.24.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : gainM -> Magnetic Disturbance Gain
 *                  gainA -> Acceleration Disturbance Gain
@@ -992,7 +992,7 @@ VN100_SPI_Packet* VN100_SPI_GetFiltActTuning(unsigned char sensorID, float* gain
 VN100_SPI_Packet* VN100_SPI_SetFiltActTuning(unsigned char sensorID, float gainM, float gainA, float memM, float memA){
 
   float atp[4];
-  
+
   atp[0] = gainM;
   atp[1] = gainA;
   atp[2] = memM;
@@ -1006,7 +1006,7 @@ VN100_SPI_Packet* VN100_SPI_SetFiltActTuning(unsigned char sensorID, float gainM
 * Function Name  : VN100_SPI_GetAccComp(unsigned char sensorID, float* AccComp)
 * Description    : Get the accelerometer compensation parameters. The purpose of
 *                  these parameters are explained in Section 6.25 of the User
-*                  Manual. These parameters are not required for normal operation.                                        
+*                  Manual. These parameters are not required for normal operation.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : AccComp -> Acceleration compensation register values.
 * Return         : Pointer to SPI packet returned by the sensor
@@ -1014,15 +1014,15 @@ VN100_SPI_Packet* VN100_SPI_SetFiltActTuning(unsigned char sensorID, float gainM
 VN100_SPI_Packet* VN100_SPI_GetAccComp(unsigned char sensorID, float* AccComp){
 
   unsigned long i;
-  
+
   /* Read register */
   VN100_SPI_ReadRegister(sensorID, VN100_REG_ACT, 12);
-  
+
   /* Get accelerometer compensation parameters */
   for(i=0;i<12;i++){
     AccComp[i] = VN_SPI_LastReceivedPacket.Data[i].Float;
   }
-    
+
   /* Return pointer to SPI packet */
   return &VN_SPI_LastReceivedPacket;
 }
@@ -1031,7 +1031,7 @@ VN100_SPI_Packet* VN100_SPI_GetAccComp(unsigned char sensorID, float* AccComp){
 * Function Name  : VN100_SPI_SetAccComp(unsigned char sensorID, float* AccComp)
 * Description    : Set the accelerometer compensation parameters. The purpose of
 *                  these parameters is explained in Section 6.25 of the User
-*                  Manual. These parameters are not required for normal operation.                                        
+*                  Manual. These parameters are not required for normal operation.
 * Input          : sensorID -> The sensor to get the requested data from.
                    AccComp -> Acceleration compensation register values.
 * Output:        : None
@@ -1052,7 +1052,7 @@ VN100_SPI_Packet* VN100_SPI_SetAccComp(unsigned char sensorID, float* AccComp){
 *                  the computed attitude solution and measured measurement
 *                  vectors will now be measured in the chosen coordinate system
 *                  of the user and not the VN-100 coordinate system.  This is
-*                  further explained in Section 6.26 of the User Manual.                                        
+*                  further explained in Section 6.26 of the User Manual.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : refFrameRot -> Reference frame rotation matrix (9x1).
 * Return         : Pointer to SPI packet returned by the sensor
@@ -1060,15 +1060,15 @@ VN100_SPI_Packet* VN100_SPI_SetAccComp(unsigned char sensorID, float* AccComp){
 VN100_SPI_Packet* VN100_SPI_GetRefFrameRot(unsigned char sensorID, float* refFrameRot){
 
   unsigned long i;
-  
+
   /* Read register */
   VN100_SPI_ReadRegister(sensorID, VN100_REG_RFR, 12);
-  
+
   /* Get reference frame rotation parameters */
   for(i=0;i<12;i++){
     refFrameRot[i] = VN_SPI_LastReceivedPacket.Data[i].Float;
   }
-    
+
   /* Return pointer to SPI packet */
   return &VN_SPI_LastReceivedPacket;
 }
@@ -1082,7 +1082,7 @@ VN100_SPI_Packet* VN100_SPI_GetRefFrameRot(unsigned char sensorID, float* refFra
 *                  the computed attitude solution and measured measurement
 *                  vectors will now be measured in the chosen coordinate system
 *                  of the user and not the VN-100 coordinate system.  This is
-*                  further explained in Section 6.26 of the User Manual.                                        
+*                  further explained in Section 6.26 of the User Manual.
 * Input          : sensorID -> The sensor to get the requested data from.
 *                  refFrameRot -> Reference frame rotation matrix (9x1).
 * Output         : None
@@ -1098,19 +1098,19 @@ VN100_SPI_Packet* VN100_SPI_SetRefFrameRot(unsigned char sensorID, float* refFra
 * Function Name  : VN100_SPI_GetAccGain(unsigned char sensorID, VN100_AccGainType gain)
 * Description    : Get the current accelerometer gain setting. The accelerometer
 *                  on the VN-100 can be set to either a +/- 2g or +/- 6g gain
-*                  setting.                                        
+*                  setting.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : gain -> The current accelerometer gain setting.
 * Return         : Pointer to SPI packet returned by the sensor
 *******************************************************************************/
 VN100_SPI_Packet* VN100_SPI_GetAccGain(unsigned char sensorID, VN100_AccGainType* gain){
-  
+
   /* Read register */
   VN100_SPI_ReadRegister(sensorID, VN100_REG_ACG, 1);
-  
+
   /* Get accelerometer gain */
   *gain = (VN100_AccGainType)VN_SPI_LastReceivedPacket.Data[0].UInt;
-    
+
   /* Return pointer to SPI packet */
   return &VN_SPI_LastReceivedPacket;
 }
@@ -1168,36 +1168,36 @@ void VN100_SPI_WriteSettings(unsigned char sensorID){
 * Function Name  : VN100_SPI_RestoreFactoryDefaultSettings(unsigned char sensorID)
 * Description    : Restore the selected sensor to factory default state. The
 *                  values for factory default state for each register can be
-*                  found in Section 7 of the User Manual.                                        
+*                  found in Section 7 of the User Manual.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : None
 * Return         : Pointer to SPI packet returned by the sensor
 *******************************************************************************/
 VN100_SPI_Packet* VN100_SPI_RestoreFactorySettings(unsigned char sensorID){
-  
+
   /* Pull SS line low */
   VN_SPI_SetSS(sensorID, VN_PIN_LOW);
-  
+
   /* Send command over SPI */
   VN_SPI_SendReceive(VN_BYTES2WORD(0, 0, 0, VN100_CmdID_RestoreFactorySettings));
   VN_SPI_SendReceive(0);
-  
+
   /* Pull SS line high */
   VN_SPI_SetSS(sensorID, VN_PIN_HIGH);
-  
+
   /* Delay for 50 uS */
   VN_Delay(50);
-  
+
   /* Pull SS line low */
   VN_SPI_SetSS(sensorID, VN_PIN_LOW);
-  
+
   /* Get response bytes */
   *((unsigned long*)&VN_SPI_LastReceivedPacket    ) = VN_SPI_SendReceive(0);
   *((unsigned long*)&VN_SPI_LastReceivedPacket + 1) = VN_SPI_SendReceive(0);
-  
+
   /* Pull SS line high */
   VN_SPI_SetSS(sensorID, VN_PIN_HIGH);
-  
+
   /* Return pointer to SPI packet */
   return &VN_SPI_LastReceivedPacket;
 }
@@ -1212,36 +1212,36 @@ VN100_SPI_Packet* VN100_SPI_RestoreFactorySettings(unsigned char sensorID){
 *                  the device still for at least 3 seconds after performing a
 *                  tare command.  The tare command will also set the reference
 *                  vectors in the inertial frame to the vectors currently
-*                  measured in the body frame.                                        
+*                  measured in the body frame.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : None
 * Return         : Pointer to SPI packet returned by the sensor
 *******************************************************************************/
 VN100_SPI_Packet* VN100_SPI_Tare(unsigned char sensorID){
-  
+
   /* Pull SS line low */
   VN_SPI_SetSS(sensorID, VN_PIN_LOW);
-  
+
   /* Send command over SPI */
   VN_SPI_SendReceive(VN_BYTES2WORD(0, 0, 0, VN100_CmdID_Tare));
   VN_SPI_SendReceive(0);
-  
+
   /* Pull SS line high */
   VN_SPI_SetSS(sensorID, VN_PIN_HIGH);
-  
+
   /* Delay for 50 uS */
   VN_Delay(50);
-  
+
   /* Pull SS line low */
   VN_SPI_SetSS(sensorID, VN_PIN_LOW);
-  
+
   /* Get response bytes */
   *((unsigned long*)&VN_SPI_LastReceivedPacket    ) = VN_SPI_SendReceive(0);
   *((unsigned long*)&VN_SPI_LastReceivedPacket + 1) = VN_SPI_SendReceive(0);
-  
+
   /* Pull SS line high */
   VN_SPI_SetSS(sensorID, VN_PIN_HIGH);
-  
+
   /* Return pointer to SPI packet */
   return &VN_SPI_LastReceivedPacket;
 }
@@ -1251,7 +1251,7 @@ VN100_SPI_Packet* VN100_SPI_Tare(unsigned char sensorID){
 * Description    : Command the given sensor to perform a device hardware reset.
 *                  This is equivalent to pulling the NRST pin low on the VN-100.
 *                  Any changes to any of the registers on the VN-100 that were
-*                  made since last issuing a Write Settings commands will be lost.                                        
+*                  made since last issuing a Write Settings commands will be lost.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : None
 * Return         : Pointer to SPI packet returned by the sensor
@@ -1260,11 +1260,11 @@ void VN100_SPI_Reset(unsigned char sensorID){
 
   /* Pull SS line low */
   VN_SPI_SetSS(sensorID, VN_PIN_LOW);
-  
+
   /* Send command over SPI */
   VN_SPI_SendReceive(VN_BYTES2WORD(0, 0, 0, VN100_CmdID_Reset));
   VN_SPI_SendReceive(0);
-  
+
   /* Pull SS line high */
   VN_SPI_SetSS(sensorID, VN_PIN_HIGH);
 }
@@ -1277,7 +1277,7 @@ void VN100_SPI_Reset(unsigned char sensorID){
 *                  acceleration.  If you are wanting to integrate your acceleration
 *                  to find velocity or position, then this is the acceleration
 *                  that you want to measure. It is measured in a fixed
-*                  NED (North, East, Down) coordinate frame.                                        
+*                  NED (North, East, Down) coordinate frame.
 * Input          : sensorID -> The sensor to get the requested data from.
 * Output         : AccI -> The inertial acceleration measured by the device.
 * Return         : Pointer to SPI packet returned by the sensor
@@ -1285,7 +1285,7 @@ void VN100_SPI_Reset(unsigned char sensorID){
 void VN100_SPI_GetAccInertial(unsigned char sensorID, float *AccI){
 
   /* Create a matrix for the attitude */
-#if __STDC_VERSION__ >= 199901L  
+#if __STDC_VERSION__ >= 199901L
   VN_CreateMatrix(A, 3, 3, {0.0});
 #else
   static float A_data[9] = {0.0};
@@ -1295,16 +1295,16 @@ void VN100_SPI_GetAccInertial(unsigned char sensorID, float *AccI){
 
   /* Attitude quaternion */
   float q[4];
-  
+
   /* Body acceleration vector */
   float AccB[3];
-  
+
   /* Get the attitude quaternion and acceleration from VN-100 */
   VN100_SPI_GetQuatAcc(sensorID, q, AccB);
-  
+
   /* Convert the quaternion into a directional cosine matrix */
   VN_Quat2DCM(q, A);
-  
+
   /* Multiply transpose of DCM by body acceleration to get inertial acceleration */
   VN_MatTVecMult(A, AccB, 3, 3, AccI);
 }
@@ -1324,7 +1324,7 @@ void VN100_SPI_GetAccInertial(unsigned char sensorID, float *AccI){
 void VN100_SPI_GetMagInertial(unsigned char sensorID, float *MagI){
 
   /* Create a matrix for the attitude */
-#if __STDC_VERSION__ >= 199901L  
+#if __STDC_VERSION__ >= 199901L
   VN_CreateMatrix(A, 3, 3, {0.0});
 #else
   static float A_data[9] = {0.0};
@@ -1334,16 +1334,16 @@ void VN100_SPI_GetMagInertial(unsigned char sensorID, float *MagI){
 
   /* Attitude quaternion */
   float q[4];
-  
+
   /* Body magnetic vector */
   float MagB[3];
-  
+
   /* Get the attitude quaternion and magnetic from VN-100 */
   VN100_SPI_GetQuatMag(sensorID, q, MagB);
-  
+
   /* Convert the quaternion into a directional cosine matrix */
   VN_Quat2DCM(q, A);
-  
+
   /* Multiply transpose of DCM by body magnetic to get inertial magnetic */
   VN_MatTVecMult(A, MagB, 3, 3, MagI);
 }

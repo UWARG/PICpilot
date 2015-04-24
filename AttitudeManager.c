@@ -36,6 +36,8 @@ long int heartbeatTimer = 0;
 long int gpsTimer = 0;
 char heartbeatTrigger = 0;
 
+float* velocityComponents;
+
 #if ATTITUDE_MANAGER
 
 void __attribute__((__interrupt__, no_auto_psv)) _T2Interrupt(void){
@@ -127,6 +129,10 @@ float refRotationMatrix[9];
 float lastAltitude = 0;
 long int lastAltitudeTime = 0;
 
+char lastNumSatellites = 0;
+float velocityComp_ON[3] = { 2, 0.1, 0.01};
+float velocityComp_OFF[3] = { 0, 0.1, 0.01};
+
 unsigned int cameraCounter = 0;
 
 char killingPlane = 0;
@@ -167,6 +173,7 @@ void attitudeManagerRuntime() {
 #if !PATH_MANAGER
 
     if (newDataAvailable){
+        lastNumSatellites = gps_Satellites; //get the last number of satellites
         newDataAvailable = 0;
         gps_Time = pmData.time;
         gps_Heading = pmData.heading;
@@ -185,6 +192,20 @@ void attitudeManagerRuntime() {
         }
         waypointIndex = pmData.targetWaypoint;
         batteryLevel = pmData.batteryLevel;
+
+
+        //turn the Velocity Compensation ON or OFF accordingly
+        if (gps_Satellites >= 4 && lastNumSatellites < 4)
+            VN100_SPI_WriteRegister(0, 51, 8, (unsigned long*) velocityComp_ON);
+        else if (gps_Satellites < 4 && lastNumSatellites >= 4)
+            VN100_SPI_WriteRegister(0, 51, 8, (unsigned long*) velocityComp_OFF);
+
+        //newData, so feed the velocity info to the VectorNav to allow it to process and compensate accordingly
+        if (gps_Satellites >= 4)
+        {
+            float velocity[3] = { gps_GroundSpeed, 0, 0};
+            VN100_SPI_VelocityCompensationMeasurement(0, (float*)&velocity);
+        }
     }
 //#endif
 
@@ -245,14 +266,15 @@ void attitudeManagerRuntime() {
     VN100_SPI_GetRates(0, (float*) &imuData);
                            
     //Outputs in order: Roll,Pitch,Yaw
-    imu_RollRate = (-imuData[IMU_ROLL_RATE]); //This is a reminder for me to figure out a more elegant way to fix improper derivative control (based on configuration of the sensor), adding this negative is a temporary fix. ****MITCH REMOVED NEGATIVE
+    imu_RollRate = (imuData[IMU_ROLL_RATE]); //This is a reminder for me to figure out a more elegant way to fix improper derivative control (based on configuration of the sensor), adding this negative is a temporary fix. ****MITCH REMOVED NEGATIVE
     imu_PitchRate = imuData[IMU_PITCH_RATE]; //**************MITCH HACK FIX TO CHANGE WHICH WAY IT THINKS THE PITCH ANGLE IS added negative
     imu_YawRate = imuData[IMU_YAW_RATE];
     VN100_SPI_GetYPR(0, &imuData[YAW], &imuData[PITCH], &imuData[ROLL]);
     imu_YawAngle = imuData[YAW];
     imu_PitchAngle = -imuData[PITCH]; //**************MITCH HACK FIX TO CHANGE WHICH WAY IT THINKS THE PITCH ANGLE IS added negative
-    imu_RollAngle = (-imuData[ROLL]); //**************MITCH HACK FIX TO CHANGE WHICH WAY IT THINKS THE PITCH ANGLE IS, added negative
+    imu_RollAngle = (imuData[ROLL]); //**************MITCH HACK FIX TO CHANGE WHICH WAY IT THINKS THE PITCH ANGLE IS, added negative
 
+    //**** Mitch put Velocity Compensation in the "newDataAvailable" section
     //Do we need this??? Might make it more accurate
 //    if (gps_PositionFix == 2){
 //        float velocity[3];
@@ -300,7 +322,7 @@ void attitudeManagerRuntime() {
         while (sp_Heading < 0)
             sp_Heading +=360;
         // -(maxHeadingRate)/180.0,
-            sp_HeadingRate = controlSignalHeading(sp_Heading, gps_PositionFix==2?gps_Heading:(int)imu_YawAngle);
+            sp_HeadingRate = controlSignalHeading(sp_Heading, gps_Satellites>=4?gps_Heading:(int)imu_YawAngle); //changed to monitor satellites, since we know these are good values while PositionFix might be corrupt...
             //Approximating Roll angle from Heading
             sp_RollAngle = sp_HeadingRate;//(int)(atan((float)(sp_HeadingRate)) * PI/180.0);
 
@@ -436,14 +458,13 @@ void attitudeManagerRuntime() {
     
 
 
-    //setPWM(1, control_Roll + rollTrim);
+    setPWM(1, control_Roll + rollTrim);
     setPWM(2, tail_OutputR); //Pitch
     setPWM(3, control_Throttle);
     setPWM(4, tail_OutputL); //Yaw
     //setPWM(5, cameraPWM);
     setPWM(5, goProGimbalPWM);
     setPWM(6, gimbalPWM);
-    setPWM(1, verticalGoProPWM);
 //need to add outputs for goProGimbalPWM, and verticalGoProPWM
 
 //    setPWM(7, sp_HeadingRate + MIDDLE_PWM - 20);

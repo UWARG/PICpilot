@@ -71,7 +71,8 @@ int cameraGimbalStabilization(float rollAngle){
 
     return gimbalOffset - 675/GIMBAL_MOTION_RANGE * rollAngle;//1024 is the same as GIMBAL_PWM_RANGE; 675 for some reason gives better stabiization with motion range at 30
     //compared to 1024 with range at 60. This is being used for all of the stabilization codes (camera, GoPro, vertical)
-    
+    //note: when moving the gimbal code over from an older version of the code, the gimbals stabilized backwards for an unkown reason.
+    //to remedy this, the + 675 in the above code was changed to -675. The other stabilization codes were changed like this too
 }
 
 void setGimbalOffset(int pwmSignal){

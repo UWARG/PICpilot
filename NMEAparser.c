@@ -1,105 +1,58 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <float.h>
-#include <math.h>
-#include "UART1.h"
+//#include <stdio.h>
+//#include <stdlib.h>
+//#include <string.h>
+//#include <float.h>
+//#include <math.h>
+//#include "UART1.h"
 #include "UART2.h"
 #include "NMEAparser.h"
-//#include "InterchipDMA.c"
-//#include <libpic30.h>
-
-
-/* This is all the information we can get.
-GGA:
-- latitude
-- longitude
-- position fix
-- satellite used 0 to 12
-GST:
-- std deviations
-THS:
-- heading in degrees
-RMC:
-- speed over ground
-VTG:
-- speed over ground in knots and kmh
-- fixed field (kmh)
-- course over ground (degrees)
--
-*/
+#include "InterchipDMA.h"
 
 #if PATH_MANAGER && !GPS_OLD
-
 GPSData gpsData;
 extern UART_RX_Buffer _buff;
+extern char newGPSDataAvailable;
+
 char nMsg[255];
-char dmsg[] = "$GPGGA,092725.00,4717.11399,N,00833.91590,W,1,8,1.01,499.6,M,48.0,M,,0*5B";
 short nPos = 0;
 
-// Convert Lat and Long to degrees for GLL
+// This function converts the NMEA formatted latitude or longitude string of
+// the format "DDMM.MMMMMM" (D = degrees, M = minutes) to simply degrees in
+// decimal form. The result is returned as a double. This function ignores
+// the global quadrant and thus all positions are > 0. The quadrant (sign) of
+// the coodrinate is parsed separately.
+
 double convertLatLong(char latOrLong[]) {
-	// converts coordinate to double, then truncates, then retrieves decimal value by /100
+
+        //convert input string to double, divide by 100 to separate minutes from
+        //degrees.
         double input = atof(latOrLong)/100;
+
+        //convert the "minutes" portion of the above conversion to a decimal
         double minutes = ((input - (int)input)/60)*100;
-	// Return Decimal value + fractional value of coordinate.
+
+	// Return degree value + fractional value of coordinate.
 	return ((int)input + minutes);
 }
 
-//GLL
-//void parseGLL(char data[], GPSData *GPSData) {
-//
-//	char values[8][12] = {0}; //need to make a clear unused memory function? Or make dynamically allocated array...
-//	int i = 0; //increment in for loop (used to loop through 8 parameters sent to function)
-//	int j = 0; //increment in while loop (used to loop through each char in each element in data)
-//	int n = 0; //increment in while loop (used to assign each char in data to values)
-//
-//	// fills the values array with information from the data[] variable
-//	for (i = 0; i < 8; i++) {
-//		n = 0;
-//		while (data[j] != ',' && data[j] != '\0') {
-//			values[i][n] = data[j];
-//			j++;
-//			n++;
-//		}
-//		j++;
-//	}
-//
-//	// print all values to check
-////	int k = 0;
-////	for (k = 0; k < 8; k++) {
-////		printf("%s : %s\n", names[k], values[k]);
-////	}
-//
-////	printf("\n");
-//
-//	// fill the GPSData struct with info from values[]
-//
-//	GPSData->latitude = convertLatLong(values[1]);
-//        if(values[2][1] == 'S') GPSData->latitude *= -1;
-//	GPSData->longitude = convertLatLong(values[3]);
-//        if(values[4][1] == 'W') GPSData->longitude *= -1;
-//	sscanf(values[5], "%f", &GPSData->time);
-//
-//        UART1_SendString(data);
-//        UART1_SendString("\n\n");
-//        UART1_SendString(values[4]);
-//        UART1_SendString("\n\n");
-//        char buffer[100];
-//	sprintf(buffer,"Latitude in GPS object: %f\n", GPSData->latitude);
-//        UART1_SendString(buffer);
-//        sprintf(buffer,"Longitude in GPS object: %f\n", GPSData->longitude);
-//        UART1_SendString(buffer);
-//	printf("Time in GPS Object: %f\n", GPSData->time);
-//
-//}
+// This message parses the "GGA" type NMEA message. This message contains
+// the following information used to populate the GPSData struct:
+// - latitude
+// - longitude
+// - time
+// - altitude
+// - position fix
+// - satellites
+// Message structure:
+//$GPGGA,hhmmss.ss,Latitude,N,Longitude,E,FS,NoSV,HDOP,msl,m,Altref,m,DiffAge,DiffStation*cs<CR><LF>
+//for complete message details see
+//http://www.u-blox.com/images/downloads/Product_Docs/u-blox6_ReceiverDescriptionProtocolSpec_%28GPS.G6-SW-10018%29.pdf
 
-// GGA 
 void parseGGA(char data[], GPSData *GData) {
-	char values[15][12] = {0}; //need to make a clear unused memory function? Or make dynamically allocated array...
-	int i = 0; //increment in for loop (used to loop through 8 parameters sent to function)
-	int j = 0; //increment in while loop (used to loop through each char in each element in data)
-	int n = 0; //increment in while loop (used to assign each char in data to values)
+	char values[15][12] = {0}; //store the value of the 15 components of this message (overkill, only 8 are needed)
+	int i = 0;
+	int j = 0;
+	int n = 0;
 
 	// fills the values array with information from the data[] variable
 	for (i = 0; i < 15; i++) {
@@ -112,8 +65,6 @@ void parseGGA(char data[], GPSData *GData) {
 		j++;
 	}
 	// fill the GPSData struct with info from values[]
-
-        // fill the GPSData struct with info from values[]
 	GData->latitude = convertLatLong(values[2]);
         if(values[3][0] == 'S') GData->latitude *= -1;
 	GData->longitude = convertLatLong(values[4]);
@@ -122,34 +73,27 @@ void parseGGA(char data[], GPSData *GData) {
 
 	sscanf(values[9], "%d", &GData->altitude);
         sscanf(values[6], "%c", &GData->positionFix); //0 is no fix, 1 or 2 is valid fix, 6 is dead reckoning
-        sscanf(values[8], "%c", &GData->satellites); //Space Vehicles used, value between 0 and 12
-
-//        char buffer[100];
-//	sprintf(buffer,"Latitude: %f\n", GData->latitude);
-//        UART1_SendString(buffer);
-//        sprintf(buffer,"Longitude: %f\n", GData->longitude);
-//        UART1_SendString(buffer);
-//	sprintf(buffer, "Time: %f\n", GData->time);
-//        UART1_SendString(buffer);
-//	sprintf(buffer, "Altitude: %d\n", GData->altitude);
-//        UART1_SendString(buffer);
-//        sprintf(buffer, "Pos Fix: %c\n", GData->positionFix);
-//        UART1_SendString(buffer);
-//        sprintf(buffer, "Satellites: %c\n", GData->satellites);
-//        UART1_SendString(buffer);
-
-//        char buffer[100];
-//	sprintf(buffer,"altitude in GPS object: %d\n", GData->altitude);
-//        UART1_SendString(buffer);
+       
+        int temp;
+        sscanf(values[7], "%d", &temp);//&GData->satellites); //Space Vehicles used, value between 0 and 12
+        GData->satellites = (char)temp;
 }
 
-//VTG
+// This message parses the "VTG" type NMEA message. This message contains
+// the following information used to populate the GPSData struct:
+// - heading
+// - speed
+// Message structure:
+// $GPVTG,cogt,T,cogm,M,sog,N,kph,K,mode*cs<CR><LF>
+//for complete message details see
+//http://www.u-blox.com/images/downloads/Product_Docs/u-blox6_ReceiverDescriptionProtocolSpec_%28GPS.G6-SW-10018%29.pdf
+
 void parseVTG(char data[], GPSData *GData) {
 
-	char values[10][7] = {0}; //need to make a clear unused memory function? Or make dynamically allocated array...
-	int i = 0; //increment in for loop (used to loop through 8 parameters sent to function)
-	int j = 0; //increment in while loop (used to loop through each char in each element in data)
-	int n = 0; //increment in while loop (used to assign each char in data to values)
+	char values[10][7] = {0}; //store the value of the 10 components of this message (overkill, only 2 are needed)
+	int i = 0;
+	int j = 0;
+	int n = 0;
 
 	// fills the values array with information from the data[] variable
 	for (i = 0; i < 10; i++) {
@@ -167,14 +111,13 @@ void parseVTG(char data[], GPSData *GData) {
         if(values[1] != 0) sscanf(values[1], "%d", &GData->heading);
 
 	GData->speed = GData->speed / 3.6;
-
-        char buffer[100];
-//	sprintf(buffer,"Speed: %f\n", GData->speed);
-//        UART1_SendString(buffer);
-        sprintf(buffer,"Course: %d\n", GData->heading);
-        UART1_SendString(buffer);
 }
 
+// This function takes characters from the UART2 RX buffer as they become
+// and assembles them into complete NMEA messages. All NMEA messages start with
+// a '$' character and end with a <CR> and <LF>. Once it has assembled a
+// complete NMEA message, it calls the appropriate parser based on the
+// type of message.
 void assembleNEMAMessage()
 {
     char c;
@@ -194,11 +137,9 @@ void assembleNEMAMessage()
            if(nMsg[0] == '$')
            {
                nMsg[nPos] = 0;
-               //if (nMsg[5] == 'L') parseGLL(nMsg,&gpsData);
                if (nMsg[5] == 'A') parseGGA(nMsg,&gpsData);
                if (nMsg[5] == 'G') parseVTG(nMsg,&gpsData);
-               //if (nMsg[5] == 'S') parseTHS(nMsg,&gpsData);
-               //newGPSData= true;
+               newGPSDataAvailable = 1;
            }
            nPos = 0;
        }
