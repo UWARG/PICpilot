@@ -31,6 +31,7 @@
         <itemPath>InterchipDMA.h</itemPath>
         <itemPath>PathManager.h</itemPath>
         <itemPath>NMEAparser.h</itemPath>
+        <itemPath>Dubins.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f4" displayName="PWM Management" projectFiles="true">
         <itemPath>OutputCompare.h</itemPath>
@@ -90,6 +91,7 @@
         <itemPath>InterchipDMA.c</itemPath>
         <itemPath>NMEAparser.c</itemPath>
         <itemPath>PathManager.c</itemPath>
+        <itemPath>Dubins.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f4" displayName="PWM Management" projectFiles="true">
         <itemPath>InputCapture.c</itemPath>

@@ -19,7 +19,7 @@ endif
 endif
 
 # Environment
-MKDIR=gnumkdir -p
+MKDIR=mkdir -p
 RM=rm -f 
 MV=mv 
 CP=cp 
@@ -45,17 +45,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=MPL3115A2.c I2C.c AttitudeManager.c OrientationControl.c UART1.c StartupErrorCodes.c debug.c net_outbound.c net_inbound.c net_common.c UART2.c cameraManager.c InterchipDMA.c NMEAparser.c PathManager.c InputCapture.c OutputCompare.c PWM.c fmath.c delay.c Clock.c StringUtils.c VN100.c VN_lib.c VN_math.c VN_user.c voltageSensor.c main.c
+SOURCEFILES_QUOTED_IF_SPACED=MPL3115A2.c I2C.c AttitudeManager.c OrientationControl.c UART1.c StartupErrorCodes.c debug.c net_outbound.c net_inbound.c net_common.c UART2.c cameraManager.c InterchipDMA.c NMEAparser.c PathManager.c InputCapture.c OutputCompare.c PWM.c fmath.c delay.c Clock.c StringUtils.c VN100.c VN_lib.c VN_math.c VN_user.c voltageSensor.c main.c Dubins.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/MPL3115A2.o ${OBJECTDIR}/I2C.o ${OBJECTDIR}/AttitudeManager.o ${OBJECTDIR}/OrientationControl.o ${OBJECTDIR}/UART1.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/debug.o ${OBJECTDIR}/net_outbound.o ${OBJECTDIR}/net_inbound.o ${OBJECTDIR}/net_common.o ${OBJECTDIR}/UART2.o ${OBJECTDIR}/cameraManager.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/NMEAparser.o ${OBJECTDIR}/PathManager.o ${OBJECTDIR}/InputCapture.o ${OBJECTDIR}/OutputCompare.o ${OBJECTDIR}/PWM.o ${OBJECTDIR}/fmath.o ${OBJECTDIR}/delay.o ${OBJECTDIR}/Clock.o ${OBJECTDIR}/StringUtils.o ${OBJECTDIR}/VN100.o ${OBJECTDIR}/VN_lib.o ${OBJECTDIR}/VN_math.o ${OBJECTDIR}/VN_user.o ${OBJECTDIR}/voltageSensor.o ${OBJECTDIR}/main.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/MPL3115A2.o.d ${OBJECTDIR}/I2C.o.d ${OBJECTDIR}/AttitudeManager.o.d ${OBJECTDIR}/OrientationControl.o.d ${OBJECTDIR}/UART1.o.d ${OBJECTDIR}/StartupErrorCodes.o.d ${OBJECTDIR}/debug.o.d ${OBJECTDIR}/net_outbound.o.d ${OBJECTDIR}/net_inbound.o.d ${OBJECTDIR}/net_common.o.d ${OBJECTDIR}/UART2.o.d ${OBJECTDIR}/cameraManager.o.d ${OBJECTDIR}/InterchipDMA.o.d ${OBJECTDIR}/NMEAparser.o.d ${OBJECTDIR}/PathManager.o.d ${OBJECTDIR}/InputCapture.o.d ${OBJECTDIR}/OutputCompare.o.d ${OBJECTDIR}/PWM.o.d ${OBJECTDIR}/fmath.o.d ${OBJECTDIR}/delay.o.d ${OBJECTDIR}/Clock.o.d ${OBJECTDIR}/StringUtils.o.d ${OBJECTDIR}/VN100.o.d ${OBJECTDIR}/VN_lib.o.d ${OBJECTDIR}/VN_math.o.d ${OBJECTDIR}/VN_user.o.d ${OBJECTDIR}/voltageSensor.o.d ${OBJECTDIR}/main.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/MPL3115A2.o ${OBJECTDIR}/I2C.o ${OBJECTDIR}/AttitudeManager.o ${OBJECTDIR}/OrientationControl.o ${OBJECTDIR}/UART1.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/debug.o ${OBJECTDIR}/net_outbound.o ${OBJECTDIR}/net_inbound.o ${OBJECTDIR}/net_common.o ${OBJECTDIR}/UART2.o ${OBJECTDIR}/cameraManager.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/NMEAparser.o ${OBJECTDIR}/PathManager.o ${OBJECTDIR}/InputCapture.o ${OBJECTDIR}/OutputCompare.o ${OBJECTDIR}/PWM.o ${OBJECTDIR}/fmath.o ${OBJECTDIR}/delay.o ${OBJECTDIR}/Clock.o ${OBJECTDIR}/StringUtils.o ${OBJECTDIR}/VN100.o ${OBJECTDIR}/VN_lib.o ${OBJECTDIR}/VN_math.o ${OBJECTDIR}/VN_user.o ${OBJECTDIR}/voltageSensor.o ${OBJECTDIR}/main.o ${OBJECTDIR}/Dubins.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/MPL3115A2.o.d ${OBJECTDIR}/I2C.o.d ${OBJECTDIR}/AttitudeManager.o.d ${OBJECTDIR}/OrientationControl.o.d ${OBJECTDIR}/UART1.o.d ${OBJECTDIR}/StartupErrorCodes.o.d ${OBJECTDIR}/debug.o.d ${OBJECTDIR}/net_outbound.o.d ${OBJECTDIR}/net_inbound.o.d ${OBJECTDIR}/net_common.o.d ${OBJECTDIR}/UART2.o.d ${OBJECTDIR}/cameraManager.o.d ${OBJECTDIR}/InterchipDMA.o.d ${OBJECTDIR}/NMEAparser.o.d ${OBJECTDIR}/PathManager.o.d ${OBJECTDIR}/InputCapture.o.d ${OBJECTDIR}/OutputCompare.o.d ${OBJECTDIR}/PWM.o.d ${OBJECTDIR}/fmath.o.d ${OBJECTDIR}/delay.o.d ${OBJECTDIR}/Clock.o.d ${OBJECTDIR}/StringUtils.o.d ${OBJECTDIR}/VN100.o.d ${OBJECTDIR}/VN_lib.o.d ${OBJECTDIR}/VN_math.o.d ${OBJECTDIR}/VN_user.o.d ${OBJECTDIR}/voltageSensor.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/Dubins.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/MPL3115A2.o ${OBJECTDIR}/I2C.o ${OBJECTDIR}/AttitudeManager.o ${OBJECTDIR}/OrientationControl.o ${OBJECTDIR}/UART1.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/debug.o ${OBJECTDIR}/net_outbound.o ${OBJECTDIR}/net_inbound.o ${OBJECTDIR}/net_common.o ${OBJECTDIR}/UART2.o ${OBJECTDIR}/cameraManager.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/NMEAparser.o ${OBJECTDIR}/PathManager.o ${OBJECTDIR}/InputCapture.o ${OBJECTDIR}/OutputCompare.o ${OBJECTDIR}/PWM.o ${OBJECTDIR}/fmath.o ${OBJECTDIR}/delay.o ${OBJECTDIR}/Clock.o ${OBJECTDIR}/StringUtils.o ${OBJECTDIR}/VN100.o ${OBJECTDIR}/VN_lib.o ${OBJECTDIR}/VN_math.o ${OBJECTDIR}/VN_user.o ${OBJECTDIR}/voltageSensor.o ${OBJECTDIR}/main.o
+OBJECTFILES=${OBJECTDIR}/MPL3115A2.o ${OBJECTDIR}/I2C.o ${OBJECTDIR}/AttitudeManager.o ${OBJECTDIR}/OrientationControl.o ${OBJECTDIR}/UART1.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/debug.o ${OBJECTDIR}/net_outbound.o ${OBJECTDIR}/net_inbound.o ${OBJECTDIR}/net_common.o ${OBJECTDIR}/UART2.o ${OBJECTDIR}/cameraManager.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/NMEAparser.o ${OBJECTDIR}/PathManager.o ${OBJECTDIR}/InputCapture.o ${OBJECTDIR}/OutputCompare.o ${OBJECTDIR}/PWM.o ${OBJECTDIR}/fmath.o ${OBJECTDIR}/delay.o ${OBJECTDIR}/Clock.o ${OBJECTDIR}/StringUtils.o ${OBJECTDIR}/VN100.o ${OBJECTDIR}/VN_lib.o ${OBJECTDIR}/VN_math.o ${OBJECTDIR}/VN_user.o ${OBJECTDIR}/voltageSensor.o ${OBJECTDIR}/main.o ${OBJECTDIR}/Dubins.o
 
 # Source Files
-SOURCEFILES=MPL3115A2.c I2C.c AttitudeManager.c OrientationControl.c UART1.c StartupErrorCodes.c debug.c net_outbound.c net_inbound.c net_common.c UART2.c cameraManager.c InterchipDMA.c NMEAparser.c PathManager.c InputCapture.c OutputCompare.c PWM.c fmath.c delay.c Clock.c StringUtils.c VN100.c VN_lib.c VN_math.c VN_user.c voltageSensor.c main.c
+SOURCEFILES=MPL3115A2.c I2C.c AttitudeManager.c OrientationControl.c UART1.c StartupErrorCodes.c debug.c net_outbound.c net_inbound.c net_common.c UART2.c cameraManager.c InterchipDMA.c NMEAparser.c PathManager.c InputCapture.c OutputCompare.c PWM.c fmath.c delay.c Clock.c StringUtils.c VN100.c VN_lib.c VN_math.c VN_user.c voltageSensor.c main.c Dubins.c
 
 
 CFLAGS=
@@ -278,6 +278,13 @@ ${OBJECTDIR}/main.o: main.c  nbproject/Makefile-${CND_CONF}.mk
 	${MP_CC} $(MP_EXTRA_CC_PRE)  main.c  -o ${OBJECTDIR}/main.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/main.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/main.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
+${OBJECTDIR}/Dubins.o: Dubins.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/Dubins.o.d 
+	@${RM} ${OBJECTDIR}/Dubins.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  Dubins.c  -o ${OBJECTDIR}/Dubins.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/Dubins.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/Dubins.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
 else
 ${OBJECTDIR}/MPL3115A2.o: MPL3115A2.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
@@ -475,6 +482,13 @@ ${OBJECTDIR}/main.o: main.c  nbproject/Makefile-${CND_CONF}.mk
 	${MP_CC} $(MP_EXTRA_CC_PRE)  main.c  -o ${OBJECTDIR}/main.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/main.o.d"        -g -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/main.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
+${OBJECTDIR}/Dubins.o: Dubins.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}" 
+	@${RM} ${OBJECTDIR}/Dubins.o.d 
+	@${RM} ${OBJECTDIR}/Dubins.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  Dubins.c  -o ${OBJECTDIR}/Dubins.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/Dubins.o.d"        -g -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/Dubins.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
 endif
 
 # ------------------------------------------------------------------------------------
@@ -500,7 +514,7 @@ else
 dist/${CND_CONF}/${IMAGE_TYPE}/PICpilot.${IMAGE_TYPE}.${OUTPUT_SUFFIX}: ${OBJECTFILES}  nbproject/Makefile-${CND_CONF}.mk   
 	@${MKDIR} dist/${CND_CONF}/${IMAGE_TYPE} 
 	${MP_CC} $(MP_EXTRA_LD_PRE)  -o dist/${CND_CONF}/${IMAGE_TYPE}/PICpilot.${IMAGE_TYPE}.${DEBUGGABLE_SUFFIX}  ${OBJECTFILES_QUOTED_IF_SPACED}      -mcpu=$(MP_PROCESSOR_OPTION)        -omf=elf -Wl,,--defsym=__MPLAB_BUILD=1,$(MP_LINKER_FILE_OPTION),--heap=16384,--stack=16,--check-sections,--data-init,--pack-data,--handles,--isr,--no-gc-sections,--fill-upper=0,--stackguard=16,--no-force-link,--smart-io,-Map="${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.map",--report-mem$(MP_EXTRA_LD_POST) 
-	${MP_CC_DIR}\\xc16-bin2hex dist/${CND_CONF}/${IMAGE_TYPE}/PICpilot.${IMAGE_TYPE}.${DEBUGGABLE_SUFFIX} -a  -omf=elf  
+	${MP_CC_DIR}/xc16-bin2hex dist/${CND_CONF}/${IMAGE_TYPE}/PICpilot.${IMAGE_TYPE}.${DEBUGGABLE_SUFFIX} -a  -omf=elf  
 	
 endif
 
@@ -520,7 +534,7 @@ endif
 # Enable dependency checking
 .dep.inc: .depcheck-impl
 
-DEPFILES=$(shell mplabwildcard ${POSSIBLE_DEPFILES})
+DEPFILES=$(shell "${PATH_TO_IDE_BIN}"mplabwildcard ${POSSIBLE_DEPFILES})
 ifneq (${DEPFILES},)
 include ${DEPFILES}
 endif
