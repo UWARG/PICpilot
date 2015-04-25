@@ -88,18 +88,42 @@ void pathManagerInit(void) {
     home.id = -1;
 
     //Initialize first path nodes
-//    PathData* node = initializePathNode();
-//    node->altitude = 10;
-//    node->latitude = 43.4731655738112;
-//    node->longitude = -80.5374240875244;
-//    node->radius = 10;
-//    appendPathNode(node);
-//    node = initializePathNode();
-//    node->altitude = 10;
-//    node->latitude = 43.4718886758826;
-//    node->longitude = -80.5391192436218;
-//    node->radius = 10;
-//    appendPathNode(node);
+    PathData* node = initializePathNode();
+    node->altitude = 10;
+    node->latitude = RELATIVE_LATITUDE;
+    node->longitude = RELATIVE_LONGITUDE;
+    node->radius = 3;
+    appendPathNode(node);
+    node = initializePathNode();
+    node->altitude = 10;
+    node->latitude = 43.473448;
+    node->longitude = -80.540688;
+    node->radius = 3;
+    appendPathNode(node);
+    node = initializePathNode();
+    node->altitude = 10;
+    node->latitude = 43.473586;
+    node->longitude = -80.540802;
+    node->radius = 3;
+    appendPathNode(node);
+    node = initializePathNode();
+    node->altitude = 10;
+    node->latitude = 43.473882;
+    node->longitude = -80.540036;
+    node->radius = 3;
+    appendPathNode(node);
+    node = initializePathNode();
+    node->altitude = 10;
+    node->latitude = 43.474025;
+    node->longitude = -80.540131;
+    node->radius = 3;
+    appendPathNode(node);
+    node = initializePathNode();
+    node->altitude = 10;
+    node->latitude = 43.473748;
+    node->longitude = -80.540892;
+    node->radius = 3;
+    appendPathNode(node);
 }
 
 void pathManagerRuntime(void) {
@@ -303,6 +327,7 @@ int followLastLineSegment(PathData* currentWaypoint, float* position, float head
         return (int)followStraightPath((float*)&waypointDirection, (float*)targetCoordinates, (float*)position, heading);
 }
 
+// direction: ccw = 1, cw = -1
 float followOrbit(float* center, float radius, char direction, float* position, float heading){//Heading in degrees (magnetic)
     heading = deg2rad(90 - heading);
 

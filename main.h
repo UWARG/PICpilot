@@ -26,7 +26,7 @@
 //                      the desires Pitch, Roll, Yaw on the aircraft.
 //  Communication Manager - Provides network communication (uplink/downlink) between the aircraft and
 //                          the ground station (or any other data link).
-#define PATH_MANAGER 0
+#define PATH_MANAGER 1
 #define ATTITUDE_MANAGER !PATH_MANAGER
 #define COMMUNICATION_MANAGER !PATH_MANAGER
 
