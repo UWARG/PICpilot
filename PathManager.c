@@ -88,42 +88,18 @@ void pathManagerInit(void) {
     home.id = -1;
 
     //Initialize first path nodes
-    PathData* node = initializePathNode();
-    node->altitude = 10;
-    node->latitude = RELATIVE_LATITUDE;
-    node->longitude = RELATIVE_LONGITUDE;
-    node->radius = 3;
-    appendPathNode(node);
-    node = initializePathNode();
-    node->altitude = 10;
-    node->latitude = 43.473448;
-    node->longitude = -80.540688;
-    node->radius = 3;
-    appendPathNode(node);
-    node = initializePathNode();
-    node->altitude = 10;
-    node->latitude = 43.473586;
-    node->longitude = -80.540802;
-    node->radius = 3;
-    appendPathNode(node);
-    node = initializePathNode();
-    node->altitude = 10;
-    node->latitude = 43.473882;
-    node->longitude = -80.540036;
-    node->radius = 3;
-    appendPathNode(node);
-    node = initializePathNode();
-    node->altitude = 10;
-    node->latitude = 43.474025;
-    node->longitude = -80.540131;
-    node->radius = 3;
-    appendPathNode(node);
-    node = initializePathNode();
-    node->altitude = 10;
-    node->latitude = 43.473748;
-    node->longitude = -80.540892;
-    node->radius = 3;
-    appendPathNode(node);
+//    PathData* node = initializePathNode();
+//    node->altitude = 10;
+//    node->latitude = 43.4731655738112;
+//    node->longitude = -80.5374240875244;
+//    node->radius = 10;
+//    appendPathNode(node);
+//    node = initializePathNode();
+//    node->altitude = 10;
+//    node->latitude = 43.4718886758826;
+//    node->longitude = -80.5391192436218;
+//    node->radius = 10;
+//    appendPathNode(node);
 }
 
 void pathManagerRuntime(void) {
@@ -171,7 +147,7 @@ void pathManagerRuntime(void) {
 }
 
 char followWaypoints(PathData* current, float* position, float heading, int* setpoint) {
-    static char recompute = 0;
+    static char recompute = 1;
     static Vector current_position, target_position, next_position;
 
     PathData* target = current->next;
@@ -185,7 +161,7 @@ char followWaypoints(PathData* current, float* position, float heading, int* set
     static Circle close, far;
     static Line tangent, plane;
 
-    if (!recompute) {
+    if (recompute) {
         printf("Recomputing path...");
         
         current_position = (Vector) {
@@ -239,7 +215,7 @@ char followWaypoints(PathData* current, float* position, float heading, int* set
         float d2 = sqrt(tangents[1].initial.x*tangents[1].initial.x + tangents[1].initial.y*tangents[1].initial.y);
         tangent = d1 < d2 ? tangents[0] : tangents[1];
 
-        recompute = 1;
+        recompute = 0;
     }
 
     plane = (Line) {
@@ -274,7 +250,7 @@ char followWaypoints(PathData* current, float* position, float heading, int* set
                 char direction = tangent.direction.x*target_heading.y - tangent.direction.y*target_heading.x > 0 ? 1 : -1;
                 *setpoint = (int)followOrbit((float *)&far.center, far.radius, direction, position, heading);
             } else {
-                recompute = 0;
+                recompute = 1;
                 return target->index;
             }
         }
