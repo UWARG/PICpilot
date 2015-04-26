@@ -48,7 +48,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
     }
 #endif
     newDataAvailable = 1;
-    IFS0bits.DMA0IF = 0;// Clear the DMA0 Interrupt Flag
+    IFS0bits.DMA0IF = 0;// Clear the DMA1 Interrupt Flag
 }
 void __attribute__((__interrupt__, no_auto_psv)) _DMA1Interrupt(void){
     IFS0bits.DMA1IF = 0;// Clear the DMA0 Interrupt Flag
@@ -86,8 +86,10 @@ void init_DMA1(){
     DMA1CONbits.MODE = 0b00; //Transfer continuously, ping ponging between buffers
     DMA1CONbits.SIZE = 0; //Transfer words (16 bits)
 #if PATH_MANAGER
+//    pmData.checksum = generatePMDataChecksum();
     DMA1STA = __builtin_dmaoffset(&pmData); //Primary Transfer Buffer
 #else
+//    amData.checksum = generateAMDataChecksum();
     DMA1STA = __builtin_dmaoffset(&amData); //Primary Transfer Buffer
 #endif
     DMA1PAD = (volatile unsigned int) &SPI1BUF; //Peripheral Address

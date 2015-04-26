@@ -23,6 +23,36 @@
 #endif
 
 #if PATH_MANAGER
+
+
+
+//Interrupt for INTERCOM_4, pin RA13
+//void __attribute__((__interrupt__)) _INT2Interrupt(void);
+//void __attribute__((__interrupt__, auto_psv)) _INT2Interrupt(void){
+    
+//    printf("INTERRUPTED\n");
+//    ///Disable DMA0, Disable DMA1
+//    DMA0CONbits.CHEN = 0; //Disable DMA0 channel
+//    DMA1CONbits.CHEN = 0; //Disable DMA1 channel
+//    //Disable SPI
+//    SPI1STATbits.SPIEN = 0;
+//    //Enable SPI
+//    SPI1STATbits.SPIEN = 1;
+//    //Enable DMA0, Enable DMA1
+//    DMA0CONbits.CHEN = 1; //Enable DMA0 channel
+//    DMA1CONbits.CHEN = 1; //Enable DMA1 channel
+    
+//    IFS1bits.INT2IF = 0; //Clear Interrupt Flag
+//}
+
+//        DMA0CONbits.CHEN = 0; //Disable DMA0 channel
+//        SPI1STATbits.SPIEN = 0;
+//        //ENABLE SPI
+//        SPI1STATbits.SPIEN = 1;
+//        //ENABLE DMA0 and DMA 1
+//        DMA0CONbits.CHEN = 1; //Disable DMA0 channel
+//        DMA1CONbits.CHEN = 1; //Disable DMA1 channel
+
 extern GPSData gpsData;
 extern PMData pmData;
 #if !ATTITUDE_MANAGER
@@ -50,6 +80,34 @@ char pathCount = 0;
 int lastKnownHeadingHome = 10;
 char returnHome = 0;
 
+#if PATH_MANAGER
+void resetInterchipDMA(char bad_checksum){ //interrupt flag 1 was received
+    INTERCOM_4 = 1;
+    while(!INTERCOM_2);
+    INTERCOM_4 = 0;
+//    printf("reset\n");
+    if (bad_checksum == PATH_MANAGER) {
+        printf("reset (pm)\n");
+    } else {
+        printf("reset (am)\n");
+    }
+    SPI1STATbits.SPIEN = 0;
+    printf("1");
+    DMA0CONbits.CHEN = 0; //Disable DMA0 channel
+    printf("2");
+    DMA1CONbits.CHEN = 0; //Disable DMA1 channel
+    printf("3");
+    init_SPI1();
+    init_DMA0();
+//    DMA0REQbits.FORCE = 1;
+//    while (DMA0REQbits.FORCE == 1);
+    init_DMA1();
+    DMA1REQbits.FORCE = 1;
+    while (DMA1REQbits.FORCE == 1);
+    printf("6");
+}
+#endif
+
 void pathManagerInit(void) {
 #if DEBUG
     InitUART1();
@@ -65,11 +123,33 @@ void pathManagerInit(void) {
 
     //Interchip Communication
 #if !ATTITUDE_MANAGER
+    //Initialize Interchip Interrupts for Use in DMA Reset
+    //Set opposite Input / Output Configuration on the AttitudeManager
+    TRISAbits.TRISA12 = 0;  //Init RA12 as Output (0)
+    TRISAbits.TRISA13 = 0;  //Init RA13 as Output (0)
+
+    TRISBbits.TRISB4 = 1;   //Init RB4 as Input (1)
+    TRISBbits.TRISB5 = 1;   //Init RB5 as Input (1)
+    
+//    INTERCOM_1 = 0;
+//    INTERCOM_2 = 0;
+    INTERCOM_3 = 0;    //Set RA12 to Output a Value of 0
+    INTERCOM_4 = 0;    //Set RA13 to Output a Value of 0
+    
     init_SPI1();
     init_DMA0();
     init_DMA1();
     DMA1REQbits.FORCE = 1;
     while (DMA1REQbits.FORCE == 1);
+    
+//    //Initialize INTERCOM_4 Interrupt, pin RA13
+//    INTCON2bits.INT2EP = 1; //Edge Detect on Positive Edge
+//    //Set Interrupt Priority
+//    IPC7bits.INT2IP = 7;
+//    //Reset Interrupt Flag
+//    IFS1bits.INT2IF = 0;
+//    //Enable Interrupt
+//    IEC1bits.INT2IE = 1;
 
     //Communication with Altimeter
     if (initAltimeter()){
@@ -102,6 +182,12 @@ void pathManagerInit(void) {
 }
 
 void pathManagerRuntime(void) {
+    // Check if other chip noticed corruption
+//    if (INTERCOM_2) {
+////        printf("reset\n");
+//        resetInterchipDMA(ATTITUDE_MANAGER);
+//    }
+//    printf("%d%d%d%d,", INTERCOM_1, INTERCOM_2, INTERCOM_3, INTERCOM_4);
 
 #if DEBUG
 //        char str[16];
@@ -118,10 +204,11 @@ void pathManagerRuntime(void) {
     if (returnHome){
         pmData.targetWaypoint = -1;
     }
-    else if (path[currentIndex]->next)
+    else if (path[currentIndex]->next) {
         pmData.targetWaypoint = path[currentIndex]->next->id;
-    else
+    } else {
         pmData.targetWaypoint = 0;
+    }
 #if !ATTITUDE_MANAGER
     //Check for new uplink command data
     checkAMData();
@@ -146,16 +233,12 @@ void pathManagerRuntime(void) {
     if (pmData.positionFix >= 1){
         lastKnownHeadingHome = calculateHeadingHome(home, (float*)&position, heading);
     }
-
-
-
+    pmData.checksum = generatePMDataChecksum();
 }
 char followWaypoints(PathData* currentWaypoint, float* position, float heading, int* sp_Heading){
         float waypointPosition[3];
         getCoordinates(currentWaypoint->longitude, currentWaypoint->latitude, (float*)&waypointPosition);
         waypointPosition[2] = currentWaypoint->altitude;
-
-
 
         PathData* targetWaypoint = currentWaypoint->next;
         float targetCoordinates[3];
@@ -456,7 +539,6 @@ void copyGPSData(){
         newGPSDataAvailable = 0;
         pmData.time = gpsData.time;
         pmData.longitude = gpsData.longitude;
-        //pmData.altitude = getAltitude(); //gpsData.altitude;
         pmData.latitude = gpsData.latitude;
         pmData.heading = gpsData.heading;
         pmData.speed = gpsData.speed;
@@ -465,17 +547,25 @@ void copyGPSData(){
         pmData.batteryLevel = getCurrentPercent();
     }
     pmData.altitude = getAltitude(); //gpsData.altitude; //want to get altitude regardless of if there is new GPS data
+    pmData.checksum = generatePMDataChecksum();
+}
+
+char generatePMDataChecksum(void) {
+    return 0xAA;
 }
 
 void checkAMData(){
-    int i = 0;
-    char checksum = 0;
-    for (i = 0; i < sizeof(AMData) - 1; i++){
-        checksum += ((char *)&amData)[i];
-    }
-    if (checksum != lastAMDataChecksum && amData.checksum == checksum){
-        lastAMDataChecksum = checksum;
-        // All commands/actions that need to be run go here
+//    char checksum = 0;
+//    char checksum = 0;
+//    int i;
+//    for (i = 0; i < sizeof(AMData) - 1; i++) {
+//        checksum += ((char *)&amData)[i];
+//        printf("checksum: %X\n", (int) checksum);
+//    }
+    char checksum = 0xAB;
+    printf("%X,%X,%X\n", (int) pmData.checksum, (int) amData.checksum, (int) checksum);
+    if (amData.checksum == checksum){
+       // All commands/actions that need to be run go here
        switch (amData.command){
             case PM_DEBUG_TEST:
 //                UART1_SendString("Test");
@@ -541,6 +631,8 @@ void checkAMData(){
             default:
                 break;
         }
+    } else {
+        resetInterchipDMA(PATH_MANAGER);
     }
 }
 
