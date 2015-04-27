@@ -51,30 +51,6 @@ char pathCount = 0;
 int lastKnownHeadingHome = 10;
 char returnHome = 0;
 
-#if PATH_MANAGER
-void resetInterchipDMA(char bad_checksum){ //interrupt flag 1 was received
-//    INTERCOM_4 = 1;
-//    while(!INTERCOM_2);
-//    INTERCOM_4 = 0;
-//    if (bad_checksum == PATH_MANAGER) {
-//        printf("reset (pm)\n");
-//    } else {
-//        printf("reset (am)\n");
-//    }
-//    SPI1STATbits.SPIEN = 0;
-//    DMA0CONbits.CHEN = 0; //Disable DMA0 channel
-//    DMA1CONbits.CHEN = 0; //Disable DMA1 channel
-//    while(SPI1STATbits.SPIRBF) {
-//        int dummy = SPI1BUF;
-//    };
-//    init_SPI1();
-//    init_DMA0();
-//    init_DMA1();
-//    DMA1REQbits.FORCE = 1;
-//    while (DMA1REQbits.FORCE == 1);
-}
-#endif
-
 void pathManagerInit(void) {
 #if DEBUG
     InitUART1();
@@ -100,9 +76,7 @@ void pathManagerInit(void) {
 
     TRISBbits.TRISB4 = 1;   //Init RB4 as Input (1)
     TRISBbits.TRISB5 = 1;   //Init RB5 as Input (1)
-    
-//    INTERCOM_1 = 0;
-//    INTERCOM_2 = 0;
+
     INTERCOM_3 = 0;    //Set RA12 to Output a Value of 0
     INTERCOM_4 = 0;    //Set RA13 to Output a Value of 0
     
@@ -111,15 +85,6 @@ void pathManagerInit(void) {
     init_DMA1();
     DMA1REQbits.FORCE = 1;
     while (DMA1REQbits.FORCE == 1);
-    
-//    //Initialize INTERCOM_4 Interrupt, pin RA13
-//    INTCON2bits.INT2EP = 1; //Edge Detect on Positive Edge
-//    //Set Interrupt Priority
-//    IPC7bits.INT2IP = 7;
-//    //Reset Interrupt Flag
-//    IFS1bits.INT2IF = 0;
-//    //Enable Interrupt
-//    IEC1bits.INT2IE = 1;
 
     //Communication with Altimeter
     if (initAltimeter()){
@@ -152,12 +117,6 @@ void pathManagerInit(void) {
 }
 
 void pathManagerRuntime(void) {
-    // Check if other chip noticed corruption
-//    if (INTERCOM_2) {
-////        printf("reset\n");
-//        resetInterchipDMA(ATTITUDE_MANAGER);
-//    }
-
 #if DEBUG
 //        char str[16];
 //        sprintf(&str,"%f",pmData.time);
@@ -515,7 +474,6 @@ void copyGPSData(){
         pmData.positionFix = (char)gpsData.positionFix;
         pmData.batteryLevel = getCurrentPercent();
     }
-//    printf("alt\n");
     pmData.altitude = getAltitude(); //gpsData.altitude; //want to get altitude regardless of if there is new GPS data
     pmData.checksum = generatePMDataChecksum();
 }
@@ -525,15 +483,7 @@ char generatePMDataChecksum(void) {
 }
 
 void checkAMData(){
-//    char checksum = 0;
-//    char checksum = 0;
-//    int i;
-//    for (i = 0; i < sizeof(AMData) - 1; i++) {
-//        checksum += ((char *)&amData)[i];
-//        printf("checksum: %X\n", (int) checksum);
-//    }
     char checksum = 0xAB;
-//    printf("%X,%X,%X\n", (int) pmData.checksum, (int) amData.checksum, (int) checksum);
     if (amData.checksum == checksum){
        // All commands/actions that need to be run go here
        switch (amData.command){
@@ -601,8 +551,6 @@ void checkAMData(){
             default:
                 break;
         }
-    } else {
-        resetInterchipDMA(PATH_MANAGER);
     }
 }
 

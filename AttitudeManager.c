@@ -137,27 +137,6 @@ unsigned int cameraCounter = 0;
 
 char killingPlane = 0;
 
-#if ATTITUDE_MANAGER
-void resetInterchipDMA(char bad_checksum){
-//    INTERCOM_2 = 1;
-//    while(!INTERCOM_4);
-//    INTERCOM_2 = 0;
-//    if (bad_checksum == PATH_MANAGER) {
-//        printf("reset (pm)\n");
-//    } else {
-//        printf("reset (am)\n");
-//    }
-//    SPI1STATbits.SPIEN = 0;
-//    DMA0CONbits.CHEN = 0; //Disable DMA0 channel
-//    DMA1CONbits.CHEN = 0; //Disable DMA1 channel
-//    while(SPI1STATbits.SPIRBF) {
-//        int dummy = SPIBUF;
-//    };
-//    init_SPI1();
-//    init_DMA0();
-//    init_DMA1();
-}
-#endif
 void attitudeInit() {
     //Initialize Interchip communication
     TRISFbits.TRISF3 = 0;
@@ -203,20 +182,14 @@ void attitudeInit() {
 }
 
 void attitudeManagerRuntime() {
-    if (INTERCOM_4) {
-        resetInterchipDMA(PATH_MANAGER);
-    }
-    
     amData.checksum = generateAMDataChecksum();
 
     //Transfer data from PATHMANAGER CHIP
 #if !PATH_MANAGER
-//    printf("in runtime");
     if (newDataAvailable){
         lastNumSatellites = gps_Satellites; //get the last number of satellites
         newDataAvailable = 0;
         char checksum = 0xAA;
-//        printf("%X,%X,%X\n", (int) amData.checksum, (int) pmData.checksum, (int) checksum);
         if (checksum == pmData.checksum) {
             gps_Time = pmData.time;
             gps_Heading = pmData.heading;
@@ -249,8 +222,6 @@ void attitudeManagerRuntime() {
                 float velocity[3] = { gps_GroundSpeed, 0, 0};
                 VN100_SPI_VelocityCompensationMeasurement(0, (float*)&velocity);
             }
-        } else {
-//            resetInterchipDMA(ATTITUDE_MANAGER);
         }
     }
 //#endif

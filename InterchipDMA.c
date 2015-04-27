@@ -18,15 +18,11 @@
 #include "PathManager.h"
 #endif
 
-
 void __attribute__((__interrupt__,no_auto_psv)) _SPI1Interrupt(void){
-//    printf("(%X,%X)\n", SPI1BUF, (int) *((char *)(DMA0STA + 0x7800)));
     SPI1STATbits.SPIROV = 0;
     IFS0bits.SPI1IF = 0;
     IFS0bits.SPI1EIF = 0;
 }
-
-
 
 /*SPI RECEIVE OPERATION*/
 char transmitInitialized = 0; //0 = Nothing Received, 1 = Transmit Initialized
@@ -37,24 +33,19 @@ AMData amData __attribute__((space(dma)));
 PMData pmData __attribute__((space(dma)));
 
 /*
- *
+ * DMA0 Interrupt (with reset)
  */
-//static char reset_in_progress = 0;
-//static char last_checksum = 0;
 void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
     IEC0bits.DMA0IE = 0;
 #if PATH_MANAGER
-    printf("%f\n", pmData.altitude);
     if (amData.checksum != 0xAB && amData.checksum != 0xFFAB) {
         INTERCOM_4 = 1;
         while(!INTERCOM_2);
 #elif ATTITUDE_MANAGER
-    printf("%f\n", pmData.altitude);
     if (INTERCOM_4) {
         INTERCOM_2 = 1;
         while(!INTERCOM_4);
 #endif
-        printf("r\n");
         SPI1STATbits.SPIEN = 0;
         DMA0CONbits.CHEN = 0; //Disable DMA0 channel
         DMA1CONbits.CHEN = 0; //Disable DMA1 channel
@@ -64,7 +55,6 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
 #if PATH_MANAGER
         INTERCOM_4 = 0;
         while(INTERCOM_2);
-//        initAltimeter();
 #elif ATTITUDE_MANAGER
         INTERCOM_2 = 0;
         while(INTERCOM_4);
