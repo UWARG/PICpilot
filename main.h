@@ -17,20 +17,20 @@
 
 //Turns debug mode on or off. Usually contains small snippets of code to output
 //data through UART or to provide small input adjustments
-#define DEBUG 0
+#define DEBUG 1
 
 //Defines the usage of this chip. It may be one or multiple of the following roles:
 //  Path Manager - Communicates with the GPS in order to provide a constant
 //                  heading for the aircraft to follow.
 //  Attitude Manager - Communicates with a IMU (kinematics sensor) in order to
-//                      the desires Pitch, Roll, Yaw on the aircraft.
+//                     the desires Pitch, Roll, Yaw on the aircraft.
 //  Communication Manager - Provides network communication (uplink/downlink) between the aircraft and
 //                          the ground station (or any other data link).
 #define PATH_MANAGER 0
 #define ATTITUDE_MANAGER !PATH_MANAGER
 #define COMMUNICATION_MANAGER !PATH_MANAGER
 
-#define GPS_OLD 0 //1 Being the Old GPS (Uses SPI), and 0 Being the New GPS (Uses UART)
+#define GPS_OLD 1 //1 Being the Old GPS (Uses SPI), and 0 Being the New GPS (Uses UART)
 
 //Define constants for global use in the code
 #define TRUE	1

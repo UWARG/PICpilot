@@ -130,7 +130,7 @@ float lastAltitude = 0;
 long int lastAltitudeTime = 0;
 
 char lastNumSatellites = 0;
-float velocityComp_ON[3] = { 2, 0.1, 0.01};
+float velocityComp_ON[3] = { 1, 0.1, 0.01}; // 1 = Scalar Mode (Velocity along the IMU X-axis, Takes into account applied rotation matrix, so if calibrated properly, no modification to frontward velocity is required), 2 = Body Reference Mode, 3 = Inertial Reference Mode
 float velocityComp_OFF[3] = { 0, 0.1, 0.01};
 
 unsigned int cameraCounter = 0;
@@ -144,6 +144,20 @@ void attitudeInit() {
 
     TRISDbits.TRISD14 = 0;
     LATDbits.LATD14 = 0;
+    
+    amData.checksum = generateAMDataChecksum();
+    
+    //Initialize Interchip Interrupts for Use in DMA Reset
+    //Set opposite Input / Output Configuration on the PathManager
+    TRISAbits.TRISA12 = 0;  //Init RA12 as Output (0), (1) is Input
+    INTERCOM_1 = 0;    //Set RA12 to Output a Value of 0
+    TRISAbits.TRISA13 = 0;  //Init RA13 as Output (0), (1) is Input
+    INTERCOM_2 = 0;    //Set RA13 to Output a Value of 0
+
+    TRISBbits.TRISB4 = 1;   //Init RB4 as Input (1), (0) is Output
+    TRISBbits.TRISB5 = 1;   //Init RB5 as Input (1), (0) is Output
+    TRISAbits.TRISA3 = 0;
+    PORTAbits.RA3 = 1;
 
     init_SPI1();
     init_DMA0();
@@ -168,43 +182,46 @@ void attitudeInit() {
 }
 
 void attitudeManagerRuntime() {
+    amData.checksum = generateAMDataChecksum();
 
     //Transfer data from PATHMANAGER CHIP
 #if !PATH_MANAGER
-
     if (newDataAvailable){
         lastNumSatellites = gps_Satellites; //get the last number of satellites
         newDataAvailable = 0;
-        gps_Time = pmData.time;
-        gps_Heading = pmData.heading;
-        gps_GroundSpeed = pmData.speed * 1000.0/3600.0; //Convert from km/h to m/s
-        gps_Longitude = pmData.longitude;
-        gps_Latitude = pmData.latitude;
-        gps_Altitude = pmData.altitude;
-        gps_Satellites = pmData.satellites;
-        gps_PositionFix = pmData.positionFix;
-        if (controlLevel & ALTITUDE_CONTROL_SOURCE)
-            sp_Altitude = pmData.sp_Altitude;
-        if (controlLevel & HEADING_CONTROL_SOURCE){
-            if (gps_PositionFix){
-                sp_Heading = pmData.sp_Heading;
+        char checksum = 0xAA;
+        if (checksum == pmData.checksum) {
+            gps_Time = pmData.time;
+            gps_Heading = pmData.heading;
+            gps_GroundSpeed = pmData.speed * 1000.0/3600.0; //Convert from km/h to m/s
+            gps_Longitude = pmData.longitude;
+            gps_Latitude = pmData.latitude;
+            gps_Altitude = pmData.altitude;
+            gps_Satellites = pmData.satellites;
+            gps_PositionFix = pmData.positionFix;
+            if (controlLevel & ALTITUDE_CONTROL_SOURCE)
+                sp_Altitude = pmData.sp_Altitude;
+            if (controlLevel & HEADING_CONTROL_SOURCE){
+                if (gps_PositionFix){
+                    sp_Heading = pmData.sp_Heading;
+                }
             }
-        }
-        waypointIndex = pmData.targetWaypoint;
-        batteryLevel = pmData.batteryLevel;
+            waypointIndex = pmData.targetWaypoint;
+            batteryLevel = pmData.batteryLevel;
 
 
-        //turn the Velocity Compensation ON or OFF accordingly
-        if (gps_Satellites >= 4 && lastNumSatellites < 4)
-            VN100_SPI_WriteRegister(0, 51, 8, (unsigned long*) velocityComp_ON);
-        else if (gps_Satellites < 4 && lastNumSatellites >= 4)
-            VN100_SPI_WriteRegister(0, 51, 8, (unsigned long*) velocityComp_OFF);
+            //turn the Velocity Compensation ON or OFF accordingly
+            if (gps_Satellites >= 4 && lastNumSatellites < 4)
+                VN100_SPI_WriteRegister(0, 51, 8, (unsigned long*) velocityComp_ON);
+            else if (gps_Satellites < 4 && lastNumSatellites >= 4)
+                VN100_SPI_WriteRegister(0, 51, 8, (unsigned long*) velocityComp_OFF);
 
-        //newData, so feed the velocity info to the VectorNav to allow it to process and compensate accordingly
-        if (gps_Satellites >= 4)
-        {
-            float velocity[3] = { gps_GroundSpeed, 0, 0};
-            VN100_SPI_VelocityCompensationMeasurement(0, (float*)&velocity);
+            //newData, so feed the velocity info to the VectorNav to allow it to process and compensate accordingly
+            if (gps_Satellites >= 4)
+            {
+                float velocity[3] = { gps_GroundSpeed, 0, 0};
+                VN100_SPI_VelocityCompensationMeasurement(0, (float*)&velocity);
+            }
         }
     }
 //#endif
@@ -830,14 +847,10 @@ void setAccelVariance(float variance){
     VN100_SPI_SetFiltMeasVar(0, (float*)&previousVariance);
     VN100_SPI_WriteSettings(0);
 }
+
+// TODO: make me a real checksum!
 char generateAMDataChecksum(void){
-    //TODO: Fix so checksum includes command byte (which it currently doesn't)
-    int i = 0;
-    char checksum = 0;
-    for (i = 0; i < sizeof(AMData) - 1; i++){
-        checksum += ((char *)&amData)[i];
-    }
-    return checksum;
+    return 0xAB;
 }
 
 void checkHeartbeat(long int cTime){
