@@ -39,55 +39,45 @@ PMData pmData __attribute__((space(dma)));
 /*
  *
  */
-
+//static char reset_in_progress = 0;
+//static char last_checksum = 0;
 void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
+    IEC0bits.DMA0IE = 0;
 #if PATH_MANAGER
-    if (amData.checksum != 0xAB) {
+    if (amData.checksum != 0xAB && amData.checksum != 0xFFAB) {
+        printf("%x", (int) amData.checksum);
         INTERCOM_4 = 1;
-//        printf("rr\n");
         while(!INTERCOM_2);
-//        printf("ra\n");
-        INTERCOM_4 = 0;
-        SPI1STATbits.SPIEN = 0;
-        DMA0CONbits.CHEN = 0; //Disable DMA0 channel
-        DMA1CONbits.CHEN = 0; //Disable DMA1 channel
-        while(SPI1STATbits.SPIRBF) {
-            int dummy = SPI1BUF;
-        };
-        init_SPI1();
-        init_DMA0();
-        init_DMA1();
-        DMA1REQbits.FORCE = 1;
-        while (DMA1REQbits.FORCE == 1);
-    }
 #elif ATTITUDE_MANAGER
     if (INTERCOM_4) {
         INTERCOM_2 = 1;
         while(!INTERCOM_4);
-        INTERCOM_2 = 0;
+#endif
+        printf("r\n");
         SPI1STATbits.SPIEN = 0;
         DMA0CONbits.CHEN = 0; //Disable DMA0 channel
         DMA1CONbits.CHEN = 0; //Disable DMA1 channel
         while(SPI1STATbits.SPIRBF) {
             int dummy = SPI1BUF;
-        };
+        }
+#if PATH_MANAGER
+        INTERCOM_4 = 0;
+        while(INTERCOM_2);
+#elif ATTITUDE_MANAGER
+        INTERCOM_2 = 0;
+        while(INTERCOM_4);
+#endif
         init_SPI1();
         init_DMA0();
         init_DMA1();
         DMA1REQbits.FORCE = 1;
         while (DMA1REQbits.FORCE == 1);
     }
-#endif
-#if !PATH_MANAGER
-    if (!transmitInitialized){
-        transmitInitialized = 1;
-        DMA1REQbits.FORCE = 1;
-        while (DMA1REQbits.FORCE == 1);
-    }
-#endif
     newDataAvailable = 1;
     IFS0bits.DMA0IF = 0;// Clear the DMA1 Interrupt Flag
+    IEC0bits.DMA0IE = 1;
 }
+        
 void __attribute__((__interrupt__, no_auto_psv)) _DMA1Interrupt(void){
     IFS0bits.DMA1IF = 0;// Clear the DMA0 Interrupt Flag
 }

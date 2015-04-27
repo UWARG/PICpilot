@@ -529,7 +529,7 @@ void checkAMData(){
 //        printf("checksum: %X\n", (int) checksum);
 //    }
     char checksum = 0xAB;
-    printf("%X,%X,%X\n", (int) pmData.checksum, (int) amData.checksum, (int) checksum);
+//    printf("%X,%X,%X\n", (int) pmData.checksum, (int) amData.checksum, (int) checksum);
     if (amData.checksum == checksum){
        // All commands/actions that need to be run go here
        switch (amData.command){

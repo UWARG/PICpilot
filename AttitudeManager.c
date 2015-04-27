@@ -214,7 +214,7 @@ void attitudeManagerRuntime() {
         lastNumSatellites = gps_Satellites; //get the last number of satellites
         newDataAvailable = 0;
         char checksum = 0xAA;
-        printf("%X,%X,%X\n", (int) amData.checksum, (int) pmData.checksum, (int) checksum);
+//        printf("%X,%X,%X\n", (int) amData.checksum, (int) pmData.checksum, (int) checksum);
         if (checksum == pmData.checksum) {
             gps_Time = pmData.time;
             gps_Heading = pmData.heading;
