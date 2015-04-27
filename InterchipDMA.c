@@ -36,22 +36,24 @@ PMData pmData __attribute__((space(dma)));
  * DMA0 Interrupt (with reset)
  */
 void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
-    IEC0bits.DMA0IE = 0;
+    IEC0bits.DMA0IE = 0; // Disable interrupts (we don't want another reset while we're doing this one)
 #if PATH_MANAGER
+    // if received bad checksum
     if (amData.checksum != 0xAB && amData.checksum != 0xFFAB) {
-        INTERCOM_4 = 1;
-        while(!INTERCOM_2);
+        INTERCOM_4 = 1; // notify AM
+        while(!INTERCOM_2); // wait until AM accepts
 #elif ATTITUDE_MANAGER
-    if (INTERCOM_4) {
-        INTERCOM_2 = 1;
+    if (INTERCOM_4) { // if PM requested reset
+        INTERCOM_2 = 1; // notify PM
         while(!INTERCOM_4);
 #endif
-        SPI1STATbits.SPIEN = 0;
+        SPI1STATbits.SPIEN = 0; //Disable SPI1
         DMA0CONbits.CHEN = 0; //Disable DMA0 channel
         DMA1CONbits.CHEN = 0; //Disable DMA1 channel
-        while(SPI1STATbits.SPIRBF) {
+        while(SPI1STATbits.SPIRBF) { //Clear SPI1
             int dummy = SPI1BUF;
         }
+        // Clear flags
 #if PATH_MANAGER
         INTERCOM_4 = 0;
         while(INTERCOM_2);
@@ -59,15 +61,15 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
         INTERCOM_2 = 0;
         while(INTERCOM_4);
 #endif
-        init_SPI1();
-        init_DMA0();
-        init_DMA1();
+        init_SPI1(); // Restart SPI
+        init_DMA0(); // Restart DMA0
+        init_DMA1(); // Restart DMA1
         DMA1REQbits.FORCE = 1;
         while (DMA1REQbits.FORCE == 1);
     }
     newDataAvailable = 1;
     IFS0bits.DMA0IF = 0;// Clear the DMA1 Interrupt Flag
-    IEC0bits.DMA0IE = 1;
+    IEC0bits.DMA0IE = 1; // Enable DMA0 Interrupts
 }
         
 void __attribute__((__interrupt__, no_auto_psv)) _DMA1Interrupt(void){
@@ -106,10 +108,8 @@ void init_DMA1(){
     DMA1CONbits.MODE = 0b00; //Transfer continuously, ping ponging between buffers
     DMA1CONbits.SIZE = 0; //Transfer words (16 bits)
 #if PATH_MANAGER
-//    pmData.checksum = generatePMDataChecksum();
     DMA1STA = __builtin_dmaoffset(&pmData); //Primary Transfer Buffer
 #else
-//    amData.checksum = generateAMDataChecksum();
     DMA1STA = __builtin_dmaoffset(&amData); //Primary Transfer Buffer
 #endif
     DMA1PAD = (volatile unsigned int) &SPI1BUF; //Peripheral Address

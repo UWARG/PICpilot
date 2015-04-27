@@ -56,6 +56,7 @@ void pathManagerInit(void) {
     InitUART1();
 #endif
     
+    // Hack to power altimeter from UART on PM
     TRISAbits.TRISA5 = 0;
     PORTAbits.RA5 = 1;
 
@@ -478,6 +479,8 @@ void copyGPSData(){
     pmData.checksum = generatePMDataChecksum();
 }
 
+
+// TODO: make me a real checksum!
 char generatePMDataChecksum(void) {
     return 0xAA;
 }

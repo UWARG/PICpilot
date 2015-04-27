@@ -847,6 +847,8 @@ void setAccelVariance(float variance){
     VN100_SPI_SetFiltMeasVar(0, (float*)&previousVariance);
     VN100_SPI_WriteSettings(0);
 }
+
+// TODO: make me a real checksum!
 char generateAMDataChecksum(void){
     return 0xAB;
 }

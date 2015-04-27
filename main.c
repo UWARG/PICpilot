@@ -19,14 +19,12 @@
 
 #if PATH_MANAGER
 #include "PathManager.h"
-#include "InterchipDMA.h"
 #endif
 #if ATTITUDE_MANAGER
 #include "AttitudeManager.h"
 #endif
 #if COMMUNICATION_MANAGER
 #include "net.h"
-#include "InterchipDMA.h"
 #endif
 
 /*
@@ -45,12 +43,11 @@ _FWDT(FWDTEN_ON & WDTPOST_PS2048 & WDTPRE_PR128); //32,128
  */
 int main(int argc, char** argv) {
 
+    // Init intercom pins as digital pins
     AD1PCFGHbits.PCFG20 = 1;
     AD1PCFGHbits.PCFG21 = 1;
-    
     AD1PCFGLbits.PCFG4 = 1;
     AD1PCFGLbits.PCFG5 = 1;
-    
     AD2PCFGLbits.PCFG4 = 1;
     AD2PCFGLbits.PCFG5 = 1;
     
@@ -60,12 +57,10 @@ int main(int argc, char** argv) {
 #endif
 
 #if PATH_MANAGER
-//    pmData.checksum = generatePMDataChecksum();
     pathManagerInit();
 #endif
 
 #if ATTITUDE_MANAGER
-//    amData.checksum = generateAMDataChecksum();
     attitudeInit();
 #endif
 
