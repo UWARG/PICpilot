@@ -44,11 +44,12 @@ PMData pmData __attribute__((space(dma)));
 void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
     IEC0bits.DMA0IE = 0;
 #if PATH_MANAGER
+    printf("%f\n", pmData.altitude);
     if (amData.checksum != 0xAB && amData.checksum != 0xFFAB) {
-        printf("%x", (int) amData.checksum);
         INTERCOM_4 = 1;
         while(!INTERCOM_2);
 #elif ATTITUDE_MANAGER
+    printf("%f\n", pmData.altitude);
     if (INTERCOM_4) {
         INTERCOM_2 = 1;
         while(!INTERCOM_4);
@@ -63,6 +64,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
 #if PATH_MANAGER
         INTERCOM_4 = 0;
         while(INTERCOM_2);
+//        initAltimeter();
 #elif ATTITUDE_MANAGER
         INTERCOM_2 = 0;
         while(INTERCOM_4);

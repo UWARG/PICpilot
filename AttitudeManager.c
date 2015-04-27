@@ -177,6 +177,8 @@ void attitudeInit() {
 
     TRISBbits.TRISB4 = 1;   //Init RB4 as Input (1), (0) is Output
     TRISBbits.TRISB5 = 1;   //Init RB5 as Input (1), (0) is Output
+    TRISAbits.TRISA3 = 0;
+    PORTAbits.RA3 = 1;
 
     init_SPI1();
     init_DMA0();

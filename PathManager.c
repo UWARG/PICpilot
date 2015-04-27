@@ -79,6 +79,9 @@ void pathManagerInit(void) {
 #if DEBUG
     InitUART1();
 #endif
+    
+    TRISAbits.TRISA5 = 0;
+    PORTAbits.RA5 = 1;
 
     //Communication with GPS
     InitUART2();
@@ -512,6 +515,7 @@ void copyGPSData(){
         pmData.positionFix = (char)gpsData.positionFix;
         pmData.batteryLevel = getCurrentPercent();
     }
+//    printf("alt\n");
     pmData.altitude = getAltitude(); //gpsData.altitude; //want to get altitude regardless of if there is new GPS data
     pmData.checksum = generatePMDataChecksum();
 }
