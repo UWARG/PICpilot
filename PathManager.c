@@ -24,35 +24,6 @@
 
 #if PATH_MANAGER
 
-
-
-//Interrupt for INTERCOM_4, pin RA13
-//void __attribute__((__interrupt__)) _INT2Interrupt(void);
-//void __attribute__((__interrupt__, auto_psv)) _INT2Interrupt(void){
-    
-//    printf("INTERRUPTED\n");
-//    ///Disable DMA0, Disable DMA1
-//    DMA0CONbits.CHEN = 0; //Disable DMA0 channel
-//    DMA1CONbits.CHEN = 0; //Disable DMA1 channel
-//    //Disable SPI
-//    SPI1STATbits.SPIEN = 0;
-//    //Enable SPI
-//    SPI1STATbits.SPIEN = 1;
-//    //Enable DMA0, Enable DMA1
-//    DMA0CONbits.CHEN = 1; //Enable DMA0 channel
-//    DMA1CONbits.CHEN = 1; //Enable DMA1 channel
-    
-//    IFS1bits.INT2IF = 0; //Clear Interrupt Flag
-//}
-
-//        DMA0CONbits.CHEN = 0; //Disable DMA0 channel
-//        SPI1STATbits.SPIEN = 0;
-//        //ENABLE SPI
-//        SPI1STATbits.SPIEN = 1;
-//        //ENABLE DMA0 and DMA 1
-//        DMA0CONbits.CHEN = 1; //Disable DMA0 channel
-//        DMA1CONbits.CHEN = 1; //Disable DMA1 channel
-
 extern GPSData gpsData;
 extern PMData pmData;
 #if !ATTITUDE_MANAGER
@@ -82,29 +53,25 @@ char returnHome = 0;
 
 #if PATH_MANAGER
 void resetInterchipDMA(char bad_checksum){ //interrupt flag 1 was received
-    INTERCOM_4 = 1;
-    while(!INTERCOM_2);
-    INTERCOM_4 = 0;
-//    printf("reset\n");
-    if (bad_checksum == PATH_MANAGER) {
-        printf("reset (pm)\n");
-    } else {
-        printf("reset (am)\n");
-    }
-    SPI1STATbits.SPIEN = 0;
-    printf("1");
-    DMA0CONbits.CHEN = 0; //Disable DMA0 channel
-    printf("2");
-    DMA1CONbits.CHEN = 0; //Disable DMA1 channel
-    printf("3");
-    init_SPI1();
-    init_DMA0();
-//    DMA0REQbits.FORCE = 1;
-//    while (DMA0REQbits.FORCE == 1);
-    init_DMA1();
-    DMA1REQbits.FORCE = 1;
-    while (DMA1REQbits.FORCE == 1);
-    printf("6");
+//    INTERCOM_4 = 1;
+//    while(!INTERCOM_2);
+//    INTERCOM_4 = 0;
+//    if (bad_checksum == PATH_MANAGER) {
+//        printf("reset (pm)\n");
+//    } else {
+//        printf("reset (am)\n");
+//    }
+//    SPI1STATbits.SPIEN = 0;
+//    DMA0CONbits.CHEN = 0; //Disable DMA0 channel
+//    DMA1CONbits.CHEN = 0; //Disable DMA1 channel
+//    while(SPI1STATbits.SPIRBF) {
+//        int dummy = SPI1BUF;
+//    };
+//    init_SPI1();
+//    init_DMA0();
+//    init_DMA1();
+//    DMA1REQbits.FORCE = 1;
+//    while (DMA1REQbits.FORCE == 1);
 }
 #endif
 
@@ -187,7 +154,6 @@ void pathManagerRuntime(void) {
 ////        printf("reset\n");
 //        resetInterchipDMA(ATTITUDE_MANAGER);
 //    }
-//    printf("%d%d%d%d,", INTERCOM_1, INTERCOM_2, INTERCOM_3, INTERCOM_4);
 
 #if DEBUG
 //        char str[16];

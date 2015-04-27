@@ -139,26 +139,23 @@ char killingPlane = 0;
 
 #if ATTITUDE_MANAGER
 void resetInterchipDMA(char bad_checksum){
-    INTERCOM_2 = 1;
-    while(!INTERCOM_4);
-    INTERCOM_2 = 0;
-    if (bad_checksum == PATH_MANAGER) {
-        printf("reset (pm)\n");
-    } else {
-        printf("reset (am)\n");
-    }
-    SPI1STATbits.SPIEN = 0;
-    printf("1");
-    DMA0CONbits.CHEN = 0; //Disable DMA0 channel
-    printf("2");
-    DMA1CONbits.CHEN = 0; //Disable DMA1 channel
-    printf("3");
-    init_SPI1();
-    init_DMA0();
-    init_DMA1();
-//    DMA0REQbits.FORCE = 1;
-//    while (DMA0REQbits.FORCE == 1);
-    printf("4");
+//    INTERCOM_2 = 1;
+//    while(!INTERCOM_4);
+//    INTERCOM_2 = 0;
+//    if (bad_checksum == PATH_MANAGER) {
+//        printf("reset (pm)\n");
+//    } else {
+//        printf("reset (am)\n");
+//    }
+//    SPI1STATbits.SPIEN = 0;
+//    DMA0CONbits.CHEN = 0; //Disable DMA0 channel
+//    DMA1CONbits.CHEN = 0; //Disable DMA1 channel
+//    while(SPI1STATbits.SPIRBF) {
+//        int dummy = SPIBUF;
+//    };
+//    init_SPI1();
+//    init_DMA0();
+//    init_DMA1();
 }
 #endif
 void attitudeInit() {
@@ -205,7 +202,6 @@ void attitudeInit() {
 
 void attitudeManagerRuntime() {
     if (INTERCOM_4) {
-//        printf("reset\n");
         resetInterchipDMA(PATH_MANAGER);
     }
     

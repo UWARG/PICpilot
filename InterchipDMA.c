@@ -20,6 +20,7 @@
 
 
 void __attribute__((__interrupt__,no_auto_psv)) _SPI1Interrupt(void){
+//    printf("(%X,%X)\n", SPI1BUF, (int) *((char *)(DMA0STA + 0x7800)));
     SPI1STATbits.SPIROV = 0;
     IFS0bits.SPI1IF = 0;
     IFS0bits.SPI1EIF = 0;
@@ -40,11 +41,48 @@ PMData pmData __attribute__((space(dma)));
  */
 
 void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
+#if PATH_MANAGER
+    if (amData.checksum != 0xAB) {
+        INTERCOM_4 = 1;
+//        printf("rr\n");
+        while(!INTERCOM_2);
+//        printf("ra\n");
+        INTERCOM_4 = 0;
+        SPI1STATbits.SPIEN = 0;
+        DMA0CONbits.CHEN = 0; //Disable DMA0 channel
+        DMA1CONbits.CHEN = 0; //Disable DMA1 channel
+        while(SPI1STATbits.SPIRBF) {
+            int dummy = SPI1BUF;
+        };
+        init_SPI1();
+        init_DMA0();
+        init_DMA1();
+        DMA1REQbits.FORCE = 1;
+        while (DMA1REQbits.FORCE == 1);
+    }
+#elif ATTITUDE_MANAGER
+    if (INTERCOM_4) {
+        INTERCOM_2 = 1;
+        while(!INTERCOM_4);
+        INTERCOM_2 = 0;
+        SPI1STATbits.SPIEN = 0;
+        DMA0CONbits.CHEN = 0; //Disable DMA0 channel
+        DMA1CONbits.CHEN = 0; //Disable DMA1 channel
+        while(SPI1STATbits.SPIRBF) {
+            int dummy = SPI1BUF;
+        };
+        init_SPI1();
+        init_DMA0();
+        init_DMA1();
+        DMA1REQbits.FORCE = 1;
+        while (DMA1REQbits.FORCE == 1);
+    }
+#endif
 #if !PATH_MANAGER
     if (!transmitInitialized){
         transmitInitialized = 1;
         DMA1REQbits.FORCE = 1;
-    while (DMA1REQbits.FORCE == 1);
+        while (DMA1REQbits.FORCE == 1);
     }
 #endif
     newDataAvailable = 1;
