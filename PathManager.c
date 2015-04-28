@@ -96,23 +96,28 @@ void pathManagerInit(void) {
 //    appendPathNode(node);
 //    node = initializePathNode();
     node->altitude = 10;
-    node->latitude = 43.473644;
-    node->longitude = -80.539685;
+    node->latitude = 43.473123;
+    node->longitude = -80.539353;
     node->radius = 5;
     appendPathNode(node);
     node = initializePathNode();
     node->altitude = 10;
-    node->latitude = 43.474100;
-    node->longitude = -80.538950;
+    node->latitude = 43.473567;
+    node->longitude = -80.539621;
     node->radius = 5;
     appendPathNode(node);
     node = initializePathNode();
     node->altitude = 10;
-    node->latitude = 43.474073;
-    node->longitude = -80.540071;
+    node->latitude = 43.473804;
+    node->longitude = -80.539626;
     node->radius = 5;
     appendPathNode(node);
-//    node = initializePathNode();
+    node = initializePathNode();
+    node->altitude = 10;
+    node->latitude = 43.474263;
+    node->longitude = -80.538564;
+    node->radius = 5;
+    appendPathNode(node);
 }
 
 void pathManagerRuntime(void) {
@@ -129,10 +134,8 @@ void pathManagerRuntime(void) {
 
 //    copyGPSData();
     
-    gpsData.latitude = 43.473644;
-    gpsData.longitude = -80.539685;
-//    gpsData.latitude = 43.473644;
-//    gpsData.longitude = -80.539347;
+    gpsData.latitude = 43.473199;
+    gpsData.longitude = -80.539381;
     pmData.positionFix = 1;
     
     if (returnHome){
@@ -153,7 +156,7 @@ void pathManagerRuntime(void) {
     position[2] = gpsData.altitude;
     heading = (float)gpsData.heading;
     
-//    printf("Waypoint %d/%d %d\n", currentIndex, pathCount, pmData.satellites);
+    printf("Waypoint %d/%d\n", currentIndex, pathCount);
 
     if (returnHome || (pathCount - currentIndex < 1 && pathCount >= 0)){
         pmData.sp_Heading = lastKnownHeadingHome;
@@ -173,11 +176,12 @@ void pathManagerRuntime(void) {
 
 char followWaypoints(PathData* current, float* position, float heading, int* setpoint) {
     static char recompute = 1;
+    static float radius = 5; // get from first waypoint?
     static Vector current_position, target_position, next_position;
 
-    PathData* target = current->next;
+    PathData* target = current;
     PathData* next = target->next;
-    getCoordinates(current->longitude, current->latitude, (float*)&current_position);
+    getCoordinates(RELATIVE_LONGITUDE, RELATIVE_LATITUDE, (float*)&current_position);
     getCoordinates(target->longitude, target->latitude, (float*)&target_position);
     getCoordinates(next->longitude, next->latitude, (float*)&next_position);
 
@@ -191,11 +195,12 @@ char followWaypoints(PathData* current, float* position, float heading, int* set
     static DubinsPath progress = DUBINS_PATH_C1;
 
     if (recompute) {
-        printf("Recomputing path...\n");
-        
+//        printf("Recomputing path...\n");
+//        getCoordinates(RELATIVE_LATITUDE, RELATIVE_LONGITUDE, (float *)&current_position);
+//        get_direction(&current_position, &target_position, &current_heading);
 //        current_position = (Vector) {
-//            .x = position[0],
-//            .y = position[1],
+//            .x = 43.472990, -80.539615//position[0],
+//            .y = //position[1],
 //        };
 //        float angle = deg2rad(90 - heading);
 //        current_heading = (Vector) {
@@ -259,7 +264,7 @@ char followWaypoints(PathData* current, float* position, float heading, int* set
     UART1_SendString(pos);
     sprintf(pos, "t1d = (%f, %f)", tangent.initial.x + tangent.direction.x, tangent.initial.y + tangent.direction.y); // far
     UART1_SendString(pos);
-    printf("Waypoint %d/%d Progress = %d\n", currentIndex, pathCount, progress, position[0], position[1]);
+//    printf("Waypoint %d/%d Progress = %d\n", currentIndex, pathCount, progress, position[0], position[1]);
 
     plane = (Line) {
         .initial = tangent.initial,
@@ -270,9 +275,10 @@ char followWaypoints(PathData* current, float* position, float heading, int* set
     };
     // before crossing first tangent point
     if (progress == DUBINS_PATH_C1) {
+        printf("Before first tangent (C1)\n");
         char direction = current_heading.x*tangent.direction.y - current_heading.y*tangent.direction.x > 0 ? 1 : -1;
         *setpoint = (int)followOrbit((float *)&close.center, close.radius, direction, position, heading);
-        if (belongs_to_half_plane(&plane, (Vector *)position)) {
+        if (!belongs_to_half_plane(&plane, (Vector *)position)) {
             progress = DUBINS_PATH_S;
         }
     } else {
@@ -282,8 +288,9 @@ char followWaypoints(PathData* current, float* position, float heading, int* set
         };
         // before crossing second tangent point
         if (progress == DUBINS_PATH_S) {
+            printf("Before second tangent (S)\n");
             *setpoint = (int)followStraightPath((float*)&tangent.direction, (float*)&plane.initial, position, heading);
-            if (belongs_to_half_plane(&plane, (Vector *)position)) {
+            if (!belongs_to_half_plane(&plane, (Vector *)position)) {
                 progress = DUBINS_PATH_C2;
             }
         } else {
@@ -297,13 +304,18 @@ char followWaypoints(PathData* current, float* position, float heading, int* set
             // before crossing target waypoint
             if (progress == DUBINS_PATH_C2) {
                 if (belongs_to_half_plane(&plane, (Vector *)position)) {
+                    printf("Before target (C2)\n");
                     char direction = tangent.direction.x*target_heading.y - tangent.direction.y*target_heading.x > 0 ? 1 : -1;
                     *setpoint = (int)followOrbit((float *)&far.center, far.radius, direction, position, heading);
                 } else {
                     recompute = 1;
-//                    return target->index;
+                    return next->index;
                 }
             }
+//                printf("Should recompute now!!!\n");
+//                recompute = 1;
+//                return next->index;
+//            }
         }
     }
     return current->index;
