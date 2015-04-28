@@ -81,6 +81,7 @@ unsigned int removePathNode(unsigned int ID);
 void clearPathNodes(void);
 unsigned int insertPathNode(PathData* node, unsigned int previousID, unsigned int nextID);
 void copyGPSData(void);
+char generatePMDataChecksum(void);
 void checkAMData(void);
 char getWaypointChecksum(void);
 #endif

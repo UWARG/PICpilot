@@ -18,14 +18,11 @@
 #include "PathManager.h"
 #endif
 
-
 void __attribute__((__interrupt__,no_auto_psv)) _SPI1Interrupt(void){
     SPI1STATbits.SPIROV = 0;
     IFS0bits.SPI1IF = 0;
     IFS0bits.SPI1EIF = 0;
 }
-
-
 
 /*SPI RECEIVE OPERATION*/
 char transmitInitialized = 0; //0 = Nothing Received, 1 = Transmit Initialized
@@ -36,20 +33,45 @@ AMData amData __attribute__((space(dma)));
 PMData pmData __attribute__((space(dma)));
 
 /*
- *
+ * DMA0 Interrupt (with reset)
  */
-
 void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
-#if !PATH_MANAGER
-    if (!transmitInitialized){
-        transmitInitialized = 1;
-        DMA1REQbits.FORCE = 1;
-    while (DMA1REQbits.FORCE == 1);
-    }
+    IEC0bits.DMA0IE = 0; // Disable interrupts (we don't want another reset while we're doing this one)
+#if PATH_MANAGER
+    // if received bad checksum
+    if (amData.checksum != 0xAB && amData.checksum != 0xFFAB) {
+        INTERCOM_4 = 1; // notify AM
+        while(!INTERCOM_2); // wait until AM accepts
+#elif ATTITUDE_MANAGER
+    if (INTERCOM_4) { // if PM requested reset
+        INTERCOM_2 = 1; // notify PM
+        while(!INTERCOM_4);
 #endif
+        SPI1STATbits.SPIEN = 0; //Disable SPI1
+        DMA0CONbits.CHEN = 0; //Disable DMA0 channel
+        DMA1CONbits.CHEN = 0; //Disable DMA1 channel
+        while(SPI1STATbits.SPIRBF) { //Clear SPI1
+            int dummy = SPI1BUF;
+        }
+        // Clear flags
+#if PATH_MANAGER
+        INTERCOM_4 = 0;
+        while(INTERCOM_2);
+#elif ATTITUDE_MANAGER
+        INTERCOM_2 = 0;
+        while(INTERCOM_4);
+#endif
+        init_SPI1(); // Restart SPI
+        init_DMA0(); // Restart DMA0
+        init_DMA1(); // Restart DMA1
+        DMA1REQbits.FORCE = 1;
+        while (DMA1REQbits.FORCE == 1);
+    }
     newDataAvailable = 1;
-    IFS0bits.DMA0IF = 0;// Clear the DMA0 Interrupt Flag
+    IFS0bits.DMA0IF = 0;// Clear the DMA1 Interrupt Flag
+    IEC0bits.DMA0IE = 1; // Enable DMA0 Interrupts
 }
+        
 void __attribute__((__interrupt__, no_auto_psv)) _DMA1Interrupt(void){
     IFS0bits.DMA1IF = 0;// Clear the DMA0 Interrupt Flag
 }

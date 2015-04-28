@@ -23,6 +23,7 @@
 #endif
 
 #if PATH_MANAGER
+
 extern GPSData gpsData;
 extern PMData pmData;
 #if !ATTITUDE_MANAGER
@@ -54,6 +55,10 @@ void pathManagerInit(void) {
 #if DEBUG
     InitUART1();
 #endif
+    
+    // Hack to power altimeter from UART on PM
+    TRISAbits.TRISA5 = 0;
+    PORTAbits.RA5 = 1;
 
     //Communication with GPS
     InitUART2();
@@ -65,6 +70,17 @@ void pathManagerInit(void) {
 
     //Interchip Communication
 #if !ATTITUDE_MANAGER
+    //Initialize Interchip Interrupts for Use in DMA Reset
+    //Set opposite Input / Output Configuration on the AttitudeManager
+    TRISAbits.TRISA12 = 0;  //Init RA12 as Output (0)
+    TRISAbits.TRISA13 = 0;  //Init RA13 as Output (0)
+
+    TRISBbits.TRISB4 = 1;   //Init RB4 as Input (1)
+    TRISBbits.TRISB5 = 1;   //Init RB5 as Input (1)
+
+    INTERCOM_3 = 0;    //Set RA12 to Output a Value of 0
+    INTERCOM_4 = 0;    //Set RA13 to Output a Value of 0
+    
     init_SPI1();
     init_DMA0();
     init_DMA1();
@@ -102,7 +118,6 @@ void pathManagerInit(void) {
 }
 
 void pathManagerRuntime(void) {
-
 #if DEBUG
 //        char str[16];
 //        sprintf(&str,"%f",pmData.time);
@@ -118,10 +133,11 @@ void pathManagerRuntime(void) {
     if (returnHome){
         pmData.targetWaypoint = -1;
     }
-    else if (path[currentIndex]->next)
+    else if (path[currentIndex]->next) {
         pmData.targetWaypoint = path[currentIndex]->next->id;
-    else
+    } else {
         pmData.targetWaypoint = 0;
+    }
 #if !ATTITUDE_MANAGER
     //Check for new uplink command data
     checkAMData();
@@ -146,16 +162,12 @@ void pathManagerRuntime(void) {
     if (pmData.positionFix >= 1){
         lastKnownHeadingHome = calculateHeadingHome(home, (float*)&position, heading);
     }
-
-
-
+    pmData.checksum = generatePMDataChecksum();
 }
 char followWaypoints(PathData* currentWaypoint, float* position, float heading, int* sp_Heading){
         float waypointPosition[3];
         getCoordinates(currentWaypoint->longitude, currentWaypoint->latitude, (float*)&waypointPosition);
         waypointPosition[2] = currentWaypoint->altitude;
-
-
 
         PathData* targetWaypoint = currentWaypoint->next;
         float targetCoordinates[3];
@@ -452,30 +464,31 @@ unsigned int insertPathNode(PathData* node, unsigned int previousID, unsigned in
 }
 
 void copyGPSData(){
-//    if (newGPSDataAvailable){
+    if (newGPSDataAvailable){
         newGPSDataAvailable = 0;
         pmData.time = gpsData.time;
         pmData.longitude = gpsData.longitude;
-        //pmData.altitude = getAltitude(); //gpsData.altitude;
         pmData.latitude = gpsData.latitude;
         pmData.heading = gpsData.heading;
         pmData.speed = gpsData.speed;
         pmData.satellites = (char)gpsData.satellites;
         pmData.positionFix = (char)gpsData.positionFix;
         pmData.batteryLevel = getCurrentPercent();
-//    }
+    }
     pmData.altitude = getAltitude(); //gpsData.altitude; //want to get altitude regardless of if there is new GPS data
+    pmData.checksum = generatePMDataChecksum();
+}
+
+
+// TODO: make me a real checksum!
+char generatePMDataChecksum(void) {
+    return 0xAA;
 }
 
 void checkAMData(){
-    int i = 0;
-    char checksum = 0;
-    for (i = 0; i < sizeof(AMData) - 1; i++){
-        checksum += ((char *)&amData)[i];
-    }
-    if (checksum != lastAMDataChecksum && amData.checksum == checksum){
-        lastAMDataChecksum = checksum;
-        // All commands/actions that need to be run go here
+    char checksum = 0xAB;
+    if (amData.checksum == checksum){
+       // All commands/actions that need to be run go here
        switch (amData.command){
             case PM_DEBUG_TEST:
 //                UART1_SendString("Test");
