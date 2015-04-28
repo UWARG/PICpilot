@@ -8,9 +8,10 @@ float sq(float v) {
     return v*v;
 }
 
+// Line that defines half plane... NOT normal
 char belongs_to_half_plane(Line *line, Vector *point) {
     return (-line->direction.y*(point->x - line->initial.x)
-            + line->direction.x*(point->y - line->initial.y)) < 0;
+            + line->direction.x*(point->y - line->initial.y)) > 0;
 }
 
 void get_direction(Vector *current, Vector *target, Vector *direction) {

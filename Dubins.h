@@ -24,6 +24,12 @@ typedef struct {
     float radius;
 } Circle;
 
+typedef enum {
+    DUBINS_PATH_C1,
+    DUBINS_PATH_S,
+    DUBINS_PATH_C2,
+} DubinsPath;
+
 /*
  * Whether or not a point belongs to a half plane
  * @param line line defining half plane
