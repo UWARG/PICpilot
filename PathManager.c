@@ -88,36 +88,36 @@ void pathManagerInit(void) {
     home.id = -1;
 
     //Initialize first path nodes
-//    PathData* node = initializePathNode();
-//    node->altitude = 10;
-//    node->latitude = RELATIVE_LATITUDE;
-//    node->longitude = RELATIVE_LONGITUDE;
-//    node->radius = 5;
-//    appendPathNode(node);
-//    node = initializePathNode();
-//    node->altitude = 10;
-//    node->latitude = 43.473123;
-//    node->longitude = -80.539353;
-//    node->radius = 5;
-//    appendPathNode(node);
-//    node = initializePathNode();
-//    node->altitude = 10;
-//    node->latitude = 43.473567;
-//    node->longitude = -80.539621;
-//    node->radius = 5;
-//    appendPathNode(node);
-//    node = initializePathNode();
-//    node->altitude = 10;
-//    node->latitude = 43.473804;
-//    node->longitude = -80.539626;
-//    node->radius = 5;
-//    appendPathNode(node);
-//    node = initializePathNode();
-//    node->altitude = 10;
-//    node->latitude = 43.474263;
-//    node->longitude = -80.538564;
-//    node->radius = 5;
-//    appendPathNode(node);
+    PathData* node = initializePathNode();
+    node->altitude = 10;
+    node->latitude = 43.473662;
+    node->longitude = -80.540019;
+    node->radius = 5;
+    appendPathNode(node);
+    node = initializePathNode();
+    node->altitude = 10;
+    node->latitude = 43.473479;
+    node->longitude = -80.540601;
+    node->radius = 5;
+    appendPathNode(node);
+    node = initializePathNode();
+    node->altitude = 10;
+    node->latitude = 43.473718;
+    node->longitude = -80.540837;
+    node->radius = 5;
+    appendPathNode(node);
+    node = initializePathNode();
+    node->altitude = 10;
+    node->latitude = 43.473946;
+    node->longitude = -80.540261;
+    node->radius = 5;
+    appendPathNode(node);
+    node = initializePathNode();
+    node->altitude = 10;
+    node->latitude = 43.473685;
+    node->longitude = -80.540073;
+    node->radius = 5;
+    appendPathNode(node);
 }
 
 void pathManagerRuntime(void) {
@@ -144,7 +144,7 @@ void pathManagerRuntime(void) {
     else if (path[currentIndex]->next)
         pmData.targetWaypoint = path[currentIndex]->id;
     else
-        pmData.targetWaypoint = 0;
+        pmData.targetWaypoint = path[currentIndex]->id;
 #if !ATTITUDE_MANAGER
     //Check for new uplink command data
     checkAMData();
@@ -155,21 +155,20 @@ void pathManagerRuntime(void) {
     getCoordinates(gpsData.longitude,gpsData.latitude,(float*)&position);
     position[2] = gpsData.altitude;
     heading = (float)gpsData.heading;
-    
+
     printf("Waypoint %d/%d\n", currentIndex, pathCount);
 
     if (returnHome || (pathCount - currentIndex < 1 && pathCount >= 0)){
+        printf("Heading home...\n");
         pmData.sp_Heading = lastKnownHeadingHome;
-    } else if (pathCount - currentIndex >= 2) {
+    } else if (pathCount - currentIndex >= 1) {
         if (pmData.positionFix > 0) {
             currentIndex = followWaypoints(path[currentIndex], (float*)&position, heading, (int*)&pmData.sp_Heading);
         } else {
             printf("No fix :(\n");
         }
-    } else if (pathCount - currentIndex >= 1){
-        pmData.sp_Heading = followLastLineSegment(path[currentIndex], (float*)&position, heading);
     }
-    if (pmData.satellites > 3){
+    if (pmData.positionFix > 0){
         lastKnownHeadingHome = calculateHeadingHome(home, (float*)&position, heading);
     }
 }
@@ -181,7 +180,12 @@ char followWaypoints(PathData* current, float* position, float heading, int* set
     static Vector current_position, target_position, next_position;
 
     PathData* target = current;
-    PathData* next = target->next;
+    PathData* next;
+    if (target->next) {
+        next = target->next;
+    } else {
+        next = &home;
+    }
 //    getCoordinates(RELATIVE_LONGITUDE, RELATIVE_LATITUDE, (float*)&current_position);
     getCoordinates(target->longitude, target->latitude, (float*)&target_position);
     getCoordinates(next->longitude, next->latitude, (float*)&next_position);
@@ -344,28 +348,30 @@ int followLineSegment(PathData* currentWaypoint, float* position, float heading)
 }
 
 int followLastLineSegment(PathData* currentWaypoint, float* position, float heading){
-            float waypointPosition[3];
-        getCoordinates(currentWaypoint->longitude, currentWaypoint->latitude, (float*)&waypointPosition);
-        waypointPosition[2] = currentWaypoint->altitude;
+    float waypointPosition[3];
+    waypointPosition[0] = position[0];
+    waypointPosition[1] = position[1];
 
-        PathData* targetWaypoint = currentWaypoint->next;
-        float targetCoordinates[3];
-        getCoordinates(targetWaypoint->longitude, targetWaypoint->latitude, (float*)&targetCoordinates);
-        targetCoordinates[2] = targetWaypoint->altitude;
+    PathData* targetWaypoint = currentWaypoint;
+    float targetCoordinates[3];
+    getCoordinates(targetWaypoint->longitude, targetWaypoint->latitude, (float*)&targetCoordinates);
+    targetCoordinates[2] = targetWaypoint->altitude;
+    
+    printf("Following last line...");
+    printf("From %d,%d to %d,%d", position[0], position[1], targetCoordinates[0], targetCoordinates[1]);
 
+    float waypointDirection[3];
+    float norm = sqrt(pow(targetCoordinates[0] - waypointPosition[0],2) + pow(targetCoordinates[1] - waypointPosition[1],2) + pow(targetCoordinates[2] - waypointPosition[2],2));
+    waypointDirection[0] = (targetCoordinates[0] - waypointPosition[0])/norm;
+    waypointDirection[1] = (targetCoordinates[1] - waypointPosition[1])/norm;
+    waypointDirection[2] = (targetCoordinates[2] - waypointPosition[2])/norm;
 
-        float waypointDirection[3];
-        float norm = sqrt(pow(targetCoordinates[0] - waypointPosition[0],2) + pow(targetCoordinates[1] - waypointPosition[1],2) + pow(targetCoordinates[2] - waypointPosition[2],2));
-        waypointDirection[0] = (targetCoordinates[0] - waypointPosition[0])/norm;
-        waypointDirection[1] = (targetCoordinates[1] - waypointPosition[1])/norm;
-        waypointDirection[2] = (targetCoordinates[2] - waypointPosition[2])/norm;
+    float dotProduct = waypointDirection[0] * (position[0] - targetCoordinates[0]) + waypointDirection[1] * (position[1] - targetCoordinates[1]) + waypointDirection[2] * (position[2] - targetCoordinates[2]);
+    if (dotProduct > 0){
+        returnHome = 1;
+    }
 
-        float dotProduct = waypointDirection[0] * (position[0] - targetCoordinates[0]) + waypointDirection[1] * (position[1] - targetCoordinates[1]) + waypointDirection[2] * (position[2] - targetCoordinates[2]);
-        if (dotProduct > 0){
-            returnHome = 1;
-        }
-
-        return (int)followStraightPath((float*)&waypointDirection, (float*)targetCoordinates, (float*)position, heading);
+    return (int)followStraightPath((float*)&waypointDirection, (float*)targetCoordinates, (float*)position, heading);
 }
 
 // direction: ccw = 1, cw = -1
