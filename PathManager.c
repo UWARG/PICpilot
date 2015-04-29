@@ -88,36 +88,36 @@ void pathManagerInit(void) {
     home.id = -1;
 
     //Initialize first path nodes
-    PathData* node = initializePathNode();
-    node->altitude = 10;
-    node->latitude = 43.473662;
-    node->longitude = -80.540019;
-    node->radius = 5;
-    appendPathNode(node);
-    node = initializePathNode();
-    node->altitude = 10;
-    node->latitude = 43.473479;
-    node->longitude = -80.540601;
-    node->radius = 5;
-    appendPathNode(node);
-    node = initializePathNode();
-    node->altitude = 10;
-    node->latitude = 43.473718;
-    node->longitude = -80.540837;
-    node->radius = 5;
-    appendPathNode(node);
-    node = initializePathNode();
-    node->altitude = 10;
-    node->latitude = 43.473946;
-    node->longitude = -80.540261;
-    node->radius = 5;
-    appendPathNode(node);
-    node = initializePathNode();
-    node->altitude = 10;
-    node->latitude = 43.473685;
-    node->longitude = -80.540073;
-    node->radius = 5;
-    appendPathNode(node);
+//    PathData* node = initializePathNode();
+//    node->altitude = 10;
+//    node->latitude = 43.473662;
+//    node->longitude = -80.540019;
+//    node->radius = 5;
+//    appendPathNode(node);
+//    node = initializePathNode();
+//    node->altitude = 10;
+//    node->latitude = 43.473479;
+//    node->longitude = -80.540601;
+//    node->radius = 5;
+//    appendPathNode(node);
+//    node = initializePathNode();
+//    node->altitude = 10;
+//    node->latitude = 43.473718;
+//    node->longitude = -80.540837;
+//    node->radius = 5;
+//    appendPathNode(node);
+//    node = initializePathNode();
+//    node->altitude = 10;
+//    node->latitude = 43.473946;
+//    node->longitude = -80.540261;
+//    node->radius = 5;
+//    appendPathNode(node);
+//    node = initializePathNode();
+//    node->altitude = 10;
+//    node->latitude = 43.473685;
+//    node->longitude = -80.540073;
+//    node->radius = 5;
+//    appendPathNode(node);
 }
 
 void pathManagerRuntime(void) {
