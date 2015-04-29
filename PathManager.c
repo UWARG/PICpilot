@@ -134,17 +134,11 @@ void pathManagerRuntime(void) {
 
     copyGPSData();
     
-//    gpsData.latitude = 43.473199;
-//    gpsData.longitude = -80.539381;
-//    pmData.positionFix = 1;
-    
     if (returnHome){
         pmData.targetWaypoint = -1;
+    } else {
+        pmData.targetWaypoint = path[currentIndex]->id;
     }
-    else if (path[currentIndex]->next)
-        pmData.targetWaypoint = path[currentIndex]->id;
-    else
-        pmData.targetWaypoint = path[currentIndex]->id;
 #if !ATTITUDE_MANAGER
     //Check for new uplink command data
     checkAMData();
@@ -156,17 +150,11 @@ void pathManagerRuntime(void) {
     position[2] = gpsData.altitude;
     heading = (float)gpsData.heading;
 
-    printf("Waypoint %d/%d\n", currentIndex, pathCount);
-
     if (returnHome || (pathCount - currentIndex < 1 && pathCount >= 0)){
         printf("Heading home...\n");
         pmData.sp_Heading = lastKnownHeadingHome;
-    } else if (pathCount - currentIndex >= 1) {
-        if (pmData.positionFix > 0) {
-            currentIndex = followWaypoints(path[currentIndex], (float*)&position, heading, (int*)&pmData.sp_Heading);
-        } else {
-            printf("No fix :(\n");
-        }
+    } else if (pathCount - currentIndex >= 1 && pmData.positionFix > 0) {
+        currentIndex = followWaypoints(path[currentIndex], (float*)&position, heading, (int*)&pmData.sp_Heading);
     }
     if (pmData.positionFix > 0){
         lastKnownHeadingHome = calculateHeadingHome(home, (float*)&position, heading);
@@ -174,7 +162,6 @@ void pathManagerRuntime(void) {
 }
 
 char followWaypoints(PathData* current, float* position, float heading, int* setpoint) {
-    printf("Following\n");
     static char recompute = 1;
     static float radius = 5; // get from first waypoint?
     static Vector current_position, target_position, next_position;
@@ -186,12 +173,11 @@ char followWaypoints(PathData* current, float* position, float heading, int* set
     } else {
         next = &home;
     }
-//    getCoordinates(RELATIVE_LONGITUDE, RELATIVE_LATITUDE, (float*)&current_position);
+
     getCoordinates(target->longitude, target->latitude, (float*)&target_position);
     getCoordinates(next->longitude, next->latitude, (float*)&next_position);
 
     static Vector current_heading, target_heading;
-//    get_direction(&current_position, &target_position, &current_heading);
     get_direction(&target_position, &next_position, &target_heading);
 
     static Circle close, far;
@@ -201,8 +187,6 @@ char followWaypoints(PathData* current, float* position, float heading, int* set
 
     if (recompute) {
         printf("Recomputing path...\n");
-//        getCoordinates(RELATIVE_LATITUDE, RELATIVE_LONGITUDE, (float *)&current_position);
-//        get_direction(&current_position, &target_position, &current_heading);
         current_position = (Vector) {
             .x = position[0],
             .y = position[1],
@@ -252,25 +236,6 @@ char followWaypoints(PathData* current, float* position, float heading, int* set
         radius = target->radius;
         recompute = 0;
     }
-    
-    char pos[32];
-    sprintf(pos, "pos = (%f, %f)", position[0], position[1]); // actual
-    UART1_SendString(pos);
-    sprintf(pos, "current = (%f, %f)", current_position.x, current_position.y); // current
-    UART1_SendString(pos);
-    sprintf(pos, "target = (%f, %f)", target_position.x, target_position.y); // target
-    UART1_SendString(pos);
-    sprintf(pos, "next = (%f, %f)", next_position.x, next_position.y); // next
-    UART1_SendString(pos);
-    sprintf(pos, "close = (%f, %f)", close.center.x, close.center.y); // close
-    UART1_SendString(pos);
-    sprintf(pos, "far = (%f, %f)", far.center.x, far.center.y); // far
-    UART1_SendString(pos);
-    sprintf(pos, "t1 = (%f, %f)", tangent.initial.x, tangent.initial.y); // close
-    UART1_SendString(pos);
-    sprintf(pos, "t1d = (%f, %f)", tangent.initial.x + tangent.direction.x, tangent.initial.y + tangent.direction.y); // far
-    UART1_SendString(pos);
-//    printf("Waypoint %d/%d Progress = %d\n", currentIndex, pathCount, progress, position[0], position[1]);
 
     plane = (Line) {
         .initial = tangent.initial,
@@ -281,12 +246,8 @@ char followWaypoints(PathData* current, float* position, float heading, int* set
     };
     // before crossing first tangent point
     if (belongs_to_half_plane(&plane, (Vector *)position)) {
-        printf("Before first tangent (C1)\n");
         char direction = current_heading.x*tangent.direction.y - current_heading.y*tangent.direction.x > 0 ? 1 : -1;
         *setpoint = (int)followOrbit((float *)&close.center, close.radius, direction, position, heading);
-//        if (!belongs_to_half_plane(&plane, (Vector *)position)) {
-//            progress = DUBINS_PATH_S;
-//        }
     } else {
         plane.initial = (Vector) {
             .x = tangent.initial.x + tangent.direction.x,
@@ -294,11 +255,7 @@ char followWaypoints(PathData* current, float* position, float heading, int* set
         };
         // before crossing second tangent point
         if (belongs_to_half_plane(&plane, (Vector *)position)) {
-            printf("Before second tangent (S)\n");
             *setpoint = (int)followStraightPath((float*)&tangent.direction, (float*)&plane.initial, position, heading);
-//            if (!belongs_to_half_plane(&plane, (Vector *)position)) {
-//                progress = DUBINS_PATH_C2;
-//            }
         } else {
             plane = (Line) {
                 .initial = target_position,
@@ -309,19 +266,12 @@ char followWaypoints(PathData* current, float* position, float heading, int* set
             };
             // before crossing target waypoint
             if (belongs_to_half_plane(&plane, (Vector *)position)) {
-//                if (belongs_to_half_plane(&plane, (Vector *)position)) {
-                printf("Before target (C2)\n");
                 char direction = tangent.direction.x*target_heading.y - tangent.direction.y*target_heading.x > 0 ? 1 : -1;
                 *setpoint = (int)followOrbit((float *)&far.center, far.radius, direction, position, heading);
             } else {
                 recompute = 1;
                 return next->index;
             }
-//            }
-//                printf("Should recompute now!!!\n");
-//                recompute = 1;
-//                return next->index;
-//            }
         }
     }
     return current->index;
@@ -337,7 +287,6 @@ int followLineSegment(PathData* currentWaypoint, float* position, float heading)
         getCoordinates(targetWaypoint->longitude, targetWaypoint->latitude, (float*)&targetCoordinates);
         targetCoordinates[2] = targetWaypoint->altitude;
 
-
         float waypointDirection[3];
         float norm = sqrt(pow(targetCoordinates[0] - waypointPosition[0],2) + pow(targetCoordinates[1] - waypointPosition[1],2) + pow(targetCoordinates[2] - waypointPosition[2],2));
         waypointDirection[0] = (targetCoordinates[0] - waypointPosition[0])/norm;
@@ -351,14 +300,12 @@ int followLastLineSegment(PathData* currentWaypoint, float* position, float head
     float waypointPosition[3];
     waypointPosition[0] = position[0];
     waypointPosition[1] = position[1];
+    waypointPosition[2] = pmData.altitude;
 
     PathData* targetWaypoint = currentWaypoint;
     float targetCoordinates[3];
     getCoordinates(targetWaypoint->longitude, targetWaypoint->latitude, (float*)&targetCoordinates);
     targetCoordinates[2] = targetWaypoint->altitude;
-    
-    printf("Following last line...");
-    printf("From %d,%d to %d,%d", position[0], position[1], targetCoordinates[0], targetCoordinates[1]);
 
     float waypointDirection[3];
     float norm = sqrt(pow(targetCoordinates[0] - waypointPosition[0],2) + pow(targetCoordinates[1] - waypointPosition[1],2) + pow(targetCoordinates[2] - waypointPosition[2],2));
