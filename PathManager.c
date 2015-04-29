@@ -142,7 +142,7 @@ void pathManagerRuntime(void) {
         pmData.targetWaypoint = -1;
     }
     else if (path[currentIndex]->next)
-        pmData.targetWaypoint = path[currentIndex]->next->id;
+        pmData.targetWaypoint = path[currentIndex]->id;
     else
         pmData.targetWaypoint = 0;
 #if !ATTITUDE_MANAGER
