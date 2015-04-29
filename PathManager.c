@@ -56,15 +56,18 @@ void pathManagerInit(void) {
     InitUART1();
 #endif
     
-    // Hack to power altimeter from UART on PM
-    TRISAbits.TRISA5 = 0;
-    PORTAbits.RA5 = 1;
+    
 
     //Communication with GPS
-    InitUART2();
+//    InitUART2();
 #if GPS_OLD
     init_SPI2();
     init_DMA2();
+//    // Hack to power altimeter from UART on PM
+    TRISFbits.TRISF5 = 0;
+    PORTFbits.RF5 = 1;
+#else
+    InitUART2();
 #endif
     initBatterySensor();
 

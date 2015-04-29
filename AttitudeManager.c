@@ -130,8 +130,8 @@ float lastAltitude = 0;
 long int lastAltitudeTime = 0;
 
 char lastNumSatellites = 0;
-float velocityComp_ON[3] = { 1, 0.1, 0.01}; // 1 = Scalar Mode (Velocity along the IMU X-axis, Takes into account applied rotation matrix, so if calibrated properly, no modification to frontward velocity is required), 2 = Body Reference Mode, 3 = Inertial Reference Mode
-float velocityComp_OFF[3] = { 0, 0.1, 0.01};
+//float velocityComp_ON[3] = { 1, 0.1, 0.01}; // 1 = Scalar Mode (Velocity along the IMU X-axis, Takes into account applied rotation matrix, so if calibrated properly, no modification to frontward velocity is required), 2 = Body Reference Mode, 3 = Inertial Reference Mode
+//float velocityComp_OFF[3] = { 0, 0.1, 0.01};
 
 unsigned int cameraCounter = 0;
 
@@ -167,7 +167,7 @@ void attitudeInit() {
     float filterVariance[10] = {1e-10, 1e-6, 1e-6, 1e-6, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2};
     VN100_initSPI();
     //IMU position matrix
-    float offset[3] = {-90,90,0};
+    float offset[3] = {-90,-90,0};
     setVNOrientationMatrix((float*)&offset);
     VN100_SPI_SetFiltMeasVar(0, (float*)&filterVariance);
 
@@ -210,18 +210,18 @@ void attitudeManagerRuntime() {
             batteryLevel = pmData.batteryLevel;
 
 
-            //turn the Velocity Compensation ON or OFF accordingly
-            if (gps_Satellites >= 4 && lastNumSatellites < 4)
-                VN100_SPI_WriteRegister(0, 51, 8, (unsigned long*) velocityComp_ON);
-            else if (gps_Satellites < 4 && lastNumSatellites >= 4)
-                VN100_SPI_WriteRegister(0, 51, 8, (unsigned long*) velocityComp_OFF);
-
-            //newData, so feed the velocity info to the VectorNav to allow it to process and compensate accordingly
-            if (gps_Satellites >= 4)
-            {
-                float velocity[3] = { gps_GroundSpeed, 0, 0};
-                VN100_SPI_VelocityCompensationMeasurement(0, (float*)&velocity);
-            }
+//            //turn the Velocity Compensation ON or OFF accordingly
+//            if (gps_Satellites >= 4 && lastNumSatellites < 4)
+//                VN100_SPI_WriteRegister(0, 51, 8, (unsigned long*) velocityComp_ON);
+//            else if (gps_Satellites < 4 && lastNumSatellites >= 4)
+//                VN100_SPI_WriteRegister(0, 51, 8, (unsigned long*) velocityComp_OFF);
+//
+//            //newData, so feed the velocity info to the VectorNav to allow it to process and compensate accordingly
+//            if (gps_Satellites >= 4)
+//            {
+//                float velocity[3] = { gps_GroundSpeed, 0, 0};
+//                VN100_SPI_VelocityCompensationMeasurement(0, (float*)&velocity);
+//            }
         }
     }
 //#endif
@@ -288,7 +288,7 @@ void attitudeManagerRuntime() {
     imu_YawRate = imuData[IMU_YAW_RATE];
     VN100_SPI_GetYPR(0, &imuData[YAW], &imuData[PITCH], &imuData[ROLL]);
     imu_YawAngle = imuData[YAW];
-    imu_PitchAngle = -imuData[PITCH]; //**************MITCH HACK FIX TO CHANGE WHICH WAY IT THINKS THE PITCH ANGLE IS added negative
+    imu_PitchAngle = imuData[PITCH]; //**************MITCH HACK FIX TO CHANGE WHICH WAY IT THINKS THE PITCH ANGLE IS added negative
     imu_RollAngle = (imuData[ROLL]); //**************MITCH HACK FIX TO CHANGE WHICH WAY IT THINKS THE PITCH ANGLE IS, added negative
 
     //**** Mitch put Velocity Compensation in the "newDataAvailable" section
@@ -353,7 +353,7 @@ void attitudeManagerRuntime() {
     // If we are getting input from the controller convert sp_xxxxRate to an sp_xxxxAngle in degrees
 
     if ((controlLevel & ROLL_CONTROL_SOURCE) == 0 && (controlLevel & HEADING_CONTROL_ON) == 0)
-        sp_RollAngle = (int)((-sp_RollRate / ((float)SP_RANGE / MAX_ROLL_ANGLE) ));
+        sp_RollAngle = (int)((sp_RollRate / ((float)SP_RANGE / MAX_ROLL_ANGLE) ));
     if ((controlLevel & PITCH_CONTROL_SOURCE) == 0 && (controlLevel & ALTITUDE_CONTROL_ON) == 0)
         sp_PitchAngle = (int)(sp_PitchRate / ((float)SP_RANGE / MAX_PITCH_ANGLE));
 
@@ -364,14 +364,14 @@ void attitudeManagerRuntime() {
         sp_ComputedRollRate = controlSignalAngles(sp_RollAngle,  imu_RollAngle, ROLL, -(SP_RANGE) / (MAX_ROLL_ANGLE));
     }
     else{
-        sp_ComputedRollRate = sp_RollRate;
+        sp_ComputedRollRate = -sp_RollRate;
     }
 
     if (controlLevel & PITCH_CONTROL_TYPE || controlLevel & ALTITUDE_CONTROL_ON){
-        sp_ComputedPitchRate = controlSignalAngles(sp_PitchAngle, imu_PitchAngle, PITCH, (SP_RANGE) / (MAX_PITCH_ANGLE)); //Removed negative
+        sp_ComputedPitchRate = controlSignalAngles(sp_PitchAngle, imu_PitchAngle, PITCH, -(SP_RANGE) / (MAX_PITCH_ANGLE)); //Removed negative
     }
     else{
-        sp_ComputedPitchRate = sp_PitchRate;
+        sp_ComputedPitchRate = -sp_PitchRate;
     }
     sp_ComputedYawRate = sp_YawRate;
     // CONTROLLER INPUT INTERPRETATION CODE
@@ -393,8 +393,8 @@ void attitudeManagerRuntime() {
     }
 
     // Control Signals (Output compare value)
-    control_Roll = controlSignal((sp_ComputedRollRate / SERVO_SCALE_FACTOR), imu_RollRate, ROLL);
-    control_Pitch = controlSignal((sp_ComputedPitchRate / SERVO_SCALE_FACTOR), imu_PitchRate, PITCH);
+    control_Roll = -controlSignal((sp_ComputedRollRate / SERVO_SCALE_FACTOR), imu_RollRate, ROLL);
+    control_Pitch = -controlSignal((sp_ComputedPitchRate / SERVO_SCALE_FACTOR), imu_PitchRate, PITCH);
     control_Yaw = controlSignal((sp_ComputedYawRate / SERVO_SCALE_FACTOR), imu_YawRate, YAW);
 
 
@@ -481,8 +481,8 @@ void attitudeManagerRuntime() {
     setPWM(4, tail_OutputL); //Yaw
     //setPWM(5, cameraPWM);
     setPWM(5, goProGimbalPWM);
-    setPWM(6, gimbalPWM);
-//need to add outputs for goProGimbalPWM, and verticalGoProPWM
+    setPWM(6, verticalGoProPWM);
+//need to add outputs for goProGimbalPWM, and gimbalPWM
 
 //    setPWM(7, sp_HeadingRate + MIDDLE_PWM - 20);
 #endif
