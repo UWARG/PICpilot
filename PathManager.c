@@ -7,6 +7,7 @@
 
 #include "main.h"
 #include "PathManager.h"
+#include "Dubins.h"
 #include "MPL3115A2.h"
 #include "voltageSensor.h"
 #include "UART2.h"
@@ -55,8 +56,8 @@ void pathManagerInit(void) {
 #if DEBUG
     InitUART1();
 #endif
-    
-    
+
+
 
     //Communication with GPS
 //    InitUART2();
@@ -83,7 +84,7 @@ void pathManagerInit(void) {
 
     INTERCOM_3 = 0;    //Set RA12 to Output a Value of 0
     INTERCOM_4 = 0;    //Set RA13 to Output a Value of 0
-    
+
     init_SPI1();
     init_DMA0();
     init_DMA1();
@@ -108,15 +109,33 @@ void pathManagerInit(void) {
     //Initialize first path nodes
 //    PathData* node = initializePathNode();
 //    node->altitude = 10;
-//    node->latitude = 43.4731655738112;
-//    node->longitude = -80.5374240875244;
-//    node->radius = 10;
+//    node->latitude = 43.473662;
+//    node->longitude = -80.540019;
+//    node->radius = 5;
 //    appendPathNode(node);
 //    node = initializePathNode();
 //    node->altitude = 10;
-//    node->latitude = 43.4718886758826;
-//    node->longitude = -80.5391192436218;
-//    node->radius = 10;
+//    node->latitude = 43.473479;
+//    node->longitude = -80.540601;
+//    node->radius = 5;
+//    appendPathNode(node);
+//    node = initializePathNode();
+//    node->altitude = 10;
+//    node->latitude = 43.473718;
+//    node->longitude = -80.540837;
+//    node->radius = 5;
+//    appendPathNode(node);
+//    node = initializePathNode();
+//    node->altitude = 10;
+//    node->latitude = 43.473946;
+//    node->longitude = -80.540261;
+//    node->radius = 5;
+//    appendPathNode(node);
+//    node = initializePathNode();
+//    node->altitude = 10;
+//    node->latitude = 43.473685;
+//    node->longitude = -80.540073;
+//    node->radius = 5;
 //    appendPathNode(node);
 }
 
@@ -132,15 +151,13 @@ void pathManagerRuntime(void) {
 #endif
 
     copyGPSData();
-    
+
     if (returnHome){
         pmData.targetWaypoint = -1;
-    }
-    else if (path[currentIndex]->next) {
-        pmData.targetWaypoint = path[currentIndex]->next->id;
     } else {
-        pmData.targetWaypoint = 0;
+        pmData.targetWaypoint = path[currentIndex]->id;
     }
+
 #if !ATTITUDE_MANAGER
     //Check for new uplink command data
     checkAMData();
@@ -153,95 +170,134 @@ void pathManagerRuntime(void) {
     heading = (float)gpsData.heading;
 
     if (returnHome || (pathCount - currentIndex < 1 && pathCount >= 0)){
+        printf("Heading home...\n");
         pmData.sp_Heading = lastKnownHeadingHome;
-    }else if (pathCount - currentIndex >= 1){
-        if (pathCount - currentIndex >= 2){
-            currentIndex = followWaypoints(path[currentIndex], (float*)&position, heading, (int*)&pmData.sp_Heading);
-        }
-        else if (pathCount - currentIndex >= 1){
-            pmData.sp_Heading = followLastLineSegment(path[currentIndex], (float*)&position, heading);
-        }
+    } else if (pathCount - currentIndex >= 1 && pmData.positionFix > 0) {
+        currentIndex = followWaypoints(path[currentIndex], (float*)&position, heading, (int*)&pmData.sp_Heading);
     }
-    if (pmData.positionFix >= 1){
+    if (pmData.positionFix > 0){
         lastKnownHeadingHome = calculateHeadingHome(home, (float*)&position, heading);
     }
+
     pmData.checksum = generatePMDataChecksum();
 }
-char followWaypoints(PathData* currentWaypoint, float* position, float heading, int* sp_Heading){
-        float waypointPosition[3];
-        getCoordinates(currentWaypoint->longitude, currentWaypoint->latitude, (float*)&waypointPosition);
-        waypointPosition[2] = currentWaypoint->altitude;
 
-        PathData* targetWaypoint = currentWaypoint->next;
-        float targetCoordinates[3];
-        getCoordinates(targetWaypoint->longitude, targetWaypoint->latitude, (float*)&targetCoordinates);
-        targetCoordinates[2] = targetWaypoint->altitude;
-                
-        PathData* nextWaypoint = targetWaypoint->next;
-        float nextCoordinates[3];
-        getCoordinates(nextWaypoint->longitude, nextWaypoint->latitude, (float*)&nextCoordinates);
-        nextCoordinates[2] = nextWaypoint->altitude;
+char followWaypoints(PathData* current, float* position, float heading, int* setpoint) {
+    static char recompute = 1;
+    static float radius = 5; // get from first waypoint?
+    static Vector current_position, target_position, next_position;
 
-        float waypointDirection[3];
-        float norm = sqrt(pow(targetCoordinates[0] - waypointPosition[0],2) + pow(targetCoordinates[1] - waypointPosition[1],2) + pow(targetCoordinates[2] - waypointPosition[2],2));
-        waypointDirection[0] = (targetCoordinates[0] - waypointPosition[0])/norm;
-        waypointDirection[1] = (targetCoordinates[1] - waypointPosition[1])/norm;
-        waypointDirection[2] = (targetCoordinates[2] - waypointPosition[2])/norm;
+    PathData* target = current;
+    PathData* next;
+    if (target->next) {
+        next = target->next;
+    } else {
+        next = &home;
+    }
 
-        float nextWaypointDirection[3];
-        float norm2 = sqrt(pow(nextCoordinates[0] - targetCoordinates[0],2) + pow(nextCoordinates[1] - targetCoordinates[1],2) + pow(nextCoordinates[2] - targetCoordinates[2],2));
-        nextWaypointDirection[0] = (nextCoordinates[0] - targetCoordinates[0])/norm2;
-        nextWaypointDirection[1] = (nextCoordinates[1] - targetCoordinates[1])/norm2;
-        nextWaypointDirection[2] = (nextCoordinates[2] - targetCoordinates[2])/norm2;
+    getCoordinates(target->longitude, target->latitude, (float*)&target_position);
+    getCoordinates(next->longitude, next->latitude, (float*)&next_position);
 
-        float turningAngle = acos(-deg2rad(waypointDirection[0] * nextWaypointDirection[0] + waypointDirection[1] * nextWaypointDirection[1] + waypointDirection[2] * nextWaypointDirection[2]));
+    static Vector current_heading, target_heading;
+    get_direction(&target_position, &next_position, &target_heading);
 
-        if (orbitPathStatus == PATH){
+    static Circle close, far;
+    static Line tangent, plane;
 
-            float halfPlane[3];
-            halfPlane[0] = targetCoordinates[0] - (targetWaypoint->radius/tan(turningAngle/2)) * waypointDirection[0];
-            halfPlane[1] = targetCoordinates[1] - (targetWaypoint->radius/tan(turningAngle/2)) * waypointDirection[1];
-            halfPlane[2] = targetCoordinates[2] - (targetWaypoint->radius/tan(turningAngle/2)) * waypointDirection[2];
-            
-            float dotProduct = waypointDirection[0] * (position[0] - halfPlane[0]) + waypointDirection[1] * (position[1] - halfPlane[1]) + waypointDirection[2] * (position[2] - halfPlane[2]);
-            if (dotProduct > 0){
-                orbitPathStatus = ORBIT;
-            }
+    static DubinsPath progress = DUBINS_PATH_C1;
 
-            *sp_Heading = (int)followStraightPath((float*)&waypointDirection, (float*)targetCoordinates, (float*)position, heading);
+    if (recompute) {
+        printf("Recomputing path...\n");
+        current_position = (Vector) {
+            .x = position[0],
+            .y = position[1],
+        };
+        float angle = deg2rad(90 - heading);
+        current_heading = (Vector) {
+            .x = cos(angle),
+            .y = sin(angle),
+        };
+        plane = (Line) {
+            .initial = current_position,
+            .direction = current_heading,
+        };
+
+        // can figure out both from this
+        // always will take same pair
+        if (belongs_to_half_plane(&plane, &next_position)) {
+            close.center = (Vector) {
+                .x = current_position.x + current->radius*current_heading.y,
+                .y = current_position.y - current->radius*current_heading.x,
+            };
+            far.center = (Vector) {
+                .x = target_position.x - target->radius*target_heading.y,
+                .y = target_position.y + target->radius*target_heading.x,
+            };
+        } else {
+            close.center = (Vector) {
+                .x = current_position.x - current->radius*current_heading.y,
+                .y = current_position.y + current->radius*current_heading.x,
+            };
+            far.center = (Vector) {
+                .x = target_position.x + target->radius*target_heading.y,
+                .y = target_position.y - target->radius*target_heading.x,
+            };
         }
-        else{
-            float halfPlane[3];
-            halfPlane[0] = targetCoordinates[0] + (targetWaypoint->radius/tan(turningAngle/2)) * nextWaypointDirection[0];
-            halfPlane[1] = targetCoordinates[1] + (targetWaypoint->radius/tan(turningAngle/2)) * nextWaypointDirection[1];
-            halfPlane[2] = targetCoordinates[2] + (targetWaypoint->radius/tan(turningAngle/2)) * nextWaypointDirection[2];
+        close.radius = target->radius;
+        far.radius = target->radius;
 
-            float dotProduct = nextWaypointDirection[0] * (position[0] - halfPlane[0]) + nextWaypointDirection[1] * (position[1] - halfPlane[1]) + nextWaypointDirection[2] * (position[2] - halfPlane[2]);
-            if (dotProduct > 0){
-                orbitPathStatus = PATH;
-                return targetWaypoint->index;
+        Line tangents[2];
+        get_tangents(&close, &far, tangents);
+
+        float d1 = sqrt(pow(tangents[0].initial.x - current_position.x, 2) + pow(tangents[0].initial.y - current_position.y, 2));
+        float d2 = sqrt(pow(tangents[1].initial.x - current_position.x, 2) + pow(tangents[1].initial.y - current_position.y, 2));
+        tangent = d1 < d2 ? tangents[0] : tangents[1];
+
+        progress = DUBINS_PATH_C1;
+        radius = target->radius;
+        recompute = 0;
+    }
+
+    plane = (Line) {
+        .initial = tangent.initial,
+        .direction = (Vector) {
+            .x = -tangent.direction.y,
+            .y = tangent.direction.x,
+        },
+    };
+    // before crossing first tangent point
+    if (belongs_to_half_plane(&plane, (Vector *)position)) {
+        char direction = current_heading.x*tangent.direction.y - current_heading.y*tangent.direction.x > 0 ? 1 : -1;
+        *setpoint = (int)followOrbit((float *)&close.center, close.radius, direction, position, heading);
+    } else {
+        plane.initial = (Vector) {
+            .x = tangent.initial.x + tangent.direction.x,
+            .y = tangent.initial.y + tangent.direction.y,
+        };
+        // before crossing second tangent point
+        if (belongs_to_half_plane(&plane, (Vector *)position)) {
+            *setpoint = (int)followStraightPath((float*)&tangent.direction, (float*)&plane.initial, position, heading);
+        } else {
+            plane = (Line) {
+                .initial = target_position,
+                .direction = (Vector) {
+                    .x = -target_heading.y,
+                    .y = target_heading.x,
+                },
+            };
+            // before crossing target waypoint
+            if (belongs_to_half_plane(&plane, (Vector *)position)) {
+                char direction = tangent.direction.x*target_heading.y - tangent.direction.y*target_heading.x > 0 ? 1 : -1;
+                *setpoint = (int)followOrbit((float *)&far.center, far.radius, direction, position, heading);
+            } else {
+                recompute = 1;
+                return next->index;
             }
-
-            char turnDirection = waypointDirection[0] * nextWaypointDirection[1] - waypointDirection[1] * nextWaypointDirection[0]>0?1:-1;
-            float euclideanWaypointDirection = sqrt(pow(nextWaypointDirection[0] - waypointDirection[0],2) + pow(nextWaypointDirection[1] - waypointDirection[1],2) + pow(nextWaypointDirection[2] - waypointDirection[2],2)) * ((nextWaypointDirection[0] - waypointDirection[0]) < 0?-1:1) * ((nextWaypointDirection[1] - waypointDirection[1]) < 0?-1:1) * ((nextWaypointDirection[2] - waypointDirection[2]) < 0?-1:1);
-            
-            //If two waypoints are parallel to each other (no turns)
-            if (euclideanWaypointDirection == 0){
-                orbitPathStatus = PATH;
-                return targetWaypoint->index;
-            }
-
-            float turnCenter[3];
-            turnCenter[0] = targetCoordinates[0] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[0] - waypointDirection[0])/euclideanWaypointDirection);
-            turnCenter[1] = targetCoordinates[1] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[1] - waypointDirection[1])/euclideanWaypointDirection);
-            turnCenter[2] = targetCoordinates[2] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[2] - waypointDirection[2])/euclideanWaypointDirection);
-
-            *sp_Heading = (int)followOrbit((float*) &turnCenter,targetWaypoint->radius, turnDirection, (float*)position, heading);
         }
-
-        return currentWaypoint->index;
-
+    }
+    return current->index;
 }
+
 int followLineSegment(PathData* currentWaypoint, float* position, float heading){
         float waypointPosition[3];
         getCoordinates(currentWaypoint->longitude, currentWaypoint->latitude, (float*)&waypointPosition);
@@ -251,7 +307,6 @@ int followLineSegment(PathData* currentWaypoint, float* position, float heading)
         float targetCoordinates[3];
         getCoordinates(targetWaypoint->longitude, targetWaypoint->latitude, (float*)&targetCoordinates);
         targetCoordinates[2] = targetWaypoint->altitude;
-
 
         float waypointDirection[3];
         float norm = sqrt(pow(targetCoordinates[0] - waypointPosition[0],2) + pow(targetCoordinates[1] - waypointPosition[1],2) + pow(targetCoordinates[2] - waypointPosition[2],2));
@@ -263,37 +318,38 @@ int followLineSegment(PathData* currentWaypoint, float* position, float heading)
 }
 
 int followLastLineSegment(PathData* currentWaypoint, float* position, float heading){
-            float waypointPosition[3];
-        getCoordinates(currentWaypoint->longitude, currentWaypoint->latitude, (float*)&waypointPosition);
-        waypointPosition[2] = currentWaypoint->altitude;
+    float waypointPosition[3];
+    waypointPosition[0] = position[0];
+    waypointPosition[1] = position[1];
+    waypointPosition[2] = pmData.altitude;
 
-        PathData* targetWaypoint = currentWaypoint->next;
-        float targetCoordinates[3];
-        getCoordinates(targetWaypoint->longitude, targetWaypoint->latitude, (float*)&targetCoordinates);
-        targetCoordinates[2] = targetWaypoint->altitude;
+    PathData* targetWaypoint = currentWaypoint;
+    float targetCoordinates[3];
+    getCoordinates(targetWaypoint->longitude, targetWaypoint->latitude, (float*)&targetCoordinates);
+    targetCoordinates[2] = targetWaypoint->altitude;
 
+    float waypointDirection[3];
+    float norm = sqrt(pow(targetCoordinates[0] - waypointPosition[0],2) + pow(targetCoordinates[1] - waypointPosition[1],2) + pow(targetCoordinates[2] - waypointPosition[2],2));
+    waypointDirection[0] = (targetCoordinates[0] - waypointPosition[0])/norm;
+    waypointDirection[1] = (targetCoordinates[1] - waypointPosition[1])/norm;
+    waypointDirection[2] = (targetCoordinates[2] - waypointPosition[2])/norm;
 
-        float waypointDirection[3];
-        float norm = sqrt(pow(targetCoordinates[0] - waypointPosition[0],2) + pow(targetCoordinates[1] - waypointPosition[1],2) + pow(targetCoordinates[2] - waypointPosition[2],2));
-        waypointDirection[0] = (targetCoordinates[0] - waypointPosition[0])/norm;
-        waypointDirection[1] = (targetCoordinates[1] - waypointPosition[1])/norm;
-        waypointDirection[2] = (targetCoordinates[2] - waypointPosition[2])/norm;
+    float dotProduct = waypointDirection[0] * (position[0] - targetCoordinates[0]) + waypointDirection[1] * (position[1] - targetCoordinates[1]) + waypointDirection[2] * (position[2] - targetCoordinates[2]);
+    if (dotProduct > 0){
+        returnHome = 1;
+    }
 
-        float dotProduct = waypointDirection[0] * (position[0] - targetCoordinates[0]) + waypointDirection[1] * (position[1] - targetCoordinates[1]) + waypointDirection[2] * (position[2] - targetCoordinates[2]);
-        if (dotProduct > 0){
-            returnHome = 1;
-        }
-
-        return (int)followStraightPath((float*)&waypointDirection, (float*)targetCoordinates, (float*)position, heading);
+    return (int)followStraightPath((float*)&waypointDirection, (float*)targetCoordinates, (float*)position, heading);
 }
 
+// direction: ccw = 1, cw = -1
 float followOrbit(float* center, float radius, char direction, float* position, float heading){//Heading in degrees (magnetic)
     heading = deg2rad(90 - heading);
 
 
     float orbitDistance = sqrt(pow(position[0] - center[0],2) + pow(position[1] - center[1],2));
     float courseAngle = atan2(position[1] - center[1], position[0] - center[0]); // (y,x) format
- 
+
     while (courseAngle - heading < -PI){
         courseAngle += 2 * PI;
     }
@@ -306,7 +362,7 @@ float followOrbit(float* center, float radius, char direction, float* position, 
 float followStraightPath(float* waypointDirection, float* targetWaypoint, float* position, float heading){ //Heading in degrees (magnetic)
     heading = deg2rad(90 - heading);//90 - heading = magnetic heading to cartesian heading
     float courseAngle = atan2(waypointDirection[1], waypointDirection[0]); // (y,x) format
-    while (courseAngle - heading < -PI){ 
+    while (courseAngle - heading < -PI){
         courseAngle += 2 * PI;
     }
     while (courseAngle - heading > PI){
@@ -402,7 +458,7 @@ unsigned int appendPathNode(PathData* node){
         path[currentBufferIndex] = node;
         node->index = currentBufferIndex++;
     }
-    
+
     pathCount++;
     //Update previous node
     previousNode->next = node;
