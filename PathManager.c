@@ -60,11 +60,10 @@ void pathManagerInit(void) {
 
 
     //Communication with GPS
-//    InitUART2();
 #if GPS_OLD
     init_SPI2();
     init_DMA2();
-//    // Hack to power altimeter from UART on PM
+    //Hack to power altimeter from UART on PM
     TRISFbits.TRISF5 = 0;
     PORTFbits.RF5 = 1;
 #else
@@ -141,9 +140,9 @@ void pathManagerInit(void) {
 
 void pathManagerRuntime(void) {
 #if DEBUG
-//        char str[16];
-//        sprintf(&str,"%f",pmData.time);
-//        UART1_SendString(&str);
+//    char str[16];
+//    sprintf(&str,"%f",pmData.time);
+//    UART1_SendString(&str);
 #endif
     //Get GPS data
 #if !GPS_OLD
@@ -170,7 +169,6 @@ void pathManagerRuntime(void) {
     heading = (float)gpsData.heading;
 
     if (returnHome || (pathCount - currentIndex < 1 && pathCount >= 0)){
-        printf("Heading home...\n");
         pmData.sp_Heading = lastKnownHeadingHome;
     } else if (pathCount - currentIndex >= 1 && pmData.positionFix > 0) {
         currentIndex = followWaypoints(path[currentIndex], (float*)&position, heading, (int*)&pmData.sp_Heading);
@@ -217,13 +215,16 @@ char followWaypoints(PathData* current, float* position, float heading, int* set
             .x = cos(angle),
             .y = sin(angle),
         };
+
+        float d = sqrt(pow(target_position.x - current_position.x, 2) + pow(target_position.y - current_position.y, 2));
+        if (d < 4*target->radius) {
+            return next->index;
+        }
+
         plane = (Line) {
             .initial = current_position,
             .direction = current_heading,
         };
-
-        // can figure out both from this
-        // always will take same pair
         if (belongs_to_half_plane(&plane, &next_position)) {
             close.center = (Vector) {
                 .x = current_position.x + current->radius*current_heading.y,
