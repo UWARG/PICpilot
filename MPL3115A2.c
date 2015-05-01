@@ -5,7 +5,7 @@
  * Created on April 5, 2014, 7:08 PM
  */
 #include "MPL3115A2.h"
-#include "UART1.h"
+#include "main.h"
 
 float lastKnownAltitude = 0;
 char altimeterConnected = 0;
@@ -21,7 +21,9 @@ char initAltimeter() {
         sendMessage(I2C_SLAVE_ADDRESS, CONTROL_REGISTER1, &data[2], 1, WRITE);
     }
     else{
+#if DEBUG
         warning("Altimeter Device Not Connected!");
+#endif
     }
     return altimeterConnected;
 }

@@ -7,6 +7,7 @@
 
 #include "main.h"
 #include "PathManager.h"
+#include "AttitudeManager.h"
 #include "Dubins.h"
 #include "MPL3115A2.h"
 #include "voltageSensor.h"
@@ -65,8 +66,8 @@ void pathManagerInit(void) {
     init_SPI2();
     init_DMA2();
 //    // Hack to power altimeter from UART on PM
-    TRISFbits.TRISF5 = 0;
-    PORTFbits.RF5 = 1;
+//    TRISFbits.TRISF5 = 0;
+//    PORTFbits.RF5 = 1;
 #else
     InitUART2();
 #endif
@@ -170,7 +171,6 @@ void pathManagerRuntime(void) {
     heading = (float)gpsData.heading;
 
     if (returnHome || (pathCount - currentIndex < 1 && pathCount >= 0)){
-        printf("Heading home...\n");
         pmData.sp_Heading = lastKnownHeadingHome;
     } else if (pathCount - currentIndex >= 1 && pmData.positionFix > 0) {
         currentIndex = followWaypoints(path[currentIndex], (float*)&position, heading, (int*)&pmData.sp_Heading);
@@ -179,7 +179,7 @@ void pathManagerRuntime(void) {
         lastKnownHeadingHome = calculateHeadingHome(home, (float*)&position, heading);
     }
 
-    pmData.checksum = generatePMDataChecksum();
+    pmData.checkbyteDMA = generatePMDataDMAChecksum();
 }
 
 char followWaypoints(PathData* current, float* position, float heading, int* setpoint) {
@@ -207,7 +207,6 @@ char followWaypoints(PathData* current, float* position, float heading, int* set
     static DubinsPath progress = DUBINS_PATH_C1;
 
     if (recompute) {
-        printf("Recomputing path...\n");
         current_position = (Vector) {
             .x = position[0],
             .y = position[1],
@@ -535,18 +534,21 @@ void copyGPSData(){
         pmData.batteryLevel = getCurrentPercent();
     }
     pmData.altitude = getAltitude(); //gpsData.altitude; //want to get altitude regardless of if there is new GPS data
-    pmData.checksum = generatePMDataChecksum();
+    pmData.checkbyteDMA = generatePMDataDMAChecksum();
 }
 
-
-// TODO: make me a real checksum!
-char generatePMDataChecksum(void) {
-    return 0xAA;
-}
 
 void checkAMData(){
     char checksum = 0xAB;
-    if (amData.checksum == checksum){
+//    debug("AMData Checksum:");
+//    char str[16];
+//    sprintf("%d", str, amData.checksum);
+//    debug(str);
+//    debug("Calculated:");
+//    sprintf("%d", str, generateAMDataChecksum(&amData));
+//    debug(str);
+    if (amData.checkbyteDMA == checksum){
+//        if (amData.checksum == generateAMDataChecksum(&amData))
        // All commands/actions that need to be run go here
        switch (amData.command){
             case PM_DEBUG_TEST:
@@ -614,6 +616,7 @@ void checkAMData(){
                 break;
         }
     }
+//}
 }
 
 char getWaypointChecksum(void){
@@ -625,6 +628,10 @@ char getWaypointChecksum(void){
     return checksum;
 }
 #endif
+
+char generatePMDataDMAChecksum(void) {
+    return 0xAA;
+}
 
 float getDistance(long double lat1, long double lon1, long double lat2, long double lon2){ //in meters
     long double dLat = deg2rad(lat2 - lat1);

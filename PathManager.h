@@ -10,10 +10,13 @@
 
 //Constants
 #define EARTH_RADIUS 6378.137
-#define RELATIVE_LONGITUDE -80.539678
-#define RELATIVE_LATITUDE 43.473004
+//-80.539678
+#define RELATIVE_LONGITUDE -71.64781
+//43.473004
+#define RELATIVE_LATITUDE 48.51031
 
-#define MAX_PATH_APPROACH_ANGLE PI/2 //In Radians or (90 degrees)
+//In Radians or (90 degrees)
+#define MAX_PATH_APPROACH_ANGLE PI/2 
 
 #define PATH_BUFFER_SIZE 50
 #define PATH_FREE 0
@@ -81,10 +84,11 @@ unsigned int removePathNode(unsigned int ID);
 void clearPathNodes(void);
 unsigned int insertPathNode(PathData* node, unsigned int previousID, unsigned int nextID);
 void copyGPSData(void);
-char generatePMDataChecksum(void);
+char generatePMDataDMAChecksum(void);
 void checkAMData(void);
 char getWaypointChecksum(void);
 #endif
+char generatePMDataDMAChecksum(void);
 float getDistance(long double lat1, long double lon1, long double lat2, long double lon2);
 
 

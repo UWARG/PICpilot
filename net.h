@@ -35,6 +35,8 @@
 
 #define HEARTBEAT_KILL_TIMEOUT 120000 //In Milliseconds
 
+#define UHF_KILL_TIMEOUT_FAST 10000
+
 struct telem_block {
     long double lat, lon; // Latitude and longitude from gps    // 8Byte
     float millis;        // Timestamp UTC  // 4Byte

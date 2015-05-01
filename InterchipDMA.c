@@ -39,7 +39,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
     IEC0bits.DMA0IE = 0; // Disable interrupts (we don't want another reset while we're doing this one)
 #if PATH_MANAGER
     // if received bad checksum
-    if (amData.checksum != 0xAB && amData.checksum != 0xFFAB) {
+    if (amData.checkbyteDMA != 0xAB && amData.checkbyteDMA != 0xFFAB) {
         INTERCOM_4 = 1; // notify AM
         while(!INTERCOM_2); // wait until AM accepts
 #elif ATTITUDE_MANAGER

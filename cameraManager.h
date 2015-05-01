@@ -24,7 +24,7 @@
 
 //TODO:Add a description here
 unsigned int cameraPollingRuntime(long double latitude, long double longitude, long int time, unsigned int* cameraCounter, int rollAngle, int pitchAngle);
-void triggerCamera(unsigned int pwmSignal);
+void triggerCamera(int pwmSignal);
 void setTriggerDistance(float distance);
 int cameraGimbalStabilization(float imu_RollAngle);
 void setGimbalOffset(int pwmSignal);
@@ -32,5 +32,6 @@ int goProGimbalStabilization(float rollAngle);
 void setGoProGimbalOffset(int pwmSignal);
 int goProVerticalstabilization(float pitchAngle);
 void setVerticalOffset(int pwmSignal);
+void lockGoPro(int lock);
 
 #endif	/* CAMERAMANAGER_H */

@@ -17,6 +17,7 @@
 #include "commands.h"
 #include "cameraManager.h"
 #include "StartupErrorCodes.h"
+#include "main.h"
 
 #if !(PATH_MANAGER && ATTITUDE_MANAGER && COMMUNICATION_MANAGER)
 #include "InterchipDMA.h"
@@ -33,8 +34,8 @@ extern char newDataAvailable;
 long int time = 0;
 long int lastTime = 0;
 long int heartbeatTimer = 0;
+long int UHFSafetyTimer = 0;
 long int gpsTimer = 0;
-char heartbeatTrigger = 0;
 
 float* velocityComponents;
 
@@ -116,7 +117,7 @@ int control_Pitch = MIDDLE_PWM;
 int control_Throttle = 0;
 int control_Yaw = MIDDLE_PWM;
 
-float scaleFactor = 1.0119; //Change this
+float scaleFactor = 20; //Change this
 
 char displayGain = 0;
 int controlLevel = 0;
@@ -145,7 +146,7 @@ void attitudeInit() {
     TRISDbits.TRISD14 = 0;
     LATDbits.LATD14 = 0;
     
-    amData.checksum = generateAMDataChecksum();
+    amData.checkbyteDMA = generateAMDataDMAChecksum();
     
     //Initialize Interchip Interrupts for Use in DMA Reset
     //Set opposite Input / Output Configuration on the PathManager
@@ -172,25 +173,24 @@ void attitudeInit() {
     VN100_SPI_SetFiltMeasVar(0, (float*)&filterVariance);
 
     /* Initialize Input Capture and Output Compare Modules */
-    if (DEBUG) {
-        initPWM(0b10011111, 0b111111);
-        debug("INITIALIZATION - ATTITUDE MANAGER");
-    } else {
-        initPWM(0b10011111, 0b111111);
-    }
+#if DEBUG
+    initPWM(0b10011111, 0b11111111);
+    debug("INITIALIZATION - ATTITUDE MANAGER");
+#else
+    initPWM(0b10011111, 0b11111111);
+#endif
 
 }
 
 void attitudeManagerRuntime() {
-    amData.checksum = generateAMDataChecksum();
+    amData.checkbyteDMA = generateAMDataDMAChecksum();
 
     //Transfer data from PATHMANAGER CHIP
 #if !PATH_MANAGER
     if (newDataAvailable){
         lastNumSatellites = gps_Satellites; //get the last number of satellites
         newDataAvailable = 0;
-        char checksum = 0xAA;
-        if (checksum == pmData.checksum) {
+        if (generatePMDataDMAChecksum() == pmData.checkbyteDMA) {
             gps_Time = pmData.time;
             gps_Heading = pmData.heading;
             gps_GroundSpeed = pmData.speed * 1000.0/3600.0; //Convert from km/h to m/s
@@ -448,11 +448,19 @@ void attitudeManagerRuntime() {
     if (control_Yaw < MIN_YAW_PWM)
         control_Yaw = MIN_YAW_PWM;
     
-//   unsigned int cameraPWM = cameraPollingRuntime(gps_Latitude, gps_Longitude, time, &cameraCounter, imu_RollAngle, imu_PitchAngle);
-     unsigned int gimbalPWM = cameraGimbalStabilization(imu_RollAngle);
-     unsigned int goProGimbalPWM = goProGimbalStabilization(imu_RollAngle);
-     unsigned int verticalGoProPWM = goProVerticalstabilization(imu_PitchAngle);
-    // Sends the output signal to the servo motors
+    unsigned int cameraPWM = cameraPollingRuntime(gps_Latitude, gps_Longitude, time, &cameraCounter, imu_RollAngle, imu_PitchAngle);
+    unsigned int gimbalPWM = cameraGimbalStabilization(imu_RollAngle);
+    unsigned int goProGimbalPWM = goProGimbalStabilization(imu_RollAngle);
+    unsigned int verticalGoProPWM = goProVerticalstabilization(imu_PitchAngle);
+
+
+    if (killingPlane){
+        control_Roll = MAX_ROLL_PWM;
+        control_Pitch = MAX_PITCH_PWM;
+        control_Throttle = MIN_PWM;
+        control_Yaw = MIN_PWM;
+    }
+
 
     //begin code for different tail configurations
     #if(TAIL_TYPE == STANDARD_TAIL)    //is a normal t-tail
@@ -472,16 +480,17 @@ void attitudeManagerRuntime() {
         tail_OutputL =  control_Yaw * RUDDER_PROPORTION - control_Pitch * ELEVATOR_PROPORTION ;
     }
     #endif
-    
 
 
     setPWM(1, control_Roll + rollTrim);
     setPWM(2, tail_OutputR); //Pitch
     setPWM(3, control_Throttle);
     setPWM(4, tail_OutputL); //Yaw
-    //setPWM(5, cameraPWM);
     setPWM(5, goProGimbalPWM);
     setPWM(6, verticalGoProPWM);
+    setPWM(7, gimbalPWM);
+    setPWM(8, cameraPWM);
+
 //need to add outputs for goProGimbalPWM, and gimbalPWM
 
 //    setPWM(7, sp_HeadingRate + MIDDLE_PWM - 20);
@@ -491,7 +500,7 @@ void attitudeManagerRuntime() {
 #if COMMUNICATION_MANAGER
     readDatalink();
     writeDatalink(DATALINK_SEND_FREQUENCY); //pwmTemp>600?0?:0xFFFFFFFF;
-//    checkHeartbeat(time);
+    checkHeartbeat(time);
 #endif
 //    checkGPS(time);
 }
@@ -510,7 +519,9 @@ void readDatalink(void){
         }
         switch (cmd->cmd) {
             case DEBUG_TEST:             // Debugging command, writes to debug UART
+#if DEBUG
                 debug( (char*) cmd->data);
+#endif
                 break;
             case SET_PITCH_KD_GAIN:
                 setGain(PITCH, GAIN_KD, *(float*)(&cmd->data));
@@ -569,12 +580,14 @@ void readDatalink(void){
             case SET_PATH_GAIN:
                 amData.pathGain = *(float*)(&cmd->data);
                 amData.command = PM_SET_PATH_GAIN;
-                amData.checksum = generateAMDataChecksum();
+                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case SET_ORBIT_GAIN:
                 amData.orbitGain = *(float*)(&cmd->data);
                 amData.command = PM_SET_ORBIT_GAIN;
-                amData.checksum = generateAMDataChecksum();
+                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case SHOW_GAIN:
                 displayGain = *(char*)(&cmd->data);
@@ -627,30 +640,36 @@ void readDatalink(void){
             case CALIBRATE_ALTIMETER:
                 amData.calibrationHeight = *(float*)(&cmd->data);
                 amData.command = PM_CALIBRATE_ALTIMETER;
-                amData.checksum = generateAMDataChecksum();
+                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case CLEAR_WAYPOINTS:
                 amData.waypoint.id = (*(char *)(&cmd->data)); //Dummy Data
                 amData.command = PM_CLEAR_WAYPOINTS;
-                amData.checksum = generateAMDataChecksum();
+                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case REMOVE_WAYPOINT:
                 amData.waypoint.id = (*(char *)(&cmd->data));
                 amData.command = PM_REMOVE_WAYPOINT;
-                amData.checksum = generateAMDataChecksum();
+                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case SET_TARGET_WAYPOINT:
                 amData.waypoint.id = *(char *)(&cmd->data);
                 amData.command = PM_SET_TARGET_WAYPOINT;
-                amData.checksum = generateAMDataChecksum();
+                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case RETURN_HOME:
                 amData.command = PM_RETURN_HOME;
-                amData.checksum = generateAMDataChecksum();
+                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case CANCEL_RETURN_HOME:
                 amData.command = PM_CANCEL_RETURN_HOME;
-                amData.checksum = generateAMDataChecksum();
+                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case SEND_HEARTBEAT:
                 heartbeatTimer = time;
@@ -672,6 +691,9 @@ void readDatalink(void){
                 if (*(int*)(&cmd->data) == 1234)
                     killingPlane = 0;
                 break;
+            case LOCK_GOPRO:
+                    lockGoPro(*(int*)(&cmd->data));
+                break;
 
             case NEW_WAYPOINT:
                 amData.waypoint.altitude = (*(WaypointWrapper*)(&cmd->data)).altitude;
@@ -680,7 +702,8 @@ void readDatalink(void){
                 amData.waypoint.longitude = (*(WaypointWrapper*)(&cmd->data)).longitude;
                 amData.waypoint.radius = (*(WaypointWrapper*)(&cmd->data)).radius;
                 amData.command = PM_NEW_WAYPOINT;
-                amData.checksum = generateAMDataChecksum();
+                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case INSERT_WAYPOINT:
                 amData.waypoint.altitude = (*(WaypointWrapper*)(&cmd->data)).altitude;
@@ -690,14 +713,16 @@ void readDatalink(void){
                 amData.waypoint.nextId = (*(WaypointWrapper*)(&cmd->data)).nextId;
                 amData.waypoint.previousId = (*(WaypointWrapper*)(&cmd->data)).previousId;
                 amData.command = PM_INSERT_WAYPOINT;
-                amData.checksum = generateAMDataChecksum();
+                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case SET_RETURN_HOME_COORDINATES:
                 amData.waypoint.altitude = (*(WaypointWrapper*)(&cmd->data)).altitude;
                 amData.waypoint.latitude = (*(WaypointWrapper*)(&cmd->data)).latitude;
                 amData.waypoint.longitude = (*(WaypointWrapper*)(&cmd->data)).longitude;
                 amData.command = PM_SET_RETURN_HOME_COORDINATES;
-                amData.checksum = generateAMDataChecksum();
+                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case TARE_IMU:
                 adjustVNOrientationMatrix((float*)(&cmd->data));
@@ -743,7 +768,7 @@ int writeDatalink(long frequency){
         statusData->cRollSetpoint = sp_RollRate;
         statusData->cYawSetpoint = sp_YawRate;
         statusData->lastCommandSent = lastCommandSentCode;
-        statusData->errorCodes = getErrorCodes() + ((sp_UHFSwitch < -429)<<11);
+        statusData->errorCodes = getErrorCodes() + ((sp_UHFSwitch < -429)<< 11);
         statusData->cameraStatus = cameraCounter;
         statusData->waypointIndex = waypointIndex;
         statusData->editing_gain = displayGain + ((sp_Switch > 380) << 4);
@@ -848,18 +873,32 @@ void setAccelVariance(float variance){
     VN100_SPI_WriteSettings(0);
 }
 
-// TODO: make me a real checksum!
-char generateAMDataChecksum(void){
+char generateAMDataDMAChecksum(void){
     return 0xAB;
+}
+
+char generateAMDataChecksum(AMData* data){
+    char checksum = 0;
+    int i = 0;
+    for (i = 0; i < sizeof(AMData) - 2; i++){
+        checksum += ((char*)data)[i];
+    }
+    return checksum;
 }
 
 void checkHeartbeat(long int cTime){
     if (cTime - heartbeatTimer > HEARTBEAT_TIMEOUT){
-//        amData.command = PM_RETURN_HOME;
-//        amData.checksum = generateAMDataChecksum();
+        amData.command = PM_RETURN_HOME;
+        amData.checkbyteDMA = generateAMDataDMAChecksum();
     }
-    else if (cTime - heartbeatTimer > HEARTBEAT_KILL_TIMEOUT){
-//        killingPlane = 1;
+    if (cTime - heartbeatTimer > HEARTBEAT_KILL_TIMEOUT){
+        killingPlane = 1;
+    }
+    if (cTime - UHFSafetyTimer > UHF_KILL_TIMEOUT_FAST && cTime - heartbeatTimer > UHF_KILL_TIMEOUT_FAST){
+        killingPlane = 1;
+    }
+    if (sp_UHFSwitch > -429){
+        UHFSafetyTimer = cTime;
     }
 }
 

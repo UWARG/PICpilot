@@ -42,7 +42,7 @@ typedef struct _PMData {
     char positionFix;   //0 = No GPS, 1 = GPS fix, 2 = DGSP Fix
     char targetWaypoint;
     char batteryLevel;
-    char checksum;
+    char checkbyteDMA;
 } PMData;
 
 typedef struct _AMData {
@@ -52,6 +52,7 @@ typedef struct _AMData {
     float calibrationHeight;
     char command;
     char checksum;
+    char checkbyteDMA;
 } AMData;
 #endif
 

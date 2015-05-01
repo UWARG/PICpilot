@@ -10,6 +10,7 @@
 
 //Header Files
 #include "main.h"
+#include "InterchipDMA.h"
 
 //Bit masks for levels of control - DON'T CHANGE THESE FOR SHITS AND GIGGLES
 #define PITCH_CONTROL_TYPE 0b00000001 //Pitch Rate(0) or Pitch Angles(1)
@@ -153,13 +154,15 @@ void adjustVNOrientationMatrix(float* adjustment);
  *****************************************************************************/
 void setVNOrientationMatrix(float* angleOffset);
 
-//TODO: Add descriptions for these
+//TODO: Add descriptions for thesece);
+
 
 void setAngularWalkVariance(float variance);
 void setGyroVariance(float variance);
 void setMagneticVariance(float variance);
-void setAccelVariance(float variance);
-char generateAMDataChecksum(void);
+void setAccelVariance(float variand);
+char generateAMDataDMAChecksum(void);
+char generateAMDataChecksum(AMData* data);
 void checkHeartbeat(long int cTime);
 void checkGPS(long int cTime);
 void getVelocityComponents(float* velocityComponents, float groundSpeed, float altitude, long int time);

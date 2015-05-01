@@ -17,15 +17,17 @@ float distance = 0;
 long double lastLongitude = 0;
 long double lastLatitude = 0;
 long int cameraTimerCount = 0;
-float pictureDistance = 40; //In meters
-unsigned int lastSignal = LOWER_PWM;
-unsigned int triggerSignal = 600;
-unsigned int gimbalOffset = 240;//was MIDDLE_PWM -42; 300 at current config gets the camera pointed towards the ground
-unsigned int goProgimbalOffset = 325;//gets the gimbal arm horizontal to the ground at current configuration
-unsigned int verticalOffset = -100;//at current calibration of servos, -100 gets us looking face down; 400 gives 20 degrees from straight down in case we want to look forward ish
+float pictureDistance = 10; //In meters
+int lastSignal = MIN_PWM;
+int triggerSignal = 0;
+int gimbalOffset = 240;//was MIDDLE_PWM -42; 300 at current config gets the camera pointed towards the ground
+int goProgimbalOffset = 325;//gets the gimbal arm horizontal to the ground at current configuration
+int verticalOffset = -100;//at current calibration of servos, -100 gets us looking face down; 400 gives 20 degrees from straight down in case we want to look forward ish
 int rollLimit = 30;
 char overrideTrigger = 0;
 char resting = 1;
+char lockGoProPitch = 0;
+char lockGoProRoll = 0;
 
 unsigned int cameraPollingRuntime(long double latitude, long double longitude, long int time, unsigned int* pictureCount, int rollAngle, int pitchAngle){
     distance = getDistance(latitude, longitude, lastLatitude, lastLongitude);
@@ -33,12 +35,12 @@ unsigned int cameraPollingRuntime(long double latitude, long double longitude, l
 //    sprintf(&str, "%f", distance);
 //    UART1_SendString(&str);
 
-    if (time - cameraTimerCount > 1350){
+    if (time - cameraTimerCount > 600){
         cameraTimerCount = time;
         if (((((distance >= pictureDistance || distance <= -pictureDistance) && (rollAngle <= rollLimit || rollAngle >= -rollLimit) && (pitchAngle <= rollLimit || pitchAngle >= -rollLimit)))|| overrideTrigger) && resting){// && pitch <= 20 && pitch >= -20 && roll >= -20 && roll <= 20){
             lastLongitude = longitude;
             lastLatitude = latitude;
-            lastSignal = LOWER_PWM;
+            lastSignal = MIN_PWM;
             overrideTrigger = 0;
             (*pictureCount)++;
             resting = 0;
@@ -51,7 +53,7 @@ unsigned int cameraPollingRuntime(long double latitude, long double longitude, l
     return lastSignal;
 }
 
-void triggerCamera(unsigned int pwmSignal){
+void triggerCamera(int pwmSignal){
     overrideTrigger = 1;
     triggerSignal = pwmSignal;
 }
@@ -81,13 +83,17 @@ void setGimbalOffset(int pwmSignal){
 
 //GoPro gimbal (roll)
 int goProGimbalStabilization(float rollAngle){
-    if (rollAngle > LEFT_GIMBAL_GOPRO_MOTION_LIMIT){
-        rollAngle = LEFT_GIMBAL_GOPRO_MOTION_LIMIT;
+    if (!lockGoProRoll){
+        if (rollAngle > LEFT_GIMBAL_GOPRO_MOTION_LIMIT){
+            rollAngle = LEFT_GIMBAL_GOPRO_MOTION_LIMIT;
+        }
+        if (rollAngle < - RIGHT_GIMBAL_GOPRO_MOTION_LIMIT){
+            rollAngle = - RIGHT_GIMBAL_GOPRO_MOTION_LIMIT;
+        }
     }
-    if (rollAngle < - RIGHT_GIMBAL_GOPRO_MOTION_LIMIT){
-        rollAngle = - RIGHT_GIMBAL_GOPRO_MOTION_LIMIT;
+    else{
+        rollAngle = 0;
     }
-
     return goProgimbalOffset + 675/GOPRO_GIMBAL_MOTION_RANGE * rollAngle;
 }// there is a plus because the servo is facing the opposite way in terms of the camera gimbal servo
 
@@ -97,11 +103,16 @@ void setGoProGimbalOffset(int pwmSignal){
 
 //GoPro gimbal (pitch)
 int goProVerticalstabilization(float pitchAngle){
-    if (pitchAngle > UP_MOTION_LIMIT){
-        pitchAngle = UP_MOTION_LIMIT;
+    if (!lockGoProPitch){
+        if (pitchAngle > UP_MOTION_LIMIT){
+            pitchAngle = UP_MOTION_LIMIT;
+        }
+        if (pitchAngle < - DOWN_MOTION_LIMIT){
+            pitchAngle = - DOWN_MOTION_LIMIT;
+        }
     }
-    if (pitchAngle < - DOWN_MOTION_LIMIT){
-        pitchAngle = - DOWN_MOTION_LIMIT;
+    else{
+        pitchAngle = -45;
     }
 
     return verticalOffset - 675/VERTICAL_MOTION_RANGE * pitchAngle;
@@ -109,4 +120,14 @@ int goProVerticalstabilization(float pitchAngle){
 
 void setVerticalOffset(int pwmSignal){
     verticalOffset =  pwmSignal; // + MIDDLE_PWM;
+}
+
+void lockGoPro(int lock){
+    lockGoProPitch = 0;
+    lockGoProRoll = 0;
+    if (lock & 0b0001)
+        lockGoProPitch = 1;
+    if (lock & 0b0010)
+        lockGoProRoll = 1;
+
 }
