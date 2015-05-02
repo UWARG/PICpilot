@@ -183,7 +183,6 @@ void attitudeInit() {
 }
 
 void attitudeManagerRuntime() {
-    amData.checkbyteDMA = generateAMDataDMAChecksum();
 
     //Transfer data from PATHMANAGER CHIP
 #if !PATH_MANAGER
@@ -208,8 +207,7 @@ void attitudeManagerRuntime() {
             }
             waypointIndex = pmData.targetWaypoint;
             batteryLevel = pmData.batteryLevel;
-
-
+            
 //            //turn the Velocity Compensation ON or OFF accordingly
 //            if (gps_Satellites >= 4 && lastNumSatellites < 4)
 //                VN100_SPI_WriteRegister(0, 51, 8, (unsigned long*) velocityComp_ON);
@@ -880,7 +878,8 @@ char generateAMDataDMAChecksum(void){
 char generateAMDataChecksum(AMData* data){
     char checksum = 0;
     int i = 0;
-    for (i = 0; i < sizeof(AMData) - 2; i++){
+    //Two checksums and padding = 3 bytes
+    for (i = 0; i < sizeof(AMData) - 3; i++){
         checksum += ((char*)data)[i];
     }
     return checksum;
@@ -890,6 +889,7 @@ void checkHeartbeat(long int cTime){
     if (cTime - heartbeatTimer > HEARTBEAT_TIMEOUT){
         amData.command = PM_RETURN_HOME;
         amData.checkbyteDMA = generateAMDataDMAChecksum();
+        amData.checksum = generateAMDataChecksum(&amData);
     }
     if (cTime - heartbeatTimer > HEARTBEAT_KILL_TIMEOUT){
         killingPlane = 1;

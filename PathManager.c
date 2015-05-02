@@ -156,7 +156,9 @@ void pathManagerRuntime(void) {
     if (returnHome){
         pmData.targetWaypoint = -1;
     } else {
-        pmData.targetWaypoint = path[currentIndex]->id;
+        if (path[currentIndex]->next){
+            pmData.targetWaypoint = path[currentIndex]->next->id;
+        }
     }
 
 #if !ATTITUDE_MANAGER
@@ -539,84 +541,92 @@ void copyGPSData(){
 
 
 void checkAMData(){
-    char checksum = 0xAB;
+
+    char checkbyte = 0xAB;
 //    debug("AMData Checksum:");
-//    char str[16];
-//    sprintf("%d", str, amData.checksum);
+//    UART1_SendChar(amData.checksum);
+//    UART1_SendChar(amData.checksum);
+    
 //    debug(str);
 //    debug("Calculated:");
-//    sprintf("%d", str, generateAMDataChecksum(&amData));
+    UART1_SendChar(currentIndex);
+    UART1_SendChar(currentIndex);
+
+    UART1_SendChar(pathCount);
 //    debug(str);
-    if (amData.checkbyteDMA == checksum){
-//        if (amData.checksum == generateAMDataChecksum(&amData))
-       // All commands/actions that need to be run go here
-       switch (amData.command){
-            case PM_DEBUG_TEST:
-//                UART1_SendString("Test");
-                break;
-            case PM_NEW_WAYPOINT:;
-                PathData* node = initializePathNode();
-                node->altitude = amData.waypoint.altitude;
-                node->latitude = amData.waypoint.latitude;
-                node->longitude = amData.waypoint.longitude;
-                node->radius = amData.waypoint.radius;
-                appendPathNode(node);
-                break;
-            case PM_CLEAR_WAYPOINTS:
-                clearPathNodes();
-                break;
-            case PM_INSERT_WAYPOINT:
-                node = initializePathNode();
-                node->altitude = amData.waypoint.altitude;
-                node->latitude = amData.waypoint.latitude;
-                node->longitude = amData.waypoint.longitude;
-                node->radius = amData.waypoint.radius;
-                insertPathNode(node,amData.waypoint.previousId,amData.waypoint.nextId);
-                break;
-            case PM_REMOVE_WAYPOINT:
-                removePathNode(amData.waypoint.id);
-                break;
-            case PM_SET_TARGET_WAYPOINT:
-                node = initializePathNode();
-                node->altitude = gpsData.altitude;
-                node->latitude = gpsData.latitude;
-                node->longitude = gpsData.longitude;
-                node->radius = 1; //Arbitrary value
-                if (path[getIndexFromID(amData.waypoint.id)] && path[getIndexFromID(amData.waypoint.id)]->previous){
-                    insertPathNode(node,path[getIndexFromID(amData.waypoint.id)]->previous->id,amData.waypoint.id);
-                    currentIndex = node->index;
-                }
-                returnHome = 0;
+    if (amData.checkbyteDMA == checkbyte){
+        if (amData.checksum == generateAMDataChecksum(&amData) && amData.checksum != lastAMDataChecksum){
+           // All commands/actions that need to be run go here
+           lastAMDataChecksum = amData.checksum;
+//           UART1_SendChar(amData.command);
+           switch (amData.command){
+                case PM_DEBUG_TEST:
+#if DEBUG
+                    debug("Test");
+#endif
+                    break;
+                case PM_NEW_WAYPOINT:;
+                    PathData* node = initializePathNode();
+                    node->altitude = amData.waypoint.altitude;
+                    node->latitude = amData.waypoint.latitude;
+                    node->longitude = amData.waypoint.longitude;
+                    node->radius = amData.waypoint.radius;
+                    appendPathNode(node);
+                    break;
+                case PM_CLEAR_WAYPOINTS:
+                    clearPathNodes();
+                    break;
+                case PM_INSERT_WAYPOINT:
+                    node = initializePathNode();
+                    node->altitude = amData.waypoint.altitude;
+                    node->latitude = amData.waypoint.latitude;
+                    node->longitude = amData.waypoint.longitude;
+                    node->radius = amData.waypoint.radius;
+                    insertPathNode(node,amData.waypoint.previousId,amData.waypoint.nextId);
+                    break;
+                case PM_REMOVE_WAYPOINT:
+                    removePathNode(amData.waypoint.id);
+                    break;
+                case PM_SET_TARGET_WAYPOINT:
+//                    node = initializePathNode();
+//                    node->altitude = gpsData.altitude;
+//                    node->latitude = gpsData.latitude;
+//                    node->longitude = gpsData.longitude;
+//                    node->radius = 1; //Arbitrary value
+                    if (getIndexFromID(amData.waypoint.id) != -1 && path[getIndexFromID(amData.waypoint.id)]->previous){
+//                        insertPathNode(node,path[getIndexFromID(amData.waypoint.id)]->previous->id,amData.waypoint.id);
+                        currentIndex = path[getIndexFromID(amData.waypoint.id)]->previous->id;//node->index;
+                    }
 
-                break;
-            case PM_SET_RETURN_HOME_COORDINATES:
-                home.altitude = amData.waypoint.altitude;
-                home.latitude = amData.waypoint.latitude;
-                home.longitude = amData.waypoint.longitude;
-                home.radius = 1;
-                home.id = -1;
-                break;
-            case PM_RETURN_HOME:
-                returnHome = 1;
-                break;
-            case PM_CANCEL_RETURN_HOME:
-                returnHome = 0;
-                break;
+                    break;
+                case PM_SET_RETURN_HOME_COORDINATES:
+                    home.altitude = amData.waypoint.altitude;
+                    home.latitude = amData.waypoint.latitude;
+                    home.longitude = amData.waypoint.longitude;
+                    home.radius = 1;
+                    home.id = -1;
+                    break;
+                case PM_RETURN_HOME:
+                    returnHome = 1;
+                    break;
+                case PM_CANCEL_RETURN_HOME:
+                    returnHome = 0;
+                    break;
 
-            case PM_CALIBRATE_ALTIMETER:
-                calibrateAltimeter(amData.calibrationHeight);
-                break;
-            case PM_SET_PATH_GAIN:
-                k_gain[PATH] = amData.pathGain;
-                break;
-            case PM_SET_ORBIT_GAIN:
-                k_gain[ORBIT] = amData.orbitGain;
-                break;
-            default:
-                break;
-        }
-    }
-//}
+                case PM_CALIBRATE_ALTIMETER:
+                    calibrateAltimeter(amData.calibrationHeight);
+                    break;
+                case PM_SET_PATH_GAIN:
+                    k_gain[PATH] = amData.pathGain;
+                    break;
+                case PM_SET_ORBIT_GAIN:
+                    k_gain[ORBIT] = amData.orbitGain;
+                    break;
+                default:
+                    break;
+            }   
+        }   
+    }  
 }
 
 char getWaypointChecksum(void){
