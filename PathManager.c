@@ -181,6 +181,7 @@ void pathManagerRuntime(void) {
         lastKnownHeadingHome = calculateHeadingHome(home, (float*)&position, heading);
     }
 
+    pmData.waypointCount = pathCount;
     pmData.checkbyteDMA = generatePMDataDMAChecksum();
 }
 
@@ -543,17 +544,6 @@ void copyGPSData(){
 void checkAMData(){
 
     char checkbyte = 0xAB;
-//    debug("AMData Checksum:");
-//    UART1_SendChar(amData.checksum);
-//    UART1_SendChar(amData.checksum);
-    
-//    debug(str);
-//    debug("Calculated:");
-    UART1_SendChar(currentIndex);
-    UART1_SendChar(currentIndex);
-
-    UART1_SendChar(pathCount);
-//    debug(str);
     if (amData.checkbyteDMA == checkbyte){
         if (amData.checksum == generateAMDataChecksum(&amData) && amData.checksum != lastAMDataChecksum){
            // All commands/actions that need to be run go here

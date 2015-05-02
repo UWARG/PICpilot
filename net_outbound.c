@@ -60,6 +60,7 @@ struct telem_block *getDebugTelemetryBlock(void) {
         debugTelemetry->editing_gain = (char)1;
         debugTelemetry->gpsStatus = (char)1;
         debugTelemetry->batteryLevel = (char)1;
+        debugTelemetry->waypointCount = (char)1;
     }
     return debugTelemetry;
 }

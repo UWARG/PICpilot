@@ -42,12 +42,13 @@ unsigned int cameraPollingRuntime(long double latitude, long double longitude, l
             lastLatitude = latitude;
             lastSignal = MIN_PWM;
             overrideTrigger = 0;
-            (*pictureCount)++;
+            (*pictureCount) = 1;
             resting = 0;
         }
         else{
             resting = 1;
             lastSignal = triggerSignal;
+            *pictureCount = 0;
         }
     }
     return lastSignal;

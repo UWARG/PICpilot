@@ -53,7 +53,7 @@ struct telem_block {
     int errorCodes;
     int cameraStatus;
     char waypointIndex;
-    char editing_gain, gpsStatus, batteryLevel;                              // 1Byte
+    char editing_gain, gpsStatus, batteryLevel, waypointCount;                              // 1Byte
     // TODO: Add additional telemetry to be sent here
 };
 

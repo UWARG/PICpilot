@@ -93,6 +93,7 @@ char gps_Satellites = 0;
 char gps_PositionFix = 0;
 char waypointIndex = 0;
 char waypointChecksum = 0;
+char waypointCount = 0;
 char batteryLevel = 0;
 
 
@@ -207,6 +208,7 @@ void attitudeManagerRuntime() {
             }
             waypointIndex = pmData.targetWaypoint;
             batteryLevel = pmData.batteryLevel;
+            waypointCount = pmData.waypointCount;
             
 //            //turn the Velocity Compensation ON or OFF accordingly
 //            if (gps_Satellites >= 4 && lastNumSatellites < 4)
@@ -615,7 +617,7 @@ void readDatalink(void){
                 sp_Heading = *(int*)(&cmd->data);
                 break;
             case SET_THROTTLE:
-                sp_ThrottleRate = (*(int*)(&cmd->data) * MAX_PWM / 100);
+                sp_ThrottleRate = (int)(((long int)(*(int*)(&cmd->data))) * MAX_PWM * 2 / 100) - MAX_PWM;
                 break;
             case SET_AUTONOMOUS_LEVEL:
                 controlLevel = *(int*)(&cmd->data);
@@ -759,7 +761,7 @@ int writeDatalink(long frequency){
         statusData->pitchSetpoint = sp_PitchAngle;
         statusData->rollSetpoint = sp_RollAngle;
         statusData->headingSetpoint = sp_Heading;
-        statusData->throttleSetpoint = (sp_ThrottleRate * 100) / MAX_PWM;
+        statusData->throttleSetpoint = (int)(((long int)(sp_ThrottleRate + MAX_PWM) * 100) / MAX_PWM/2);
         statusData->altitudeSetpoint = sp_Altitude;
         statusData->altitude = gps_Altitude;
         statusData->cPitchSetpoint = sp_PitchRate;
@@ -772,6 +774,7 @@ int writeDatalink(long frequency){
         statusData->editing_gain = displayGain + ((sp_Switch > 380) << 4);
         statusData->gpsStatus = gps_Satellites + (gps_PositionFix << 4);
         statusData->batteryLevel = batteryLevel;
+        statusData->waypointCount = waypointCount;
         
 
         if (BLOCKING_MODE) {
