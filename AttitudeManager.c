@@ -173,10 +173,10 @@ void attitudeInit() {
 
     /* Initialize Input Capture and Output Compare Modules */
     if (DEBUG) {
-        initPWM(0b10011111, 0b111111);
+        initPWM(0b10011111, 0b11111111);
         debug("INITIALIZATION - ATTITUDE MANAGER");
     } else {
-        initPWM(0b10011111, 0b111111);
+        initPWM(0b10011111, 0b11111111);
     }
 
 }
@@ -448,12 +448,12 @@ void attitudeManagerRuntime() {
     if (control_Yaw < MIN_YAW_PWM)
         control_Yaw = MIN_YAW_PWM;
     
-//   unsigned int cameraPWM = cameraPollingRuntime(gps_Latitude, gps_Longitude, time, &cameraCounter, imu_RollAngle, imu_PitchAngle);
-     unsigned int gimbalPWM = cameraGimbalStabilization(imu_RollAngle);
-     unsigned int goProGimbalPWM = goProGimbalStabilization(imu_RollAngle);
-     unsigned int verticalGoProPWM = goProVerticalstabilization(imu_PitchAngle);
-    // Sends the output signal to the servo motors
+    unsigned int cameraPWM = cameraPollingRuntime(gps_Latitude, gps_Longitude, time, &cameraCounter, imu_RollAngle, imu_PitchAngle);
+    unsigned int gimbalPWM = cameraGimbalStabilization(imu_RollAngle);
+    unsigned int goProGimbalPWM = goProGimbalStabilization(imu_RollAngle);
+    unsigned int verticalGoProPWM = goProVerticalstabilization(imu_PitchAngle);
 
+    // Sends the output signal to the servo motors
     //begin code for different tail configurations
     #if(TAIL_TYPE == STANDARD_TAIL)    //is a normal t-tail
     {
@@ -474,17 +474,17 @@ void attitudeManagerRuntime() {
     #endif
     
 
-
+    //Plane Controls
     setPWM(1, control_Roll + rollTrim);
     setPWM(2, tail_OutputR); //Pitch
     setPWM(3, control_Throttle);
     setPWM(4, tail_OutputL); //Yaw
-    //setPWM(5, cameraPWM);
+    //Camera Controls
     setPWM(5, goProGimbalPWM);
     setPWM(6, verticalGoProPWM);
-//need to add outputs for goProGimbalPWM, and gimbalPWM
+    setPWM(7, gimbalPWM);
+    setPWM(8, cameraPWM);
 
-//    setPWM(7, sp_HeadingRate + MIDDLE_PWM - 20);
 #endif
 
 
