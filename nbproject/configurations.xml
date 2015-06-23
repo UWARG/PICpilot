@@ -105,6 +105,8 @@
         <itemPath>VN_lib.c</itemPath>
         <itemPath>VN_math.c</itemPath>
         <itemPath>VN_user.c</itemPath>
+        <itemPath>StateMachine.h</itemPath>
+        <itemPath>StateMachine.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f7" displayName="Voltage Sensor" projectFiles="true">
         <itemPath>voltageSensor.c</itemPath>

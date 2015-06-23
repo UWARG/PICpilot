@@ -18,6 +18,7 @@
 #include "VN100.h"
 #include "VN_lib.h"
 #include <p33FJ256GP710.h>
+#include "main.h"
 
 #ifdef _VN100
 /* Private typedef -----------------------------------------------------------*/
@@ -97,7 +98,7 @@ void VN100_initSPI(){
 *******************************************************************************/
 VN100_SPI_Packet* VN100_SPI_ReadRegister(unsigned char sensorID, unsigned char regID, unsigned char regWidth){
 
-  unsigned long i;
+
   /* Pull SS line low to start transaction*/
   VN_SPI_SetSS(sensorID, VN_PIN_LOW);
   /* Send request */
@@ -111,16 +112,17 @@ VN100_SPI_Packet* VN100_SPI_ReadRegister(unsigned char sensorID, unsigned char r
   VN_SPI_SetSS(sensorID, VN_PIN_LOW);
 
   /* Get response over SPI */
+  unsigned long i;
   for(i=0;i<=regWidth;i++){
     *(((unsigned long*)&VN_SPI_LastReceivedPacket) + i) = VN_SPI_SendReceive(0);
   }
-
-  /* Pull SS line high to end SPI transaction */
-  VN_SPI_SetSS(sensorID, VN_PIN_HIGH);
-  VN_Delay(50);
-
-  /* Return Error code */
-  return &VN_SPI_LastReceivedPacket;
+//
+//  /* Pull SS line high to end SPI transaction */
+//  VN_SPI_SetSS(sensorID, VN_PIN_HIGH);
+//  VN_Delay(50);
+//
+//  /* Return Error code */
+//  return &VN_SPI_LastReceivedPacket;
 }
 
 /*******************************************************************************
@@ -151,7 +153,7 @@ VN100_SPI_Packet* VN100_SPI_WriteRegister(unsigned char sensorID, unsigned char 
 
   /* Delay for 50us */
   VN_Delay(100);
-
+  
   /* Pull SS line low to start SPI transaction */
   VN_SPI_SetSS(sensorID, VN_PIN_LOW);
 

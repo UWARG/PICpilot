@@ -81,7 +81,8 @@ unsigned long VN_SPI_SendReceive(unsigned long data){
     /* Wait for SPI1 Tx buffer empty */
     //while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
   	while (SPI2STATbits.SPITBF){;}
-
+        // call state machine function here
+        // state function,
     /* Send SPI1 requests */
     //SPI_I2S_SendData(SPI1, VN_BYTE(data, i));
 	SPI2BUF = VN_BYTE4(data);
