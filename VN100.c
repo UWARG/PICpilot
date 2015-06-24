@@ -107,6 +107,7 @@ VN100_SPI_Packet* VN100_SPI_ReadRegister(unsigned char sensorID, unsigned char r
   /* Pull SS line high to end SPI transaction */
   VN_SPI_SetSS(sensorID, VN_PIN_HIGH);
   /* Delay for 50us */
+  //TODO: See if we need this. If we're running out of time, leverage this however we can
   VN_Delay(50);
   /* Pull SS line low to start SPI transaction */
   VN_SPI_SetSS(sensorID, VN_PIN_LOW);
@@ -118,11 +119,10 @@ VN100_SPI_Packet* VN100_SPI_ReadRegister(unsigned char sensorID, unsigned char r
   }
 //
 //  /* Pull SS line high to end SPI transaction */
-//  VN_SPI_SetSS(sensorID, VN_PIN_HIGH);
-//  VN_Delay(50);
-//
+  VN_SPI_SetSS(sensorID, VN_PIN_HIGH);
+  VN_Delay(50);
 //  /* Return Error code */
-//  return &VN_SPI_LastReceivedPacket;
+  return &VN_SPI_LastReceivedPacket;
 }
 
 /*******************************************************************************
