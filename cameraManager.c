@@ -35,9 +35,10 @@ unsigned int cameraPollingRuntime(long double latitude, long double longitude, l
 //    sprintf(&str, "%f", distance);
 //    UART1_SendString(&str);
 
-    if (time - cameraTimerCount > 600){
+    if (time - cameraTimerCount > 2500/2){
         cameraTimerCount = time;
-        if (((((distance >= pictureDistance || distance <= -pictureDistance) && (rollAngle <= rollLimit || rollAngle >= -rollLimit) && (pitchAngle <= rollLimit || pitchAngle >= -rollLimit)))|| overrideTrigger) && resting){// && pitch <= 20 && pitch >= -20 && roll >= -20 && roll <= 20){
+        //(distance >= pictureDistance || distance <= -pictureDistance) &&
+        if (((( (rollAngle <= rollLimit || rollAngle >= -rollLimit) && (pitchAngle <= rollLimit || pitchAngle >= -rollLimit)))|| overrideTrigger) && resting){// && pitch <= 20 && pitch >= -20 && roll >= -20 && roll <= 20){
             lastLongitude = longitude;
             lastLatitude = latitude;
             lastSignal = MIN_PWM;
