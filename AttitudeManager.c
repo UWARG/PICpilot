@@ -118,6 +118,10 @@ int control_Pitch = MIDDLE_PWM;
 int control_Throttle = 0;
 int control_Yaw = MIDDLE_PWM;
 
+int control_Flap = 0; // Control Signal for both Flaps and Slats
+int max_Diff_Flap = 0; // represent the speed difference(current - desired) at which when PWM signal is maximized
+int init_Control_Flap = 0; // represent the PWM signal when the speed difference is 5
+
 float scaleFactor = 20; //Change this
 
 char displayGain = 0;
@@ -291,6 +295,7 @@ void attitudeManagerRuntime() {
     imu_PitchAngle = imuData[PITCH]; //**************MITCH HACK FIX TO CHANGE WHICH WAY IT THINKS THE PITCH ANGLE IS added negative
     imu_RollAngle = (imuData[ROLL]); //**************MITCH HACK FIX TO CHANGE WHICH WAY IT THINKS THE PITCH ANGLE IS, added negative
 
+
     //**** Mitch put Velocity Compensation in the "newDataAvailable" section
     //Do we need this??? Might make it more accurate
 //    if (gps_PositionFix == 2){
@@ -324,6 +329,19 @@ void attitudeManagerRuntime() {
         }
         else if (control_Throttle < MIN_PWM){
             control_Throttle = MIN_PWM;
+        }
+
+        // Flap control when autopilot/groundstation is enabled
+        if ((gps_GroundSpeed - sp_GroundSpeed) >= 5){ //max is 1024
+            max_Diff_Flap = 15;     // change the max_Diff_Flap and init_Control_Flap through calibration
+            init_Control_Flap = 500;
+            control_Flap = (1024 - init_Control_Flap)/(max_Diff_Flap - 5)*(gps_GroundSpeed - sp_GroundSpeed) + (init_Control_Flap-(1024 - init_Control_Flap)/(max_Diff_Flap - 5)*5); // Linear relation: <a> * difference + <b>
+            if (control_Flap > 1024){   // cap for the PWM signal is 1024
+                control_Flap = 1024;
+            }
+        }
+        else {
+            control_Flap = 0;
         }
     }
     else
@@ -490,6 +508,7 @@ void attitudeManagerRuntime() {
     setPWM(6, verticalGoProPWM);
     setPWM(7, gimbalPWM);
     setPWM(8, cameraPWM);
+//    setPWM(5, control_Flap); //might have to change the output pwm
 
 //need to add outputs for goProGimbalPWM, and gimbalPWM
 
