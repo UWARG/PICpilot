@@ -68,6 +68,8 @@
       <logicalFolder name="f10" displayName="Attitude Management" projectFiles="true">
         <itemPath>AttitudeManager.c</itemPath>
         <itemPath>OrientationControl.c</itemPath>
+        <itemPath>StateMachine.c</itemPath>
+        <itemPath>StateMachine.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="Debugging" projectFiles="true">
         <itemPath>UART1.c</itemPath>
@@ -105,8 +107,6 @@
         <itemPath>VN_lib.c</itemPath>
         <itemPath>VN_math.c</itemPath>
         <itemPath>VN_user.c</itemPath>
-        <itemPath>StateMachine.h</itemPath>
-        <itemPath>StateMachine.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f7" displayName="Voltage Sensor" projectFiles="true">
         <itemPath>voltageSensor.c</itemPath>
