@@ -189,7 +189,11 @@ void attitudeInit() {
 }
 
 void attitudeManagerRuntime() {
+    //Continue running the state machine forever.
+    StateMachine(1);
+}
 
+void checkDMA(){
     //Transfer data from PATHMANAGER CHIP
 #if !PATH_MANAGER
     if (newDataAvailable){
@@ -215,22 +219,13 @@ void attitudeManagerRuntime() {
             batteryLevel = pmData.batteryLevel;
             waypointCount = pmData.waypointCount;
             
-//            //turn the Velocity Compensation ON or OFF accordingly
-//            if (gps_Satellites >= 4 && lastNumSatellites < 4)
-//                VN100_SPI_WriteRegister(0, 51, 8, (unsigned long*) velocityComp_ON);
-//            else if (gps_Satellites < 4 && lastNumSatellites >= 4)
-//                VN100_SPI_WriteRegister(0, 51, 8, (unsigned long*) velocityComp_OFF);
-//
-//            //newData, so feed the velocity info to the VectorNav to allow it to process and compensate accordingly
-//            if (gps_Satellites >= 4)
-//            {
-//                float velocity[3] = { gps_GroundSpeed, 0, 0};
-//                VN100_SPI_VelocityCompensationMeasurement(0, (float*)&velocity);
-//            }
         }
     }
-//#endif
+#endif
+}
 
+
+void inputCapture(){
     /*****************************************************************************
      *****************************************************************************
                                 INPUT CAPTURE
@@ -245,13 +240,14 @@ void attitudeManagerRuntime() {
 //        sp_Type = channelIn[5];
 //        sp_Value = channelIn[6];
         sp_Switch = channelIn[7];
+}
 
+void imuCommunication(){
     /*****************************************************************************
      *****************************************************************************
                                 IMU COMMUNICATION
      *****************************************************************************
      *****************************************************************************/
-
     VN100_SPI_GetRates(0, (float*) &imuData);
 
     //This is a reminder for me to figure out a more elegant way to fix improper derivative control (based on configuration of the sensor), adding this negative is a temporary fix. Some kind of calibration command or something.
@@ -265,27 +261,32 @@ void attitudeManagerRuntime() {
     imu_PitchAngle = imuData[PITCH];
     imu_RollAngle = (imuData[ROLL]);
 
-    /*****************************************************************************
-     *****************************************************************************
-                                 CONTROL CODE
-     *****************************************************************************
-     *****************************************************************************/
+}
+
+int altitudeControl(int setpoint, int sensorAltitude){
     //Altitude
     if (controlLevel & ALTITUDE_CONTROL_ON){
-        sp_PitchAngle = controlSignalAltitude(sp_Altitude,(int)gps_Altitude);
+        sp_PitchAngle = controlSignalAltitude(setpoint, sensorAltitude);
         if (sp_PitchAngle > MAX_PITCH_ANGLE)
             sp_PitchAngle = MAX_PITCH_ANGLE;
         if (sp_PitchAngle < -MAX_PITCH_ANGLE)
             sp_PitchAngle = -MAX_PITCH_ANGLE;
     }
+    return sp_PitchAngle;
+}
 
+int throttleControl(int setpoint, int sensor){
     //Throttle
     if ((THROTTLE_CONTROL_SOURCE & controlLevel) >> 4 >= 1){
-        control_Throttle = sp_ThrottleRate + controlSignalThrottle(sp_Altitude, (int)gps_Altitude);
+        control_Throttle = sp_ThrottleRate + controlSignalThrottle(setpoint, sensor);
     }
     else
         control_Throttle = sp_ThrottleRate;
+    return control_Throttle;
+}
 
+//Equivalent to "Yaw Angle Control"
+int headingControl(int setpoint, int sensor){
     //Heading
     if (controlLevel & HEADING_CONTROL_ON){
         //Estimation of Roll angle based on heading:
@@ -304,37 +305,46 @@ void attitudeManagerRuntime() {
         if (sp_RollAngle < -MAX_ROLL_ANGLE)
             sp_RollAngle = -MAX_ROLL_ANGLE;
     }
+    return sp_RollAngle;
+}
+
 
     // If we are getting input from the controller convert sp_xxxxRate to an sp_xxxxAngle in degrees
-    if ((controlLevel & ROLL_CONTROL_SOURCE) == 0 && (controlLevel & HEADING_CONTROL_ON) == 0)
-        sp_RollAngle = (int)((sp_RollRate / ((float)SP_RANGE / MAX_ROLL_ANGLE) ));
-    if ((controlLevel & PITCH_CONTROL_SOURCE) == 0 && (controlLevel & ALTITUDE_CONTROL_ON) == 0)
-        sp_PitchAngle = (int)(sp_PitchRate / ((float)SP_RANGE / MAX_PITCH_ANGLE));
+//    if ((controlLevel & ROLL_CONTROL_SOURCE) == 0 && (controlLevel & HEADING_CONTROL_ON) == 0)
+//        sp_RollAngle = (int)((sp_RollRate / ((float)SP_RANGE / MAX_ROLL_ANGLE) ));
+//    if ((controlLevel & PITCH_CONTROL_SOURCE) == 0 && (controlLevel & ALTITUDE_CONTROL_ON) == 0)
+//        sp_PitchAngle = (int)(sp_PitchRate / ((float)SP_RANGE / MAX_PITCH_ANGLE));
 
+int rollAngleControl(int setpoint, int sensor){
     //Roll Angle
     if (controlLevel & ROLL_CONTROL_TYPE || controlLevel & HEADING_CONTROL_ON){
-        sp_ComputedRollRate = controlSignalAngles(sp_RollAngle,  imu_RollAngle, ROLL, -(SP_RANGE) / (MAX_ROLL_ANGLE));
+        sp_ComputedRollRate = controlSignalAngles(setpoint, sensor, ROLL, -(SP_RANGE) / (MAX_ROLL_ANGLE));
     }
     else{
         sp_ComputedRollRate = -sp_RollRate;
     }
+    return sp_ComputedRollRate;
+}
 
+int pitchAngleControl(int setpoint, int sensor){
     //Pitch Angle
     if (controlLevel & PITCH_CONTROL_TYPE || controlLevel & ALTITUDE_CONTROL_ON){
-        sp_ComputedPitchRate = controlSignalAngles(sp_PitchAngle, imu_PitchAngle, PITCH, -(SP_RANGE) / (MAX_PITCH_ANGLE)); //Removed negative
+        sp_ComputedPitchRate = controlSignalAngles(setpoint, sensor, PITCH, -(SP_RANGE) / (MAX_PITCH_ANGLE)); //Removed negative
     }
     else{
         sp_ComputedPitchRate = -sp_PitchRate;
     }
+    return sp_ComputedPitchRate;
+}
 
     //Controller Input Interpretation Code
-    sp_ComputedYawRate = sp_YawRate; //WHAT TO DO WITH THIS IN QUAD MODE?
-    if (sp_Switch > MIN_PWM && sp_Switch < MIN_PWM + 50) {
-        unfreezeIntegral();
-    } else {
-        freezeIntegral();
-    }
+//    if (sp_Switch > MIN_PWM && sp_Switch < MIN_PWM + 50) {
+//        unfreezeIntegral();
+//    } else {
+//        freezeIntegral();
+//    }
 
+int coordinatedTurn(int rollAngle, float scaleFactor){
     //Feed forward Term when turning
     if (controlLevel & ALTITUDE_CONTROL_ON){
 //        sp_ComputedPitchRate += abs((int)(scaleFactor * sin(deg2rad(sp_RollAngle)))) * SP_RANGE; //Sinusoidal Function
@@ -342,53 +352,22 @@ void attitudeManagerRuntime() {
 //        sp_ComputedPitchRate += abs((int)(scaleFactor * pow(sp_RollAngle,1.0/2.0))) * SP_RANGE; //Square root function
         sp_ComputedPitchRate -= abs((int)(scaleFactor * imu_RollAngle)); //Linear Function
     }
-
-    // Control Signals (Output compare value)
-    control_Roll = -controlSignal((sp_ComputedRollRate / SERVO_SCALE_FACTOR), imu_RollRate, ROLL);
-    control_Pitch = -controlSignal((sp_ComputedPitchRate / SERVO_SCALE_FACTOR), imu_PitchRate, PITCH);
-    control_Yaw = controlSignal((sp_ComputedYawRate / SERVO_SCALE_FACTOR), imu_YawRate, YAW);
-
-     /*****************************************************************************
-     *****************************************************************************
-                                    Output Compare
-     *****************************************************************************
-     *****************************************************************************/
-
-    outputMixing(&outputSignal, &control_Roll, &control_Pitch, &control_Throttle, &control_Yaw);
-    checkLimits(&outputSignal);
-
-    unsigned int cameraPWM = cameraPollingRuntime(gps_Latitude, gps_Longitude, time, &cameraCounter, imu_RollAngle, imu_PitchAngle);
-    unsigned int gimbalPWM = cameraGimbalStabilization(imu_RollAngle);
-    unsigned int goProGimbalPWM = goProGimbalStabilization(imu_RollAngle);
-    unsigned int verticalGoProPWM = goProVerticalstabilization(imu_PitchAngle);
-
-// TODO: Make an alternative for this
-//    if (killingPlane){
-//        control_Roll = MAX_ROLL_PWM;
-//        control_Pitch = MAX_PITCH_PWM;
-//        control_Throttle = MIN_PWM;
-//        control_Yaw = MIN_PWM;
-//    }
-
-
-//For regular fixed-wing aircraft: Typically 0 = Roll, 1 = Pitch, 2 = Throttle, 3 = Yaw
-    setPWM(1, outputSignal[0]);//Roll
-    setPWM(2, outputSignal[1]); //Pitch
-    setPWM(3, outputSignal[2]);//Throttle
-    setPWM(4, outputSignal[3]); //Yaw
-    setPWM(5, goProGimbalPWM);
-    setPWM(6, verticalGoProPWM);
-    setPWM(7, gimbalPWM);
-    setPWM(8, cameraPWM);
-
-#endif
-
-
-#if COMMUNICATION_MANAGER
-    readDatalink();
-    writeDatalink(DATALINK_SEND_FREQUENCY);
-#endif
 }
+
+int rollRateControl(int setpoint, int sensor){
+    control_Roll = -controlSignal((sp_ComputedRollRate / SERVO_SCALE_FACTOR), sensor, ROLL);
+    return control_Roll;
+}
+int pitchRateControl(int setpoint, int sensor){
+    control_Pitch = -controlSignal(setpoint/SERVO_SCALE_FACTOR, sensor, ROLL);
+    return control_Pitch;
+}
+int yawRateControl(int setpoint, int sensor){
+    control_Yaw = controlSignal(setpoint/SERVO_SCALE_FACTOR, sensor, ROLL);
+    return control_Yaw;
+}
+
+
 
 #if COMMUNICATION_MANAGER
 void readDatalink(void){

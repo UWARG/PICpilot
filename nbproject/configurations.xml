@@ -108,6 +108,10 @@
         <itemPath>VN_math.c</itemPath>
         <itemPath>VN_user.c</itemPath>
       </logicalFolder>
+      <logicalFolder name="f11" displayName="Vehicles" projectFiles="true">
+        <itemPath>Anaconda.c</itemPath>
+        <itemPath>Anaconda.h</itemPath>
+      </logicalFolder>
       <logicalFolder name="f7" displayName="Voltage Sensor" projectFiles="true">
         <itemPath>voltageSensor.c</itemPath>
       </logicalFolder>

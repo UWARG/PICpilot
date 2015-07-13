@@ -13,6 +13,7 @@ extern "C" {
 #endif
     extern int state;
 
+#define IOMATRIX_SIZE 9
 
 
 
