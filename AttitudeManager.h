@@ -23,9 +23,30 @@
 #define ROLL_CONTROL_SOURCE 0b00001000 //Controller(0) or Ground Station(1)
 #define THROTTLE_CONTROL_SOURCE 0b00110000 //Controller(0) or Ground Station(1) or Autopilot(2)(Controlled by the GroundSpeed).
 #define ALTITUDE_CONTROL_SOURCE 0b01000000 //Ground Station(0) or Autopilot(1)
-#define ALTITUDE_CONTROL_ON 0b10000000 //Off(0) or On(1)
+#define ALTITUDE_CONTROL 0b10000000 //Off(0) or On(1)
 #define HEADING_CONTROL_SOURCE 0b0000000100000000 // Ground Station(0) or Autopilot(1)
-#define HEADING_CONTROL_ON 0b0000001000000000 //Off(0) or On(1)
+#define HEADING_CONTROL 0b0000001000000000 //Off(0) or On(1)
+
+//Bit Mask Resultant Values
+#define RATE_CONTROL 0
+#define ANGLE_CONTROL 1
+
+#define PITCH_RC_SOURCE 0
+#define ROLL_RC_SOURCE 0
+#define THROTTLE_RC_SOURCE 0
+#define PITCH_GS_SOURCE 1
+#define ROLL_GS_SOURCE 1
+#define THROTTLE_GS_SOURCE 1
+#define ALTITUDE_GS_SOURCE 0
+#define HEADING_GS_SOURCE 0
+#define THROTTLE_AP_SOURCE 2
+#define ALTITUDE_AP_SOURCE 1
+#define HEADING_AP_SOURCE 1
+
+#define ALTITUDE_CONTROL_OFF 0
+#define ALTITUDE_CONTROL_ON 1
+#define HEADING_CONTROL_OFF 0
+#define HEADING_CONTROL_ON 1
 
 
 //Defined Orientation Parameter constants
@@ -78,7 +99,32 @@ void attitudeInit(void);
  *****************************************************************************/
 void attitudeManagerRuntime(void);
 
-#if COMMUNICATION_MANAGER
+
+
+void checkDMA();
+float getAltitude();
+int getHeading();
+long double getLongitude();
+long double getLatitude();
+float getRoll();
+float getPitch();
+float getYaw();
+float getRollRate();
+float getPitchRate();
+float getYawRate();
+void inputCapture();
+void imuCommunication();
+int altitudeControl(int setpoint, int sensorAltitude);
+int throttleControl(int setpoint, int sensor);
+int headingControl(int setpoint, int sensor);
+int rollAngleControl(int setpoint, int sensor);
+int pitchAngleControl(int setpoint, int sensor);
+int coordinatedTurn(float pitchRate, int rollAngle);
+int rollRateControl(int setpoint, int sensor);
+int pitchRateControl(int setpoint, int sensor);
+int yawRateControl(int setpoint, int sensor);
+char getControlPermission(int controlMask, int expectedValue);
+
 
 /*****************************************************************************
  * Function: void readDatalink(void);
@@ -102,16 +148,14 @@ void readDatalink(void);
  *
  * Preconditions: The datalink must have been initialized to use this properly.
  *
- * Overview: This function is responsible for writing to the datalink at a
- * certain frequency (in milliseconds). The time value is dependent on the timer interrupt.
+ * Overview: This function is responsible for writing to the datalink (UART).
  *
- * Input:   The rate at which data is added to the datalink output queue.
+ * Input:   None.
  *
  * Output:  An error code indicating if the data was added to the queue successfully.
  *
  *****************************************************************************/
-int writeDatalink(long frequency);
-#endif
+int writeDatalink(void);
 
 /*****************************************************************************
  * Function: void adjustVNOrientationMatrix(float* adjustment);

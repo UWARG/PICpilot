@@ -2,7 +2,17 @@
  * net.h
  */
 
+#ifndef NET_H
+#define	NET_H
+
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 #define DATALINK_SEND_FREQUENCY 200 //Time in milliseconds
+#define UPLINK_CHECK_FREQUENCY 200 //Time in milliseconds
+#define BUFFER_UPDATE_FREQUENCY 300 //Time in milliseconds
+
 #define BLOCKING_MODE 0
 
 #define OUTBOUND_QUEUE_SIZE 20
@@ -127,3 +137,9 @@ int checkPacket( char* rawPacket);
 
 // Handle the inbound buffer
 void inboundBufferMaintenance(void);
+
+#ifdef	__cplusplus
+}
+#endif
+
+#endif	/* ANACONDA_H */

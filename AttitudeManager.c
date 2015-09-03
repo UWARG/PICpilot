@@ -17,6 +17,8 @@
 #include "cameraManager.h"
 #include "StartupErrorCodes.h"
 #include "main.h"
+#include "StateMachine.h"
+#include "timer.h"
 
 #if !(PATH_MANAGER && ATTITUDE_MANAGER && COMMUNICATION_MANAGER)
 #include "InterchipDMA.h"
@@ -26,27 +28,15 @@
 #if !(PATH_MANAGER && ATTITUDE_MANAGER && COMMUNICATION_MANAGER)
 extern PMData pmData;
 extern AMData amData;
-extern char newDataAvailable;
+extern char newDMADataAvailable;
 #endif
 
-
-long int time = 0;
 long int lastTime = 0;
 long int heartbeatTimer = 0;
 long int UHFSafetyTimer = 0;
 long int gpsTimer = 0;
 
 float* velocityComponents;
-
-#if ATTITUDE_MANAGER
-
-void __attribute__((__interrupt__, no_auto_psv)) _T2Interrupt(void){
-    //Timer Interrupt used for the control loops and data link
-    time += 20;
-    IFS0bits.T2IF = 0;
-}
-
-#endif
 
 // Setpoints (From radio transmitter or autopilot)
 int sp_PitchRate = MIDDLE_PWM;
@@ -117,8 +107,6 @@ int control_Pitch = 0;
 int control_Throttle = 0;
 int control_Yaw = 0;
 
-int outputSignal[4];
-
 
 float scaleFactor = 20; //Change this
 
@@ -138,11 +126,6 @@ char lastNumSatellites = 0;
 unsigned int cameraCounter = 0;
 
 void attitudeInit() {
-    //Variable Initialization
-    int controlSignal[0] = MIDDLE_PWM;  //Roll
-    int controlSignal[1] = MIDDLE_PWM;  //Pitch
-    int controlSignal[2] = 0;           //Throttle
-    int controlSignal[3] = MIDDLE_PWM;  //Yaw
 
     //Initialize Interchip communication
     TRISFbits.TRISF3 = 0;
@@ -190,40 +173,68 @@ void attitudeInit() {
 
 void attitudeManagerRuntime() {
     //Continue running the state machine forever.
-    StateMachine(1);
+    char dummyCondition = 1;
+    StateMachine(&dummyCondition);
 }
 
 void checkDMA(){
     //Transfer data from PATHMANAGER CHIP
 #if !PATH_MANAGER
-    if (newDataAvailable){
-        lastNumSatellites = gps_Satellites; //get the last number of satellites
-        newDataAvailable = 0;
-        if (generatePMDataDMAChecksum() == pmData.checkbyteDMA) {
-            gps_Time = pmData.time;
-            gps_Heading = pmData.heading;
-            gps_GroundSpeed = pmData.speed * 1000.0/3600.0; //Convert from km/h to m/s
-            gps_Longitude = pmData.longitude;
-            gps_Latitude = pmData.latitude;
-            gps_Altitude = pmData.altitude;
-            gps_Satellites = pmData.satellites;
-            gps_PositionFix = pmData.positionFix;
-            if (controlLevel & ALTITUDE_CONTROL_SOURCE)
-                sp_Altitude = pmData.sp_Altitude;
-            if (controlLevel & HEADING_CONTROL_SOURCE){
-                if (gps_PositionFix){
-                    sp_Heading = pmData.sp_Heading;
-                }
+    lastNumSatellites = gps_Satellites; //get the last number of satellites
+    newDMADataAvailable = 0;
+    if (generatePMDataDMAChecksum() == pmData.checkbyteDMA) {
+        gps_Time = pmData.time;
+        gps_Heading = pmData.heading;
+        gps_GroundSpeed = pmData.speed * 1000.0/3600.0; //Convert from km/h to m/s
+        gps_Longitude = pmData.longitude;
+        gps_Latitude = pmData.latitude;
+        gps_Altitude = pmData.altitude;
+        gps_Satellites = pmData.satellites;
+        gps_PositionFix = pmData.positionFix;
+        if (controlLevel & ALTITUDE_CONTROL_SOURCE)
+            sp_Altitude = pmData.sp_Altitude;
+        if (controlLevel & HEADING_CONTROL_SOURCE){
+            if (gps_PositionFix){
+                sp_Heading = pmData.sp_Heading;
             }
-            waypointIndex = pmData.targetWaypoint;
-            batteryLevel = pmData.batteryLevel;
-            waypointCount = pmData.waypointCount;
-            
         }
+        waypointIndex = pmData.targetWaypoint;
+        batteryLevel = pmData.batteryLevel;
+        waypointCount = pmData.waypointCount;
     }
 #endif
 }
 
+float getAltitude(){
+    return gps_Altitude;
+}
+int getHeading(){
+    return gps_Heading;
+}
+long double getLongitude(){
+    return gps_Longitude;
+}
+long double getLatitude(){
+    return gps_Latitude;
+}
+float getRoll(){
+    return imu_RollAngle;
+}
+float getPitch(){
+    return imu_PitchAngle;
+}
+float getYaw(){
+    return imu_YawAngle;
+}
+float getRollRate(){
+    return imu_RollRate;
+}
+float getPitchRate(){
+    return imu_PitchRate;
+}
+float getYawRate(){
+    return imu_YawAngle;
+}
 
 void inputCapture(){
     /*****************************************************************************
@@ -265,7 +276,7 @@ void imuCommunication(){
 
 int altitudeControl(int setpoint, int sensorAltitude){
     //Altitude
-    if (controlLevel & ALTITUDE_CONTROL_ON){
+    if (controlLevel & ALTITUDE_CONTROL){
         sp_PitchAngle = controlSignalAltitude(setpoint, sensorAltitude);
         if (sp_PitchAngle > MAX_PITCH_ANGLE)
             sp_PitchAngle = MAX_PITCH_ANGLE;
@@ -288,7 +299,7 @@ int throttleControl(int setpoint, int sensor){
 //Equivalent to "Yaw Angle Control"
 int headingControl(int setpoint, int sensor){
     //Heading
-    if (controlLevel & HEADING_CONTROL_ON){
+    if (controlLevel & HEADING_CONTROL){
         //Estimation of Roll angle based on heading:
 
         while (sp_Heading > 360)
@@ -317,7 +328,7 @@ int headingControl(int setpoint, int sensor){
 
 int rollAngleControl(int setpoint, int sensor){
     //Roll Angle
-    if (controlLevel & ROLL_CONTROL_TYPE || controlLevel & HEADING_CONTROL_ON){
+    if (controlLevel & ROLL_CONTROL_TYPE || controlLevel & HEADING_CONTROL){
         sp_ComputedRollRate = controlSignalAngles(setpoint, sensor, ROLL, -(SP_RANGE) / (MAX_ROLL_ANGLE));
     }
     else{
@@ -328,7 +339,7 @@ int rollAngleControl(int setpoint, int sensor){
 
 int pitchAngleControl(int setpoint, int sensor){
     //Pitch Angle
-    if (controlLevel & PITCH_CONTROL_TYPE || controlLevel & ALTITUDE_CONTROL_ON){
+    if (controlLevel & PITCH_CONTROL_TYPE || controlLevel & ALTITUDE_CONTROL){
         sp_ComputedPitchRate = controlSignalAngles(setpoint, sensor, PITCH, -(SP_RANGE) / (MAX_PITCH_ANGLE)); //Removed negative
     }
     else{
@@ -344,18 +355,19 @@ int pitchAngleControl(int setpoint, int sensor){
 //        freezeIntegral();
 //    }
 
-int coordinatedTurn(int rollAngle, float scaleFactor){
+int coordinatedTurn(float pitchRate, int rollAngle){
     //Feed forward Term when turning
-    if (controlLevel & ALTITUDE_CONTROL_ON){
+    if (controlLevel & ALTITUDE_CONTROL){
 //        sp_ComputedPitchRate += abs((int)(scaleFactor * sin(deg2rad(sp_RollAngle)))) * SP_RANGE; //Sinusoidal Function
 //        sp_ComputedPitchRate += abs((int)(scaleFactor * pow(sp_RollAngle,2))) * SP_RANGE; //Polynomial Function //Change this 2 to whatever
 //        sp_ComputedPitchRate += abs((int)(scaleFactor * pow(sp_RollAngle,1.0/2.0))) * SP_RANGE; //Square root function
-        sp_ComputedPitchRate -= abs((int)(scaleFactor * imu_RollAngle)); //Linear Function
+        pitchRate -= abs((int)(scaleFactor * rollAngle)); //Linear Function
     }
+    return pitchRate;
 }
 
 int rollRateControl(int setpoint, int sensor){
-    control_Roll = -controlSignal((sp_ComputedRollRate / SERVO_SCALE_FACTOR), sensor, ROLL);
+    control_Roll = -controlSignal((setpoint / SERVO_SCALE_FACTOR), sensor, ROLL);
     return control_Roll;
 }
 int pitchRateControl(int setpoint, int sensor){
@@ -365,6 +377,10 @@ int pitchRateControl(int setpoint, int sensor){
 int yawRateControl(int setpoint, int sensor){
     control_Yaw = controlSignal(setpoint/SERVO_SCALE_FACTOR, sensor, ROLL);
     return control_Yaw;
+}
+
+char getControlPermission(int controlMask, int expectedValue){
+    return (controlMask & controlLevel) == expectedValue;
 }
 
 
@@ -536,7 +552,7 @@ void readDatalink(void){
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case SEND_HEARTBEAT:
-                heartbeatTimer = time;
+                    heartbeatTimer = getTime();
                 break;
             case TRIGGER_CAMERA:
                 triggerCamera(*(unsigned int*)(&cmd->data));
@@ -601,52 +617,48 @@ void readDatalink(void){
     }
  
 }
-int writeDatalink(long frequency){
- 
-    if (time - lastTime > frequency) {
-        lastTime = time;
-    
-        struct telem_block* statusData = createTelemetryBlock();//getDebugTelemetryBlock();
-  
-        statusData->lat = gps_Latitude;
-        statusData->lon = gps_Longitude;
-        statusData->millis = gps_Time;
-        statusData->pitch = imu_PitchAngle;
-        statusData->roll = imu_RollAngle;
-        statusData->yaw = imu_YawAngle;
-        statusData->pitchRate = imu_PitchRate;
-        statusData->rollRate = imu_RollRate;
-        statusData->yawRate = imu_YawRate;
-        statusData->pitch_gain = getGain(displayGain, GAIN_KD);
-        statusData->roll_gain = getGain(displayGain, GAIN_KP);
-        statusData->yaw_gain = getGain(displayGain, GAIN_KI);
-        statusData->heading = gps_Heading;
-        statusData->groundSpeed = gps_GroundSpeed;
-        statusData->pitchSetpoint = sp_PitchAngle;
-        statusData->rollSetpoint = sp_RollAngle;
-        statusData->headingSetpoint = sp_Heading;
-        statusData->throttleSetpoint = (int)(((long int)(sp_ThrottleRate + MAX_PWM) * 100) / MAX_PWM/2);
-        statusData->altitudeSetpoint = sp_Altitude;
-        statusData->altitude = gps_Altitude;
-        statusData->cPitchSetpoint = sp_PitchRate;
-        statusData->cRollSetpoint = sp_RollRate;
-        statusData->cYawSetpoint = sp_YawRate;
-        statusData->lastCommandSent = lastCommandSentCode;
-        statusData->errorCodes = getErrorCodes() + ((sp_UHFSwitch < -429)<< 11);
-        statusData->cameraStatus = cameraCounter;
-        statusData->waypointIndex = waypointIndex;
-        statusData->editing_gain = displayGain + ((sp_Switch > 380) << 4);
-        statusData->gpsStatus = gps_Satellites + (gps_PositionFix << 4);
-        statusData->batteryLevel = batteryLevel;
-        statusData->waypointCount = waypointCount;
-        
+int writeDatalink(){
+     
+    struct telem_block* statusData = createTelemetryBlock();//getDebugTelemetryBlock();
 
-        if (BLOCKING_MODE) {
-            sendTelemetryBlock(statusData);
-            destroyTelemetryBlock(statusData);
-        } else {
-            return pushOutboundTelemetryQueue(statusData);
-        }
+    statusData->lat = gps_Latitude;
+    statusData->lon = gps_Longitude;
+    statusData->millis = gps_Time;
+    statusData->pitch = imu_PitchAngle;
+    statusData->roll = imu_RollAngle;
+    statusData->yaw = imu_YawAngle;
+    statusData->pitchRate = imu_PitchRate;
+    statusData->rollRate = imu_RollRate;
+    statusData->yawRate = imu_YawRate;
+    statusData->pitch_gain = getGain(displayGain, GAIN_KD);
+    statusData->roll_gain = getGain(displayGain, GAIN_KP);
+    statusData->yaw_gain = getGain(displayGain, GAIN_KI);
+    statusData->heading = gps_Heading;
+    statusData->groundSpeed = gps_GroundSpeed;
+    statusData->pitchSetpoint = sp_PitchAngle;
+    statusData->rollSetpoint = sp_RollAngle;
+    statusData->headingSetpoint = sp_Heading;
+    statusData->throttleSetpoint = (int)(((long int)(sp_ThrottleRate + MAX_PWM) * 100) / MAX_PWM/2);
+    statusData->altitudeSetpoint = sp_Altitude;
+    statusData->altitude = gps_Altitude;
+    statusData->cPitchSetpoint = sp_PitchRate;
+    statusData->cRollSetpoint = sp_RollRate;
+    statusData->cYawSetpoint = sp_YawRate;
+    statusData->lastCommandSent = lastCommandSentCode;
+    statusData->errorCodes = getErrorCodes() + ((sp_UHFSwitch < -429)<< 11);
+    statusData->cameraStatus = cameraCounter;
+    statusData->waypointIndex = waypointIndex;
+    statusData->editing_gain = displayGain + ((sp_Switch > 380) << 4);
+    statusData->gpsStatus = gps_Satellites + (gps_PositionFix << 4);
+    statusData->batteryLevel = batteryLevel;
+    statusData->waypointCount = waypointCount;
+
+
+    if (BLOCKING_MODE) {
+        sendTelemetryBlock(statusData);
+        destroyTelemetryBlock(statusData);
+    } else {
+        return pushOutboundTelemetryQueue(statusData);
     }
          
     return 0;
@@ -751,4 +763,3 @@ char generateAMDataChecksum(AMData* data){
     }
     return checksum;
 }
-

@@ -20,6 +20,7 @@
 #include "VN_user.h"
 #include "VN_lib.h"
 #include "delay.h"
+#include "StateMachine.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -77,28 +78,31 @@ void VN_SPI_SetSS(unsigned char sensorID, VN_PinState state){
 unsigned long VN_SPI_SendReceive(unsigned long data){
 
 /* User code to send out 4 bytes over SPI goes here */
-  unsigned long ret = 0;
+    unsigned long ret = 0;
     /* Wait for SPI1 Tx buffer empty */
     
   //while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
-  int i;
-  for (i = 0; i< 4; ++i){
+    int i;
+    for (i = 0; i< 4; ++i){
 //  while (SPI2STATbits.SPITBF){;}
-  StateMachine(&SPI2STATbits.SPITBF);
-        // call state machine function here
-        // state function,
-    /* Send SPI1 requests */
-    //SPI_I2S_SendData(SPI1, VN_BYTE(data, i));
-	SPI2BUF = VN_BYTE(data, 3-i);
-//        while (SPI2STATbits.SPITBF){;}
-  StateMachine(&SPI2STATbits.SPITBF);
-    /* Wait for response from VN-100 */
-    //while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET);
-//  	while (!SPI2STATbits.SPIRBF){;}
-  StateMachine(&(!SPI2STATbits.SPIRBF));
-    /* Save received data in buffer */
-    //ret |= ((unsigned long)SPI_I2S_ReceiveData(SPI1) << (8*i));
-	ret |= ((unsigned long)SPI2BUF << (8*i));
+        char stateMachineCond = SPI2STATbits.SPITBF;
+        StateMachine(&stateMachineCond);
+            // call state machine function here
+            // state function,
+        /* Send SPI1 requests */
+        //SPI_I2S_SendData(SPI1, VN_BYTE(data, i));
+        SPI2BUF = VN_BYTE(data, 3-i);
+    //        while (SPI2STATbits.SPITBF){;}
+        stateMachineCond = SPI2STATbits.SPITBF;
+        StateMachine(&stateMachineCond);
+        /* Wait for response from VN-100 */
+        //while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET);
+    //  	while (!SPI2STATbits.SPIRBF){;}
+        stateMachineCond = (!SPI2STATbits.SPIRBF);
+        StateMachine(&stateMachineCond);
+        /* Save received data in buffer */
+        //ret |= ((unsigned long)SPI_I2S_ReceiveData(SPI1) << (8*i));
+        ret |= ((unsigned long)SPI2BUF << (8*i));
   }
 
 

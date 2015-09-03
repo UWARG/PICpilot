@@ -81,7 +81,9 @@ int cameraGimbalStabilization(float rollAngle){
 void setGimbalOffset(int pwmSignal){
     gimbalOffset =  pwmSignal; // + MIDDLE_PWM;
 }
-
+/* **********************
+ * GO PRO
+ * **********************/
 //GoPro gimbal (roll)
 int goProGimbalStabilization(float rollAngle){
     if (!lockGoProRoll){

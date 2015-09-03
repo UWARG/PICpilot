@@ -49,6 +49,9 @@
         <itemPath>VN_type.h</itemPath>
         <itemPath>VN_user.h</itemPath>
       </logicalFolder>
+      <logicalFolder name="f11" displayName="Vehicles" projectFiles="true">
+        <itemPath>Anaconda.h</itemPath>
+      </logicalFolder>
       <logicalFolder name="f8" displayName="Voltage Sensor" projectFiles="true">
         <itemPath>voltageSensor.h</itemPath>
       </logicalFolder>
@@ -101,6 +104,8 @@
         <itemPath>delay.c</itemPath>
         <itemPath>Clock.c</itemPath>
         <itemPath>StringUtils.c</itemPath>
+        <itemPath>timer.c</itemPath>
+        <itemPath>timer.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f6" displayName="VectorNav" projectFiles="true">
         <itemPath>VN100.c</itemPath>
@@ -110,7 +115,6 @@
       </logicalFolder>
       <logicalFolder name="f11" displayName="Vehicles" projectFiles="true">
         <itemPath>Anaconda.c</itemPath>
-        <itemPath>Anaconda.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f7" displayName="Voltage Sensor" projectFiles="true">
         <itemPath>voltageSensor.c</itemPath>

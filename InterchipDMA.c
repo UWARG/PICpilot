@@ -26,7 +26,7 @@ void __attribute__((__interrupt__,no_auto_psv)) _SPI1Interrupt(void){
 
 /*SPI RECEIVE OPERATION*/
 char transmitInitialized = 0; //0 = Nothing Received, 1 = Transmit Initialized
-char newDataAvailable = 0;
+char newDMADataAvailable = 0;
 char newGPSDataAvailable = 0;
 
 AMData amData __attribute__((space(dma)));
@@ -67,13 +67,17 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
         DMA1REQbits.FORCE = 1;
         while (DMA1REQbits.FORCE == 1);
     }
-    newDataAvailable = 1;
+    newDMADataAvailable = 1;
     IFS0bits.DMA0IF = 0;// Clear the DMA1 Interrupt Flag
     IEC0bits.DMA0IE = 1; // Enable DMA0 Interrupts
 }
         
 void __attribute__((__interrupt__, no_auto_psv)) _DMA1Interrupt(void){
     IFS0bits.DMA1IF = 0;// Clear the DMA0 Interrupt Flag
+}
+
+char isDMADataAvailable(){
+    return newDMADataAvailable;
 }
 
 void init_DMA0(){

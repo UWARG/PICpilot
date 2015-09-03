@@ -6,44 +6,52 @@
  */
 
 #include "Anaconda.h"
+#include "PWM.h"
+
+int outputSignal[4];
+
+void initialization(){
+    //Variable Initialization
+    outputSignal[0] = 0;  //Roll
+    outputSignal[1] = 0;  //Pitch
+    outputSignal[2] = MIN_PWM;  //Throttle
+    outputSignal[3] = 0;  //Yaw
+}
+
+void takeOff(){
+
+}
+void landing(){
+    
+}
 
 void inputMixing(int* channels, int* rollRate, int* pitchRate, int* throttle, int* yawRate){
-        if ((ROLL_CONTROL_SOURCE & controlLevel) == 0){
-            rollRate = channels[0];
+        if (getControlPermission(ROLL_CONTROL_SOURCE, ROLL_RC_SOURCE)){
+            (*rollRate) = channels[0];
         }
-        if ((PITCH_CONTROL_SOURCE & controlLevel) == 0){
-            pitchRate = channels[1];
-        }
-        if ((THROTTLE_CONTROL_SOURCE & controlLevel) == 0)
-            throttle = (channels[2]);
+        if (getControlPermission(THROTTLE_CONTROL_SOURCE, THROTTLE_RC_SOURCE))
+            (*throttle) = (channels[2]);
 
 
         #if(TAIL_TYPE == STANDARD_TAIL)
-        {
-            if ((PITCH_CONTROL_SOURCE & controlLevel) == 0)
-            {
-            pitchRate = channels[1];
+            if (getControlPermission(PITCH_CONTROL_SOURCE, PITCH_RC_SOURCE)){
+                (*pitchRate) = channels[1];
             }
-            yawRate = channels[3];
-        }
-        #endif
-        #if(TAIL_TYPE == INV_V_TAIL)
-        {
-            if ((PITCH_CONTROL_SOURCE & controlLevel) == 0)
-            {
-                pitchRate = (channels[1] - channels[3]) / (2 * ELEVATOR_PROPORTION);
+            (*yawRate) = channels[3];
+        #elif(TAIL_TYPE == INV_V_TAIL)
+            if (getControlPermission(PITCH_CONTROL_SOURCE, PITCH_RC_SOURCE)){
+                (*pitchRate) = (channels[1] - channels[3]) / (2 * ELEVATOR_PROPORTION);
             }
-            yawRate = (channels[1] + channels[3] ) / (2 * RUDDER_PROPORTION);
-        }
+            (*yawRate) = (channels[1] + channels[3] ) / (2 * RUDDER_PROPORTION);
         #endif
 }
 
 void outputMixing(int* channels, int* control_Roll, int* control_Pitch, int* control_Throttle, int* control_Yaw){
-    //begin code for different tail configurations
+    //code for different tail configurations
     #if(TAIL_TYPE == STANDARD_TAIL)    //is a normal t-tail
     {
-        channels[1] = control_Pitch
-        channels[3] = control_Yaw
+        channels[1] = (*control_Pitch);
+        channels[3] = (*control_Yaw);
     }
 
     #elif(TAIL_TYPE == V_TAIL)    //V-tail
@@ -53,12 +61,12 @@ void outputMixing(int* channels, int* control_Roll, int* control_Pitch, int* con
 
     #elif(TAIL_TYPE == INV_V_TAIL)    //Inverse V-Tail
     {
-        channels[1] =  control_Yaw * RUDDER_PROPORTION + control_Pitch * ELEVATOR_PROPORTION ; //Tail Output Right
-        channels[3] =  control_Yaw * RUDDER_PROPORTION - control_Pitch * ELEVATOR_PROPORTION ; //Tail Output Left
+        channels[1] =  (*control_Yaw) * RUDDER_PROPORTION + (*control_Pitch) * ELEVATOR_PROPORTION ; //Tail Output Right
+        channels[3] =  (*control_Yaw) * RUDDER_PROPORTION - (*control_Pitch) * ELEVATOR_PROPORTION ; //Tail Output Left
     }
     #endif
-    channels[0] = control_Roll;
-    channels[2] = control_Throttle;
+    channels[0] = (*control_Roll);
+    channels[2] = (*control_Throttle);
 }
 
 void checkLimits(int* channels){

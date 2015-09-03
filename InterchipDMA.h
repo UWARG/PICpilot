@@ -75,6 +75,7 @@ typedef struct _GPSData {
 void init_DMA0();
 void init_DMA1();
 void init_SPI1();
+char isDMADataAvailable();
 
 #if PATH_MANAGER && GPS_OLD
 void init_SPI2();
