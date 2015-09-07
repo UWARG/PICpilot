@@ -46,6 +46,7 @@
       </logicalFolder>
       <logicalFolder name="f11" displayName="Vehicles" projectFiles="true">
         <itemPath>Anaconda.h</itemPath>
+        <itemPath>DisplayQuad.h</itemPath>
       </logicalFolder>
       <itemPath>main.h</itemPath>
     </logicalFolder>
@@ -102,6 +103,7 @@
       </logicalFolder>
       <logicalFolder name="f11" displayName="Vehicles" projectFiles="true">
         <itemPath>Anaconda.c</itemPath>
+        <itemPath>DisplayQuad.c</itemPath>
       </logicalFolder>
       <itemPath>main.c</itemPath>
     </logicalFolder>

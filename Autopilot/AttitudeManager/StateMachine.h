@@ -19,9 +19,7 @@ extern "C" {
 #include "VN100.h"
 #include "cameraManager.h"
 
-    extern int state;
-
-    void StateMachine(char* cond);
+    void StateMachine();
     void highLevelControl();
     void lowLevelControl();
     void forceStateMachineUpdate();

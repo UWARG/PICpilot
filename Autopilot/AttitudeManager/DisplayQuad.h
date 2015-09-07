@@ -1,12 +1,12 @@
 /* 
- * File:   Anaconda.h
+ * File:   DisplayQuad.h
  * Author: Chris Hajduk
  *
- * Created on July 2, 2015, 8:03 PM
+ * Created on September 6, 2015, 1:02 PM
  */
 
-#ifndef ANACONDA_H
-#define	ANACONDA_H
+#ifndef DISPLAYQUAD_H
+#define	DISPLAYQUAD_H
 
 #ifdef	__cplusplus
 extern "C" {
@@ -14,9 +14,10 @@ extern "C" {
 
 // Header Files
 #include "main.h"
-#include "AttitudeManager.h"
 
 // Function Prototypes
+void initialization();
+void motorstartup(int time);
 void inputMixing(int* channels, int* rollRate, int* pitchRate, int* throttle, int* yawRate);
 void outputMixing(int* channels, int* control_Roll, int* control_Pitch, int* control_Throttle, int* control_Yaw);
 void checkLimits(int* channels);
@@ -29,17 +30,9 @@ void checkLimits(int* channels);
 #define MAX_YAW_PWM (MAX_PWM - 109) //This was - 25
 #define MIN_YAW_PWM (MIN_PWM + 109) //This was + 25
 
-#define TAIL_TYPE 2 // Standard (0) or V-Tail (1) or Inverse V-Tail (2)
-#define STANDARD_TAIL 0
-#define V_TAIL 1
-#define INV_V_TAIL 2
-
-#define RUDDER_PROPORTION 0.75
-#define ELEVATOR_PROPORTION 0.75
-
 #ifdef	__cplusplus
 }
 #endif
 
-#endif	/* ANACONDA_H */
+#endif	/* DISPLAYQUAD_H */
 

@@ -8,6 +8,8 @@
 #ifndef ANACONDA_H
 #define	ANACONDA_H
 
+#if ANACONDA_VEHICLE
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -39,6 +41,8 @@ void checkLimits(int* channels);
 
 #ifdef	__cplusplus
 }
+#endif
+
 #endif
 
 #endif	/* ANACONDA_H */

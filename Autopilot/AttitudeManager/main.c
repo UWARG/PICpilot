@@ -48,12 +48,12 @@ int main(int argc, char** argv) {
 #if DEBUG
     initDebug();
 #endif
+    checkErrorCodes();
     attitudeInit();
     initDataLink();
-    checkErrorCodes();
-
     while (1) {
-        attitudeManagerRuntime();  
+        //Continue running the state machine forever.
+        StateMachine();
     }
     return (EXIT_SUCCESS);
 }

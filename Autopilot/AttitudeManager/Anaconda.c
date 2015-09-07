@@ -8,6 +8,7 @@
 #include "Anaconda.h"
 #include "PWM.h"
 
+#if ANACONDA_VEHICLE
 
 void initialization(int* outputSignal){
     //Variable Initialization
@@ -15,6 +16,7 @@ void initialization(int* outputSignal){
     outputSignal[1] = 0;  //Pitch
     outputSignal[2] = MIN_PWM;  //Throttle
     outputSignal[3] = 0;  //Yaw
+
 }
 
 void takeOff(){
@@ -110,3 +112,5 @@ void checkLimits(int* channels){
     else if (channels[3] < MIN_YAW_PWM)
         channels[3] = MIN_YAW_PWM;
 }
+
+#endif

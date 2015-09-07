@@ -45,11 +45,11 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/AttitudeManager.o ${OBJECTDIR}/OrientationControl.o ${OBJECTDIR}/StateMachine.o ${OBJECTDIR}/UART1.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/debug.o ${OBJECTDIR}/net_outbound.o ${OBJECTDIR}/net_inbound.o ${OBJECTDIR}/net_common.o ${OBJECTDIR}/UART2.o ${OBJECTDIR}/cameraManager.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/InputCapture.o ${OBJECTDIR}/OutputCompare.o ${OBJECTDIR}/PWM.o ${OBJECTDIR}/fmath.o ${OBJECTDIR}/delay.o ${OBJECTDIR}/StringUtils.o ${OBJECTDIR}/timer.o ${OBJECTDIR}/VN100.o ${OBJECTDIR}/VN_lib.o ${OBJECTDIR}/VN_math.o ${OBJECTDIR}/VN_user.o ${OBJECTDIR}/Anaconda.o ${OBJECTDIR}/main.o ${OBJECTDIR}/_ext/2108356922/Common.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/AttitudeManager.o.d ${OBJECTDIR}/OrientationControl.o.d ${OBJECTDIR}/StateMachine.o.d ${OBJECTDIR}/UART1.o.d ${OBJECTDIR}/StartupErrorCodes.o.d ${OBJECTDIR}/debug.o.d ${OBJECTDIR}/net_outbound.o.d ${OBJECTDIR}/net_inbound.o.d ${OBJECTDIR}/net_common.o.d ${OBJECTDIR}/UART2.o.d ${OBJECTDIR}/cameraManager.o.d ${OBJECTDIR}/InterchipDMA.o.d ${OBJECTDIR}/InputCapture.o.d ${OBJECTDIR}/OutputCompare.o.d ${OBJECTDIR}/PWM.o.d ${OBJECTDIR}/fmath.o.d ${OBJECTDIR}/delay.o.d ${OBJECTDIR}/StringUtils.o.d ${OBJECTDIR}/timer.o.d ${OBJECTDIR}/VN100.o.d ${OBJECTDIR}/VN_lib.o.d ${OBJECTDIR}/VN_math.o.d ${OBJECTDIR}/VN_user.o.d ${OBJECTDIR}/Anaconda.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/_ext/2108356922/Common.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/AttitudeManager.o ${OBJECTDIR}/OrientationControl.o ${OBJECTDIR}/StateMachine.o ${OBJECTDIR}/_ext/2108356922/Common.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/UART1.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/debug.o ${OBJECTDIR}/net_outbound.o ${OBJECTDIR}/net_inbound.o ${OBJECTDIR}/net_common.o ${OBJECTDIR}/UART2.o ${OBJECTDIR}/cameraManager.o ${OBJECTDIR}/InputCapture.o ${OBJECTDIR}/OutputCompare.o ${OBJECTDIR}/PWM.o ${OBJECTDIR}/fmath.o ${OBJECTDIR}/delay.o ${OBJECTDIR}/StringUtils.o ${OBJECTDIR}/timer.o ${OBJECTDIR}/VN100.o ${OBJECTDIR}/VN_lib.o ${OBJECTDIR}/VN_math.o ${OBJECTDIR}/VN_user.o ${OBJECTDIR}/Anaconda.o ${OBJECTDIR}/DisplayQuad.o ${OBJECTDIR}/main.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/AttitudeManager.o.d ${OBJECTDIR}/OrientationControl.o.d ${OBJECTDIR}/StateMachine.o.d ${OBJECTDIR}/_ext/2108356922/Common.o.d ${OBJECTDIR}/InterchipDMA.o.d ${OBJECTDIR}/UART1.o.d ${OBJECTDIR}/StartupErrorCodes.o.d ${OBJECTDIR}/debug.o.d ${OBJECTDIR}/net_outbound.o.d ${OBJECTDIR}/net_inbound.o.d ${OBJECTDIR}/net_common.o.d ${OBJECTDIR}/UART2.o.d ${OBJECTDIR}/cameraManager.o.d ${OBJECTDIR}/InputCapture.o.d ${OBJECTDIR}/OutputCompare.o.d ${OBJECTDIR}/PWM.o.d ${OBJECTDIR}/fmath.o.d ${OBJECTDIR}/delay.o.d ${OBJECTDIR}/StringUtils.o.d ${OBJECTDIR}/timer.o.d ${OBJECTDIR}/VN100.o.d ${OBJECTDIR}/VN_lib.o.d ${OBJECTDIR}/VN_math.o.d ${OBJECTDIR}/VN_user.o.d ${OBJECTDIR}/Anaconda.o.d ${OBJECTDIR}/DisplayQuad.o.d ${OBJECTDIR}/main.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/AttitudeManager.o ${OBJECTDIR}/OrientationControl.o ${OBJECTDIR}/StateMachine.o ${OBJECTDIR}/UART1.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/debug.o ${OBJECTDIR}/net_outbound.o ${OBJECTDIR}/net_inbound.o ${OBJECTDIR}/net_common.o ${OBJECTDIR}/UART2.o ${OBJECTDIR}/cameraManager.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/InputCapture.o ${OBJECTDIR}/OutputCompare.o ${OBJECTDIR}/PWM.o ${OBJECTDIR}/fmath.o ${OBJECTDIR}/delay.o ${OBJECTDIR}/StringUtils.o ${OBJECTDIR}/timer.o ${OBJECTDIR}/VN100.o ${OBJECTDIR}/VN_lib.o ${OBJECTDIR}/VN_math.o ${OBJECTDIR}/VN_user.o ${OBJECTDIR}/Anaconda.o ${OBJECTDIR}/main.o ${OBJECTDIR}/_ext/2108356922/Common.o
+OBJECTFILES=${OBJECTDIR}/AttitudeManager.o ${OBJECTDIR}/OrientationControl.o ${OBJECTDIR}/StateMachine.o ${OBJECTDIR}/_ext/2108356922/Common.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/UART1.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/debug.o ${OBJECTDIR}/net_outbound.o ${OBJECTDIR}/net_inbound.o ${OBJECTDIR}/net_common.o ${OBJECTDIR}/UART2.o ${OBJECTDIR}/cameraManager.o ${OBJECTDIR}/InputCapture.o ${OBJECTDIR}/OutputCompare.o ${OBJECTDIR}/PWM.o ${OBJECTDIR}/fmath.o ${OBJECTDIR}/delay.o ${OBJECTDIR}/StringUtils.o ${OBJECTDIR}/timer.o ${OBJECTDIR}/VN100.o ${OBJECTDIR}/VN_lib.o ${OBJECTDIR}/VN_math.o ${OBJECTDIR}/VN_user.o ${OBJECTDIR}/Anaconda.o ${OBJECTDIR}/DisplayQuad.o ${OBJECTDIR}/main.o
 
 
 CFLAGS=
@@ -90,6 +90,18 @@ ${OBJECTDIR}/StateMachine.o: StateMachine.c  nbproject/Makefile-${CND_CONF}.mk
 	@${RM} ${OBJECTDIR}/StateMachine.o.d 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  StateMachine.c  -o ${OBJECTDIR}/StateMachine.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/StateMachine.o.d"        -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1  -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/StateMachine.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/_ext/2108356922/Common.o: ../Common/Common.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR}/_ext/2108356922 
+	@${RM} ${OBJECTDIR}/_ext/2108356922/Common.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../Common/Common.c  -o ${OBJECTDIR}/_ext/2108356922/Common.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/2108356922/Common.o.d"        -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1  -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/_ext/2108356922/Common.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/InterchipDMA.o: InterchipDMA.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/InterchipDMA.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  InterchipDMA.c  -o ${OBJECTDIR}/InterchipDMA.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/InterchipDMA.o.d"        -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1  -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/InterchipDMA.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 ${OBJECTDIR}/UART1.o: UART1.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
@@ -138,12 +150,6 @@ ${OBJECTDIR}/cameraManager.o: cameraManager.c  nbproject/Makefile-${CND_CONF}.mk
 	@${RM} ${OBJECTDIR}/cameraManager.o.d 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  cameraManager.c  -o ${OBJECTDIR}/cameraManager.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/cameraManager.o.d"        -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1  -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/cameraManager.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
-	
-${OBJECTDIR}/InterchipDMA.o: InterchipDMA.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} ${OBJECTDIR} 
-	@${RM} ${OBJECTDIR}/InterchipDMA.o.d 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  InterchipDMA.c  -o ${OBJECTDIR}/InterchipDMA.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/InterchipDMA.o.d"        -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1  -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
-	@${FIXDEPS} "${OBJECTDIR}/InterchipDMA.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 ${OBJECTDIR}/InputCapture.o: InputCapture.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
@@ -217,17 +223,17 @@ ${OBJECTDIR}/Anaconda.o: Anaconda.c  nbproject/Makefile-${CND_CONF}.mk
 	${MP_CC} $(MP_EXTRA_CC_PRE)  Anaconda.c  -o ${OBJECTDIR}/Anaconda.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/Anaconda.o.d"        -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1  -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/Anaconda.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
+${OBJECTDIR}/DisplayQuad.o: DisplayQuad.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/DisplayQuad.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  DisplayQuad.c  -o ${OBJECTDIR}/DisplayQuad.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/DisplayQuad.o.d"        -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1  -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/DisplayQuad.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
 ${OBJECTDIR}/main.o: main.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/main.o.d 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  main.c  -o ${OBJECTDIR}/main.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/main.o.d"        -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1  -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/main.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
-	
-${OBJECTDIR}/_ext/2108356922/Common.o: ../Common/Common.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} ${OBJECTDIR}/_ext/2108356922 
-	@${RM} ${OBJECTDIR}/_ext/2108356922/Common.o.d 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  ../Common/Common.c  -o ${OBJECTDIR}/_ext/2108356922/Common.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/2108356922/Common.o.d"        -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1  -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
-	@${FIXDEPS} "${OBJECTDIR}/_ext/2108356922/Common.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 else
 ${OBJECTDIR}/AttitudeManager.o: AttitudeManager.c  nbproject/Makefile-${CND_CONF}.mk
@@ -247,6 +253,18 @@ ${OBJECTDIR}/StateMachine.o: StateMachine.c  nbproject/Makefile-${CND_CONF}.mk
 	@${RM} ${OBJECTDIR}/StateMachine.o.d 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  StateMachine.c  -o ${OBJECTDIR}/StateMachine.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/StateMachine.o.d"        -g -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/StateMachine.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/_ext/2108356922/Common.o: ../Common/Common.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR}/_ext/2108356922 
+	@${RM} ${OBJECTDIR}/_ext/2108356922/Common.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../Common/Common.c  -o ${OBJECTDIR}/_ext/2108356922/Common.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/2108356922/Common.o.d"        -g -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/_ext/2108356922/Common.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/InterchipDMA.o: InterchipDMA.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/InterchipDMA.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  InterchipDMA.c  -o ${OBJECTDIR}/InterchipDMA.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/InterchipDMA.o.d"        -g -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/InterchipDMA.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 ${OBJECTDIR}/UART1.o: UART1.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
@@ -295,12 +313,6 @@ ${OBJECTDIR}/cameraManager.o: cameraManager.c  nbproject/Makefile-${CND_CONF}.mk
 	@${RM} ${OBJECTDIR}/cameraManager.o.d 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  cameraManager.c  -o ${OBJECTDIR}/cameraManager.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/cameraManager.o.d"        -g -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/cameraManager.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
-	
-${OBJECTDIR}/InterchipDMA.o: InterchipDMA.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} ${OBJECTDIR} 
-	@${RM} ${OBJECTDIR}/InterchipDMA.o.d 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  InterchipDMA.c  -o ${OBJECTDIR}/InterchipDMA.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/InterchipDMA.o.d"        -g -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
-	@${FIXDEPS} "${OBJECTDIR}/InterchipDMA.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 ${OBJECTDIR}/InputCapture.o: InputCapture.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
@@ -374,17 +386,17 @@ ${OBJECTDIR}/Anaconda.o: Anaconda.c  nbproject/Makefile-${CND_CONF}.mk
 	${MP_CC} $(MP_EXTRA_CC_PRE)  Anaconda.c  -o ${OBJECTDIR}/Anaconda.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/Anaconda.o.d"        -g -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/Anaconda.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
+${OBJECTDIR}/DisplayQuad.o: DisplayQuad.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/DisplayQuad.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  DisplayQuad.c  -o ${OBJECTDIR}/DisplayQuad.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/DisplayQuad.o.d"        -g -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/DisplayQuad.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
 ${OBJECTDIR}/main.o: main.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
 	@${RM} ${OBJECTDIR}/main.o.d 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  main.c  -o ${OBJECTDIR}/main.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/main.o.d"        -g -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/main.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
-	
-${OBJECTDIR}/_ext/2108356922/Common.o: ../Common/Common.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} ${OBJECTDIR}/_ext/2108356922 
-	@${RM} ${OBJECTDIR}/_ext/2108356922/Common.o.d 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  ../Common/Common.c  -o ${OBJECTDIR}/_ext/2108356922/Common.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/2108356922/Common.o.d"        -g -omf=elf -mlarge-data -O1 -msmart-io=1 -Wall -msfr-warn=off
-	@${FIXDEPS} "${OBJECTDIR}/_ext/2108356922/Common.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 endif
 

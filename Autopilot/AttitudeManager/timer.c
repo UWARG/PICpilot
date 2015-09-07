@@ -5,6 +5,7 @@
  * Created on July 19, 2015, 8:07 PM
  */
 
+#include "main.h"
 #include "timer.h"
 
 long int time = 0;

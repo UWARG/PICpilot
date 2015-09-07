@@ -13,7 +13,7 @@
 extern "C" {
 #endif
 
-#include "main.h"
+
 
     long int getTime();
 

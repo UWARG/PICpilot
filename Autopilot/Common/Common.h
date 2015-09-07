@@ -87,5 +87,5 @@ char generatePMDataDMAChecksum(void);
 float getDistance(long double lat1, long double lon1, long double lat2, long double lon2);
 
 
-#endif	/* PATHMANGER_H */
+#endif	/* COMMON_H */
 

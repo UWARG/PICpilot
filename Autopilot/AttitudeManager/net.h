@@ -11,7 +11,7 @@ extern "C" {
 
 #define DATALINK_SEND_FREQUENCY 200 //Time in milliseconds
 #define UPLINK_CHECK_FREQUENCY 200 //Time in milliseconds
-#define BUFFER_UPDATE_FREQUENCY 300 //Time in milliseconds
+#define BUFFER_UPDATE_FREQUENCY 800 //Time in milliseconds
 
 #define BLOCKING_MODE 0
 
@@ -27,7 +27,7 @@ extern "C" {
 #define API_HEADER_LENGTH 17
 #define API_HEADER_PREFIX 3
 
-#define RECEIVER_ADDRESS 0x0013A20040B47E6B
+#define RECEIVER_ADDRESS 0x0013A20040B37745 //B47E6B
 
 #define INCREMENT_DATA_FRAME 0x00
 #define OPTION_BYTE 0x01 //Disables ACK
@@ -142,4 +142,4 @@ void inboundBufferMaintenance(void);
 }
 #endif
 
-#endif	/* ANACONDA_H */
+#endif	/* NET_H */

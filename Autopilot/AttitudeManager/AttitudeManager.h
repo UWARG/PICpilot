@@ -9,13 +9,9 @@
 #define	ATTITUDEMANAGER_H
 
 //Header Files
-#include "main.h"
-#include "InterchipDMA.h"
-#include "OrientationControl.h"
-#include "../Common/Common.h"
 
-/* CHANGE THIS HEADER FILE WHEN MODIFYING THIS FOR A NEW PLANE OR VEHICLE */
-#include "Anaconda.h"
+#include "OrientationControl.h"
+#include "StateMachine.h"
 
 //Bit masks for levels of control - DON'T CHANGE THESE FOR SHITS AND GIGGLES
 #define PITCH_CONTROL_TYPE 0b00000001 //Pitch Rate(0) or Pitch Angles(1)
@@ -81,28 +77,9 @@
  *****************************************************************************/
 void attitudeInit(void);
 
-/*****************************************************************************
- * Function: void attitudeManagerRuntime(void)
- *
- * Preconditions: attitudeInit() must have been called before hand.
- *
- * Overview: This function is responsible for the continuous monitoring of the
- * orientation of the plane. It contains code that retrieves information from
- * the remote control, or the path manager. It also retrieves information from
- * the IMU. It then compares the data to provide an optimal output the the
- * aircrafts control surfaces. It also sends data to the data link manager at
- * the end of the cycle.
- *
- * Input:   None.
- *
- * Output:  None.
- *
- *****************************************************************************/
-void attitudeManagerRuntime(void);
 
 
-
-void checkDMA();
+char checkDMA();
 float getAltitude();
 int getHeading();
 long double getLongitude();
@@ -124,7 +101,7 @@ void setPitchAngleSetpoint(int setpoint);
 void setRollAngleSetpoint(int setpoint);
 void setPitchRateSetpoint(int setpoint);
 void setRollRateSetpoint(int setpoint);
-
+void setYawRateSetpoint(int setpoint);
 
 void inputCapture();
 void imuCommunication();

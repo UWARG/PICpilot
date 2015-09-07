@@ -17,13 +17,12 @@
 #include "cameraManager.h"
 #include "StartupErrorCodes.h"
 #include "main.h"
-#include "StateMachine.h"
-#include "timer.h"
 #include "InterchipDMA.h"
+
 
 extern PMData pmData;
 extern AMData amData;
-extern char newDMADataAvailable;
+extern char DMADataAvailable;
 
 long int lastTime = 0;
 long int heartbeatTimer = 0;
@@ -130,9 +129,9 @@ void attitudeInit() {
 
     TRISDbits.TRISD14 = 0;
     LATDbits.LATD14 = 0;
-    
+
     amData.checkbyteDMA = generateAMDataDMAChecksum();
-    
+
     //Initialize Interchip Interrupts for Use in DMA Reset
     //Set opposite Input / Output Configuration on the PathManager
     TRISAbits.TRISA12 = 0;  //Init RA12 as Output (0), (1) is Input
@@ -149,13 +148,6 @@ void attitudeInit() {
     init_DMA0();
     init_DMA1();
 
-    /* Initialize IMU with correct orientation matrix and filter settings */
-    float filterVariance[10] = {1e-10, 1e-6, 1e-6, 1e-6, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2};
-    VN100_initSPI();
-    //IMU position matrix
-    float offset[3] = {-90,-90,0};
-    setVNOrientationMatrix((float*)&offset);
-    VN100_SPI_SetFiltMeasVar(0, (float*)&filterVariance);
 
     /* Initialize Input Capture and Output Compare Modules */
 #if DEBUG
@@ -165,21 +157,28 @@ void attitudeInit() {
     initPWM(0b10011111, 0b11111111);
 #endif
 
+    /* Initialize IMU with correct orientation matrix and filter settings */
+    float filterVariance[10] = {1e-10, 1e-6, 1e-6, 1e-6, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2};
+    VN100_initSPI();
+    //IMU position matrix
+    float offset[3] = {-90,-90,0};
+    setVNOrientationMatrix((float*)&offset);
+    VN100_SPI_SetFiltMeasVar(0, (float*)&filterVariance);
 
+    initialization();
 }
 
-void attitudeManagerRuntime() {
-    //Continue running the state machine forever.
-    char dummyCondition = 1;
-    StateMachine(&dummyCondition);
-}
 
-void checkDMA(){
+char checkDMA(){
     //Transfer data from PATHMANAGER CHIP
-#if !PATH_MANAGER
     lastNumSatellites = gps_Satellites; //get the last number of satellites
-    newDMADataAvailable = 0;
+    DMADataAvailable = 0;
+
     if (generatePMDataDMAChecksum() == pmData.checkbyteDMA) {
+        //Check if this data is new and requires action or if it is old and redundant
+        if (gps_Altitude == pmData.altitude && gps_Heading == pmData.heading && gps_GroundSpeed == pmData.speed && gps_Latitude == pmData.latitude && gps_Longitude == pmData.longitude){
+            return FALSE;
+        }
         gps_Time = pmData.time;
         gps_Heading = pmData.heading;
         gps_GroundSpeed = pmData.speed * 1000.0/3600.0; //Convert from km/h to m/s
@@ -199,7 +198,7 @@ void checkDMA(){
         batteryLevel = pmData.batteryLevel;
         waypointCount = pmData.waypointCount;
     }
-#endif
+    return TRUE;
 }
 
 float getAltitude(){
@@ -265,6 +264,9 @@ void setPitchRateSetpoint(int setpoint){
 }
 void setRollRateSetpoint(int setpoint){
     sp_RollRate = setpoint;
+}
+void setYawRateSetpoint(int setpoint){
+    sp_YawRate = setpoint;
 }
 
 void inputCapture(){
@@ -410,8 +412,6 @@ char getControlPermission(int controlMask, int expectedValue){
 }
 
 
-
-#if COMMUNICATION_MANAGER
 void readDatalink(void){
   
     struct command* cmd = popCommand();
@@ -690,7 +690,6 @@ int writeDatalink(){
     return 0;
 
 }
-#endif
 
 void adjustVNOrientationMatrix(float* adjustment){
 
@@ -721,7 +720,7 @@ void setVNOrientationMatrix(float* angleOffset){
     angleOffset[0] = deg2rad(angleOffset[0]);
     angleOffset[1] = deg2rad(angleOffset[1]);
     angleOffset[2] = deg2rad(angleOffset[2]);
-    
+
     refRotationMatrix[0] = cos(angleOffset[1]) * cos(angleOffset[2]);
     refRotationMatrix[1] = -cos(angleOffset[1]) * sin(angleOffset[2]);
     refRotationMatrix[2] = sin(angleOffset[1]);
