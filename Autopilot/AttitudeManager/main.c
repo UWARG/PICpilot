@@ -19,6 +19,7 @@
 
 #include "AttitudeManager.h"
 #include "net.h"
+#include "../Common/clock.h"
 
 /*
  * 
@@ -35,6 +36,8 @@ _FWDT(FWDTEN_ON & WDTPOST_PS2048 & WDTPRE_PR128); //32,128
  *
  */
 int main(int argc, char** argv) {
+
+    useFRCPLLClock();
 
     // Init intercom pins as digital pins
     AD1PCFGHbits.PCFG20 = 1;

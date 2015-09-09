@@ -28,13 +28,12 @@ void initTimer2(void)    // Initialize and enable Timer2
     T2CONbits.TON = 0; // Disable Timer
     T2CONbits.TCS = 0; // Select internal instruction cycle clock
     T2CONbits.TGATE = 0; // Disable Gated Timer mode
-    T2CONbits.TCKPS = 0b01; // Select 1:8 Prescaler
     TMR2 = 0x00; // Clear timer register
     setPeriod(20);
     //PR2 = MSEC * 20; // Load the period value = 20ms                        //
     IPC1bits.T2IP = 0x01; // Set Timer 2 Interrupt Priority Level - Lowest
     IFS0bits.T2IF = 0; // Clear Timer 2 Interrupt Flag
-    IEC0bits.T2IE = 1; // Enable Timer 2 interrupt
+    IEC0bits.T2IE = 0; // Disable Timer 2 interrupt
     T2CONbits.TON = 1; // Start Timer
 }
 

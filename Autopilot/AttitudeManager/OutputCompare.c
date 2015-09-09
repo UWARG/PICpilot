@@ -97,7 +97,7 @@ OC8CONbits.OCM = 0b110; // Select the Output Compare mode (without fault protect
 
 void setPeriod(double time) 
 {
-         T2CONbits.TCKPS = 0x01; //1:8 scaler
+         T2CONbits.TCKPS = 0x02; //1:64 scaler
          PR2 = (unsigned int)(time * MSEC);
 }
 

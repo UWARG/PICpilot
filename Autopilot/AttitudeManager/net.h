@@ -9,9 +9,8 @@
 extern "C" {
 #endif
 
-#define DATALINK_SEND_FREQUENCY 200 //Time in milliseconds
-#define UPLINK_CHECK_FREQUENCY 200 //Time in milliseconds
-#define BUFFER_UPDATE_FREQUENCY 800 //Time in milliseconds
+#define DATALINK_SEND_FREQUENCY 100 //Time in milliseconds
+#define UPLINK_CHECK_FREQUENCY 100 //Time in milliseconds
 
 #define BLOCKING_MODE 0
 

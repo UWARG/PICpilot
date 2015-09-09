@@ -40,7 +40,7 @@ void InitUART2()
         //19200 = 11
         //38400 = 5
         //115200 = 1
-        U2BRG = 5;//Baud_Rate;	// 40Mhz osc, ___ Baud
+        U2BRG = 64;//5;//Baud_Rate;	// 40Mhz osc, ___ Baud
 
 	// Load all values in for U1STA SFR
 	U2STAbits.UTXISEL1 = 0;	//Bit15 Int when Char is transferred (1/2 config!)

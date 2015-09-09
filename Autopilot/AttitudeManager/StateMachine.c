@@ -32,52 +32,47 @@ void StateMachine(){
     stateMachineTimer += dTime;
     imuTimer += dTime;
     if(isDMADataAvailable() && checkDMA()){
-        debug("DMA");
-//        //Input from Controller
-//        inputCapture();
-//        //Recalculate all data dependent on any DMA data
-//        highLevelControl();
-//        lowLevelControl();
+        //Input from Controller
+        inputCapture();
+        //Recalculate all data dependent on any DMA data
+        highLevelControl();
+        lowLevelControl();
     }
     //Feedback systems such as this autopilot are very sensitive to timing. In order to keep it consistent we should try to keep the timing between the calculation of error corrections and the output the same.
     //In other words, roll pitch and yaw control, mixing, and output should take place in the same step.
-//    else if(AMUpdate){
-//        debug("FORCE UPDATE");
-//        AMUpdate = 0;
-//        //Run - Angle control, and angular rate control
-//        //Input from Controller
-//        inputCapture();
-//        //Recalculate all data dependent on any DMA data
-//        highLevelControl();
-//        lowLevelControl();
-//    }
+    else if(AMUpdate){
+        AMUpdate = 0;
+        //Run - Angle control, and angular rate control
+        //Input from Controller
+        inputCapture();
+        //Recalculate all data dependent on any DMA data
+        highLevelControl();
+        lowLevelControl();
+    }
     else if(IMU_UPDATE_FREQUENCY <= imuTimer){
-        debug("IMU");
         imuTimer = 0;
         //Poll Sensor
         imuCommunication();
         //Input from Controller
-//        inputCapture();
-//        lowLevelControl();
+        inputCapture();
+        lowLevelControl();
 
     }
     else if(DATALINK_SEND_FREQUENCY <= downlinkTimer){
         //Compile and send data
-        debug("DOWNLINK");
         downlinkTimer = 0;
         writeDatalink();
         outboundBufferMaintenance();
     }
-//    else if(UPLINK_CHECK_FREQUENCY <= uplinkTimer){
-//        debug("UPLINK");
-//        uplinkTimer = 0;
-//        readDatalink();
-//        inboundBufferMaintenance();
-//    }
-//    else{
-//
-//        //Then Sleep
-//    }
+    else if(UPLINK_CHECK_FREQUENCY <= uplinkTimer){
+        uplinkTimer = 0;
+        readDatalink();
+        inboundBufferMaintenance();
+    }
+    else{
+
+        //Then Sleep
+    }
     //Loop it back again!
     asm("CLRWDT");
 }

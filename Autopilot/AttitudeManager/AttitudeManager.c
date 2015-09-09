@@ -122,6 +122,8 @@ char lastNumSatellites = 0;
 unsigned int cameraCounter = 0;
 
 void attitudeInit() {
+    //Initialize Timer
+    initTimer4();
 
     //Initialize Interchip communication
     TRISFbits.TRISF3 = 0;

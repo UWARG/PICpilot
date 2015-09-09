@@ -14,7 +14,7 @@ extern "C" {
 #endif
 
 
-
+    void initTimer4();
     long int getTime();
 
 

@@ -10,6 +10,7 @@
       </logicalFolder>
       <logicalFolder name="f6" displayName="Common" projectFiles="true">
         <itemPath>../Common/Common.h</itemPath>
+        <itemPath>../Common/clock.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="Data Transfer" projectFiles="true">
         <itemPath>InterchipDMA.h</itemPath>
@@ -65,6 +66,7 @@
       </logicalFolder>
       <logicalFolder name="f7" displayName="Common" projectFiles="true">
         <itemPath>../Common/Common.c</itemPath>
+        <itemPath>../Common/clock.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="Data Transfer" projectFiles="true">
         <itemPath>InterchipDMA.c</itemPath>
