@@ -11,7 +11,7 @@
 
 
 void initialization(){
-    motorstartup(100);
+    motorstartup(2000);
 }
 
 void motorstartup(int time){
@@ -52,10 +52,10 @@ void inputMixing(int* channels, int* rollRate, int* pitchRate, int* throttle, in
 }
 
 void outputMixing(int* channels, int* control_Roll, int* control_Pitch, int* control_Throttle, int* control_Yaw){
-    channels[0] = (*control_Throttle) + (*control_Pitch) - (*control_Yaw);  //Front
-    channels[1] = (*control_Throttle) + (*control_Roll) + (*control_Yaw);   //Left
-    channels[2] = (*control_Throttle) - (*control_Pitch) - (*control_Yaw);  //Back
-    channels[3] = (*control_Throttle) - (*control_Roll) + (*control_Yaw);   //Right
+    channels[0] = (*control_Throttle) + (*control_Pitch) - (*control_Yaw) + MIN_PWM;  //Front
+    channels[1] = (*control_Throttle) + (*control_Roll) + (*control_Yaw) + MIN_PWM;   //Left
+    channels[2] = (*control_Throttle) - (*control_Pitch) - (*control_Yaw) + MIN_PWM;  //Back
+    channels[3] = (*control_Throttle) - (*control_Roll) + (*control_Yaw) + MIN_PWM;   //Right
 }
 
 void checkLimits(int* channels){
