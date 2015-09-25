@@ -33,6 +33,7 @@ void StateMachine(){
     imuTimer += dTime;
     if(isDMADataAvailable() && checkDMA()){
         //Input from Controller
+        debug("dma");
         inputCapture();
         //Recalculate all data dependent on any DMA data
         highLevelControl();
@@ -48,8 +49,10 @@ void StateMachine(){
         //Recalculate all data dependent on any DMA data
         highLevelControl();
         lowLevelControl();
+        debug("amu");
     }
     else if(IMU_UPDATE_FREQUENCY <= imuTimer){
+        debug("imu");
         imuTimer = 0;
         //Poll Sensor
         imuCommunication();
@@ -60,11 +63,13 @@ void StateMachine(){
     }
     else if(DATALINK_SEND_FREQUENCY <= downlinkTimer){
         //Compile and send data
+        debug("downlink");
         downlinkTimer = 0;
         writeDatalink();
         outboundBufferMaintenance();
     }
     else if(UPLINK_CHECK_FREQUENCY <= uplinkTimer){
+        debug("uplink");
         uplinkTimer = 0;
         readDatalink();
         inboundBufferMaintenance();
