@@ -163,7 +163,7 @@ void attitudeInit() {
     float filterVariance[10] = {1e-10, 1e-6, 1e-6, 1e-6, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2};
     VN100_initSPI();
     //IMU position matrix
-    float offset[3] = {-90,-90,0};
+    float offset[3] = {0,0,0};
     setVNOrientationMatrix((float*)&offset);
     VN100_SPI_SetFiltMeasVar(0, (float*)&filterVariance);
 

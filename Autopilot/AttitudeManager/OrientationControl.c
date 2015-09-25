@@ -11,13 +11,14 @@
 #include "VN100.h"
 
 //float constmax = 2.7188;
-
+/*
+ kgain[Yaw Pitch Roll Heading Altitude Throttle]
+ */
 
 //TODO: Change these variable names to more generic names for inclusion of heading
 //25.2125988006591
-//[Yaw Pitch Roll Heading Altitude Throttle]
 float kd_gain[6] = {0, 0, 0, 0, 0, 0};
-float kp_gain[6] = {0, 0, 0, 0, 0, 0.001};
+float kp_gain[6] = {0, 1e-8, 0, 0, 0, 1e-9};
 float ki_gain[6]= {0, 0, 0, 0, 0, 0};
 //Interal Values
 float sum_gain[6] = {0, 0, 0, 0, 0, 0};
