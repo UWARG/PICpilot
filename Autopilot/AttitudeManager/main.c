@@ -52,8 +52,9 @@ int main(int argc, char** argv) {
     initDebug();
 #endif
     checkErrorCodes();
-    attitudeInit();
     initDataLink();
+    attitudeInit();
+    
     while (1) {
         //Continue running the state machine forever.
         StateMachine();

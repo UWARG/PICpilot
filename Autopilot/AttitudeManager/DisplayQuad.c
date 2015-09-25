@@ -9,28 +9,51 @@
 #include "PWM.h"
 #include "AttitudeManager.h"
 
+char vehicleArmed = 0;
 
 void initialization(){
-    motorstartup(100);
+    while (!vehicleArmed){
+        writeDatalink();
+        readDatalink();
+        inboundBufferMaintenance();
+        outboundBufferMaintenance();
+        Delay(200);
+        asm("CLRWDT");
+    }
 }
 
-void motorstartup(int time){
+void armVehicle(int delayTime){
 #if DEBUG
     debug("MOTOR STARTUP PROCEDURE STARTED");
 #endif
     asm("CLRWDT");
-    Delay(time);
+    Delay(delayTime);
     asm("CLRWDT");
     setPWM(1, MIN_PWM);
     setPWM(2, MIN_PWM);
     setPWM(3, MIN_PWM);
     setPWM(4, MIN_PWM);
     asm("CLRWDT");
-    Delay(time);
+    Delay(delayTime);
     asm("CLRWDT");
 #if DEBUG
     debug("MOTOR STARTUP PROCEDURE COMPLETE");
 #endif
+}
+
+void dearmVehicle(){
+    int i = 0;
+    for (i = 0; i < NUM_CHANNELS; i++){
+        setPWM(i,MIN_PWM);
+    }
+    while (!vehicleArmed){
+        readDatalink();
+        writeDatalink();
+        inboundBufferMaintenance();
+        outboundBufferMaintenance();
+        Delay(200);
+        asm("CLRWDT");
+    }
 }
 
 void takeOff(){
@@ -52,10 +75,10 @@ void inputMixing(int* channels, int* rollRate, int* pitchRate, int* throttle, in
 }
 
 void outputMixing(int* channels, int* control_Roll, int* control_Pitch, int* control_Throttle, int* control_Yaw){
-    channels[0] = (*control_Throttle) + (*control_Pitch) - (*control_Yaw);  //Front
-    channels[1] = (*control_Throttle) + (*control_Roll) + (*control_Yaw);   //Left
-    channels[2] = (*control_Throttle) - (*control_Pitch) - (*control_Yaw);  //Back
-    channels[3] = (*control_Throttle) - (*control_Roll) + (*control_Yaw);   //Right
+    channels[0] = (*control_Throttle) + (*control_Pitch) - (*control_Roll) - (*control_Yaw);// + MIN_PWM;  //Front
+    channels[1] = (*control_Throttle) + (*control_Pitch) + (*control_Roll) + (*control_Yaw);// + MIN_PWM;   //Left
+    channels[2] = (*control_Throttle) - (*control_Pitch) + (*control_Roll) - (*control_Yaw);// + MIN_PWM;  //Back
+    channels[3] = (*control_Throttle) - (*control_Pitch) - (*control_Roll) + (*control_Yaw);// + MIN_PWM;   //Right
 }
 
 void checkLimits(int* channels){
@@ -99,4 +122,16 @@ void checkLimits(int* channels){
         channels[3] = MAX_YAW_PWM;
     else if (channels[3] < MIN_YAW_PWM)
         channels[3] = MIN_YAW_PWM;
+}
+
+void startArm()
+{
+    vehicleArmed = 1;
+    armVehicle(2000);
+}
+
+void stopArm()
+{
+    vehicleArmed = 0;
+    dearmVehicle();
 }

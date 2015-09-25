@@ -58,6 +58,8 @@
 #define KILL_PLANE 47
 #define UNKILL_PLANE 48
 #define LOCK_GOPRO 49
+#define ARM_VEHICLE 50
+#define DEARM_VEHICLE 51
 
 //Multipart Commands
 #define NEW_WAYPOINT 128

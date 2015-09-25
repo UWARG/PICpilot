@@ -116,7 +116,7 @@ void lowLevelControl(){
     setPWM(7, gimbalPWM);
     setPWM(8, cameraPWM);
 }
-#elif COPTER //TODO TOMORROW FINISH/CHANGE
+#elif COPTER
 void highLevelControl(){
     control_Throttle = throttleControl(getAltitudeSetpoint(), getAltitude());       //Hold a steady throttle (more or less airspeed for fixed wings)
     setYawRateSetpoint(headingControl(getHeadingSetpoint(), getHeading()));       //Keep a steady Roll Heading
@@ -128,6 +128,8 @@ void lowLevelControl(){
     control_Roll = rollRateControl(getRollRateSetpoint(), getRollRate());
     control_Pitch = pitchRateControl(getPitchRateSetpoint(), getPitchRate());
     control_Yaw = yawRateControl(getYawRateSetpoint(), getYawRate());
+
+
     //Mixing!
     outputMixing(outputSignal, &control_Roll, &control_Pitch, &control_Throttle, &control_Yaw);
     //Error Checking

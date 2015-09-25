@@ -32,10 +32,10 @@ long int gpsTimer = 0;
 float* velocityComponents;
 
 // Setpoints (From radio transmitter or autopilot)
-int sp_PitchRate = MIDDLE_PWM;
-int sp_ThrottleRate = 0;
-int sp_YawRate = MIDDLE_PWM;
-int sp_RollRate = MIDDLE_PWM;
+int sp_PitchRate = 0;
+int sp_ThrottleRate = MIN_PWM;
+int sp_YawRate = 0;
+int sp_RollRate = 0;
 
 int tail_OutputR;   //what the rudder used to be
 int tail_OutputL;
@@ -163,7 +163,7 @@ void attitudeInit() {
     float filterVariance[10] = {1e-10, 1e-6, 1e-6, 1e-6, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2};
     VN100_initSPI();
     //IMU position matrix
-    float offset[3] = {0,0,0};
+    float offset[3] = {8,0,0};
     setVNOrientationMatrix((float*)&offset);
     VN100_SPI_SetFiltMeasVar(0, (float*)&filterVariance);
 
@@ -339,12 +339,12 @@ int headingControl(int setpoint, int sensor){
     if (controlLevel & HEADING_CONTROL){
         //Estimation of Roll angle based on heading:
 
-        while (sp_Heading > 360)
-            sp_Heading -=360;
-        while (sp_Heading < 0)
-            sp_Heading +=360;
+        while (setpoint > 360)
+            setpoint -=360;
+        while (setpoint < 0)
+            setpoint +=360;
         // -(maxHeadingRate)/180.0,
-            sp_HeadingRate = controlSignalHeading(sp_Heading, gps_Satellites>=4?gps_Heading:(int)imu_YawAngle); //changed to monitor satellites, since we know these are good values while PositionFix might be corrupt...
+            sp_HeadingRate = controlSignalHeading(setpoint, sensor);//gps_Satellites>=4?gps_Heading:(int)imu_YawAngle); //changed to monitor satellites, since we know these are good values while PositionFix might be corrupt...
             //Approximating Roll angle from Heading
             sp_RollAngle = sp_HeadingRate;      //TODO: HOW IS HEADING HANDLED DIFFERENTLY BETWEEN QUADS AND PLANES
 
@@ -388,24 +388,21 @@ int pitchAngleControl(int setpoint, int sensor){
 int coordinatedTurn(float pitchRate, int rollAngle){
     //Feed forward Term when turning
     if (controlLevel & ALTITUDE_CONTROL){
-//        sp_ComputedPitchRate += abs((int)(scaleFactor * sin(deg2rad(sp_RollAngle)))) * SP_RANGE; //Sinusoidal Function
-//        sp_ComputedPitchRate += abs((int)(scaleFactor * pow(sp_RollAngle,2))) * SP_RANGE; //Polynomial Function //Change this 2 to whatever
-//        sp_ComputedPitchRate += abs((int)(scaleFactor * pow(sp_RollAngle,1.0/2.0))) * SP_RANGE; //Square root function
         pitchRate -= abs((int)(scaleFactor * rollAngle)); //Linear Function
     }
     return pitchRate;
 }
 
 int rollRateControl(int setpoint, int sensor){
-    rollPID = -controlSignal((setpoint / SERVO_SCALE_FACTOR), sensor, ROLL);
+    rollPID = controlSignal(setpoint, sensor, ROLL);
     return rollPID;
 }
 int pitchRateControl(int setpoint, int sensor){
-    pitchPID = -controlSignal(setpoint/SERVO_SCALE_FACTOR, sensor, ROLL);
+    pitchPID = controlSignal(setpoint, sensor, PITCH);
     return pitchPID;
 }
 int yawRateControl(int setpoint, int sensor){
-    yawPID = controlSignal(setpoint/SERVO_SCALE_FACTOR, sensor, ROLL);
+    yawPID = controlSignal(setpoint, sensor, YAW);
     return yawPID;
 }
 
@@ -602,6 +599,15 @@ void readDatalink(void){
             case LOCK_GOPRO:
                     lockGoPro(*(int*)(&cmd->data));
                 break;
+            case ARM_VEHICLE:
+                if (*(int*)(&cmd->data) == 1234)
+                    startArm();
+                break;
+
+            case DEARM_VEHICLE:
+                if (*(int*)(&cmd->data) == 1234)
+                    stopArm();
+                break;
 
             case NEW_WAYPOINT:
                 amData.waypoint.altitude = (*(WaypointWrapper*)(&cmd->data)).altitude;
@@ -661,14 +667,14 @@ int writeDatalink(){
     statusData->pitch_gain = getGain(displayGain, GAIN_KD);
     statusData->roll_gain = getGain(displayGain, GAIN_KP);
     statusData->yaw_gain = getGain(displayGain, GAIN_KI);
-    statusData->heading = gps_Heading;
     statusData->groundSpeed = gps_GroundSpeed;
+    statusData->altitude = gps_Altitude;
+    statusData->heading = gps_Heading;
     statusData->pitchSetpoint = sp_PitchAngle;
     statusData->rollSetpoint = sp_RollAngle;
     statusData->headingSetpoint = sp_Heading;
     statusData->throttleSetpoint = (int)(((long int)(sp_ThrottleRate + MAX_PWM) * 100) / MAX_PWM/2);
     statusData->altitudeSetpoint = sp_Altitude;
-    statusData->altitude = gps_Altitude;
     statusData->cPitchSetpoint = sp_PitchRate;
     statusData->cRollSetpoint = sp_RollRate;
     statusData->cYawSetpoint = sp_YawRate;

@@ -105,3 +105,11 @@ void setPWMArray(int* ocArray){
         error("PWM not initialized.");
     }
 }
+
+//int checkPWM(){
+//
+//}
+//
+//int checkPWMArray(){
+//
+//}
