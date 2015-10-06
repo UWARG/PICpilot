@@ -19,6 +19,8 @@
 #include "main.h"
 #include "InterchipDMA.h"
 
+#include "DisplayQuad.h"
+
 
 extern PMData pmData;
 extern AMData amData;
@@ -158,15 +160,18 @@ void attitudeInit() {
 #else
     initPWM(0b10011111, 0b11111111);
 #endif
-
     /* Initialize IMU with correct orientation matrix and filter settings */
-    float filterVariance[10] = {1e-10, 1e-6, 1e-6, 1e-6, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2};
+    //In order: Angular Walk, Angular Rate x 3, Magnetometer x 3, Acceleration x 3
+    float filterVariance[10] = {1e-9, 1e-9, 1e-9, 1e-9, 1, 1, 1, 1e-3, 1e-3, 1e-3}; //  float filterVariance[10] = {1e-10, 1e-6, 1e-6, 1e-6, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2};
     VN100_initSPI();
     //IMU position matrix
-    float offset[3] = {8,0,0};
+    // offset = {roll, pitch, yaw}
+    float cal_roll = 0.0;
+    float cal_pitch = 0.0;
+    float cal_yaw = 0.0;
+    float offset[3] = {cal_roll,cal_pitch,cal_yaw};
     setVNOrientationMatrix((float*)&offset);
     VN100_SPI_SetFiltMeasVar(0, (float*)&filterVariance);
-
     initialization();
 }
 
@@ -200,7 +205,7 @@ char checkDMA(){
         batteryLevel = pmData.batteryLevel;
         waypointCount = pmData.waypointCount;
     }
-    return TRUE;
+    return FALSE;
 }
 
 float getAltitude(){
@@ -231,7 +236,7 @@ float getPitchRate(){
     return imu_PitchRate;
 }
 float getYawRate(){
-    return imu_YawAngle;
+    return imu_YawRate;
 }
 int getAltitudeSetpoint(){
     return sp_Altitude;
@@ -272,22 +277,22 @@ void setYawRateSetpoint(int setpoint){
 }
 
 void inputCapture(){
-    int* channelIn;
-    channelIn = getPWMArray();
-    inputMixing(channelIn, &input_Roll, &input_Pitch, &input_Throttle, &input_Yaw);
-
-    // Switches and Knobs
-    sp_UHFSwitch = channelIn[4];
-//        sp_Type = channelIn[5];
-//        sp_Value = channelIn[6];
-    sp_Switch = channelIn[7];
-
-    //Controller Input Interpretation Code
-    if (sp_Switch > MIN_PWM && sp_Switch < MIN_PWM + 50) {
-        unfreezeIntegral();
-    } else {
-        freezeIntegral();
-    }
+//    int* channelIn;
+//    channelIn = getPWMArray();
+//    inputMixing(channelIn, &input_Roll, &input_Pitch, &input_Throttle, &input_Yaw);
+//
+//    // Switches and Knobs
+//    sp_UHFSwitch = channelIn[4];
+////        sp_Type = channelIn[5];
+////        sp_Value = channelIn[6];
+//    sp_Switch = channelIn[7];
+//
+//    //Controller Input Interpretation Code
+//    if (sp_Switch > MIN_PWM && sp_Switch < MIN_PWM + 50) {
+//        unfreezeIntegral();
+//    } else {
+//        freezeIntegral();
+//    }
 }
 
 void imuCommunication(){
@@ -309,6 +314,16 @@ void imuCommunication(){
     imu_PitchAngle = imuData[PITCH];
     imu_RollAngle = (imuData[ROLL]);
 
+    // Rate - Radians, Angle - Degrees
+    char x[30];
+    sprintf(&x, "IMU Roll Rate: %f", imu_RollRate);
+    debug(&x);
+    sprintf(&x, "IMU Pitch Rate: %f", imu_PitchRate);
+    debug(&x);
+    sprintf(&x, "IMU Pitch Angle: %f", imu_PitchAngle);
+    debug(&x);
+    sprintf(&x, "IMU Roll Angle: %f", imu_RollAngle);
+    debug(&x);
 }
 
 int altitudeControl(int setpoint, int sensorAltitude){
@@ -330,6 +345,7 @@ int throttleControl(int setpoint, int sensor){
     }
     else
         throttlePID = sp_ThrottleRate;
+        
     return throttlePID;
 }
 
@@ -416,7 +432,7 @@ void readDatalink(void){
     struct command* cmd = popCommand();
     //TODO: Add rudimentary input validation
     if ( cmd ) {
-        if (lastCommandSentCode == cmd->cmd){
+        if (lastCommandSentCode/100 == cmd->cmd){
             lastCommandSentCode++;
         }
         else{
@@ -425,6 +441,7 @@ void readDatalink(void){
         switch (cmd->cmd) {
             case DEBUG_TEST:             // Debugging command, writes to debug UART
 #if DEBUG
+                debug("Foo");
                 debug( (char*) cmd->data);
 #endif
                 break;
@@ -507,10 +524,10 @@ void readDatalink(void){
                 sp_YawRate = *(int*)(&cmd->data);
                 break;
             case SET_PITCH_ANGLE:
-                sp_PitchAngle = *(int*)(&cmd->data);
+                setPitchAngleSetpoint(*(int*)(&cmd->data));
                 break;
             case SET_ROLL_ANGLE:
-                sp_RollAngle = *(int*)(&cmd->data);
+                setRollAngleSetpoint(*(int*)(&cmd->data));
                 break;
             case SET_YAW_ANGLE:
 //                sp_YawAngle = *(int*)(&cmd->data);
@@ -740,7 +757,6 @@ void setVNOrientationMatrix(float* angleOffset){
     refRotationMatrix[6] = -cos(angleOffset[0]) * sin(angleOffset[1]) * cos(angleOffset[2]) + sin(angleOffset[2]) * sin(angleOffset[0]);
     refRotationMatrix[7] = cos(angleOffset[0]) * sin(angleOffset[1]) * sin(angleOffset[2]) + cos(angleOffset[2]) * sin(angleOffset[0]);
     refRotationMatrix[8] = cos(angleOffset[0]) * cos(angleOffset[1]);
-
     VN100_SPI_SetRefFrameRot(0, (float*)&refRotationMatrix);
     VN100_SPI_WriteSettings(0);
     VN100_SPI_Reset(0);

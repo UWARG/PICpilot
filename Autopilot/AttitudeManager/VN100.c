@@ -139,10 +139,8 @@ VN100_SPI_Packet* VN100_SPI_ReadRegister(unsigned char sensorID, unsigned char r
 VN100_SPI_Packet* VN100_SPI_WriteRegister(unsigned char sensorID, unsigned char regID, unsigned char regWidth, unsigned long* ptrWriteValues){
 
   unsigned long i;
-
   /* Pull SS line low to start transaction*/
   VN_SPI_SetSS(sensorID, VN_PIN_LOW);
-
   /* Send write command */
   VN_SPI_SendReceive(VN_BYTES2WORD(0, 0, regID, VN100_CmdID_WriteRegister));
   for(i=0;i<regWidth;i++){

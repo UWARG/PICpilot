@@ -6,6 +6,7 @@
  */
 
 #include "StateMachine.h"
+#include "Debug.h"
 /*
  * 
  */
@@ -23,7 +24,7 @@ int dTime = 0;
 int outputSignal[4];
 int control_Roll, control_Pitch, control_Yaw, control_Throttle;
 
-void StateMachine(){
+void StateMachine(char entryLocation){
     //Timers
     dTime = (int)(getTime() - stateMachineTimer);
     stateMachineTimer = getTime();
@@ -31,9 +32,9 @@ void StateMachine(){
     downlinkTimer += dTime;
     stateMachineTimer += dTime;
     imuTimer += dTime;
+    
     if(isDMADataAvailable() && checkDMA()){
         //Input from Controller
-        debug("dma");
         inputCapture();
         //Recalculate all data dependent on any DMA data
         highLevelControl();
@@ -49,10 +50,8 @@ void StateMachine(){
         //Recalculate all data dependent on any DMA data
         highLevelControl();
         lowLevelControl();
-        debug("amu");
     }
-    else if(IMU_UPDATE_FREQUENCY <= imuTimer){
-        debug("imu");
+    else if(IMU_UPDATE_FREQUENCY <= imuTimer && entryLocation != STATEMACHINE_IMU){
         imuTimer = 0;
         //Poll Sensor
         imuCommunication();
@@ -63,19 +62,16 @@ void StateMachine(){
     }
     else if(DATALINK_SEND_FREQUENCY <= downlinkTimer){
         //Compile and send data
-        debug("downlink");
         downlinkTimer = 0;
         writeDatalink();
         outboundBufferMaintenance();
     }
     else if(UPLINK_CHECK_FREQUENCY <= uplinkTimer){
-        debug("uplink");
         uplinkTimer = 0;
         readDatalink();
         inboundBufferMaintenance();
     }
     else{
-
         //Then Sleep
     }
     //Loop it back again!
@@ -118,20 +114,20 @@ void lowLevelControl(){
 }
 #elif COPTER
 void highLevelControl(){
-    control_Throttle = throttleControl(getAltitudeSetpoint(), getAltitude());       //Hold a steady throttle (more or less airspeed for fixed wings)
     setYawRateSetpoint(headingControl(getHeadingSetpoint(), getHeading()));       //Keep a steady Roll Heading
 }
 
 void lowLevelControl(){
+    control_Throttle = throttleControl(getAltitudeSetpoint(), getAltitude());       //Hold a steady throttle (more or less airspeed for fixed wings)
     setRollRateSetpoint(rollAngleControl(getRollAngleSetpoint(), getRoll()));       //Keep a steady Roll Angle
     setPitchRateSetpoint(pitchAngleControl(getPitchAngleSetpoint(), getPitch()));   //Keep a steady Pitch Angle
     control_Roll = rollRateControl(getRollRateSetpoint(), getRollRate());
     control_Pitch = pitchRateControl(getPitchRateSetpoint(), getPitchRate());
     control_Yaw = yawRateControl(getYawRateSetpoint(), getYawRate());
 
-
     //Mixing!
     outputMixing(outputSignal, &control_Roll, &control_Pitch, &control_Throttle, &control_Yaw);
+
     //Error Checking
     checkLimits(outputSignal);
     //For fixed-wing aircraft: Typically 0 = Roll, 1 = Pitch, 2 = Throttle, 3 = Yaw
