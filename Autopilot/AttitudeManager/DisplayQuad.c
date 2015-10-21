@@ -5,10 +5,13 @@
  * Created on July 2, 2015, 8:04 PM
  */
 
-#include "DisplayQuad.h"
+
 #include "PWM.h"
 #include "AttitudeManager.h"
 #include "delay.h"
+#include "DisplayQuad.h"
+
+#if QUAD_VEHICLE
 
 char vehicleArmed = 0;
 
@@ -96,9 +99,6 @@ void checkLimits(int* channels){
     }
     if (channels[0] < MIN_ROLL_PWM) {
         channels[0] = MIN_ROLL_PWM;
-        char x[30];
-        sprintf(&x, "MIN ROLL limit reached: %d", channels[0]);
-        debug(&x);
         // Limits the effects of the integrator, if the output signal is maxed out
 //        if (getIntegralSum(ROLL) * getGain(ROLL, GAIN_KI) < sp_RollAngle - sp_ComputedRollRate) {
 //            setIntegralSum(ROLL, getIntegralSum(ROLL)/1.1);
@@ -143,3 +143,5 @@ void stopArm()
     vehicleArmed = 0;
     dearmVehicle();
 }
+
+#endif

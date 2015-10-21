@@ -20,7 +20,7 @@
 
 //Turns debug mode on or off. Usually contains small snippets of code to output
 //data through UART or to provide small input adjustments
-#define DEBUG 1
+#define DEBUG 0
 
 //Defines the usage of this chip. It may be one or multiple of the following roles:
 //  Path Manager - Communicates with the GPS in order to provide a constant
@@ -31,12 +31,12 @@
 #define ATTITUDE_MANAGER !PATH_MANAGER
 
 //Autopilot Type
-#define FIXED_WING 0
-#define COPTER 1
+#define FIXED_WING 1
+#define COPTER 0
 
 /* CHANGE THIS HEADER FILE WHEN MODIFYING THIS FOR A NEW PLANE OR VEHICLE */
-#define ANACONDA_VEHICLE 0
-#define QUAD_VEHICLE 1
+#define ANACONDA_VEHICLE 1
+#define QUAD_VEHICLE 0
 
 #if ANACONDA_VEHICLE
 #include "Anaconda.h"

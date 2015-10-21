@@ -9,9 +9,10 @@
 #define	ATTITUDEMANAGER_H
 
 //Header Files
-
 #include "OrientationControl.h"
 #include "StateMachine.h"
+#include "InterchipDMA.h"
+#include "../Common/Common.h"
 
 //Bit masks for levels of control - DON'T CHANGE THESE FOR SHITS AND GIGGLES
 #define PITCH_CONTROL_TYPE 0b00000001 //Pitch Rate(0) or Pitch Angles(1)
@@ -189,6 +190,7 @@ void setMagneticVariance(float variance);
 void setAccelVariance(float variance);
 char generateAMDataDMAChecksum(void);
 char generateAMDataChecksum(AMData* data);
+
 
 #endif	/* ATTITUDEMANAGER_H */
 

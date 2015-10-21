@@ -313,7 +313,7 @@ void imuCommunication(){
     imu_YawAngle = imuData[YAW];
     imu_PitchAngle = imuData[PITCH];
     imu_RollAngle = (imuData[ROLL]);
-
+#if DEBUG
     // Rate - Radians, Angle - Degrees
     char x[30];
     sprintf(&x, "IMU Roll Rate: %f", imu_RollRate);
@@ -324,6 +324,7 @@ void imuCommunication(){
     debug(&x);
     sprintf(&x, "IMU Roll Angle: %f", imu_RollAngle);
     debug(&x);
+#endif
 }
 
 int altitudeControl(int setpoint, int sensorAltitude){

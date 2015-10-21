@@ -16,12 +16,16 @@ extern "C" {
 
 // Header Files
 #include "main.h"
-#include "AttitudeManager.h"
 
 // Function Prototypes
+void initialization();
+void armVehicle(int delayTime);
+void dearmVehicle();
 void inputMixing(int* channels, int* rollRate, int* pitchRate, int* throttle, int* yawRate);
 void outputMixing(int* channels, int* control_Roll, int* control_Pitch, int* control_Throttle, int* control_Yaw);
 void checkLimits(int* channels);
+void startArm();
+void stopArm();
 
 // Constants
 #define MAX_ROLL_PWM (MAX_PWM - 87) //This was - 20

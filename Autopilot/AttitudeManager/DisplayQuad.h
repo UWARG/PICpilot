@@ -8,13 +8,16 @@
 #ifndef DISPLAYQUAD_H
 #define	DISPLAYQUAD_H
 
+#if QUAD_VEHICLE
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
 // Header Files
 #include "main.h"
-
+#include "PWM.h"
+    
 // Function Prototypes
 void initialization();
 void armVehicle(int delayTime);
@@ -35,6 +38,8 @@ void stopArm();
 
 #ifdef	__cplusplus
 }
+#endif
+
 #endif
 
 #endif	/* DISPLAYQUAD_H */
