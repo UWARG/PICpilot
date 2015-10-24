@@ -69,20 +69,20 @@ void landing(){
 }
 
 void inputMixing(int* channels, int* rollRate, int* pitchRate, int* throttle, int* yawRate){
-        if (getControlPermission(ROLL_CONTROL_SOURCE, ROLL_RC_SOURCE)){
+        if (getControlPermission(ROLL_CONTROL_SOURCE, ROLL_RC_SOURCE,0)){
             (*rollRate) = channels[0];
         }
-        if (getControlPermission(THROTTLE_CONTROL_SOURCE, THROTTLE_RC_SOURCE))
+        if (getControlPermission(THROTTLE_CONTROL_SOURCE, THROTTLE_RC_SOURCE,0))
             (*throttle) = (channels[2]);
 
 
         #if(TAIL_TYPE == STANDARD_TAIL)
-            if (getControlPermission(PITCH_CONTROL_SOURCE, PITCH_RC_SOURCE)){
+            if (getControlPermission(PITCH_CONTROL_SOURCE, PITCH_RC_SOURCE,0)){
                 (*pitchRate) = channels[1];
             }
             (*yawRate) = channels[3];
         #elif(TAIL_TYPE == INV_V_TAIL)
-            if (getControlPermission(PITCH_CONTROL_SOURCE, PITCH_RC_SOURCE)){
+            if (getControlPermission(PITCH_CONTROL_SOURCE, PITCH_RC_SOURCE,0)){
                 (*pitchRate) = (channels[1] - channels[3]) / (2 * ELEVATOR_PROPORTION);
             }
             (*yawRate) = (channels[1] + channels[3] ) / (2 * RUDDER_PROPORTION);

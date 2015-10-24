@@ -194,9 +194,9 @@ char checkDMA(){
         gps_Altitude = pmData.altitude;
         gps_Satellites = pmData.satellites;
         gps_PositionFix = pmData.positionFix;
-        if (controlLevel & ALTITUDE_CONTROL_SOURCE)
+        if (getControlPermission(ALTITUDE_CONTROL_SOURCE,ALTITUDE_CONTROL_ON,0))
             sp_Altitude = pmData.sp_Altitude;
-        if (controlLevel & HEADING_CONTROL_SOURCE){
+        if (getControlPermission(HEADING_CONTROL_SOURCE,HEADING_CONTROL_ON,0)){
             if (gps_PositionFix){
                 sp_Heading = pmData.sp_Heading;
             }
@@ -277,22 +277,43 @@ void setYawRateSetpoint(int setpoint){
 }
 
 void inputCapture(){
-//    int* channelIn;
-//    channelIn = getPWMArray();
-//    inputMixing(channelIn, &input_Roll, &input_Pitch, &input_Throttle, &input_Yaw);
-//
-//    // Switches and Knobs
-//    sp_UHFSwitch = channelIn[4];
-////        sp_Type = channelIn[5];
-////        sp_Value = channelIn[6];
-//    sp_Switch = channelIn[7];
-//
-//    //Controller Input Interpretation Code
-//    if (sp_Switch > MIN_PWM && sp_Switch < MIN_PWM + 50) {
-//        unfreezeIntegral();
-//    } else {
-//        freezeIntegral();
-//    }
+    int* channelIn;
+    channelIn = getPWMArray();
+    inputMixing(channelIn, &input_Roll, &input_Pitch, &input_Throttle, &input_Yaw);
+
+    // Switches and Knobs
+    sp_UHFSwitch = channelIn[4];
+//        sp_Type = channelIn[5];
+//        sp_Value = channelIn[6];
+    sp_Switch = channelIn[7];
+
+    //Controller Input Interpretation Code
+    if (sp_Switch > MIN_PWM && sp_Switch < MIN_PWM + 50) {
+        unfreezeIntegral();
+    } else {
+        freezeIntegral();
+    }
+}
+
+int getPitchAngleInput(char source){
+    int pitchAngle = 0;
+//TODO: Write
+    return pitchAngle;
+}
+int getPitchRateInput(char source){
+    int pitchRate = 0;
+//TODO: Write
+    return pitchRate;
+}
+int getRollAngleInput(char source){
+    int rollAngle = 0;
+//TODO: Write
+    return rollAngle;
+}
+int getRollRateInput(char source){
+    int rollRate = 0;
+//TODO: Write
+    return rollRate;
 }
 
 void imuCommunication(){
@@ -329,7 +350,7 @@ void imuCommunication(){
 
 int altitudeControl(int setpoint, int sensorAltitude){
     //Altitude
-    if (controlLevel & ALTITUDE_CONTROL){
+    if (getControlPermission(ALTITUDE_CONTROL, ALTITUDE_CONTROL_ON, 0)){
         sp_PitchAngle = controlSignalAltitude(setpoint, sensorAltitude);
         if (sp_PitchAngle > MAX_PITCH_ANGLE)
             sp_PitchAngle = MAX_PITCH_ANGLE;
@@ -341,11 +362,11 @@ int altitudeControl(int setpoint, int sensorAltitude){
 
 int throttleControl(int setpoint, int sensor){
     //Throttle
-    if ((THROTTLE_CONTROL_SOURCE & controlLevel) >> 4 >= 1){
+    if (getControlPermission(THROTTLE_CONTROL_SOURCE, THROTTLE_GS_SOURCE, 4) || getControlPermission(THROTTLE_CONTROL_SOURCE, THROTTLE_AP_SOURCE, 4)){
         throttlePID = sp_ThrottleRate + controlSignalThrottle(setpoint, sensor);
     }
     else
-        throttlePID = sp_ThrottleRate;
+        throttlePID = input_Throttle;
         
     return throttlePID;
 }
@@ -353,7 +374,7 @@ int throttleControl(int setpoint, int sensor){
 //Equivalent to "Yaw Angle Control"
 int headingControl(int setpoint, int sensor){
     //Heading
-    if (controlLevel & HEADING_CONTROL){
+    if (getControlPermission(HEADING_CONTROL,HEADING_CONTROL_ON,0)){
         //Estimation of Roll angle based on heading:
 
         while (setpoint > 360)
@@ -382,7 +403,7 @@ int headingControl(int setpoint, int sensor){
 
 int rollAngleControl(int setpoint, int sensor){
     //Roll Angle
-    if (controlLevel & ROLL_CONTROL_TYPE || controlLevel & HEADING_CONTROL){
+    if (getControlPermission(ROLL_CONTROL_TYPE,ANGLE_CONTROL,0) || getControlPermission(HEADING_CONTROL,HEADING_CONTROL_ON,0)){
         sp_ComputedRollRate = controlSignalAngles(setpoint, sensor, ROLL, -(SP_RANGE) / (MAX_ROLL_ANGLE));
     }
     else{
@@ -393,7 +414,7 @@ int rollAngleControl(int setpoint, int sensor){
 
 int pitchAngleControl(int setpoint, int sensor){
     //Pitch Angle
-    if (controlLevel & PITCH_CONTROL_TYPE || controlLevel & ALTITUDE_CONTROL){
+    if (getControlPermission(PITCH_CONTROL_TYPE,ANGLE_CONTROL,0) || getControlPermission(ALTITUDE_CONTROL,ALTITUDE_CONTROL_ON,0)){
         sp_ComputedPitchRate = controlSignalAngles(setpoint, sensor, PITCH, -(SP_RANGE) / (MAX_PITCH_ANGLE)); //Removed negative
     }
     else{
@@ -404,9 +425,7 @@ int pitchAngleControl(int setpoint, int sensor){
 
 int coordinatedTurn(float pitchRate, int rollAngle){
     //Feed forward Term when turning
-    if (controlLevel & ALTITUDE_CONTROL){
-        pitchRate -= abs((int)(scaleFactor * rollAngle)); //Linear Function
-    }
+    pitchRate -= abs((int)(scaleFactor * rollAngle)); //Linear Function
     return pitchRate;
 }
 
@@ -423,10 +442,10 @@ int yawRateControl(int setpoint, int sensor){
     return yawPID;
 }
 
-char getControlPermission(int controlMask, int expectedValue){
-    return (controlMask & controlLevel) == expectedValue;
+char getControlPermission(unsigned int controlMask, unsigned int expectedValue, char bitshift){
+    char maskResult = (controlMask & controlLevel);
+    return (maskResult >> bitshift) == expectedValue;
 }
-
 
 void readDatalink(void){
   

@@ -105,6 +105,10 @@ void setRollRateSetpoint(int setpoint);
 void setYawRateSetpoint(int setpoint);
 
 void inputCapture();
+int getPitchAngleInput(char source);
+int getRollAngleInput(char source);
+int getPitchRateInput(char source);
+int getRollRateInput(char source);
 void imuCommunication();
 int altitudeControl(int setpoint, int sensorAltitude);
 int throttleControl(int setpoint, int sensor);
@@ -115,7 +119,7 @@ int coordinatedTurn(float pitchRate, int rollAngle);
 int rollRateControl(int setpoint, int sensor);
 int pitchRateControl(int setpoint, int sensor);
 int yawRateControl(int setpoint, int sensor);
-char getControlPermission(int controlMask, int expectedValue);
+char getControlPermission(unsigned int controlMask, unsigned int expectedValue, char bitshift);
 
 
 /*****************************************************************************
