@@ -30,18 +30,18 @@
 #define PATH_MANAGER 0
 #define ATTITUDE_MANAGER !PATH_MANAGER
 
-//Autopilot Type
-#define FIXED_WING 1
-#define COPTER 0
-
 /* CHANGE THIS HEADER FILE WHEN MODIFYING THIS FOR A NEW PLANE OR VEHICLE */
 #define ANACONDA_VEHICLE 1
 #define QUAD_VEHICLE 0
 
 #if ANACONDA_VEHICLE
 #include "Anaconda.h"
+#define FIXED_WING 1
+#define COPTER 0
 #elif QUAD_VEHICLE
 #include "DisplayQuad.h"
+#define COPTER 1
+#define FIXED_WING 0
 #endif
 
 //Define constants for global use in the code
