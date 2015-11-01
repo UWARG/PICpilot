@@ -40,7 +40,9 @@ void PWMInputCalibration(unsigned int channel, float signalScaleFactor, unsigned
     }
     else { //Invalid Channel
         //Display Error Message
+#if DEBUG
         error("Invalid PWM channel");
+#endif
     }
 }
 
@@ -51,7 +53,9 @@ void PWMOutputCalibration(unsigned int channel, float signalScaleFactor, unsigne
     }
     else { //Invalid Channel
         //Display Error Message
+#if DEBUG
         error("Invalid PWM channel");
+#endif
     }
 }
 
@@ -62,9 +66,11 @@ int getPWM(unsigned int channel){
     }
     else { //Not initialized or invalid channel
         //Display Error Message
+#if DEBUG
         error("PWM not initialized or invalid channel specified");
+#endif
         //Return 0
-        return 0;
+        return MIN_PWM;
     }
 }
 int* getPWMArray(){
@@ -78,10 +84,14 @@ int* getPWMArray(){
     }
     else { //Not initialized
         //Display Error Message
+#if DEBUG
         error("PWM not initialized");
+#endif
         //Return 0
         return 0;
+
     }
+
 }
 
 void setPWM(unsigned int channel, int pwm){
@@ -90,7 +100,9 @@ void setPWM(unsigned int channel, int pwm){
     }
     else { //Not initialized or invalid channel
         //Display Error Message
+#if DEBUG
         error("PWM not initialized or invalid channel specified");
+#endif
     }
 }
 void setPWMArray(int* ocArray){
@@ -102,7 +114,9 @@ void setPWMArray(int* ocArray){
     }
     else { //Not initialized
         //Display Error Message
+#if DEBUG
         error("PWM not initialized.");
+#endif
     }
 }
 

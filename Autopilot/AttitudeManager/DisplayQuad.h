@@ -8,16 +8,20 @@
 #ifndef DISPLAYQUAD_H
 #define	DISPLAYQUAD_H
 
+#if QUAD_VEHICLE
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
 
 // Header Files
 #include "main.h"
-
+#include "PWM.h"
+    
 // Function Prototypes
 void initialization();
 void armVehicle(int delayTime);
+void dearmVehicle();
 void inputMixing(int* channels, int* rollRate, int* pitchRate, int* throttle, int* yawRate);
 void outputMixing(int* channels, int* control_Roll, int* control_Pitch, int* control_Throttle, int* control_Yaw);
 void checkLimits(int* channels);
@@ -34,6 +38,8 @@ void stopArm();
 
 #ifdef	__cplusplus
 }
+#endif
+
 #endif
 
 #endif	/* DISPLAYQUAD_H */

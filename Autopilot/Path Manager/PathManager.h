@@ -62,7 +62,6 @@ typedef struct _PathData{
     char index;
 } PathData;
 
-#if PATH_MANAGER
 //Function Prototypes
 //TODO:Add descriptions to all the function prototypes
 void pathManagerInit(void);
@@ -87,7 +86,6 @@ void copyGPSData(void);
 char generatePMDataDMAChecksum(void);
 void checkAMData(void);
 char getWaypointChecksum(void);
-#endif
 char generatePMDataDMAChecksum(void);
 float getDistance(long double lat1, long double lon1, long double lat2, long double lon2);
 

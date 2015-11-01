@@ -5,18 +5,60 @@
  * Created on July 2, 2015, 8:04 PM
  */
 
-#include "Anaconda.h"
 #include "PWM.h"
+#include "AttitudeManager.h"
+#include "delay.h"
+#include "Anaconda.h"
 
 #if ANACONDA_VEHICLE
 
-void initialization(int* outputSignal){
-    //Variable Initialization
-    outputSignal[0] = 0;  //Roll
-    outputSignal[1] = 0;  //Pitch
-    outputSignal[2] = MIN_PWM;  //Throttle
-    outputSignal[3] = 0;  //Yaw
+char vehicleArmed = 0;
 
+void initialization(int* outputSignal){
+    while (!vehicleArmed){
+        imuCommunication();
+        asm("CLRWDT");
+        writeDatalink();
+        readDatalink();
+        inboundBufferMaintenance();
+        outboundBufferMaintenance();
+        Delay(200);
+        asm("CLRWDT");
+    }
+}
+
+void armVehicle(int delayTime){
+#if DEBUG
+    debug("MOTOR STARTUP PROCEDURE STARTED");
+#endif
+    asm("CLRWDT");
+    Delay(delayTime);
+    asm("CLRWDT");
+    setPWM(1, 0);
+    setPWM(2, 0);
+    setPWM(3, MIN_PWM);
+    setPWM(4, 0);
+    asm("CLRWDT");
+    Delay(delayTime);
+    asm("CLRWDT");
+#if DEBUG
+    debug("MOTOR STARTUP PROCEDURE COMPLETE");
+#endif
+}
+
+void dearmVehicle(){
+    int i = 1;
+    for (i = 1; i <= NUM_CHANNELS; i++){
+        setPWM(i, MIN_PWM);
+    }
+    while (!vehicleArmed){
+        readDatalink();
+        writeDatalink();
+        inboundBufferMaintenance();
+        outboundBufferMaintenance();
+        Delay(200);
+        asm("CLRWDT");
+    }
 }
 
 void takeOff(){
@@ -27,20 +69,20 @@ void landing(){
 }
 
 void inputMixing(int* channels, int* rollRate, int* pitchRate, int* throttle, int* yawRate){
-        if (getControlPermission(ROLL_CONTROL_SOURCE, ROLL_RC_SOURCE)){
+        if (getControlPermission(ROLL_CONTROL_SOURCE, ROLL_RC_SOURCE,0)){
             (*rollRate) = channels[0];
         }
-        if (getControlPermission(THROTTLE_CONTROL_SOURCE, THROTTLE_RC_SOURCE))
+        if (getControlPermission(THROTTLE_CONTROL_SOURCE, THROTTLE_RC_SOURCE,0))
             (*throttle) = (channels[2]);
 
 
         #if(TAIL_TYPE == STANDARD_TAIL)
-            if (getControlPermission(PITCH_CONTROL_SOURCE, PITCH_RC_SOURCE)){
+            if (getControlPermission(PITCH_CONTROL_SOURCE, PITCH_RC_SOURCE,0)){
                 (*pitchRate) = channels[1];
             }
             (*yawRate) = channels[3];
         #elif(TAIL_TYPE == INV_V_TAIL)
-            if (getControlPermission(PITCH_CONTROL_SOURCE, PITCH_RC_SOURCE)){
+            if (getControlPermission(PITCH_CONTROL_SOURCE, PITCH_RC_SOURCE,0)){
                 (*pitchRate) = (channels[1] - channels[3]) / (2 * ELEVATOR_PROPORTION);
             }
             (*yawRate) = (channels[1] + channels[3] ) / (2 * RUDDER_PROPORTION);
@@ -113,4 +155,15 @@ void checkLimits(int* channels){
         channels[3] = MIN_YAW_PWM;
 }
 
+void startArm()
+{
+    vehicleArmed = 1;
+    armVehicle(2000);
+}
+
+void stopArm()
+{
+    vehicleArmed = 0;
+    dearmVehicle();
+}
 #endif

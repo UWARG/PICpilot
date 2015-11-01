@@ -7,24 +7,19 @@
 
 #include "main.h"
 #include "PathManager.h"
-#include "AttitudeManager.h"
+#include "../Common/Common.h"
 #include "Dubins.h"
 #include "MPL3115A2.h"
 #include "voltageSensor.h"
-#include "UART2.h"
 #include "NMEAparser.h"
 
-#if !(PATH_MANAGER && ATTITUDE_MANAGER && COMMUNICATION_MANAGER)
 #include "InterchipDMA.h"
-#endif
 
 #if DEBUG
 #include <stdio.h>
 #include <stdlib.h>
 #include "UART1.h"
 #endif
-
-#if PATH_MANAGER
 
 extern GPSData gpsData;
 extern PMData pmData;
@@ -60,21 +55,16 @@ void pathManagerInit(void) {
 
 
 
-    //Communication with GPS
+//Communication with GPS
 //    InitUART2();
-#if GPS_OLD
     init_SPI2();
     init_DMA2();
 //    // Hack to power altimeter from UART on PM
 //    TRISFbits.TRISF5 = 0;
 //    PORTFbits.RF5 = 1;
-#else
-    InitUART2();
-#endif
     initBatterySensor();
 
     //Interchip Communication
-#if !ATTITUDE_MANAGER
     //Initialize Interchip Interrupts for Use in DMA Reset
     //Set opposite Input / Output Configuration on the AttitudeManager
     TRISAbits.TRISA12 = 0;  //Init RA12 as Output (0)
@@ -98,7 +88,6 @@ void pathManagerInit(void) {
         while (initialValue == 0) initialValue = getAltitude();
         calibrateAltimeter(initialValue);
     }
-#endif
 
     //Initialize Home Location
     home.altitude = 400;
@@ -146,11 +135,6 @@ void pathManagerRuntime(void) {
 //        sprintf(&str,"%f",pmData.time);
 //        UART1_SendString(&str);
 #endif
-    //Get GPS data
-#if !GPS_OLD
-    assembleNEMAMessage();
-#endif
-
     copyGPSData();
 
     if (returnHome){
@@ -161,10 +145,8 @@ void pathManagerRuntime(void) {
         }
     }
 
-#if !ATTITUDE_MANAGER
     //Check for new uplink command data
     checkAMData();
-#endif
     float position[3];
     float heading;
     //Get the position of the plane (in meters)

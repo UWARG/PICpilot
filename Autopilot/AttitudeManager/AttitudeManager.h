@@ -9,9 +9,10 @@
 #define	ATTITUDEMANAGER_H
 
 //Header Files
-
 #include "OrientationControl.h"
 #include "StateMachine.h"
+#include "InterchipDMA.h"
+#include "../Common/Common.h"
 
 //Bit masks for levels of control - DON'T CHANGE THESE FOR SHITS AND GIGGLES
 #define PITCH_CONTROL_TYPE 0b00000001 //Pitch Rate(0) or Pitch Angles(1)
@@ -104,6 +105,10 @@ void setRollRateSetpoint(int setpoint);
 void setYawRateSetpoint(int setpoint);
 
 void inputCapture();
+int getPitchAngleInput(char source);
+int getRollAngleInput(char source);
+int getPitchRateInput(char source);
+int getRollRateInput(char source);
 void imuCommunication();
 int altitudeControl(int setpoint, int sensorAltitude);
 int throttleControl(int setpoint, int sensor);
@@ -114,7 +119,7 @@ int coordinatedTurn(float pitchRate, int rollAngle);
 int rollRateControl(int setpoint, int sensor);
 int pitchRateControl(int setpoint, int sensor);
 int yawRateControl(int setpoint, int sensor);
-char getControlPermission(int controlMask, int expectedValue);
+char getControlPermission(unsigned int controlMask, unsigned int expectedValue, char bitshift);
 
 
 /*****************************************************************************
@@ -189,6 +194,7 @@ void setMagneticVariance(float variance);
 void setAccelVariance(float variance);
 char generateAMDataDMAChecksum(void);
 char generateAMDataChecksum(AMData* data);
+
 
 #endif	/* ATTITUDEMANAGER_H */
 

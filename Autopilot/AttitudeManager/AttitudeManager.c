@@ -19,6 +19,8 @@
 #include "main.h"
 #include "InterchipDMA.h"
 
+#include "DisplayQuad.h"
+
 
 extern PMData pmData;
 extern AMData amData;
@@ -158,15 +160,18 @@ void attitudeInit() {
 #else
     initPWM(0b10011111, 0b11111111);
 #endif
-
     /* Initialize IMU with correct orientation matrix and filter settings */
-    float filterVariance[10] = {1e-10, 1e-6, 1e-6, 1e-6, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2};
+    //In order: Angular Walk, Angular Rate x 3, Magnetometer x 3, Acceleration x 3
+    float filterVariance[10] = {1e-9, 1e-9, 1e-9, 1e-9, 1, 1, 1, 1e-3, 1e-3, 1e-3}; //  float filterVariance[10] = {1e-10, 1e-6, 1e-6, 1e-6, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2};
     VN100_initSPI();
     //IMU position matrix
-    float offset[3] = {8,0,0};
+    // offset = {roll, pitch, yaw}
+    float cal_roll = 0.0;
+    float cal_pitch = 0.0;
+    float cal_yaw = 0.0;
+    float offset[3] = {cal_roll,cal_pitch,cal_yaw};
     setVNOrientationMatrix((float*)&offset);
     VN100_SPI_SetFiltMeasVar(0, (float*)&filterVariance);
-
     initialization();
 }
 
@@ -189,9 +194,9 @@ char checkDMA(){
         gps_Altitude = pmData.altitude;
         gps_Satellites = pmData.satellites;
         gps_PositionFix = pmData.positionFix;
-        if (controlLevel & ALTITUDE_CONTROL_SOURCE)
+        if (getControlPermission(ALTITUDE_CONTROL_SOURCE,ALTITUDE_CONTROL_ON,0))
             sp_Altitude = pmData.sp_Altitude;
-        if (controlLevel & HEADING_CONTROL_SOURCE){
+        if (getControlPermission(HEADING_CONTROL_SOURCE,HEADING_CONTROL_ON,0)){
             if (gps_PositionFix){
                 sp_Heading = pmData.sp_Heading;
             }
@@ -200,7 +205,7 @@ char checkDMA(){
         batteryLevel = pmData.batteryLevel;
         waypointCount = pmData.waypointCount;
     }
-    return TRUE;
+    return FALSE;
 }
 
 float getAltitude(){
@@ -231,7 +236,7 @@ float getPitchRate(){
     return imu_PitchRate;
 }
 float getYawRate(){
-    return imu_YawAngle;
+    return imu_YawRate;
 }
 int getAltitudeSetpoint(){
     return sp_Altitude;
@@ -290,6 +295,27 @@ void inputCapture(){
     }
 }
 
+int getPitchAngleInput(char source){
+    int pitchAngle = 0;
+//TODO: Write
+    return pitchAngle;
+}
+int getPitchRateInput(char source){
+    int pitchRate = 0;
+//TODO: Write
+    return pitchRate;
+}
+int getRollAngleInput(char source){
+    int rollAngle = 0;
+//TODO: Write
+    return rollAngle;
+}
+int getRollRateInput(char source){
+    int rollRate = 0;
+//TODO: Write
+    return rollRate;
+}
+
 void imuCommunication(){
     /*****************************************************************************
      *****************************************************************************
@@ -308,12 +334,23 @@ void imuCommunication(){
     imu_YawAngle = imuData[YAW];
     imu_PitchAngle = imuData[PITCH];
     imu_RollAngle = (imuData[ROLL]);
-
+#if DEBUG
+    // Rate - Radians, Angle - Degrees
+    char x[30];
+    sprintf(&x, "IMU Roll Rate: %f", imu_RollRate);
+    debug(&x);
+    sprintf(&x, "IMU Pitch Rate: %f", imu_PitchRate);
+    debug(&x);
+    sprintf(&x, "IMU Pitch Angle: %f", imu_PitchAngle);
+    debug(&x);
+    sprintf(&x, "IMU Roll Angle: %f", imu_RollAngle);
+    debug(&x);
+#endif
 }
 
 int altitudeControl(int setpoint, int sensorAltitude){
     //Altitude
-    if (controlLevel & ALTITUDE_CONTROL){
+    if (getControlPermission(ALTITUDE_CONTROL, ALTITUDE_CONTROL_ON, 0)){
         sp_PitchAngle = controlSignalAltitude(setpoint, sensorAltitude);
         if (sp_PitchAngle > MAX_PITCH_ANGLE)
             sp_PitchAngle = MAX_PITCH_ANGLE;
@@ -325,18 +362,19 @@ int altitudeControl(int setpoint, int sensorAltitude){
 
 int throttleControl(int setpoint, int sensor){
     //Throttle
-    if ((THROTTLE_CONTROL_SOURCE & controlLevel) >> 4 >= 1){
+    if (getControlPermission(THROTTLE_CONTROL_SOURCE, THROTTLE_GS_SOURCE, 4) || getControlPermission(THROTTLE_CONTROL_SOURCE, THROTTLE_AP_SOURCE, 4)){
         throttlePID = sp_ThrottleRate + controlSignalThrottle(setpoint, sensor);
     }
     else
-        throttlePID = sp_ThrottleRate;
+        throttlePID = input_Throttle;
+        
     return throttlePID;
 }
 
 //Equivalent to "Yaw Angle Control"
 int headingControl(int setpoint, int sensor){
     //Heading
-    if (controlLevel & HEADING_CONTROL){
+    if (getControlPermission(HEADING_CONTROL,HEADING_CONTROL_ON,0)){
         //Estimation of Roll angle based on heading:
 
         while (setpoint > 360)
@@ -365,7 +403,7 @@ int headingControl(int setpoint, int sensor){
 
 int rollAngleControl(int setpoint, int sensor){
     //Roll Angle
-    if (controlLevel & ROLL_CONTROL_TYPE || controlLevel & HEADING_CONTROL){
+    if (getControlPermission(ROLL_CONTROL_TYPE,ANGLE_CONTROL,0) || getControlPermission(HEADING_CONTROL,HEADING_CONTROL_ON,0)){
         sp_ComputedRollRate = controlSignalAngles(setpoint, sensor, ROLL, -(SP_RANGE) / (MAX_ROLL_ANGLE));
     }
     else{
@@ -376,7 +414,7 @@ int rollAngleControl(int setpoint, int sensor){
 
 int pitchAngleControl(int setpoint, int sensor){
     //Pitch Angle
-    if (controlLevel & PITCH_CONTROL_TYPE || controlLevel & ALTITUDE_CONTROL){
+    if (getControlPermission(PITCH_CONTROL_TYPE,ANGLE_CONTROL,0) || getControlPermission(ALTITUDE_CONTROL,ALTITUDE_CONTROL_ON,0)){
         sp_ComputedPitchRate = controlSignalAngles(setpoint, sensor, PITCH, -(SP_RANGE) / (MAX_PITCH_ANGLE)); //Removed negative
     }
     else{
@@ -387,9 +425,7 @@ int pitchAngleControl(int setpoint, int sensor){
 
 int coordinatedTurn(float pitchRate, int rollAngle){
     //Feed forward Term when turning
-    if (controlLevel & ALTITUDE_CONTROL){
-        pitchRate -= abs((int)(scaleFactor * rollAngle)); //Linear Function
-    }
+    pitchRate -= abs((int)(scaleFactor * rollAngle)); //Linear Function
     return pitchRate;
 }
 
@@ -406,17 +442,17 @@ int yawRateControl(int setpoint, int sensor){
     return yawPID;
 }
 
-char getControlPermission(int controlMask, int expectedValue){
-    return (controlMask & controlLevel) == expectedValue;
+char getControlPermission(unsigned int controlMask, unsigned int expectedValue, char bitshift){
+    char maskResult = (controlMask & controlLevel);
+    return (maskResult >> bitshift) == expectedValue;
 }
-
 
 void readDatalink(void){
   
     struct command* cmd = popCommand();
     //TODO: Add rudimentary input validation
     if ( cmd ) {
-        if (lastCommandSentCode == cmd->cmd){
+        if (lastCommandSentCode/100 == cmd->cmd){
             lastCommandSentCode++;
         }
         else{
@@ -425,6 +461,7 @@ void readDatalink(void){
         switch (cmd->cmd) {
             case DEBUG_TEST:             // Debugging command, writes to debug UART
 #if DEBUG
+                debug("Foo");
                 debug( (char*) cmd->data);
 #endif
                 break;
@@ -507,10 +544,10 @@ void readDatalink(void){
                 sp_YawRate = *(int*)(&cmd->data);
                 break;
             case SET_PITCH_ANGLE:
-                sp_PitchAngle = *(int*)(&cmd->data);
+                setPitchAngleSetpoint(*(int*)(&cmd->data));
                 break;
             case SET_ROLL_ANGLE:
-                sp_RollAngle = *(int*)(&cmd->data);
+                setRollAngleSetpoint(*(int*)(&cmd->data));
                 break;
             case SET_YAW_ANGLE:
 //                sp_YawAngle = *(int*)(&cmd->data);
@@ -740,7 +777,6 @@ void setVNOrientationMatrix(float* angleOffset){
     refRotationMatrix[6] = -cos(angleOffset[0]) * sin(angleOffset[1]) * cos(angleOffset[2]) + sin(angleOffset[2]) * sin(angleOffset[0]);
     refRotationMatrix[7] = cos(angleOffset[0]) * sin(angleOffset[1]) * sin(angleOffset[2]) + cos(angleOffset[2]) * sin(angleOffset[0]);
     refRotationMatrix[8] = cos(angleOffset[0]) * cos(angleOffset[1]);
-
     VN100_SPI_SetRefFrameRot(0, (float*)&refRotationMatrix);
     VN100_SPI_WriteSettings(0);
     VN100_SPI_Reset(0);

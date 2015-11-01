@@ -5,14 +5,20 @@
  * Created on July 2, 2015, 8:04 PM
  */
 
-#include "DisplayQuad.h"
+
 #include "PWM.h"
 #include "AttitudeManager.h"
+#include "delay.h"
+#include "DisplayQuad.h"
+
+#if QUAD_VEHICLE
 
 char vehicleArmed = 0;
 
 void initialization(){
     while (!vehicleArmed){
+        imuCommunication();
+        asm("CLRWDT");
         writeDatalink();
         readDatalink();
         inboundBufferMaintenance();
@@ -42,9 +48,9 @@ void armVehicle(int delayTime){
 }
 
 void dearmVehicle(){
-    int i = 0;
-    for (i = 0; i < NUM_CHANNELS; i++){
-        setPWM(i,MIN_PWM);
+    int i = 1;
+    for (i = 1; i <= NUM_CHANNELS; i++){
+        setPWM(i, MIN_PWM);
     }
     while (!vehicleArmed){
         readDatalink();
@@ -56,12 +62,12 @@ void dearmVehicle(){
     }
 }
 
-void takeOff(){
-
-}
-void landing(){
-    
-}
+//void takeOff(){
+//
+//}
+//void landing(){
+//
+//}
 
 void inputMixing(int* channels, int* rollRate, int* pitchRate, int* throttle, int* yawRate){
         if (getControlPermission(ROLL_CONTROL_SOURCE, ROLL_RC_SOURCE)){
@@ -75,6 +81,7 @@ void inputMixing(int* channels, int* rollRate, int* pitchRate, int* throttle, in
 }
 
 void outputMixing(int* channels, int* control_Roll, int* control_Pitch, int* control_Throttle, int* control_Yaw){
+    
     channels[0] = (*control_Throttle) + (*control_Pitch) - (*control_Roll) - (*control_Yaw);// + MIN_PWM;  //Front
     channels[1] = (*control_Throttle) + (*control_Pitch) + (*control_Roll) + (*control_Yaw);// + MIN_PWM;   //Left
     channels[2] = (*control_Throttle) - (*control_Pitch) + (*control_Roll) - (*control_Yaw);// + MIN_PWM;  //Back
@@ -84,6 +91,7 @@ void outputMixing(int* channels, int* control_Roll, int* control_Pitch, int* con
 void checkLimits(int* channels){
     if (channels[0] > MAX_ROLL_PWM) {
         channels[0] = MAX_ROLL_PWM;
+//        DEBUG("MAX ROLL limit reached %x." %channels[0]);
         // Limits the effects of the integrator, if the output signal is maxed out
 //        if (getIntegralSum(ROLL) * getGain(ROLL, GAIN_KI) > sp_RollRate - sp_ComputedRollRate) {
 //            setIntegralSum(ROLL, getIntegralSum(ROLL)/1.1);
@@ -135,3 +143,5 @@ void stopArm()
     vehicleArmed = 0;
     dearmVehicle();
 }
+
+#endif

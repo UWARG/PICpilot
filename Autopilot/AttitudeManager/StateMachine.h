@@ -12,6 +12,9 @@
 extern "C" {
 #endif
 
+#define STATEMACHINE_MAINLOOP 0
+#define STATEMACHINE_IMU 1
+
 #include "main.h"
 #include "AttitudeManager.h"
 #include "InterchipDMA.h"
@@ -19,7 +22,7 @@ extern "C" {
 #include "VN100.h"
 #include "cameraManager.h"
 
-    void StateMachine();
+    void StateMachine(char entryLocation);
     void highLevelControl();
     void lowLevelControl();
     void forceStateMachineUpdate();

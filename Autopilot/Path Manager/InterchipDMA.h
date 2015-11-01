@@ -14,21 +14,14 @@
 #include "PathManager.h"
 
 //Intercom pins
-#if PATH_MANAGER
 #define INTERCOM_1 PORTBbits.RB4 // input
 #define INTERCOM_2 PORTBbits.RB5 // input
 #define INTERCOM_3 PORTAbits.RA12 // output
 #define INTERCOM_4 PORTAbits.RA13 // output
-#elif ATTITUDE_MANAGER
-#define INTERCOM_1 PORTAbits.RA12 // output
-#define INTERCOM_2 PORTAbits.RA13 // output
-#define INTERCOM_3 PORTBbits.RB4 // input
-#define INTERCOM_4 PORTBbits.RB5 // input
-#endif
+
 
 //Data Structures
 
-#if PATH_MANAGER || ATTITUDE_MANAGER
 typedef struct _PMData {
     float time;     //4 Bytes   -  hhmmss.ssss
     long double latitude;  //8 Bytes - ddd.mmmmmm
@@ -56,9 +49,7 @@ typedef struct _AMData {
     char checkbyteDMA;
     char padding;
 } AMData;
-#endif
 
-#if PATH_MANAGER
 typedef struct _GPSData {
     long double latitude;  //
     long double longitude; //
@@ -69,7 +60,6 @@ typedef struct _GPSData {
     char satellites;    //1 Byte
     char positionFix;
 } GPSData;
-#endif
 
 //Function Prototypes
 void init_DMA0();
@@ -77,10 +67,8 @@ void init_DMA1();
 void init_SPI1();
 char isDMADataAvailable();
 
-#if PATH_MANAGER && GPS_OLD
 void init_SPI2();
 void init_DMA2();
-#endif
 
 #endif	/* INTERCHIPDMA_H */
 

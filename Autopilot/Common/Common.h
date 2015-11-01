@@ -84,6 +84,7 @@ typedef struct _AMData {
 } AMData;
 
 char generatePMDataDMAChecksum(void);
+char generateAMDataChecksum(AMData* data);
 float getDistance(long double lat1, long double lon1, long double lat2, long double lon2);
 
 

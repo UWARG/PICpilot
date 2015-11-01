@@ -57,7 +57,7 @@ int main(int argc, char** argv) {
     
     while (1) {
         //Continue running the state machine forever.
-        StateMachine();
+        StateMachine(STATEMACHINE_MAINLOOP);
     }
     return (EXIT_SUCCESS);
 }

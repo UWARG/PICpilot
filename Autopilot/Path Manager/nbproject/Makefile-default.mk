@@ -45,11 +45,11 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/Dubins.o ${OBJECTDIR}/I2C.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/main.o ${OBJECTDIR}/MPL3115A2.o ${OBJECTDIR}/NMEAparser.o ${OBJECTDIR}/PathManager.o ${OBJECTDIR}/voltageSensor.o ${OBJECTDIR}/_ext/2108356922/clock.o ${OBJECTDIR}/_ext/2108356922/Common.o ${OBJECTDIR}/_ext/2108356922/debug.o ${OBJECTDIR}/_ext/2108356922/UART1.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/Dubins.o.d ${OBJECTDIR}/I2C.o.d ${OBJECTDIR}/InterchipDMA.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/MPL3115A2.o.d ${OBJECTDIR}/NMEAparser.o.d ${OBJECTDIR}/PathManager.o.d ${OBJECTDIR}/voltageSensor.o.d ${OBJECTDIR}/_ext/2108356922/clock.o.d ${OBJECTDIR}/_ext/2108356922/Common.o.d ${OBJECTDIR}/_ext/2108356922/debug.o.d ${OBJECTDIR}/_ext/2108356922/UART1.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/Dubins.o ${OBJECTDIR}/I2C.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/main.o ${OBJECTDIR}/MPL3115A2.o ${OBJECTDIR}/NMEAparser.o ${OBJECTDIR}/PathManager.o ${OBJECTDIR}/voltageSensor.o ${OBJECTDIR}/_ext/2108356922/clock.o ${OBJECTDIR}/_ext/2108356922/Common.o ${OBJECTDIR}/_ext/2108356922/debug.o ${OBJECTDIR}/_ext/2108356922/UART1.o ${OBJECTDIR}/StartupErrorCodes.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/Dubins.o.d ${OBJECTDIR}/I2C.o.d ${OBJECTDIR}/InterchipDMA.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/MPL3115A2.o.d ${OBJECTDIR}/NMEAparser.o.d ${OBJECTDIR}/PathManager.o.d ${OBJECTDIR}/voltageSensor.o.d ${OBJECTDIR}/_ext/2108356922/clock.o.d ${OBJECTDIR}/_ext/2108356922/Common.o.d ${OBJECTDIR}/_ext/2108356922/debug.o.d ${OBJECTDIR}/_ext/2108356922/UART1.o.d ${OBJECTDIR}/StartupErrorCodes.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/Dubins.o ${OBJECTDIR}/I2C.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/main.o ${OBJECTDIR}/MPL3115A2.o ${OBJECTDIR}/NMEAparser.o ${OBJECTDIR}/PathManager.o ${OBJECTDIR}/voltageSensor.o ${OBJECTDIR}/_ext/2108356922/clock.o ${OBJECTDIR}/_ext/2108356922/Common.o ${OBJECTDIR}/_ext/2108356922/debug.o ${OBJECTDIR}/_ext/2108356922/UART1.o
+OBJECTFILES=${OBJECTDIR}/Dubins.o ${OBJECTDIR}/I2C.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/main.o ${OBJECTDIR}/MPL3115A2.o ${OBJECTDIR}/NMEAparser.o ${OBJECTDIR}/PathManager.o ${OBJECTDIR}/voltageSensor.o ${OBJECTDIR}/_ext/2108356922/clock.o ${OBJECTDIR}/_ext/2108356922/Common.o ${OBJECTDIR}/_ext/2108356922/debug.o ${OBJECTDIR}/_ext/2108356922/UART1.o ${OBJECTDIR}/StartupErrorCodes.o
 
 
 CFLAGS=
@@ -145,6 +145,12 @@ ${OBJECTDIR}/_ext/2108356922/UART1.o: ../Common/UART1.c  nbproject/Makefile-${CN
 	${MP_CC} $(MP_EXTRA_CC_PRE)  ../Common/UART1.c  -o ${OBJECTDIR}/_ext/2108356922/UART1.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/2108356922/UART1.o.d"        -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1  -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/_ext/2108356922/UART1.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
+${OBJECTDIR}/StartupErrorCodes.o: StartupErrorCodes.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/StartupErrorCodes.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  StartupErrorCodes.c  -o ${OBJECTDIR}/StartupErrorCodes.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/StartupErrorCodes.o.d"        -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1  -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/StartupErrorCodes.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
 else
 ${OBJECTDIR}/Dubins.o: Dubins.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} ${OBJECTDIR} 
@@ -217,6 +223,12 @@ ${OBJECTDIR}/_ext/2108356922/UART1.o: ../Common/UART1.c  nbproject/Makefile-${CN
 	@${RM} ${OBJECTDIR}/_ext/2108356922/UART1.o.d 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  ../Common/UART1.c  -o ${OBJECTDIR}/_ext/2108356922/UART1.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/2108356922/UART1.o.d"        -g -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/_ext/2108356922/UART1.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+	
+${OBJECTDIR}/StartupErrorCodes.o: StartupErrorCodes.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/StartupErrorCodes.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  StartupErrorCodes.c  -o ${OBJECTDIR}/StartupErrorCodes.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/StartupErrorCodes.o.d"        -g -omf=elf -O0 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/StartupErrorCodes.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 endif
 

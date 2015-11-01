@@ -17,15 +17,7 @@
 #include "main.h"
 #include "StartupErrorCodes.h"
 
-#if PATH_MANAGER
 #include "PathManager.h"
-#endif
-#if ATTITUDE_MANAGER
-#include "AttitudeManager.h"
-#endif
-#if COMMUNICATION_MANAGER
-#include "net.h"
-#endif
 
 /*
  * 
@@ -56,37 +48,13 @@ int main(int argc, char** argv) {
     initDebug();
 #endif
 
-#if PATH_MANAGER
-    pathManagerInit();
-#endif
-
-#if ATTITUDE_MANAGER
-    attitudeInit();
-#endif
-
-#if COMMUNICATION_MANAGER
-    initDataLink();
-#endif
-
-
+pathManagerInit();
 checkErrorCodes();
 
 
 
     while (1) {
-
-#if PATH_MANAGER
         pathManagerRuntime();
-#endif
-
-#if ATTITUDE_MANAGER
-        attitudeManagerRuntime();
-#endif
-
-#if COMMUNICATION_MANAGER
-        outboundBufferMaintenance();
-        inboundBufferMaintenance();
-#endif
         asm("CLRWDT");
     }
     return (EXIT_SUCCESS);
