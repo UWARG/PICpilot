@@ -56,5 +56,5 @@
 #define rad2deg(RAD) ((RAD) * 180.0/PI)
 
 #if DEBUG
-    #include "debug.h"
+    #include "../Common/debug.h"
 #endif

@@ -6,7 +6,7 @@
 #include "PWM.h"
 #include "OutputCompare.h"
 #include "InputCapture.h"
-#include "debug.h"
+#include "../Common/debug.h"
 
 char initialized = 0;
 

@@ -6,7 +6,7 @@
 
 #include <stdlib.h>
 #include "p33FJ256GP710.h"
-#include "UART1.h"
+#include "../Common/UART1.h"
 
 struct telem_block *outBuffer [OUTBOUND_QUEUE_SIZE];
 int outbuff_start = 0;

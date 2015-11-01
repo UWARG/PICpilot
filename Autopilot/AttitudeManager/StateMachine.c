@@ -6,6 +6,7 @@
  */
 
 #include "StateMachine.h"
+#include "../Common/debug.h"
 /*
  * 
  */

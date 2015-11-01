@@ -13,8 +13,7 @@ extern "C" {
 #endif
     
 // Includes
-#include "main.h"
-#include "UART1.h"
+#include "../Common/UART1.h"
 
 // 50 character debug strings
 #define DEBUG_BUFFER_LENGTH 50
