@@ -92,16 +92,27 @@ int rollTrim = 0;
 int pitchTrim = 0;
 int yawTrim = 0;
 
-//Input Signals (Input Capture Values)
-//Input
-int input_Roll = 0;
-int input_Pitch = 0;
-int input_Throttle = 0;
-int input_Yaw = 0;
-int sp_Value = 0; //0=Roll, 1= Pitch, 2=Yaw
-int sp_Type = 0; //0 = Saved Value, 1 = Edit Mode
-int sp_Switch = 0;
-int sp_UHFSwitch = 0;
+//RC Input Signals (Input Capture Values)
+int input_RC_RollRate = 0;
+int input_RC_PitchRate = 0;
+int input_RC_Throttle = 0;
+int input_RC_YawRate = 0;
+int input_RC_Aux1 = 0; //0=Roll, 1= Pitch, 2=Yaw
+int input_RC_Aux2 = 0; //0 = Saved Value, 1 = Edit Mode
+int input_RC_Switch1 = 0;
+int input_RC_UHFSwitch = 0;
+
+//Ground Station Input Signals
+int input_GS_Roll = 0;
+int input_GS_Pitch = 0;
+int input_GS_Throttle = 0;
+int input_GS_Yaw = 0;
+int input_GS_RollRate = 0;
+int input_GS_PitchRate = 0;
+int input_GS_YawRate = 0;
+int input_GS_Altitude = 0;
+
+int input_AP_Altitude = 0;
 
 //PID Global Variable Storage Values
 int rollPID, pitchPID, throttlePID, yawPID;
@@ -166,8 +177,8 @@ void attitudeInit() {
     VN100_initSPI();
     //IMU position matrix
     // offset = {roll, pitch, yaw}
-    float cal_roll = 0.0;
-    float cal_pitch = 0.0;
+    float cal_roll = -90;
+    float cal_pitch = -90;
     float cal_yaw = 0.0;
     float offset[3] = {cal_roll,cal_pitch,cal_yaw};
     setVNOrientationMatrix((float*)&offset);
@@ -182,30 +193,28 @@ char checkDMA(){
     DMADataAvailable = 0;
 
     if (generatePMDataDMAChecksum() == pmData.checkbyteDMA) {
+        gps_Time = pmData.time;
+        input_AP_Altitude = pmData.sp_Altitude;
+        gps_Satellites = pmData.satellites;
+        gps_PositionFix = pmData.positionFix;
+        waypointIndex = pmData.targetWaypoint;
+        batteryLevel = pmData.batteryLevel;
+        waypointCount = pmData.waypointCount;
+
         //Check if this data is new and requires action or if it is old and redundant
         if (gps_Altitude == pmData.altitude && gps_Heading == pmData.heading && gps_GroundSpeed == pmData.speed && gps_Latitude == pmData.latitude && gps_Longitude == pmData.longitude){
             return FALSE;
         }
-        gps_Time = pmData.time;
         gps_Heading = pmData.heading;
         gps_GroundSpeed = pmData.speed * 1000.0/3600.0; //Convert from km/h to m/s
         gps_Longitude = pmData.longitude;
         gps_Latitude = pmData.latitude;
         gps_Altitude = pmData.altitude;
-        gps_Satellites = pmData.satellites;
-        gps_PositionFix = pmData.positionFix;
-        if (getControlPermission(ALTITUDE_CONTROL_SOURCE,ALTITUDE_CONTROL_ON,0))
-            sp_Altitude = pmData.sp_Altitude;
-        if (getControlPermission(HEADING_CONTROL_SOURCE,HEADING_CONTROL_ON,0)){
-            if (gps_PositionFix){
-                sp_Heading = pmData.sp_Heading;
-            }
+        if (gps_PositionFix){
+            sp_Heading = pmData.sp_Heading;
         }
-        waypointIndex = pmData.targetWaypoint;
-        batteryLevel = pmData.batteryLevel;
-        waypointCount = pmData.waypointCount;
     }
-    return FALSE;
+    return TRUE;
 }
 
 float getAltitude(){
@@ -238,9 +247,6 @@ float getPitchRate(){
 float getYawRate(){
     return imu_YawRate;
 }
-int getAltitudeSetpoint(){
-    return sp_Altitude;
-}
 int getHeadingSetpoint(){
     return sp_Heading;
 }
@@ -259,6 +265,9 @@ int getRollRateSetpoint(){
 int getYawRateSetpoint(){
     return sp_YawRate;
 }
+int getThrottleSetpoint(){
+    return sp_ThrottleRate;
+}
 
 void setPitchAngleSetpoint(int setpoint){
     sp_PitchAngle = setpoint;
@@ -275,20 +284,23 @@ void setRollRateSetpoint(int setpoint){
 void setYawRateSetpoint(int setpoint){
     sp_YawRate = setpoint;
 }
+void setThrottleSetpoint(int setpoint){
+    sp_ThrottleRate = setpoint;
+}
 
 void inputCapture(){
     int* channelIn;
     channelIn = getPWMArray();
-    inputMixing(channelIn, &input_Roll, &input_Pitch, &input_Throttle, &input_Yaw);
+    inputMixing(channelIn, &input_RC_RollRate, &input_RC_PitchRate, &input_RC_Throttle, &input_RC_YawRate);
 
     // Switches and Knobs
-    sp_UHFSwitch = channelIn[4];
+    input_RC_UHFSwitch = channelIn[4];
 //        sp_Type = channelIn[5];
 //        sp_Value = channelIn[6];
-    sp_Switch = channelIn[7];
+    input_RC_Switch1 = channelIn[7];
 
     //Controller Input Interpretation Code
-    if (sp_Switch > MIN_PWM && sp_Switch < MIN_PWM + 50) {
+    if (input_RC_Switch1 > MIN_PWM && input_RC_Switch1 < MIN_PWM + 50) {
         unfreezeIntegral();
     } else {
         freezeIntegral();
@@ -296,24 +308,69 @@ void inputCapture(){
 }
 
 int getPitchAngleInput(char source){
-    int pitchAngle = 0;
-//TODO: Write
-    return pitchAngle;
+    if (source == PITCH_RC_SOURCE){
+        return (int)((input_RC_PitchRate / ((float)SP_RANGE / MAX_PITCH_ANGLE) ));
+    }
+    else if (source == PITCH_GS_SOURCE){
+        return input_GS_Pitch;
+    }
+    else
+        return 0;
 }
 int getPitchRateInput(char source){
-    int pitchRate = 0;
-//TODO: Write
-    return pitchRate;
+    if (source == PITCH_RC_SOURCE){
+        return input_RC_PitchRate;
+    }
+    else if (source == PITCH_GS_SOURCE){
+        return input_GS_PitchRate;
+    }
+    else
+        return 0;
 }
 int getRollAngleInput(char source){
-    int rollAngle = 0;
-//TODO: Write
-    return rollAngle;
+    if (source == ROLL_RC_SOURCE){
+        return (int)((input_RC_RollRate / ((float)SP_RANGE / MAX_ROLL_ANGLE) ));
+    }
+    else if (source == ROLL_GS_SOURCE){
+        return input_GS_Roll;
+    }
+    else{
+        return 0;
+    }
 }
 int getRollRateInput(char source){
-    int rollRate = 0;
-//TODO: Write
-    return rollRate;
+    if (source == ROLL_RC_SOURCE){
+        return input_RC_RollRate;
+    }
+    else if (source == ROLL_GS_SOURCE){
+        return input_GS_RollRate;
+    }
+    else
+        return 0;
+}
+int getThrottleInput(char source){
+    if (source == THROTTLE_RC_SOURCE){
+        return input_RC_Throttle;
+    }
+    else if (source == THROTTLE_GS_SOURCE){
+        return input_GS_Throttle;
+    }
+    else if (source == THROTTLE_AP_SOURCE){
+//        return input_AP_Throttle;
+        return 0;
+    }
+    else
+        return 0;
+}
+int getAltitudeInput(char source){
+    if (source == ALTITUDE_GS_SOURCE){
+        return input_GS_Altitude;
+    }
+    else if (source == ALTITUDE_AP_SOURCE){
+        return input_AP_Altitude;
+    }
+    else
+        return 0;
 }
 
 void imuCommunication(){
@@ -336,15 +393,15 @@ void imuCommunication(){
     imu_RollAngle = (imuData[ROLL]);
 #if DEBUG
     // Rate - Radians, Angle - Degrees
-    char x[30];
-    sprintf(&x, "IMU Roll Rate: %f", imu_RollRate);
-    debug(&x);
-    sprintf(&x, "IMU Pitch Rate: %f", imu_PitchRate);
-    debug(&x);
-    sprintf(&x, "IMU Pitch Angle: %f", imu_PitchAngle);
-    debug(&x);
-    sprintf(&x, "IMU Roll Angle: %f", imu_RollAngle);
-    debug(&x);
+//    char x[30];
+//    sprintf(&x, "IMU Roll Rate: %f", imu_RollRate);
+//    debug(&x);
+//    sprintf(&x, "IMU Pitch Rate: %f", imu_PitchRate);
+//    debug(&x);
+//    sprintf(&x, "IMU Pitch Angle: %f", imu_PitchAngle);
+//    debug(&x);
+//    sprintf(&x, "IMU Roll Angle: %f", imu_RollAngle);
+//    debug(&x);
 #endif
 }
 
@@ -362,12 +419,7 @@ int altitudeControl(int setpoint, int sensorAltitude){
 
 int throttleControl(int setpoint, int sensor){
     //Throttle
-    if (getControlPermission(THROTTLE_CONTROL_SOURCE, THROTTLE_GS_SOURCE, 4) || getControlPermission(THROTTLE_CONTROL_SOURCE, THROTTLE_AP_SOURCE, 4)){
-        throttlePID = sp_ThrottleRate + controlSignalThrottle(setpoint, sensor);
-    }
-    else
-        throttlePID = input_Throttle;
-        
+    throttlePID = sp_ThrottleRate + controlSignalThrottle(setpoint, sensor);      
     return throttlePID;
 }
 
@@ -395,31 +447,15 @@ int headingControl(int setpoint, int sensor){
 }
 
 
-    // If we are getting input from the controller convert sp_xxxxRate to an sp_xxxxAngle in degrees
-//    if ((controlLevel & ROLL_CONTROL_SOURCE) == 0 && (controlLevel & HEADING_CONTROL_ON) == 0)
-//        sp_RollAngle = (int)((sp_RollRate / ((float)SP_RANGE / MAX_ROLL_ANGLE) ));
-//    if ((controlLevel & PITCH_CONTROL_SOURCE) == 0 && (controlLevel & ALTITUDE_CONTROL_ON) == 0)
-//        sp_PitchAngle = (int)(sp_PitchRate / ((float)SP_RANGE / MAX_PITCH_ANGLE));
-
 int rollAngleControl(int setpoint, int sensor){
     //Roll Angle
-    if (getControlPermission(ROLL_CONTROL_TYPE,ANGLE_CONTROL,0) || getControlPermission(HEADING_CONTROL,HEADING_CONTROL_ON,0)){
-        sp_ComputedRollRate = controlSignalAngles(setpoint, sensor, ROLL, -(SP_RANGE) / (MAX_ROLL_ANGLE));
-    }
-    else{
-        sp_ComputedRollRate = -sp_RollRate;
-    }
+    sp_ComputedRollRate = controlSignalAngles(setpoint, sensor, ROLL, -(SP_RANGE) / (MAX_ROLL_ANGLE));
     return sp_ComputedRollRate;
 }
 
 int pitchAngleControl(int setpoint, int sensor){
     //Pitch Angle
-    if (getControlPermission(PITCH_CONTROL_TYPE,ANGLE_CONTROL,0) || getControlPermission(ALTITUDE_CONTROL,ALTITUDE_CONTROL_ON,0)){
-        sp_ComputedPitchRate = controlSignalAngles(setpoint, sensor, PITCH, -(SP_RANGE) / (MAX_PITCH_ANGLE)); //Removed negative
-    }
-    else{
-        sp_ComputedPitchRate = -sp_PitchRate;
-    }
+    sp_ComputedPitchRate = controlSignalAngles(setpoint, sensor, PITCH, -(SP_RANGE) / (MAX_PITCH_ANGLE)); //Removed negative
     return sp_ComputedPitchRate;
 }
 
@@ -429,16 +465,16 @@ int coordinatedTurn(float pitchRate, int rollAngle){
     return pitchRate;
 }
 
-int rollRateControl(int setpoint, int sensor){
-    rollPID = controlSignal(setpoint, sensor, ROLL);
+int rollRateControl(float setpoint, float sensor){
+    rollPID = controlSignal(setpoint/SERVO_SCALE_FACTOR, sensor, ROLL);
     return rollPID;
 }
-int pitchRateControl(int setpoint, int sensor){
-    pitchPID = controlSignal(setpoint, sensor, PITCH);
+int pitchRateControl(float setpoint, float sensor){
+    pitchPID = controlSignal(setpoint/SERVO_SCALE_FACTOR, sensor, PITCH);
     return pitchPID;
 }
-int yawRateControl(int setpoint, int sensor){
-    yawPID = controlSignal(setpoint, sensor, YAW);
+int yawRateControl(float setpoint, float sensor){
+    yawPID = controlSignal(setpoint/SERVO_SCALE_FACTOR, sensor, YAW);
     return yawPID;
 }
 
@@ -535,31 +571,31 @@ void readDatalink(void){
                 displayGain = *(char*)(&cmd->data);
                 break;
             case SET_PITCH_RATE:
-                sp_PitchRate = *(int*)(&cmd->data);
+                input_GS_PitchRate = *(int*)(&cmd->data);
                 break;
             case SET_ROLL_RATE:
-                sp_RollRate = *(int*)(&cmd->data);
+                input_GS_RollRate = *(int*)(&cmd->data);
                 break;
             case SET_YAW_RATE:
-                sp_YawRate = *(int*)(&cmd->data);
+                input_GS_YawRate = *(int*)(&cmd->data);
                 break;
             case SET_PITCH_ANGLE:
-                setPitchAngleSetpoint(*(int*)(&cmd->data));
+                input_GS_Pitch = *(int*)(&cmd->data);
                 break;
             case SET_ROLL_ANGLE:
-                setRollAngleSetpoint(*(int*)(&cmd->data));
+                input_GS_Roll = *(int*)(&cmd->data);
                 break;
             case SET_YAW_ANGLE:
 //                sp_YawAngle = *(int*)(&cmd->data);
                 break;
             case SET_ALTITUDE:
-                sp_Altitude = *(int*)(&cmd->data);
+                input_GS_Altitude = *(int*)(&cmd->data);
                 break;
             case SET_HEADING:
                 sp_Heading = *(int*)(&cmd->data);
                 break;
             case SET_THROTTLE:
-                sp_ThrottleRate = (int)(((long int)(*(int*)(&cmd->data))) * MAX_PWM * 2 / 100) - MAX_PWM;
+                input_GS_Throttle = (int)(((long int)(*(int*)(&cmd->data))) * MAX_PWM * 2 / 100) - MAX_PWM;
                 break;
             case SET_AUTONOMOUS_LEVEL:
                 controlLevel = *(int*)(&cmd->data);
@@ -614,7 +650,7 @@ void readDatalink(void){
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case SEND_HEARTBEAT:
-                    heartbeatTimer = getTime();
+                heartbeatTimer = getTime();
                 break;
             case TRIGGER_CAMERA:
                 triggerCamera(*(unsigned int*)(&cmd->data));
@@ -707,19 +743,19 @@ int writeDatalink(){
     statusData->groundSpeed = gps_GroundSpeed;
     statusData->altitude = gps_Altitude;
     statusData->heading = gps_Heading;
-    statusData->pitchSetpoint = sp_PitchAngle;
-    statusData->rollSetpoint = sp_RollAngle;
+    statusData->pitchSetpoint = getPitchAngleSetpoint();
+    statusData->rollSetpoint = getRollAngleSetpoint();
     statusData->headingSetpoint = sp_Heading;
     statusData->throttleSetpoint = (int)(((long int)(sp_ThrottleRate + MAX_PWM) * 100) / MAX_PWM/2);
     statusData->altitudeSetpoint = sp_Altitude;
-    statusData->cPitchSetpoint = sp_PitchRate;
-    statusData->cRollSetpoint = sp_RollRate;
-    statusData->cYawSetpoint = sp_YawRate;
+    statusData->cPitchSetpoint = getPitchRateSetpoint();
+    statusData->cRollSetpoint = getRollRateSetpoint();
+    statusData->cYawSetpoint = getYawRateSetpoint();
     statusData->lastCommandSent = lastCommandSentCode;
-    statusData->errorCodes = getErrorCodes() + ((sp_UHFSwitch < -429)<< 11);
+    statusData->errorCodes = getErrorCodes() + ((input_RC_UHFSwitch < -429)<< 11);
     statusData->cameraStatus = cameraCounter;
     statusData->waypointIndex = waypointIndex;
-    statusData->editing_gain = displayGain + ((sp_Switch > 380) << 4);
+    statusData->editing_gain = displayGain + ((input_RC_Switch1 > 380) << 4);
     statusData->gpsStatus = gps_Satellites + (gps_PositionFix << 4);
     statusData->batteryLevel = batteryLevel;
     statusData->waypointCount = waypointCount;
@@ -821,14 +857,4 @@ void setAccelVariance(float variance){
 
 char generateAMDataDMAChecksum(void){
     return 0xAB;
-}
-
-char generateAMDataChecksum(AMData* data){
-    char checksum = 0;
-    int i = 0;
-    //Two checksums and padding = 3 bytes
-    for (i = 0; i < sizeof(AMData) - 3; i++){
-        checksum += ((char*)data)[i];
-    }
-    return checksum;
 }

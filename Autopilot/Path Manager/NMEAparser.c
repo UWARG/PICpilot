@@ -4,11 +4,11 @@
 //#include <float.h>
 //#include <math.h>
 //#include "UART1.h"
-#include "UART2.h"
+#include "../Common/Common.h"
 #include "NMEAparser.h"
-#include "InterchipDMA.h"
+//#include "InterchipDMA.h"
 
-#if PATH_MANAGER && !GPS_OLD
+#if !GPS_OLD
 GPSData gpsData;
 extern UART_RX_Buffer _buff;
 extern char newGPSDataAvailable;

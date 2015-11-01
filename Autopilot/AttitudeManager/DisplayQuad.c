@@ -70,10 +70,10 @@ void dearmVehicle(){
 //}
 
 void inputMixing(int* channels, int* rollRate, int* pitchRate, int* throttle, int* yawRate){
-        if (getControlPermission(ROLL_CONTROL_SOURCE, ROLL_RC_SOURCE)){
+        if (getControlPermission(ROLL_CONTROL_SOURCE, ROLL_RC_SOURCE,0)){
             (*rollRate) = channels[0];
         }
-        if (getControlPermission(THROTTLE_CONTROL_SOURCE, THROTTLE_RC_SOURCE))
+        if (getControlPermission(THROTTLE_CONTROL_SOURCE, THROTTLE_RC_SOURCE,0))
             (*throttle) = (channels[2]);
 
         (*pitchRate) = channels[1];

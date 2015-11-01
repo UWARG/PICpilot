@@ -16,7 +16,6 @@
 
 #include "main.h"
 #include "StartupErrorCodes.h"
-
 #include "PathManager.h"
 
 /*

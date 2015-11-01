@@ -11,7 +11,6 @@
 #include "Dubins.h"
 #include "MPL3115A2.h"
 #include "voltageSensor.h"
-#include "NMEAparser.h"
 
 #include "InterchipDMA.h"
 
@@ -56,10 +55,9 @@ void pathManagerInit(void) {
 
 
 //Communication with GPS
-//    InitUART2();
     init_SPI2();
     init_DMA2();
-//    // Hack to power altimeter from UART on PM
+//  Hack to power altimeter from UART on PM
 //    TRISFbits.TRISF5 = 0;
 //    PORTFbits.RF5 = 1;
     initBatterySensor();

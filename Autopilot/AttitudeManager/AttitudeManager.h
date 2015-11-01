@@ -25,6 +25,17 @@
 #define HEADING_CONTROL_SOURCE 0b0000000100000000 // Ground Station(0) or Autopilot(1)
 #define HEADING_CONTROL 0b0000001000000000 //Off(0) or On(1)
 
+//Bit Mask Bit Shifts
+#define PITCH_CONTROL_TYPE_SHIFT 0
+#define PITCH_CONTROL_SOURCE_SHIFT 1
+#define ROLL_CONTROL_TYPE_SHIFT 2
+#define ROLL_CONTROL_SOURCE_SHIFT 3
+#define THROTTLE_CONTROL_SOURCE_SHIFT 4
+#define ALTITUDE_CONTROL_SOURCE_SHIFT 6
+#define ALTITUDE_CONTROL_SHIFT 7
+#define HEADING_CONTROL_SOURCE_SHIFT 8
+#define HEADING_CONTROL_SHIFT 9
+
 //Bit Mask Resultant Values
 #define RATE_CONTROL 0
 #define ANGLE_CONTROL 1
@@ -91,24 +102,27 @@ float getYaw();
 float getRollRate();
 float getPitchRate();
 float getYawRate();
-int getAltitudeSetpoint();
 int getHeadingSetpoint();
 int getRollAngleSetpoint();
 int getPitchAngleSetpoint();
 int getPitchRateSetpoint();
 int getRollRateSetpoint();
 int getYawRateSetpoint();
+int getThrottleSetpoint();
 void setPitchAngleSetpoint(int setpoint);
 void setRollAngleSetpoint(int setpoint);
 void setPitchRateSetpoint(int setpoint);
 void setRollRateSetpoint(int setpoint);
 void setYawRateSetpoint(int setpoint);
+void setThrottleSetpoint(int setpoint);
 
 void inputCapture();
 int getPitchAngleInput(char source);
 int getRollAngleInput(char source);
 int getPitchRateInput(char source);
 int getRollRateInput(char source);
+int getThrottleInput(char source);
+int getAltitudeInput(char source);
 void imuCommunication();
 int altitudeControl(int setpoint, int sensorAltitude);
 int throttleControl(int setpoint, int sensor);
@@ -116,9 +130,9 @@ int headingControl(int setpoint, int sensor);
 int rollAngleControl(int setpoint, int sensor);
 int pitchAngleControl(int setpoint, int sensor);
 int coordinatedTurn(float pitchRate, int rollAngle);
-int rollRateControl(int setpoint, int sensor);
-int pitchRateControl(int setpoint, int sensor);
-int yawRateControl(int setpoint, int sensor);
+int rollRateControl(float setpoint, float sensor);
+int pitchRateControl(float setpoint, float sensor);
+int yawRateControl(float setpoint, float sensor);
 char getControlPermission(unsigned int controlMask, unsigned int expectedValue, char bitshift);
 
 
@@ -193,7 +207,6 @@ void setGyroVariance(float variance);
 void setMagneticVariance(float variance);
 void setAccelVariance(float variance);
 char generateAMDataDMAChecksum(void);
-char generateAMDataChecksum(AMData* data);
 
 
 #endif	/* ATTITUDEMANAGER_H */

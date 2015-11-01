@@ -3,7 +3,7 @@
 
 #include "InterchipDMA.h"
 
-#if PATH_MANAGER && !GPS_OLD
+#if !GPS_OLD
 double convertLatLong(char latOrLong[]);
 //void parseGLL(char data[], GPSData *GPSData);
 void parseGGA(char data[], GPSData *GData);

@@ -11,14 +11,14 @@
       <logicalFolder name="f6" displayName="Common" projectFiles="true">
         <itemPath>../Common/Common.h</itemPath>
         <itemPath>../Common/clock.h</itemPath>
+        <itemPath>../Common/UART1.h</itemPath>
+        <itemPath>../Common/debug.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="Data Transfer" projectFiles="true">
         <itemPath>InterchipDMA.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="Debugging" projectFiles="true">
-        <itemPath>UART1.h</itemPath>
         <itemPath>StartupErrorCodes.h</itemPath>
-        <itemPath>debug.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f3" displayName="Network" projectFiles="true">
         <itemPath>commands.h</itemPath>
@@ -67,14 +67,14 @@
       <logicalFolder name="f7" displayName="Common" projectFiles="true">
         <itemPath>../Common/Common.c</itemPath>
         <itemPath>../Common/clock.c</itemPath>
+        <itemPath>../Common/UART1.c</itemPath>
+        <itemPath>../Common/debug.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="Data Transfer" projectFiles="true">
         <itemPath>InterchipDMA.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="Debugging" projectFiles="true">
-        <itemPath>UART1.c</itemPath>
         <itemPath>StartupErrorCodes.c</itemPath>
-        <itemPath>debug.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f3" displayName="Network" projectFiles="true">
         <itemPath>net_outbound.c</itemPath>
@@ -128,7 +128,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>ICD3PlatformTool</platformTool>
         <languageToolchain>XC16</languageToolchain>
-        <languageToolchainVersion>1.24</languageToolchainVersion>
+        <languageToolchainVersion>1.10</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -136,11 +136,8 @@
           <linkerLibItems>
           </linkerLibItems>
         </linkerTool>
-        <archiverTool>
-        </archiverTool>
         <loading>
           <useAlternateLoadableFile>false</useAlternateLoadableFile>
-          <parseOnProdLoad>false</parseOnProdLoad>
           <alternateLoadableFile></alternateLoadableFile>
         </loading>
       </compileType>
@@ -191,9 +188,6 @@
         <property key="scalar-model" value="default"/>
         <property key="use-cci" value="false"/>
       </C30>
-      <C30-AR>
-        <property key="additional-options-chop-files" value="false"/>
-      </C30-AR>
       <C30-AS>
         <property key="assembler-symbols" value=""/>
         <property key="expand-macros" value="false"/>
