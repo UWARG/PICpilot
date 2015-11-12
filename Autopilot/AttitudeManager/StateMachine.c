@@ -22,8 +22,8 @@ long int stateMachineTimer = 0;
 int dTime = 0;
 
 //Important Autopilot Variables
-int outputSignal[4];
-int control_Roll, control_Pitch, control_Yaw, control_Throttle;
+int outputSignal[5];
+int control_Roll, control_Pitch, control_Yaw, control_Throttle, control_Flap;
 
 void StateMachine(char entryLocation){
     //Timers
@@ -121,6 +121,11 @@ void lowLevelControl(){
         setPitchRateSetpoint(getPitchRateInput(PITCH_RC_SOURCE));                         //Keep a steady Pitch Angle
         setPitchRateSetpoint(coordinatedTurn(getPitchRateSetpoint(), getRoll()));       //Apply Coordinated Turn
     }
+    
+    //If commands come from the ground station
+    if (getControlPermission(FLAP_CONTROL_SOURCE, FLAP_GS_SOURCE ,FLAP_CONTROL_SOURCE_SHIFT)){setFlapSetpoint(getFlapInput(FLAP_GS_SOURCE));}
+    //If commands come from the RC Controller
+    else if (getControlPermission(FLAP_CONTROL_SOURCE,FLAP_RC_SOURCE, FLAP_CONTROL_SOURCE_SHIFT)){setFlapSetpoint(getFlapInput(FLAP_RC_SOURCE));}
 
     //If commands come from the ground station
     if (getControlPermission(THROTTLE_CONTROL_SOURCE, THROTTLE_GS_SOURCE ,THROTTLE_CONTROL_SOURCE_SHIFT)){setThrottleSetpoint(getThrottleInput(THROTTLE_GS_SOURCE));}
@@ -131,8 +136,9 @@ void lowLevelControl(){
     control_Pitch = pitchRateControl((float)getPitchRateSetpoint(), -getPitchRate());
     control_Yaw = yawRateControl((float)getYawRateSetpoint(), -getYawRate());
     control_Throttle = getThrottleSetpoint();
+    control_Flap = getFlapSetpoint();
     //Mixing!
-    outputMixing(outputSignal, &control_Roll, &control_Pitch, &control_Throttle, &control_Yaw);
+    outputMixing(outputSignal, &control_Roll, &control_Pitch, &control_Throttle, &control_Yaw, &control_Flap);
     //Error Checking
     checkLimits(outputSignal);
     //Then Output
@@ -149,7 +155,8 @@ void lowLevelControl(){
     setPWM(5, goProGimbalPWM);
     setPWM(6, verticalGoProPWM);
     setPWM(7, gimbalPWM);
-    setPWM(8, cameraPWM);
+    //setPWM(8, cameraPWM);
+    setPWM(FLAP_PWM_CHANNEL, outputSignal[4]); //Flaps //TODO Set this to 8 for testing current- Will be set to 9 when PWM expansion is finished
 }
 #elif COPTER
 void highLevelControl(){

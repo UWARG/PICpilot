@@ -36,6 +36,7 @@ float* velocityComponents;
 // Setpoints (From radio transmitter or autopilot)
 int sp_PitchRate = 0;
 int sp_ThrottleRate = MIN_PWM;
+int sp_FlapRate = MIN_PWM;
 int sp_YawRate = 0;
 int sp_RollRate = 0;
 
@@ -96,6 +97,7 @@ int yawTrim = 0;
 int input_RC_RollRate = 0;
 int input_RC_PitchRate = 0;
 int input_RC_Throttle = 0;
+int input_RC_Flap = 0;
 int input_RC_YawRate = 0;
 int input_RC_Aux1 = 0; //0=Roll, 1= Pitch, 2=Yaw
 int input_RC_Aux2 = 0; //0 = Saved Value, 1 = Edit Mode
@@ -106,6 +108,7 @@ int input_RC_UHFSwitch = 0;
 int input_GS_Roll = 0;
 int input_GS_Pitch = 0;
 int input_GS_Throttle = 0;
+int input_GS_Flap = 0;
 int input_GS_Yaw = 0;
 int input_GS_RollRate = 0;
 int input_GS_PitchRate = 0;
@@ -115,7 +118,7 @@ int input_GS_Altitude = 0;
 int input_AP_Altitude = 0;
 
 //PID Global Variable Storage Values
-int rollPID, pitchPID, throttlePID, yawPID;
+int rollPID, pitchPID, throttlePID, yawPID, flapPID;
 
 float scaleFactor = 20; //Change this
 
@@ -268,6 +271,9 @@ int getYawRateSetpoint(){
 int getThrottleSetpoint(){
     return sp_ThrottleRate;
 }
+int getFlapSetpoint(){
+    return sp_FlapRate;
+}
 
 void setPitchAngleSetpoint(int setpoint){
     sp_PitchAngle = setpoint;
@@ -287,11 +293,14 @@ void setYawRateSetpoint(int setpoint){
 void setThrottleSetpoint(int setpoint){
     sp_ThrottleRate = setpoint;
 }
+void setFlapSetpoint(int setpoint){
+    sp_FlapRate = setpoint;
+}
 
 void inputCapture(){
     int* channelIn;
     channelIn = getPWMArray();
-    inputMixing(channelIn, &input_RC_RollRate, &input_RC_PitchRate, &input_RC_Throttle, &input_RC_YawRate);
+    inputMixing(channelIn, &input_RC_RollRate, &input_RC_PitchRate, &input_RC_Throttle, &input_RC_YawRate, &input_RC_Flap);
 
     // Switches and Knobs
     input_RC_UHFSwitch = channelIn[4];
@@ -362,6 +371,22 @@ int getThrottleInput(char source){
     else
         return 0;
 }
+
+int getFlapInput(char source){
+    if (source == FLAP_RC_SOURCE){
+        return input_RC_Flap;
+    }
+    else if (source == FLAP_GS_SOURCE){
+        return input_GS_Flap;
+    }
+    else if (source == FLAP_AP_SOURCE){
+//        return input_AP_Flap;
+        return 0;
+    }
+    else
+        return 0;
+}
+
 int getAltitudeInput(char source){
     if (source == ALTITUDE_GS_SOURCE){
         return input_GS_Altitude;
@@ -421,6 +446,12 @@ int throttleControl(int setpoint, int sensor){
     //Throttle
     throttlePID = sp_ThrottleRate + controlSignalThrottle(setpoint, sensor);      
     return throttlePID;
+}
+
+int flapControl(int setpoint, int sensor){
+    //Flaps
+    flapPID = sp_FlapRate + controlSignalFlap(setpoint, sensor);      
+    return flapPID;
 }
 
 //Equivalent to "Yaw Angle Control"
@@ -555,6 +586,17 @@ void readDatalink(void){
             case SET_THROTTLE_KI_GAIN:
                 setGain(THROTTLE, GAIN_KI, *(float*)(&cmd->data));
                 break;
+                
+            case SET_FLAP_KD_GAIN:
+                setGain(FLAP, GAIN_KD, *(float*)(&cmd->data));
+                break;
+            case SET_FLAP_KP_GAIN:
+                setGain(FLAP, GAIN_KP, *(float*)(&cmd->data));
+                break;
+            case SET_FLAP_KI_GAIN:
+                setGain(FLAP, GAIN_KI, *(float*)(&cmd->data));
+                break;    
+            
             case SET_PATH_GAIN:
                 amData.pathGain = *(float*)(&cmd->data);
                 amData.command = PM_SET_PATH_GAIN;
@@ -596,6 +638,9 @@ void readDatalink(void){
                 break;
             case SET_THROTTLE:
                 input_GS_Throttle = (int)(((long int)(*(int*)(&cmd->data))) * MAX_PWM * 2 / 100) - MAX_PWM;
+                break;
+            case SET_FLAP:
+                input_GS_Flap = (int)(((long int)(*(int*)(&cmd->data))) * MAX_PWM * 2 / 100) - MAX_PWM;
                 break;
             case SET_AUTONOMOUS_LEVEL:
                 controlLevel = *(int*)(&cmd->data);
@@ -747,6 +792,7 @@ int writeDatalink(){
     statusData->rollSetpoint = getRollAngleSetpoint();
     statusData->headingSetpoint = sp_Heading;
     statusData->throttleSetpoint = (int)(((long int)(sp_ThrottleRate + MAX_PWM) * 100) / MAX_PWM/2);
+    statusData->flapSetpoint = (int)(((long int)(sp_FlapRate + MAX_PWM) * 100) / MAX_PWM/2);
     statusData->altitudeSetpoint = sp_Altitude;
     statusData->cPitchSetpoint = getPitchRateSetpoint();
     statusData->cRollSetpoint = getRollRateSetpoint();

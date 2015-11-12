@@ -55,7 +55,7 @@ struct telem_block {
     float groundSpeed;
     float altitude;
     int heading;
-    int pitchSetpoint, rollSetpoint, headingSetpoint, throttleSetpoint; //Angle
+    int pitchSetpoint, rollSetpoint, headingSetpoint, throttleSetpoint, flapSetpoint; //Angle
     int altitudeSetpoint;
     int cPitchSetpoint, cRollSetpoint, cYawSetpoint;  //Controller input // 2Byte
     int lastCommandSent;

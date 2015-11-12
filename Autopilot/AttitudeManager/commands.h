@@ -60,6 +60,10 @@
 #define LOCK_GOPRO 49
 #define ARM_VEHICLE 50
 #define DEARM_VEHICLE 51
+#define SET_FLAP 52
+#define SET_FLAP_KD_GAIN 53
+#define SET_FLAP_KP_GAIN 54
+#define SET_FLAP_KI_GAIN 55
 
 //Multipart Commands
 #define NEW_WAYPOINT 128
