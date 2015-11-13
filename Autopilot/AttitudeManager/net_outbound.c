@@ -107,7 +107,6 @@ int clearOutboundTelemetryQueue(void) {
 
 // Do buffer maintenance
 void outboundBufferMaintenance(void) {
-    //UART1_SendChar('B');
     if ( stagingBuffer.sendIndex >= PACKET_LENGTH ) {
         destroyTelemetryBlock(stagingBuffer.telemetry.asStruct);
         if ( getOutboundQueueLength() ) {
