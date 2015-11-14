@@ -12,7 +12,6 @@
  * 
  */
 
-
 //State Machine Triggers (Mostly Timers)
 int uplinkTimer = 0;
 int downlinkTimer = 0;

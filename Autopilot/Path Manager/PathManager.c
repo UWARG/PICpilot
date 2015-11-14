@@ -22,9 +22,7 @@
 
 extern GPSData gpsData;
 extern PMData pmData;
-#if !ATTITUDE_MANAGER
 extern AMData amData;
-#endif
 
 extern char newGPSDataAvailable;
 
@@ -159,7 +157,7 @@ void pathManagerRuntime(void) {
         lastKnownHeadingHome = calculateHeadingHome(home, (float*)&position, heading);
     }
 
-    pmData.checksum = generatePMDataChecksum();
+    pmData.checkbyteDMA = generatePMDataDMAChecksum();
 }
 
 char followWaypoints(PathData* current, float* position, float heading, int* setpoint) {
@@ -518,14 +516,9 @@ void copyGPSData(){
         pmData.batteryLevel = getCurrentPercent();
     }
     pmData.altitude = getAltitude(); //gpsData.altitude; //want to get altitude regardless of if there is new GPS data
-    pmData.checksum = generatePMDataChecksum();
+    pmData.checkbyteDMA = generatePMDataDMAChecksum();
 }
 
-
-// TODO: make me a real checksum!
-char generatePMDataChecksum(void) {
-    return 0xAA;
-}
 
 void checkAMData(){
     char checksum = 0xAB;
@@ -607,5 +600,4 @@ char getWaypointChecksum(void){
     }
     return checksum;
 }
-#endif
 

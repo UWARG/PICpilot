@@ -39,9 +39,9 @@ struct telem_block *getDebugTelemetryBlock(void) {
         debugTelemetry->pitchRate = (float) 1;
         debugTelemetry->rollRate = (float) 1;
         debugTelemetry->yawRate = (float) 1;
-        debugTelemetry->pitch_gain = (float) 1;
-        debugTelemetry->roll_gain = (float) 1;
-        debugTelemetry->yaw_gain = (float) 1;
+        debugTelemetry->kd_gain = (float) 1;
+        debugTelemetry->kp_gain = (float) 1;
+        debugTelemetry->ki_gain = (float) 1;
         debugTelemetry->heading = (float) 1;
         debugTelemetry->groundSpeed = (float) 1;
         debugTelemetry->pitchSetpoint = (int) 1;

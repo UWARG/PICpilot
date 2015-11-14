@@ -737,9 +737,9 @@ int writeDatalink(){
     statusData->pitchRate = imu_PitchRate;
     statusData->rollRate = imu_RollRate;
     statusData->yawRate = imu_YawRate;
-    statusData->pitch_gain = getGain(displayGain, GAIN_KD);
-    statusData->roll_gain = getGain(displayGain, GAIN_KP);
-    statusData->yaw_gain = getGain(displayGain, GAIN_KI);
+    statusData->kd_gain = getGain(displayGain, GAIN_KD);
+    statusData->kp_gain = getGain(displayGain, GAIN_KP);
+    statusData->ki_gain = getGain(displayGain, GAIN_KI);
     statusData->groundSpeed = gps_GroundSpeed;
     statusData->altitude = gps_Altitude;
     statusData->heading = gps_Heading;

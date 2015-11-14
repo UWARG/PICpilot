@@ -8,6 +8,7 @@
 
 #include "Common.h"
 
+// TODO: make me a real checksum!
 char generatePMDataDMAChecksum(void) {
     return 0xAA;
 }

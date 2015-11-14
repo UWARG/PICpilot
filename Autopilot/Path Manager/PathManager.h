@@ -8,10 +8,11 @@
 #ifndef PATHMANGER_H
 #define	PATHMANGER_H
 
+//Include
+#include "main.h"
+#include "../Common/Common.h"
+
 //Constants
-#define EARTH_RADIUS 6378.137
-#define RELATIVE_LONGITUDE -80.539678 //-71.64781
-#define RELATIVE_LATITUDE 43.473004  //48.51031
 
 //In Radians or (90 degrees)
 #define MAX_PATH_APPROACH_ANGLE PI/2 
@@ -39,26 +40,6 @@
 
 
 //Structs and typedefs
-typedef struct _waypointWrapper{
-    long double longitude;  //TODO: Longitude and Latitude is bulky. If problems arise, change the format.
-    long double latitude;
-    float altitude;
-    float radius; //Radius of turn
-    char nextId; //For use with insertNode() or operations that require reference to another node
-    char previousId; //For use with insertNode() or operations that require reference to another node
-    char id;    //Array ID
-}WaypointWrapper;
-
-typedef struct _PathData{
-    struct _PathData* next;
-    struct _PathData* previous;
-    long double longitude;  //TODO: Longitude and Latitude is bulky. Use cartesian 2D approximations
-    long double latitude;
-    float altitude;
-    float radius; //Radius of turn
-    char id;    //Array ID
-    char index;
-} PathData;
 
 //Function Prototypes
 //TODO:Add descriptions to all the function prototypes
@@ -81,7 +62,6 @@ unsigned int removePathNode(unsigned int ID);
 void clearPathNodes(void);
 unsigned int insertPathNode(PathData* node, unsigned int previousID, unsigned int nextID);
 void copyGPSData(void);
-char generatePMDataDMAChecksum(void);
 void checkAMData(void);
 char getWaypointChecksum(void);
 char generatePMDataDMAChecksum(void);

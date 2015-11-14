@@ -12,6 +12,7 @@
 
 #include "main.h"
 #include "PathManager.h"
+#include "../Common/Common.h"
 
 //Intercom pins
 #define INTERCOM_1 PORTBbits.RB4 // input
@@ -21,34 +22,6 @@
 
 
 //Data Structures
-
-typedef struct _PMData {
-    float time;     //4 Bytes   -  hhmmss.ssss
-    long double latitude;  //8 Bytes - ddd.mmmmmm
-    long double longitude; //8 Bytes - ddd.mmmmmm
-    float speed;    //KM/H
-    float altitude;
-    int sp_Altitude; // Meters
-    int heading;  //Degrees
-    int sp_Heading; //Degrees
-    char satellites;    //1 Byte
-    char positionFix;   //0 = No GPS, 1 = GPS fix, 2 = DGSP Fix
-    char targetWaypoint;
-    char waypointCount;
-    char batteryLevel;
-    char checkbyteDMA;
-} PMData;
-
-typedef struct _AMData {
-    WaypointWrapper waypoint;
-    float pathGain;
-    float orbitGain;
-    float calibrationHeight;
-    char command;
-    char checksum;
-    char checkbyteDMA;
-    char padding;
-} AMData;
 
 typedef struct _GPSData {
     long double latitude;  //

@@ -51,7 +51,7 @@ struct telem_block {
     float millis;        // Timestamp UTC  // 4Byte
     float pitch, roll, yaw;                         // 4Byte
     float pitchRate, rollRate, yawRate;             // 4Byte
-    float pitch_gain, roll_gain, yaw_gain;          // 4Byte
+    float kd_gain, kp_gain, ki_gain;          // 4Byte
     float groundSpeed;
     float altitude;
     int heading;
