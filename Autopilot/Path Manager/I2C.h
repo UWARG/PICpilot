@@ -4,6 +4,10 @@
  *
  * Created on March 10, 2013, 7:58 PM
  */
+
+#ifndef I2C_H
+#define I2C_H
+
 #include "main.h"
 #include "delay.h"
 
@@ -17,3 +21,5 @@ char sendMessage(char devAddress, char address, char* data, char length, char rw
 void initI2C();
 char readMessage(char devAddress, char address);
 void writeMessage(char address, char* data, char length);
+
+#endif
