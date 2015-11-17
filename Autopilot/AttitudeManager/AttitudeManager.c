@@ -296,6 +296,9 @@ void setThrottleSetpoint(int setpoint){
 void setFlapSetpoint(int setpoint){
     sp_FlapRate = setpoint;
 }
+void setAltitudeSetpoint(int setpoint){
+    sp_Altitude = setpoint;
+}
 
 void inputCapture(){
     int* channelIn;
@@ -492,7 +495,7 @@ int pitchAngleControl(int setpoint, int sensor){
 
 int coordinatedTurn(float pitchRate, int rollAngle){
     //Feed forward Term when turning
-    pitchRate -= abs((int)(scaleFactor * rollAngle)); //Linear Function
+    pitchRate += (int)(scaleFactor * abs(rollAngle)); //Linear Function
     return pitchRate;
 }
 
@@ -510,7 +513,7 @@ int yawRateControl(float setpoint, float sensor){
 }
 
 char getControlPermission(unsigned int controlMask, unsigned int expectedValue, char bitshift){
-    char maskResult = (controlMask & controlLevel);
+    int maskResult = (controlMask & controlLevel);
     return (maskResult >> bitshift) == expectedValue;
 }
 

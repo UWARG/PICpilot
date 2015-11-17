@@ -14,7 +14,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "timer.h"
 
 //Turns debug mode on or off. Usually contains small snippets of code to output
 //data through UART or to provide small input adjustments

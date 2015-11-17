@@ -15,6 +15,7 @@
 char vehicleArmed = 0;
 
 void initialization(int* outputSignal){
+    setPWM(3,MIN_PWM);
     while (!vehicleArmed){
         imuCommunication();
         asm("CLRWDT");

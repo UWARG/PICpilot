@@ -82,8 +82,8 @@
 
 
 //TODO change all channel numbers to defined values?
-#define FLAP_RC_CHANNEL 8
-#define FLAP_PWM_CHANNEL 8
+#define FLAP_RC_CHANNEL 5
+#define FLAP_PWM_CHANNEL 5
 
 
 /* FUNCTION PROTOTYPES */
@@ -130,6 +130,7 @@ void setRollRateSetpoint(int setpoint);
 void setYawRateSetpoint(int setpoint);
 void setThrottleSetpoint(int setpoint);
 void setFlapSetpoint(int setpoint);
+void setAltitudeSetpoint(int setpoint);
 
 void inputCapture();
 int getPitchAngleInput(char source);
@@ -151,6 +152,7 @@ int rollRateControl(float setpoint, float sensor);
 int pitchRateControl(float setpoint, float sensor);
 int yawRateControl(float setpoint, float sensor);
 char getControlPermission(unsigned int controlMask, unsigned int expectedValue, char bitshift);
+
 
 
 /*****************************************************************************

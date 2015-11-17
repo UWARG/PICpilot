@@ -69,6 +69,8 @@ typedef struct _PMData {
     char targetWaypoint;
     char waypointCount;
     char batteryLevel;
+    char airspeed;
+    char airspeedSensor;
     char checkbyteDMA;
 } PMData;
 

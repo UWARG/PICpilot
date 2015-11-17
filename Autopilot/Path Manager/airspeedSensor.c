@@ -1,44 +1,39 @@
 /*
- * File:   voltageSensor.c
+ * File:   airspeedSensor.c
  * Author: Chris
  *
  * Created on June 15, 2013, 3:40 PM
  */
 #include "main.h"
-#include "voltageSensor.h"
+#include "airspeedSensor.h"
 
 
-char percent = 0;
-int currentVoltage = 0;
+char airspeed = 0;
+int currentAirspeedSignal = 0;
 
-void __attribute__((interrupt, no_auto_psv)) _ADC1VoltageInterrupt(void)
+void __attribute__((interrupt, no_auto_psv)) _ADC1AirspeedInterrupt(void)
 {
 
-    currentVoltage = ADC1BUF0;
+    currentAirspeedSignal = ADC1BUF0;
     IFS0bits.AD1IF = 0;		// Clear the ADC1 Interrupt Flag
 
 
 }
 
-void initBatterySensor(){
+void initAirspeedSensor(){
     //AN12 is the pin to get the battery information
     TRISBbits.TRISB12 = 1;
-    initVoltageADC();
+    initAirspeedADC();
 
 }
 
-//float timeRemaining(){
-//    float dP = (currentPercent - lastPercent)/vTimeInterval; //Rate of change (Percent/second)
-//    float time = currentPercent/dP;
-//    return time;
-//}
 
-char getCurrentPercent(){
-    percent = (char)((long int)currentVoltage*100/4096);
-    return percent;
+char getCurrentAirspeed(){
+    airspeed = (char)((long int)currentAirspeedSignal*100/4096);
+    return airspeed;
 }
 
-void initVoltageADC(){
+void initAirspeedADC(){
     AD1CON1bits.FORM = 0;		// Data Output Format: Unsigned Int
     AD1CON1bits.SSRC = 7;		// Internal Counter (SAMC) ends sampling and starts convertion
     AD1CON1bits.ASAM = 1;		// Sampling begins when SAMP bit is set (for now)
