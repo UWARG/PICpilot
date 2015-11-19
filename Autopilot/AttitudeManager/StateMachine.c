@@ -150,15 +150,15 @@ void lowLevelControl(){
     unsigned int goProGimbalPWM = goProGimbalStabilization(getRoll());
     unsigned int verticalGoProPWM = goProVerticalstabilization(getPitch());
     //For fixed-wing aircraft: Typically 0 = Roll, 1 = Pitch, 2 = Throttle, 3 = Yaw
-    setPWM(1, outputSignal[0]);//Roll
-    setPWM(2, outputSignal[1]); //Pitch
-    setPWM(3, outputSignal[2]);//Throttle
-    setPWM(4, outputSignal[3]); //Yaw
-    setPWM(5, goProGimbalPWM);
-    setPWM(6, verticalGoProPWM);
-    setPWM(7, gimbalPWM);
+    setPWM(ROLL_OUT_CHANNEL, outputSignal[0]);//Roll
+    setPWM(PITCH_OUT_CHANNEL, outputSignal[1]); //Pitch
+    setPWM(THROTTLE_OUT_CHANNEL, outputSignal[2]);//Throttle
+    setPWM(YAW_OUT_CHANNEL, outputSignal[3]); //Yaw
+    //setPWM(5, goProGimbalPWM);
+    //setPWM(6, verticalGoProPWM);
+    //setPWM(7, gimbalPWM);
     //setPWM(8, cameraPWM);
-    setPWM(FLAP_PWM_CHANNEL, outputSignal[4]); //Flaps //TODO Set this to 8 for testing current- Will be set to 9 when PWM expansion is finished
+    setPWM(FLAP_OUT_CHANNEL, outputSignal[4]); //Flaps //TODO Set this to 8 for testing current- Will be set to 9 when PWM expansion is finished
 }
 #elif COPTER
 void highLevelControl(){

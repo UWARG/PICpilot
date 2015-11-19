@@ -15,7 +15,7 @@
 char vehicleArmed = 0;
 
 void initialization(int* outputSignal){
-    setPWM(3,MIN_PWM);
+    setPWM(THROTTLE_OUT_CHANNEL,MIN_PWM);
     while (!vehicleArmed){
         imuCommunication();
         asm("CLRWDT");
@@ -35,10 +35,11 @@ void armVehicle(int delayTime){
     asm("CLRWDT");
     Delay(delayTime);
     asm("CLRWDT");
-    setPWM(1, 0);
-    setPWM(2, 0);
-    setPWM(3, MIN_PWM);
-    setPWM(4, 0);
+    setPWM(ROLL_OUT_CHANNEL, 0);
+    setPWM(PITCH_OUT_CHANNEL, 0);
+    setPWM(THROTTLE_OUT_CHANNEL, MIN_PWM);
+    setPWM(YAW_OUT_CHANNEL, 0);
+    setPWM(FLAP_OUT_CHANNEL, MIN_PWM);
     asm("CLRWDT");
     Delay(delayTime);
     asm("CLRWDT");
@@ -77,7 +78,7 @@ void inputMixing(int* channels, int* rollRate, int* pitchRate, int* throttle, in
             (*throttle) = (channels[2]);
         
         if (getControlPermission(FLAP_CONTROL_SOURCE, FLAP_RC_SOURCE,0))
-            (*flap) = channels[FLAP_RC_CHANNEL-1];
+            (*flap) = channels[FLAP_IN_CHANNEL-1];
 
 
         #if(TAIL_TYPE == STANDARD_TAIL)

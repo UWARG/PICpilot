@@ -82,8 +82,17 @@
 
 
 //TODO change all channel numbers to defined values?
-#define FLAP_RC_CHANNEL 5
-#define FLAP_PWM_CHANNEL 5
+#define ROLL_IN_CHANNEL 1
+#define ROLL_OUT_CHANNEL 1
+#define PITCH_IN_CHANNEL 2
+#define PITCH_OUT_CHANNEL 2
+#define THROTTLE_IN_CHANNEL 3
+#define THROTTLE_OUT_CHANNEL 3
+#define YAW_IN_CHANNEL 4
+#define YAW_OUT_CHANNEL 4
+#define FLAP_IN_CHANNEL 5
+#define FLAP_OUT_CHANNEL 5
+
 
 
 /* FUNCTION PROTOTYPES */
