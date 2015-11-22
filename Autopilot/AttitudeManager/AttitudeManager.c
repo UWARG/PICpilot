@@ -19,8 +19,6 @@
 #include "main.h"
 #include "InterchipDMA.h"
 
-#include "DisplayQuad.h"
-
 
 extern PMData pmData;
 extern AMData amData;
@@ -52,15 +50,18 @@ int sp_ComputedYawRate = 0;
 char currentGain = 0;
 
 int sp_PitchAngle = 0;
+int ctrl_PitchAngle = 0;
 //float sp_YawAngle = 0;
 int sp_RollAngle = 0;
+int ctrl_RollAngle = 0;
 
 //Heading Variables
 int sp_Heading = 0;
-int sp_HeadingRate = 0;
+int ctrl_Heading = 0;
 
 //Altitude Variables
 int sp_Altitude = 0;
+int ctrl_Altitude = 0;
 float sp_GroundSpeed = 0;
 
 //GPS Data
@@ -76,7 +77,7 @@ char waypointIndex = 0;
 char waypointChecksum = 0;
 char waypointCount = 0;
 char batteryLevel = 0;
-
+char airspeed = 0;
 
 // System outputs (get from IMU)
 float imuData[3];
@@ -203,6 +204,7 @@ char checkDMA(){
         waypointIndex = pmData.targetWaypoint;
         batteryLevel = pmData.batteryLevel;
         waypointCount = pmData.waypointCount;
+        airspeed = pmData.airspeed;
 
         //Check if this data is new and requires action or if it is old and redundant
         if (gps_Altitude == pmData.altitude && gps_Heading == pmData.heading && gps_GroundSpeed == pmData.speed && gps_Latitude == pmData.latitude && gps_Longitude == pmData.longitude){
@@ -298,6 +300,9 @@ void setFlapSetpoint(int setpoint){
 }
 void setAltitudeSetpoint(int setpoint){
     sp_Altitude = setpoint;
+}
+void setHeadingSetpoint(int setpoint){
+    sp_Heading = setpoint;
 }
 
 void inputCapture(){
@@ -435,14 +440,12 @@ void imuCommunication(){
 
 int altitudeControl(int setpoint, int sensorAltitude){
     //Altitude
-    if (getControlPermission(ALTITUDE_CONTROL, ALTITUDE_CONTROL_ON, 0)){
-        sp_PitchAngle = controlSignalAltitude(setpoint, sensorAltitude);
-        if (sp_PitchAngle > MAX_PITCH_ANGLE)
-            sp_PitchAngle = MAX_PITCH_ANGLE;
-        if (sp_PitchAngle < -MAX_PITCH_ANGLE)
-            sp_PitchAngle = -MAX_PITCH_ANGLE;
-    }
-    return sp_PitchAngle;
+    ctrl_PitchAngle = controlSignalAltitude(setpoint, sensorAltitude);
+    if (ctrl_PitchAngle > MAX_PITCH_ANGLE)
+        ctrl_PitchAngle = MAX_PITCH_ANGLE;
+    if (ctrl_PitchAngle < -MAX_PITCH_ANGLE)
+        ctrl_PitchAngle = -MAX_PITCH_ANGLE;
+    return ctrl_PitchAngle;
 }
 
 int throttleControl(int setpoint, int sensor){
@@ -460,23 +463,20 @@ int flapControl(int setpoint, int sensor){
 //Equivalent to "Yaw Angle Control"
 int headingControl(int setpoint, int sensor){
     //Heading
-    if (getControlPermission(HEADING_CONTROL,HEADING_CONTROL_ON,0)){
-        //Estimation of Roll angle based on heading:
+    while (setpoint > 360)
+        setpoint -= 360;
+    while (setpoint < 0)
+        setpoint += 360;
 
-        while (setpoint > 360)
-            setpoint -=360;
-        while (setpoint < 0)
-            setpoint +=360;
-        // -(maxHeadingRate)/180.0,
-            sp_HeadingRate = controlSignalHeading(setpoint, sensor);//gps_Satellites>=4?gps_Heading:(int)imu_YawAngle); //changed to monitor satellites, since we know these are good values while PositionFix might be corrupt...
-            //Approximating Roll angle from Heading
-            sp_RollAngle = sp_HeadingRate;      //TODO: HOW IS HEADING HANDLED DIFFERENTLY BETWEEN QUADS AND PLANES
+    setHeadingSetpoint(setpoint);
+    ctrl_Heading = controlSignalHeading(setpoint, sensor);//gps_Satellites>=4?gps_Heading:(int)imu_YawAngle); //changed to monitor satellites, since we know these are good values while PositionFix might be corrupt...
+    //Approximating Roll angle from Heading
+    sp_RollAngle = ctrl_Heading;      //TODO: HOW IS HEADING HANDLED DIFFERENTLY BETWEEN QUADS AND PLANES
 
-        if (sp_RollAngle > MAX_ROLL_ANGLE)
-            sp_RollAngle = MAX_ROLL_ANGLE;
-        if (sp_RollAngle < -MAX_ROLL_ANGLE)
-            sp_RollAngle = -MAX_ROLL_ANGLE;
-    }
+    if (sp_RollAngle > MAX_ROLL_ANGLE)
+        sp_RollAngle = MAX_ROLL_ANGLE;
+    if (sp_RollAngle < -MAX_ROLL_ANGLE)
+        sp_RollAngle = -MAX_ROLL_ANGLE;
     return sp_RollAngle;
 }
 
@@ -808,6 +808,7 @@ int writeDatalink(){
     statusData->gpsStatus = gps_Satellites + (gps_PositionFix << 4);
     statusData->batteryLevel = batteryLevel;
     statusData->waypointCount = waypointCount;
+    statusData->airspeed = airspeed;
 
 
     if (BLOCKING_MODE) {

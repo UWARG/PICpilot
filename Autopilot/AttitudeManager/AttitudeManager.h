@@ -131,6 +131,7 @@ void setYawRateSetpoint(int setpoint);
 void setThrottleSetpoint(int setpoint);
 void setFlapSetpoint(int setpoint);
 void setAltitudeSetpoint(int setpoint);
+void setHeadingSetpoint(int setpoint);
 
 void inputCapture();
 int getPitchAngleInput(char source);
