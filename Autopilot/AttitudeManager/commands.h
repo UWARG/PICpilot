@@ -71,6 +71,9 @@
 #define SET_RETURN_HOME_COORDINATES 130
 #define TARE_IMU 131
 #define SET_IMU 132
+#define SET_KDVALUES 133
+#define SET_KPVALUES 134
+#define SET_KIVALUES 135
 
 //Multipart Command Structs
 typedef struct _newwaypointwrapper {

@@ -401,6 +401,14 @@ int getAltitudeInput(char source){
         return 0;
 }
 
+void setKValues(int type,float* values){
+    int Kchannel[7] = {YAW, PITCH, ROLL, HEADING, ALTITUDE, THROTTLE, FLAP};
+    int i;
+    for(i=0; i<7; i++){
+       setGain(Kchannel[i],type,values[i]);
+    }
+};
+
 void imuCommunication(){
     /*****************************************************************************
      *****************************************************************************
@@ -764,6 +772,15 @@ void readDatalink(void){
                 break;
             case SET_IMU:
                 setVNOrientationMatrix((float*)(&cmd->data));
+                break;
+            case SET_KDVALUES:
+                setKValues(GAIN_KD,(float*)(&cmd->data));
+                break;
+            case SET_KPVALUES:
+                setKValues(GAIN_KP,(float*)(&cmd->data));
+                break;
+            case SET_KIVALUES:
+                setKValues(GAIN_KI,(float*)(&cmd->data));
                 break;
             default:
                 break;
