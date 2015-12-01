@@ -82,10 +82,9 @@ void StateMachine(char entryLocation){
 
 #if FIXED_WING
 void highLevelControl(){
-    //If commands come from the autopilot
-    
-    
+    //If the commands come from the ground station
     if (getControlPermission(ALTITUDE_CONTROL,ALTITUDE_CONTROL_ON,ALTITUDE_CONTROL_SHIFT) && getControlPermission(ALTITUDE_CONTROL_SOURCE,ALTITUDE_GS_SOURCE,ALTITUDE_CONTROL_SOURCE_SHIFT)) {setPitchAngleSetpoint(altitudeControl(getAltitudeInput(ALTITUDE_GS_SOURCE), getAltitude()));setAltitudeSetpoint(getAltitudeInput(ALTITUDE_GS_SOURCE));setThrottleSetpoint(throttleControl(getAltitudeInput(ALTITUDE_GS_SOURCE),getAltitude()));}
+   //If the commands come from the autopilot
     else if (getControlPermission(ALTITUDE_CONTROL,ALTITUDE_CONTROL_ON,ALTITUDE_CONTROL_SHIFT) && getControlPermission(ALTITUDE_CONTROL_SOURCE,ALTITUDE_AP_SOURCE,ALTITUDE_CONTROL_SOURCE_SHIFT)) {setPitchAngleSetpoint(altitudeControl(getAltitudeInput(ALTITUDE_AP_SOURCE), getAltitude()));setAltitudeSetpoint(getAltitudeInput(ALTITUDE_AP_SOURCE));setThrottleSetpoint(throttleControl(getAltitudeInput(ALTITUDE_AP_SOURCE),getAltitude()));}
     //If commands come from the ground station
     else if (getControlPermission(PITCH_CONTROL_SOURCE, PITCH_GS_SOURCE,PITCH_CONTROL_SOURCE_SHIFT)) setPitchAngleSetpoint(getPitchAngleInput(PITCH_GS_SOURCE));
@@ -150,6 +149,7 @@ void lowLevelControl(){
     unsigned int goProGimbalPWM = goProGimbalStabilization(getRoll());
     unsigned int verticalGoProPWM = goProVerticalstabilization(getPitch());
     //For fixed-wing aircraft: Typically 0 = Roll, 1 = Pitch, 2 = Throttle, 3 = Yaw
+    
     setPWM(ROLL_OUT_CHANNEL, outputSignal[0]);//Roll
     setPWM(PITCH_OUT_CHANNEL, outputSignal[1]); //Pitch
     setPWM(THROTTLE_OUT_CHANNEL, outputSignal[2]);//Throttle
@@ -158,7 +158,7 @@ void lowLevelControl(){
     //setPWM(6, verticalGoProPWM);
     //setPWM(7, gimbalPWM);
     //setPWM(8, cameraPWM);
-    setPWM(FLAP_OUT_CHANNEL, outputSignal[4]); //Flaps //TODO Set this to 8 for testing current- Will be set to 9 when PWM expansion is finished
+    setPWM(FLAP_OUT_CHANNEL, outputSignal[4]); //Flaps
 }
 #elif COPTER
 void highLevelControl(){

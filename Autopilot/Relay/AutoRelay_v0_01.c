@@ -199,8 +199,8 @@ int main (void)
 
 	while(1)
 	{
-           
-		if (ch8_position > 450)//(((ch8_position > 565) && (ch8_position < 590))||((ch8_position > 930) && (ch8_position < 955)))
+                //The window on the controller is 43%-50%
+		if ((ch8_position > 420) && (ch8_position < 428)) //Controller Setting is: +47%, -33% //(ch8_position > 450)
 		{
 			PORTBbits.RB7 = 1;
 		}
