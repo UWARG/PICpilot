@@ -11,14 +11,15 @@
 char airspeed = 0;
 int currentAirspeedSignal = 0;
 
+
 void __attribute__((interrupt, no_auto_psv)) _ADC1Interrupt(void)
 {
 
     currentAirspeedSignal = ADC1BUF0;
-    IFS0bits.AD1IF = 0;		// Clear the ADC2 Interrupt Flag
-
+    IFS0bits.AD1IF = 0;		// Clear the ADC1 Interrupt Flag
 
 }
+
 
 void initAirspeedSensor(){
     //RA6/AN22 is the pin to get the airspeed information
@@ -29,8 +30,8 @@ void initAirspeedSensor(){
 
 
 char getCurrentAirspeed(){
-    airspeed = (char)((long int)currentAirspeedSignal*100/4096);
-    return airspeed;
+    //airspeed = (char)((long int)currentAirspeedSignal*100/4096);
+    return currentAirspeedSignal;
 }
 
 void initAirspeedADC(){
@@ -54,9 +55,25 @@ void initAirspeedADC(){
     AD1CHS0bits.CH0SA = 22; //Channel 0 positive input on AN22 (Sample A)
     AD1CHS0bits.CH0SB = 22; //Channel 0 positive input on AN22 (Sample B)
 
+    AD1PCFGL = 0;
+    // TODO why is this an error? AD2PCFGH = 0;
+    AD1PCFGLbits.PCFG0 = 0; //Port pin set to analog mode (voltage sampling)
+    AD1PCFGLbits.PCFG1 = 0; //Port pin set to analog mode (voltage sampling)
+    AD1PCFGLbits.PCFG2 = 0; //Port pin set to analog mode (voltage sampling)
+    AD1PCFGLbits.PCFG3 = 0; //Port pin set to analog mode (voltage sampling)
+    AD1PCFGLbits.PCFG4 = 0; //Port pin set to analog mode (voltage sampling)AD2PCFGLbits.PCFG12 = 0; //Port pin set to analog mode (voltage sampling)
+    AD1PCFGLbits.PCFG5 = 0; //Port pin set to analog mode (voltage sampling)
+    AD1PCFGLbits.PCFG6 = 0; //Port pin set to analog mode (voltage sampling)
+    AD1PCFGLbits.PCFG7 = 0; //Port pin set to analog mode (voltage sampling)
+    AD1PCFGLbits.PCFG8 = 0; //Port pin set to analog mode (voltage sampling)
+    AD1PCFGLbits.PCFG9 = 0; //Port pin set to analog mode (voltage sampling)AD2PCFGLbits.PCFG12 = 0; //Port pin set to analog mode (voltage sampling)
+    AD1PCFGLbits.PCFG10 = 0; //Port pin set to analog mode (voltage sampling)
+    AD1PCFGLbits.PCFG11 = 0; //Port pin set to analog mode (voltage sampling)
     AD1PCFGLbits.PCFG12 = 0; //Port pin set to analog mode (voltage sampling)
+    
+    
 
-
+    
     IFS0bits.AD1IF = 0;			// Clear the A/D interrupt flag bit
     IEC0bits.AD1IE = 1;			// Enable A/D interrupt
     AD1CON1bits.ADON = 1;		// Turn on the A/D converter

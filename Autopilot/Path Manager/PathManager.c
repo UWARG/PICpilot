@@ -515,9 +515,9 @@ void copyGPSData(){
         pmData.speed = gpsData.speed;
         pmData.satellites = (char)gpsData.satellites;
         pmData.positionFix = (char)gpsData.positionFix;
-        pmData.batteryLevel = getCurrentPercent();
-        pmData.airspeed = getCurrentAirspeed();
     }
+    pmData.batteryLevel = getCurrentPercent();
+    pmData.airspeed = getCurrentAirspeed();
     pmData.altitude = getAltitude(); //gpsData.altitude; //want to get altitude regardless of if there is new GPS data
     pmData.checkbyteDMA = generatePMDataDMAChecksum();
 }
