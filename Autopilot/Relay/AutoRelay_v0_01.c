@@ -200,7 +200,7 @@ int main (void)
 	while(1)
 	{
            
-		if (ch8_position > 450)//(((ch8_position > 565) && (ch8_position < 590))||((ch8_position > 930) && (ch8_position < 955)))
+		if (ch8_position > 450)//(((ch8_position > 400) && (ch8_position < 425))||((ch8_position > 530) && (ch8_position < 555)))//(((ch8_position > 565) && (ch8_position < 590))||((ch8_position > 930) && (ch8_position < 955)))
 		{
 			PORTBbits.RB7 = 1;
 		}

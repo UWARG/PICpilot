@@ -479,7 +479,7 @@ int yawRateControl(float setpoint, float sensor){
 }
 
 char getControlPermission(unsigned int controlMask, unsigned int expectedValue, char bitshift){
-    char maskResult = (controlMask & controlLevel);
+    int maskResult = (controlMask & controlLevel);
     return (maskResult >> bitshift) == expectedValue;
 }
 
