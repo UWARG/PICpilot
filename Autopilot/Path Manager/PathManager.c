@@ -18,7 +18,7 @@
 #if DEBUG
 #include <stdio.h>
 #include <stdlib.h>
-#include "UART1.h"
+#include "../Common/UART1.h"
 #endif
 
 extern GPSData gpsData;
@@ -57,8 +57,8 @@ void pathManagerInit(void) {
     init_SPI2();
     init_DMA2();
 //  Hack to power altimeter from UART on PM
-//    TRISFbits.TRISF5 = 0;
-//    PORTFbits.RF5 = 1;
+    TRISFbits.TRISF5 = 0;
+    PORTFbits.RF5 = 1;
     initBatterySensor();
     initAirspeedSensor();
 
@@ -129,9 +129,10 @@ void pathManagerInit(void) {
 
 void pathManagerRuntime(void) {
 #if DEBUG
-//    char str[16];
-//    sprintf(&str,"%f",pmData.time);
-//    UART1_SendString(&str);
+    char str[16];
+    sprintf(&str,"%d",getCurrentAirspeed());
+    UART1_SendString(&str);
+
 #endif
     copyGPSData();
 
