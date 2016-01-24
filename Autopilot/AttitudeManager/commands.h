@@ -60,6 +60,10 @@
 #define LOCK_GOPRO 49
 #define ARM_VEHICLE 50
 #define DEARM_VEHICLE 51
+#define SET_FLAP 52
+#define SET_FLAP_KD_GAIN 53
+#define SET_FLAP_KP_GAIN 54
+#define SET_FLAP_KI_GAIN 55
 
 //Multipart Commands
 #define NEW_WAYPOINT 128
@@ -67,6 +71,9 @@
 #define SET_RETURN_HOME_COORDINATES 130
 #define TARE_IMU 131
 #define SET_IMU 132
+#define SET_KDVALUES 133
+#define SET_KPVALUES 134
+#define SET_KIVALUES 135
 
 //Multipart Command Structs
 typedef struct _newwaypointwrapper {

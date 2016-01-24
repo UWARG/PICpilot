@@ -24,6 +24,7 @@
 #define ALTITUDE_CONTROL 0b10000000 //Off(0) or On(1)
 #define HEADING_CONTROL_SOURCE 0b0000000100000000 // Ground Station(0) or Autopilot(1)
 #define HEADING_CONTROL 0b0000001000000000 //Off(0) or On(1)
+#define FLAP_CONTROL_SOURCE 0b0000110000000000 //Controller(0) or Ground Station(1) or Autopilot(2)
 
 //Bit Mask Bit Shifts
 #define PITCH_CONTROL_TYPE_SHIFT 0
@@ -35,6 +36,7 @@
 #define ALTITUDE_CONTROL_SHIFT 7
 #define HEADING_CONTROL_SOURCE_SHIFT 8
 #define HEADING_CONTROL_SHIFT 9
+#define FLAP_CONTROL_SOURCE_SHIFT 10
 
 //Bit Mask Resultant Values
 #define RATE_CONTROL 0
@@ -43,12 +45,17 @@
 #define PITCH_RC_SOURCE 0
 #define ROLL_RC_SOURCE 0
 #define THROTTLE_RC_SOURCE 0
+#define FLAP_RC_SOURCE 0
+
 #define PITCH_GS_SOURCE 1
 #define ROLL_GS_SOURCE 1
 #define THROTTLE_GS_SOURCE 1
+#define FLAP_GS_SOURCE 1
 #define ALTITUDE_GS_SOURCE 0
 #define HEADING_GS_SOURCE 0
+
 #define THROTTLE_AP_SOURCE 2
+#define FLAP_AP_SOURCE 2
 #define ALTITUDE_AP_SOURCE 1
 #define HEADING_AP_SOURCE 1
 
@@ -65,12 +72,26 @@
 #define HEADING 3
 #define ALTITUDE 4
 #define THROTTLE 5
+#define FLAP 6
 
 //Defined in the opposite order for rates of rotation
 //Be careful not to confuse the constants
 #define IMU_YAW_RATE     2
 #define IMU_PITCH_RATE   1
 #define IMU_ROLL_RATE    0
+
+
+//channels
+#define ROLL_IN_CHANNEL 1
+#define ROLL_OUT_CHANNEL 1
+#define PITCH_IN_CHANNEL 2
+#define PITCH_OUT_CHANNEL 2
+#define THROTTLE_IN_CHANNEL 3
+#define THROTTLE_OUT_CHANNEL 3
+#define YAW_IN_CHANNEL 4
+#define YAW_OUT_CHANNEL 4
+#define FLAP_IN_CHANNEL 5
+#define FLAP_OUT_CHANNEL 5
 
 
 /* FUNCTION PROTOTYPES */
@@ -109,12 +130,16 @@ int getPitchRateSetpoint();
 int getRollRateSetpoint();
 int getYawRateSetpoint();
 int getThrottleSetpoint();
+int getFlapSetpoint();
 void setPitchAngleSetpoint(int setpoint);
 void setRollAngleSetpoint(int setpoint);
 void setPitchRateSetpoint(int setpoint);
 void setRollRateSetpoint(int setpoint);
 void setYawRateSetpoint(int setpoint);
 void setThrottleSetpoint(int setpoint);
+void setFlapSetpoint(int setpoint);
+void setAltitudeSetpoint(int setpoint);
+void setHeadingSetpoint(int setpoint);
 
 void inputCapture();
 int getPitchAngleInput(char source);
@@ -122,10 +147,12 @@ int getRollAngleInput(char source);
 int getPitchRateInput(char source);
 int getRollRateInput(char source);
 int getThrottleInput(char source);
+int getFlapInput(char source);
 int getAltitudeInput(char source);
 void imuCommunication();
 int altitudeControl(int setpoint, int sensorAltitude);
 int throttleControl(int setpoint, int sensor);
+int flapControl(int setpoint, int sensor);
 int headingControl(int setpoint, int sensor);
 int rollAngleControl(int setpoint, int sensor);
 int pitchAngleControl(int setpoint, int sensor);
@@ -134,6 +161,7 @@ int rollRateControl(float setpoint, float sensor);
 int pitchRateControl(float setpoint, float sensor);
 int yawRateControl(float setpoint, float sensor);
 char getControlPermission(unsigned int controlMask, unsigned int expectedValue, char bitshift);
+
 
 
 /*****************************************************************************

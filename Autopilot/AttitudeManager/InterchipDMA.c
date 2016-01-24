@@ -51,7 +51,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
         DMA0CONbits.CHEN = 0; //Disable DMA0 channel
         DMA1CONbits.CHEN = 0; //Disable DMA1 channel
         while(SPI1STATbits.SPIRBF) { //Clear SPI1
-            int dummy = SPI1BUF;
+            //int dummy = SPI1BUF;
         }
         // Clear flags
 #if PATH_MANAGER

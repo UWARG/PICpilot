@@ -1,5 +1,4 @@
 #include "I2C.h"
-#include <i2c.h>
 void initI2C()
 {
     //Initializes all I2C communications registers

@@ -15,6 +15,7 @@
 char vehicleArmed = 0;
 
 void initialization(int* outputSignal){
+    setPWM(THROTTLE_OUT_CHANNEL,MIN_PWM);
     while (!vehicleArmed){
         imuCommunication();
         asm("CLRWDT");
@@ -34,10 +35,11 @@ void armVehicle(int delayTime){
     asm("CLRWDT");
     Delay(delayTime);
     asm("CLRWDT");
-    setPWM(1, 0);
-    setPWM(2, 0);
-    setPWM(3, MIN_PWM);
-    setPWM(4, 0);
+    setPWM(ROLL_OUT_CHANNEL, 0);
+    setPWM(PITCH_OUT_CHANNEL, 0);
+    setPWM(THROTTLE_OUT_CHANNEL, MIN_PWM);
+    setPWM(YAW_OUT_CHANNEL, 0);
+    setPWM(FLAP_OUT_CHANNEL, MIN_PWM);
     asm("CLRWDT");
     Delay(delayTime);
     asm("CLRWDT");
@@ -68,12 +70,15 @@ void landing(){
     
 }
 
-void inputMixing(int* channels, int* rollRate, int* pitchRate, int* throttle, int* yawRate){
+void inputMixing(int* channels, int* rollRate, int* pitchRate, int* throttle, int* yawRate, int* flap){
         if (getControlPermission(ROLL_CONTROL_SOURCE, ROLL_RC_SOURCE,0)){
             (*rollRate) = channels[0];
         }
         if (getControlPermission(THROTTLE_CONTROL_SOURCE, THROTTLE_RC_SOURCE,0))
             (*throttle) = (channels[2]);
+        
+        if (getControlPermission(FLAP_CONTROL_SOURCE, FLAP_RC_SOURCE,0))
+            (*flap) = channels[FLAP_IN_CHANNEL-1];
 
 
         #if(TAIL_TYPE == STANDARD_TAIL)
@@ -89,7 +94,7 @@ void inputMixing(int* channels, int* rollRate, int* pitchRate, int* throttle, in
         #endif
 }
 
-void outputMixing(int* channels, int* control_Roll, int* control_Pitch, int* control_Throttle, int* control_Yaw){
+void outputMixing(int* channels, int* control_Roll, int* control_Pitch, int* control_Throttle, int* control_Yaw, int* control_Flap){
     //code for different tail configurations
     #if(TAIL_TYPE == STANDARD_TAIL)    //is a normal t-tail
     {
@@ -110,6 +115,7 @@ void outputMixing(int* channels, int* control_Roll, int* control_Pitch, int* con
     #endif
     channels[0] = (*control_Roll);
     channels[2] = (*control_Throttle);
+    channels[4] = (*control_Flap);
 }
 
 void checkLimits(int* channels){
@@ -153,6 +159,12 @@ void checkLimits(int* channels){
         channels[3] = MAX_YAW_PWM;
     else if (channels[3] < MIN_YAW_PWM)
         channels[3] = MIN_YAW_PWM;
+    
+    //Flaps
+    if (channels[4] > MAX_PWM){
+        channels[4] = MAX_PWM;
+    }
+    
 }
 
 void startArm()

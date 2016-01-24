@@ -1,12 +1,12 @@
 /* 
- * File:   voltageSensor.h
+ * File:   airspeed.h
  * Author: Chris Hajduk
  *
  * Created on June 5, 2014, 8:18 PM
  */
 
-#ifndef VOLTAGESENSOR_H
-#define	VOLTAGESENSOR_H
+#ifndef AIRSPEEDSENSOR_H
+#define	AIRSPEEDSENSOR_H
 
 #ifdef	__cplusplus
 extern "C" {
@@ -15,14 +15,14 @@ extern "C" {
 
 //Function Prototypes
 //TODO: Add descriptions for each function
-void initBatterySensor();
+void initAirspeedSensor();
 //float timeRemaining();
-char getCurrentPercent();
-void initVoltageADC();
+char getCurrentAirspeed();
+void initAirspeedADC();
 
 #ifdef	__cplusplus
 }
 #endif
 
-#endif	/* VOLTAGESENSOR_H */
+#endif	/* AIRSPEEDSENSOR_H */
 

@@ -55,14 +55,14 @@ struct telem_block {
     float groundSpeed;
     float altitude;
     int heading;
-    int pitchSetpoint, rollSetpoint, headingSetpoint, throttleSetpoint; //Angle
+    int pitchSetpoint, rollSetpoint, headingSetpoint, throttleSetpoint, flapSetpoint; //Angle
     int altitudeSetpoint;
     int cPitchSetpoint, cRollSetpoint, cYawSetpoint;  //Controller input // 2Byte
     int lastCommandSent;
     int errorCodes;
     int cameraStatus;
     char waypointIndex;
-    char editing_gain, gpsStatus, batteryLevel, waypointCount;                              // 1Byte
+    char editing_gain, gpsStatus, batteryLevel, waypointCount, airspeed;                              // 1Byte
     // TODO: Add additional telemetry to be sent here
 };
 

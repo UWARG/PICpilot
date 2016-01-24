@@ -23,12 +23,14 @@
 #define ALTITUDE_PITCH_SCALE_FACTOR 1 //0.1 degrees per meter in altitude change
 #define HEADING_ROLL_SCALE_FACTOR 0.5
 #define THROTTLE_SCALE_FACTOR SP_RANGE///Remove this * 2 if having problems
+#define FLAP_SCALE_FACTOR SP_RANGE
 
 
 
 //Function Prototypes
 //TODO: Add function comments here
 int controlSignalThrottle(int setpoint, int output);
+int controlSignalFlap(int setpoint, int output);
 int controlSignalAltitude(int sp_Altitude,int gps_Altitude);
 /*****************************************************************************
  * Function: float controlSignalHeading(float setpoint, float output, float time)

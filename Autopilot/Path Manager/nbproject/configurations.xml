@@ -17,6 +17,7 @@
       <itemPath>../Common/debug.h</itemPath>
       <itemPath>../Common/UART1.h</itemPath>
       <itemPath>StartupErrorCodes.h</itemPath>
+      <itemPath>airspeedSensor.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -38,6 +39,7 @@
       <itemPath>../Common/debug.c</itemPath>
       <itemPath>../Common/UART1.c</itemPath>
       <itemPath>StartupErrorCodes.c</itemPath>
+      <itemPath>airspeedSensor.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

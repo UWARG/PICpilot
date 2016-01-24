@@ -19,8 +19,6 @@
 #include "main.h"
 #include "InterchipDMA.h"
 
-#include "DisplayQuad.h"
-
 
 extern PMData pmData;
 extern AMData amData;
@@ -36,6 +34,7 @@ float* velocityComponents;
 // Setpoints (From radio transmitter or autopilot)
 int sp_PitchRate = 0;
 int sp_ThrottleRate = MIN_PWM;
+int sp_FlapRate = MIN_PWM;
 int sp_YawRate = 0;
 int sp_RollRate = 0;
 
@@ -51,15 +50,18 @@ int sp_ComputedYawRate = 0;
 char currentGain = 0;
 
 int sp_PitchAngle = 0;
+int ctrl_PitchAngle = 0;
 //float sp_YawAngle = 0;
 int sp_RollAngle = 0;
+int ctrl_RollAngle = 0;
 
 //Heading Variables
 int sp_Heading = 0;
-int sp_HeadingRate = 0;
+int ctrl_Heading = 0;
 
 //Altitude Variables
 int sp_Altitude = 0;
+int ctrl_Altitude = 0;
 float sp_GroundSpeed = 0;
 
 //GPS Data
@@ -75,7 +77,7 @@ char waypointIndex = 0;
 char waypointChecksum = 0;
 char waypointCount = 0;
 char batteryLevel = 0;
-
+char airspeed = 0;
 
 // System outputs (get from IMU)
 float imuData[3];
@@ -96,6 +98,7 @@ int yawTrim = 0;
 int input_RC_RollRate = 0;
 int input_RC_PitchRate = 0;
 int input_RC_Throttle = 0;
+int input_RC_Flap = 0;
 int input_RC_YawRate = 0;
 int input_RC_Aux1 = 0; //0=Roll, 1= Pitch, 2=Yaw
 int input_RC_Aux2 = 0; //0 = Saved Value, 1 = Edit Mode
@@ -106,6 +109,7 @@ int input_RC_UHFSwitch = 0;
 int input_GS_Roll = 0;
 int input_GS_Pitch = 0;
 int input_GS_Throttle = 0;
+int input_GS_Flap = 0;
 int input_GS_Yaw = 0;
 int input_GS_RollRate = 0;
 int input_GS_PitchRate = 0;
@@ -115,7 +119,7 @@ int input_GS_Altitude = 0;
 int input_AP_Altitude = 0;
 
 //PID Global Variable Storage Values
-int rollPID, pitchPID, throttlePID, yawPID;
+int rollPID, pitchPID, throttlePID, yawPID, flapPID;
 
 float scaleFactor = 20; //Change this
 
@@ -200,6 +204,7 @@ char checkDMA(){
         waypointIndex = pmData.targetWaypoint;
         batteryLevel = pmData.batteryLevel;
         waypointCount = pmData.waypointCount;
+        airspeed = pmData.airspeed;
 
         //Check if this data is new and requires action or if it is old and redundant
         if (gps_Altitude == pmData.altitude && gps_Heading == pmData.heading && gps_GroundSpeed == pmData.speed && gps_Latitude == pmData.latitude && gps_Longitude == pmData.longitude){
@@ -268,6 +273,9 @@ int getYawRateSetpoint(){
 int getThrottleSetpoint(){
     return sp_ThrottleRate;
 }
+int getFlapSetpoint(){
+    return sp_FlapRate;
+}
 
 void setPitchAngleSetpoint(int setpoint){
     sp_PitchAngle = setpoint;
@@ -287,11 +295,20 @@ void setYawRateSetpoint(int setpoint){
 void setThrottleSetpoint(int setpoint){
     sp_ThrottleRate = setpoint;
 }
+void setFlapSetpoint(int setpoint){
+    sp_FlapRate = setpoint;
+}
+void setAltitudeSetpoint(int setpoint){
+    sp_Altitude = setpoint;
+}
+void setHeadingSetpoint(int setpoint){
+    sp_Heading = setpoint;
+}
 
 void inputCapture(){
     int* channelIn;
     channelIn = getPWMArray();
-    inputMixing(channelIn, &input_RC_RollRate, &input_RC_PitchRate, &input_RC_Throttle, &input_RC_YawRate);
+    inputMixing(channelIn, &input_RC_RollRate, &input_RC_PitchRate, &input_RC_Throttle, &input_RC_YawRate, &input_RC_Flap);
 
     // Switches and Knobs
     input_RC_UHFSwitch = channelIn[4];
@@ -362,6 +379,22 @@ int getThrottleInput(char source){
     else
         return 0;
 }
+
+int getFlapInput(char source){
+    if (source == FLAP_RC_SOURCE){
+        return input_RC_Flap;
+    }
+    else if (source == FLAP_GS_SOURCE){
+        return input_GS_Flap;
+    }
+    else if (source == FLAP_AP_SOURCE){
+//        return input_AP_Flap;
+        return 0;
+    }
+    else
+        return 0;
+}
+
 int getAltitudeInput(char source){
     if (source == ALTITUDE_GS_SOURCE){
         return input_GS_Altitude;
@@ -372,6 +405,14 @@ int getAltitudeInput(char source){
     else
         return 0;
 }
+
+void setKValues(int type,float* values){
+    int Kchannel[7] = {YAW, PITCH, ROLL, HEADING, ALTITUDE, THROTTLE, FLAP};
+    int i;
+    for(i=0; i<7; i++){
+       setGain(Kchannel[i],type,values[i]);
+    }
+};
 
 void imuCommunication(){
     /*****************************************************************************
@@ -407,14 +448,12 @@ void imuCommunication(){
 
 int altitudeControl(int setpoint, int sensorAltitude){
     //Altitude
-    if (getControlPermission(ALTITUDE_CONTROL, ALTITUDE_CONTROL_ON, 0)){
-        sp_PitchAngle = controlSignalAltitude(setpoint, sensorAltitude);
-        if (sp_PitchAngle > MAX_PITCH_ANGLE)
-            sp_PitchAngle = MAX_PITCH_ANGLE;
-        if (sp_PitchAngle < -MAX_PITCH_ANGLE)
-            sp_PitchAngle = -MAX_PITCH_ANGLE;
-    }
-    return sp_PitchAngle;
+    ctrl_PitchAngle = controlSignalAltitude(setpoint, sensorAltitude);
+    if (ctrl_PitchAngle > MAX_PITCH_ANGLE)
+        ctrl_PitchAngle = MAX_PITCH_ANGLE;
+    if (ctrl_PitchAngle < -MAX_PITCH_ANGLE)
+        ctrl_PitchAngle = -MAX_PITCH_ANGLE;
+    return ctrl_PitchAngle;
 }
 
 int throttleControl(int setpoint, int sensor){
@@ -423,26 +462,29 @@ int throttleControl(int setpoint, int sensor){
     return throttlePID;
 }
 
+int flapControl(int setpoint, int sensor){
+    //Flaps
+    flapPID = sp_FlapRate + controlSignalFlap(setpoint, sensor);      
+    return flapPID;
+}
+
 //Equivalent to "Yaw Angle Control"
 int headingControl(int setpoint, int sensor){
     //Heading
-    if (getControlPermission(HEADING_CONTROL,HEADING_CONTROL_ON,0)){
-        //Estimation of Roll angle based on heading:
+    while (setpoint > 360)
+        setpoint -= 360;
+    while (setpoint < 0)
+        setpoint += 360;
 
-        while (setpoint > 360)
-            setpoint -=360;
-        while (setpoint < 0)
-            setpoint +=360;
-        // -(maxHeadingRate)/180.0,
-            sp_HeadingRate = controlSignalHeading(setpoint, sensor);//gps_Satellites>=4?gps_Heading:(int)imu_YawAngle); //changed to monitor satellites, since we know these are good values while PositionFix might be corrupt...
-            //Approximating Roll angle from Heading
-            sp_RollAngle = sp_HeadingRate;      //TODO: HOW IS HEADING HANDLED DIFFERENTLY BETWEEN QUADS AND PLANES
+    setHeadingSetpoint(setpoint);
+    ctrl_Heading = controlSignalHeading(setpoint, sensor);//gps_Satellites>=4?gps_Heading:(int)imu_YawAngle); //changed to monitor satellites, since we know these are good values while PositionFix might be corrupt...
+    //Approximating Roll angle from Heading
+    sp_RollAngle = ctrl_Heading;      //TODO: HOW IS HEADING HANDLED DIFFERENTLY BETWEEN QUADS AND PLANES
 
-        if (sp_RollAngle > MAX_ROLL_ANGLE)
-            sp_RollAngle = MAX_ROLL_ANGLE;
-        if (sp_RollAngle < -MAX_ROLL_ANGLE)
-            sp_RollAngle = -MAX_ROLL_ANGLE;
-    }
+    if (sp_RollAngle > MAX_ROLL_ANGLE)
+        sp_RollAngle = MAX_ROLL_ANGLE;
+    if (sp_RollAngle < -MAX_ROLL_ANGLE)
+        sp_RollAngle = -MAX_ROLL_ANGLE;
     return sp_RollAngle;
 }
 
@@ -461,7 +503,7 @@ int pitchAngleControl(int setpoint, int sensor){
 
 int coordinatedTurn(float pitchRate, int rollAngle){
     //Feed forward Term when turning
-    pitchRate -= abs((int)(scaleFactor * rollAngle)); //Linear Function
+    pitchRate += (int)(scaleFactor * abs(rollAngle)); //Linear Function
     return pitchRate;
 }
 
@@ -555,6 +597,17 @@ void readDatalink(void){
             case SET_THROTTLE_KI_GAIN:
                 setGain(THROTTLE, GAIN_KI, *(float*)(&cmd->data));
                 break;
+                
+            case SET_FLAP_KD_GAIN:
+                setGain(FLAP, GAIN_KD, *(float*)(&cmd->data));
+                break;
+            case SET_FLAP_KP_GAIN:
+                setGain(FLAP, GAIN_KP, *(float*)(&cmd->data));
+                break;
+            case SET_FLAP_KI_GAIN:
+                setGain(FLAP, GAIN_KI, *(float*)(&cmd->data));
+                break;    
+            
             case SET_PATH_GAIN:
                 amData.pathGain = *(float*)(&cmd->data);
                 amData.command = PM_SET_PATH_GAIN;
@@ -596,6 +649,9 @@ void readDatalink(void){
                 break;
             case SET_THROTTLE:
                 input_GS_Throttle = (int)(((long int)(*(int*)(&cmd->data))) * MAX_PWM * 2 / 100) - MAX_PWM;
+                break;
+            case SET_FLAP:
+                input_GS_Flap = (int)(((long int)(*(int*)(&cmd->data))) * MAX_PWM * 2 / 100) - MAX_PWM;
                 break;
             case SET_AUTONOMOUS_LEVEL:
                 controlLevel = *(int*)(&cmd->data);
@@ -717,6 +773,15 @@ void readDatalink(void){
             case SET_IMU:
                 setVNOrientationMatrix((float*)(&cmd->data));
                 break;
+            case SET_KDVALUES:
+                setKValues(GAIN_KD,(float*)(&cmd->data));
+                break;
+            case SET_KPVALUES:
+                setKValues(GAIN_KP,(float*)(&cmd->data));
+                break;
+            case SET_KIVALUES:
+                setKValues(GAIN_KI,(float*)(&cmd->data));
+                break;
             default:
                 break;
         }
@@ -747,6 +812,7 @@ int writeDatalink(){
     statusData->rollSetpoint = getRollAngleSetpoint();
     statusData->headingSetpoint = sp_Heading;
     statusData->throttleSetpoint = (int)(((long int)(sp_ThrottleRate + MAX_PWM) * 100) / MAX_PWM/2);
+    statusData->flapSetpoint = (int)(((long int)(sp_FlapRate + MAX_PWM) * 100) / MAX_PWM/2);
     statusData->altitudeSetpoint = sp_Altitude;
     statusData->cPitchSetpoint = getPitchRateSetpoint();
     statusData->cRollSetpoint = getRollRateSetpoint();
@@ -759,6 +825,7 @@ int writeDatalink(){
     statusData->gpsStatus = gps_Satellites + (gps_PositionFix << 4);
     statusData->batteryLevel = batteryLevel;
     statusData->waypointCount = waypointCount;
+    statusData->airspeed = airspeed;
 
 
     if (BLOCKING_MODE) {

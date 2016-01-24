@@ -14,11 +14,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "timer.h"
+#include "../Common/clock.h"
 
 //Turns debug mode on or off. Usually contains small snippets of code to output
 //data through UART or to provide small input adjustments
-#define DEBUG 0
+#define DEBUG 1
 
 //  Path Manager - Communicates with the GPS in order to provide a constant
 //                  heading for the aircraft to follow.
@@ -37,5 +37,5 @@
 #define rad2deg(RAD) ((RAD) * 180.0/PI)
 
 #if DEBUG
-    #include "debug.h"
+    #include "../Common/debug.h"
 #endif

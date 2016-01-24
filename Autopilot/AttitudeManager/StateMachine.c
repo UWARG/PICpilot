@@ -21,8 +21,8 @@ long int stateMachineTimer = 0;
 int dTime = 0;
 
 //Important Autopilot Variables
-int outputSignal[4];
-int control_Roll, control_Pitch, control_Yaw, control_Throttle;
+int outputSignal[5];
+int control_Roll, control_Pitch, control_Yaw, control_Throttle, control_Flap;
 
 void StateMachine(char entryLocation){
     //Timers
@@ -81,9 +81,10 @@ void StateMachine(char entryLocation){
 
 #if FIXED_WING
 void highLevelControl(){
-    //If commands come from the autopilot
-    if (getControlPermission(ALTITUDE_CONTROL,ALTITUDE_CONTROL_ON,ALTITUDE_CONTROL_SHIFT) && getControlPermission(ALTITUDE_CONTROL_SOURCE,ALTITUDE_GS_SOURCE,ALTITUDE_CONTROL_SOURCE_SHIFT)) {setPitchAngleSetpoint(altitudeControl(getAltitudeInput(ALTITUDE_GS_SOURCE), getAltitude()));setThrottleSetpoint(throttleControl(getAltitudeInput(ALTITUDE_GS_SOURCE),getAltitude()));}
-    else if (getControlPermission(ALTITUDE_CONTROL,ALTITUDE_CONTROL_ON,ALTITUDE_CONTROL_SHIFT) && getControlPermission(ALTITUDE_CONTROL_SOURCE,ALTITUDE_AP_SOURCE,ALTITUDE_CONTROL_SOURCE_SHIFT)) {setPitchAngleSetpoint(altitudeControl(getAltitudeInput(ALTITUDE_AP_SOURCE), getAltitude()));setThrottleSetpoint(throttleControl(getAltitudeInput(ALTITUDE_AP_SOURCE),getAltitude()));}
+    //If the commands come from the ground station
+    if (getControlPermission(ALTITUDE_CONTROL,ALTITUDE_CONTROL_ON,ALTITUDE_CONTROL_SHIFT) && getControlPermission(ALTITUDE_CONTROL_SOURCE,ALTITUDE_GS_SOURCE,ALTITUDE_CONTROL_SOURCE_SHIFT)) {setPitchAngleSetpoint(altitudeControl(getAltitudeInput(ALTITUDE_GS_SOURCE), getAltitude()));setAltitudeSetpoint(getAltitudeInput(ALTITUDE_GS_SOURCE));setThrottleSetpoint(throttleControl(getAltitudeInput(ALTITUDE_GS_SOURCE),getAltitude()));}
+   //If the commands come from the autopilot
+    else if (getControlPermission(ALTITUDE_CONTROL,ALTITUDE_CONTROL_ON,ALTITUDE_CONTROL_SHIFT) && getControlPermission(ALTITUDE_CONTROL_SOURCE,ALTITUDE_AP_SOURCE,ALTITUDE_CONTROL_SOURCE_SHIFT)) {setPitchAngleSetpoint(altitudeControl(getAltitudeInput(ALTITUDE_AP_SOURCE), getAltitude()));setAltitudeSetpoint(getAltitudeInput(ALTITUDE_AP_SOURCE));setThrottleSetpoint(throttleControl(getAltitudeInput(ALTITUDE_AP_SOURCE),getAltitude()));}
     //If commands come from the ground station
     else if (getControlPermission(PITCH_CONTROL_SOURCE, PITCH_GS_SOURCE,PITCH_CONTROL_SOURCE_SHIFT)) setPitchAngleSetpoint(getPitchAngleInput(PITCH_GS_SOURCE));
     //If commands come from the RC controller
@@ -120,6 +121,11 @@ void lowLevelControl(){
         setPitchRateSetpoint(getPitchRateInput(PITCH_RC_SOURCE));                         //Keep a steady Pitch Angle
         setPitchRateSetpoint(coordinatedTurn(getPitchRateSetpoint(), getRoll()));       //Apply Coordinated Turn
     }
+    
+    //If commands come from the ground station
+    if (getControlPermission(FLAP_CONTROL_SOURCE, FLAP_GS_SOURCE ,FLAP_CONTROL_SOURCE_SHIFT)){setFlapSetpoint(getFlapInput(FLAP_GS_SOURCE));}
+    //If commands come from the RC Controller
+    else if (getControlPermission(FLAP_CONTROL_SOURCE,FLAP_RC_SOURCE, FLAP_CONTROL_SOURCE_SHIFT)){setFlapSetpoint(getFlapInput(FLAP_RC_SOURCE));}
 
     //If commands come from the ground station
     if (getControlPermission(THROTTLE_CONTROL_SOURCE, THROTTLE_GS_SOURCE ,THROTTLE_CONTROL_SOURCE_SHIFT)){setThrottleSetpoint(getThrottleInput(THROTTLE_GS_SOURCE));}
@@ -130,8 +136,9 @@ void lowLevelControl(){
     control_Pitch = pitchRateControl((float)getPitchRateSetpoint(), -getPitchRate());
     control_Yaw = yawRateControl((float)getYawRateSetpoint(), -getYawRate());
     control_Throttle = getThrottleSetpoint();
+    control_Flap = getFlapSetpoint();
     //Mixing!
-    outputMixing(outputSignal, &control_Roll, &control_Pitch, &control_Throttle, &control_Yaw);
+    outputMixing(outputSignal, &control_Roll, &control_Pitch, &control_Throttle, &control_Yaw, &control_Flap);
     //Error Checking
     checkLimits(outputSignal);
     //Then Output
@@ -141,14 +148,16 @@ void lowLevelControl(){
     unsigned int goProGimbalPWM = goProGimbalStabilization(getRoll());
     unsigned int verticalGoProPWM = goProVerticalstabilization(getPitch());
     //For fixed-wing aircraft: Typically 0 = Roll, 1 = Pitch, 2 = Throttle, 3 = Yaw
-    setPWM(1, outputSignal[0]);//Roll
-    setPWM(2, outputSignal[1]); //Pitch
-    setPWM(3, outputSignal[2]);//Throttle
-    setPWM(4, outputSignal[3]); //Yaw
-    setPWM(5, goProGimbalPWM);
-    setPWM(6, verticalGoProPWM);
-    setPWM(7, gimbalPWM);
-    setPWM(8, cameraPWM);
+    
+    setPWM(ROLL_OUT_CHANNEL, outputSignal[0]);//Roll
+    setPWM(PITCH_OUT_CHANNEL, outputSignal[1]); //Pitch
+    setPWM(THROTTLE_OUT_CHANNEL, outputSignal[2]);//Throttle
+    setPWM(YAW_OUT_CHANNEL, outputSignal[3]); //Yaw
+    //setPWM(5, goProGimbalPWM);
+    //setPWM(6, verticalGoProPWM);
+    //setPWM(7, gimbalPWM);
+    //setPWM(8, cameraPWM);
+    setPWM(FLAP_OUT_CHANNEL, outputSignal[4]); //Flaps
 }
 #elif COPTER
 void highLevelControl(){
@@ -164,7 +173,7 @@ void lowLevelControl(){
     control_Yaw = yawRateControl(getYawRateSetpoint(), getYawRate());
 
     //Mixing!
-    outputMixing(outputSignal, &control_Roll, &control_Pitch, &control_Throttle, &control_Yaw);
+    outputMixing(outputSignal, &control_Roll, &control_Pitch, &control_Throttle, &control_Yaw, &control_Flap);
 
     //Error Checking
     checkLimits(outputSignal);

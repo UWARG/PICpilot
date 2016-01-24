@@ -11,13 +11,14 @@
 #include "Dubins.h"
 #include "MPL3115A2.h"
 #include "voltageSensor.h"
+#include "airspeedSensor.h"
 
 #include "InterchipDMA.h"
 
 #if DEBUG
 #include <stdio.h>
 #include <stdlib.h>
-#include "UART1.h"
+#include "../Common/UART1.h"
 #endif
 
 extern GPSData gpsData;
@@ -56,9 +57,10 @@ void pathManagerInit(void) {
     init_SPI2();
     init_DMA2();
 //  Hack to power altimeter from UART on PM
-//    TRISFbits.TRISF5 = 0;
-//    PORTFbits.RF5 = 1;
+    TRISFbits.TRISF5 = 0;
+    PORTFbits.RF5 = 1;
     initBatterySensor();
+    initAirspeedSensor();
 
     //Interchip Communication
     //Initialize Interchip Interrupts for Use in DMA Reset
@@ -513,8 +515,9 @@ void copyGPSData(){
         pmData.speed = gpsData.speed;
         pmData.satellites = (char)gpsData.satellites;
         pmData.positionFix = (char)gpsData.positionFix;
-        pmData.batteryLevel = getCurrentPercent();
     }
+    pmData.batteryLevel = getCurrentPercent();
+    pmData.airspeed = getCurrentAirspeed();
     pmData.altitude = getAltitude(); //gpsData.altitude; //want to get altitude regardless of if there is new GPS data
     pmData.checkbyteDMA = generatePMDataDMAChecksum();
 }

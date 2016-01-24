@@ -15,9 +15,9 @@
 
 //TODO: Change these variable names to more generic names for inclusion of heading
 //25.2125988006591
-float kd_gain[6] = {0.0, 0, 0, 0, 0, 0};
-float kp_gain[6] = {5, 1e-3, 1e-3, 0, 0, 1e-3};//{1, 0.5, 2.5, 1.5, 1.25, 0.05};
-float ki_gain[6]= {0, 0, 0, 0, 0, 0};
+float kd_gain[7] = {20.15, 15, 15, 0, 0, 0, 0};
+float kp_gain[7] = {5, 2, 2, 2, 1, 1, 1};//{1, 0.5, 2.5, 1.5, 1.25, 0.05};
+float ki_gain[7]= {0, 0, 0, 0, 0, 0,0};
 //Interal Values
 float sum_gain[6] = {0, 0, 0, 0, 0, 0};
 long int lastControlTime[6] = {0, 0, 0, 0, 0, 0};
@@ -33,6 +33,15 @@ int controlSignalThrottle(int setpoint, int output){
         sum_gain[THROTTLE] += (float)error;
     }
     int controlSignal = (int)(THROTTLE_SCALE_FACTOR * (error * kp_gain[THROTTLE] + sum_gain[THROTTLE] * ki_gain[THROTTLE]));
+    return controlSignal;
+}
+
+int controlSignalFlap(int setpoint, int output){
+    int error = setpoint - output;
+    if (integralFreeze == 0){
+        sum_gain[FLAP] += (float)error;
+    }
+    int controlSignal = (int)(FLAP_SCALE_FACTOR * (error * kp_gain[FLAP] + sum_gain[FLAP] * ki_gain[FLAP]));
     return controlSignal;
 }
 

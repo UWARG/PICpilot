@@ -21,8 +21,8 @@ extern "C" {
 void initialization();
 void armVehicle(int delayTime);
 void dearmVehicle();
-void inputMixing(int* channels, int* rollRate, int* pitchRate, int* throttle, int* yawRate);
-void outputMixing(int* channels, int* control_Roll, int* control_Pitch, int* control_Throttle, int* control_Yaw);
+void inputMixing(int* channels, int* rollRate, int* pitchRate, int* throttle, int* yawRate, int* flap);
+void outputMixing(int* channels, int* control_Roll, int* control_Pitch, int* control_Throttle, int* control_Yaw, int* control_Flap);
 void checkLimits(int* channels);
 void startArm();
 void stopArm();
