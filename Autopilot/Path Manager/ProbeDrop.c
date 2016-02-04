@@ -21,18 +21,27 @@ bool probeDrop(bool *verifiedDrop, Vector *targetPosition, Vector *currentPositi
     if (!verifiedDrop) {
         return false;
     }
-    double distanceFromTarget = sqrt(sq(currentPosition->x, targetPosition->x) + (currentPosition->y, targetPosition->y));
+    double DRAG_CONSTANT;
+    double SURFACE_AREA;
+    double DENSITY;
+    double MASS;
+
+    double terminalVelocity = sqrt((2*MASS*GRAVITY)/(DRAG_CONSTANT*AREA));
+    double characteristicTime = terminalVelocity/GRAVITY;
     
-    double totalDropTime = sqrt(2*altitude/GRAVITY);
+    //The time until impact when the probe is dropped
+    double impactTime = characteristicTime*acosh(pow(M_E,altitude/(terminalVelocity*characteristicTime)));
     
-    double timeUntilRelease = distanceFromTarget/windVelocity;
-    
-    //An angle from the x-axis
-   // double direction = atan((targetPosition->y - currentPosition->y)/(targetPosition->x - currentPosition->x));
-    
+    //The horizontal distance from the target
+    double distanceFromTarget = sqrt(pow(currentPosition->x - targetPosition->x,2) + pow(currentPosition->y - targetPosition->y,2));
     
     
-    return timeUntilRelease <= totalDropTime;
+    //double totalDropTime = sqrt(2*altitude/GRAVITY);
+    
+    //The time it will take the plane to reach the target
+    double timeUntilArrival = distanceFromTarget/windVelocity;
+    
+    return timeUntilArrival <= impactTime;
     
     
 }
