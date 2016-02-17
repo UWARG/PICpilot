@@ -71,13 +71,14 @@ float gps_Time = 0;
 long double gps_Longitude = 0;
 long double gps_Latitude = 0;
 float gps_Altitude = 0;
+float airspeed = 0;
 char gps_Satellites = 0;
 char gps_PositionFix = 0;
 char waypointIndex = 0;
 char waypointChecksum = 0;
 char waypointCount = 0;
 char batteryLevel = 0;
-char airspeed = 0;
+
 
 // System outputs (get from IMU)
 float imuData[3];
@@ -825,7 +826,7 @@ int writeDatalink(){
     statusData->gpsStatus = gps_Satellites + (gps_PositionFix << 4);
     statusData->batteryLevel = batteryLevel;
     statusData->waypointCount = waypointCount;
-    statusData->airspeed = airspeed;
+    statusData->airspeed = (int)airspeed;
 
 
     if (BLOCKING_MODE) {

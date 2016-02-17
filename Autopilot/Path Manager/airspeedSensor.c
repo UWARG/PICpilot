@@ -29,7 +29,7 @@ void initAirspeedSensor(){
 }
 
 
-char getCurrentAirspeed(){
+int getCurrentAirspeed(){
     //airspeed = (char)((long int)currentAirspeedSignal*100/4096);
     return currentAirspeedSignal;
 }

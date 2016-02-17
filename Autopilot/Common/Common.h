@@ -61,6 +61,7 @@ typedef struct _PMData {
     long double longitude; //8 Bytes - ddd.mmmmmm
     float speed;    //KM/H
     float altitude;
+    float airspeed;
     int sp_Altitude; // Meters
     int heading;  //Degrees
     int sp_Heading; //Degrees
@@ -69,7 +70,6 @@ typedef struct _PMData {
     char targetWaypoint;
     char waypointCount;
     char batteryLevel;
-    char airspeed;
     char checkbyteDMA;
 } PMData;
 

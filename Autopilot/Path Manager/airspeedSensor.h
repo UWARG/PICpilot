@@ -17,7 +17,7 @@ extern "C" {
 //TODO: Add descriptions for each function
 void initAirspeedSensor();
 //float timeRemaining();
-char getCurrentAirspeed();
+int getCurrentAirspeed();
 void initAirspeedADC();
 
 #ifdef	__cplusplus

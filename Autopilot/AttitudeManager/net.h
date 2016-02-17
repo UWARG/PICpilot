@@ -53,6 +53,7 @@ struct telem_block {
     float pitchRate, rollRate, yawRate;             // 4Byte
     float kd_gain, kp_gain, ki_gain;          // 4Byte
     float groundSpeed;
+//    float airspeed;
     float altitude;
     int heading;
     int pitchSetpoint, rollSetpoint, headingSetpoint, throttleSetpoint, flapSetpoint; //Angle
@@ -61,8 +62,9 @@ struct telem_block {
     int lastCommandSent;
     int errorCodes;
     int cameraStatus;
+    int airspeed;
     char waypointIndex;
-    char editing_gain, gpsStatus, batteryLevel, waypointCount, airspeed;                              // 1Byte
+    char editing_gain, gpsStatus, batteryLevel, waypointCount;                              // 1Byte
     // TODO: Add additional telemetry to be sent here
 };
 
