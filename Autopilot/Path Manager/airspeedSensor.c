@@ -31,6 +31,7 @@ void initAirspeedSensor(){
 
 int getCurrentAirspeed(){
     //airspeed = (char)((long int)currentAirspeedSignal*100/4096);
+    airspeed = (char)((float)(currentAirspeedSignal^2*0.0147+0.4132*currentAirspeedSignal+1743)) //sensor signal calibration
     return currentAirspeedSignal;
 }
 
