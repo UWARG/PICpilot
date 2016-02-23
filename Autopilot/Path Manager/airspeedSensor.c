@@ -8,7 +8,6 @@
 #include "airspeedSensor.h"
 
 
-char airspeed = 0;
 int currentAirspeedSignal = 0;
 
 
@@ -30,9 +29,7 @@ void initAirspeedSensor(){
 
 
 float getCurrentAirspeed(){
-      //airspeed = (char)((long int)currentAirspeedSignal*100/4096);
-      airspeed = ((float)(pow(currentAirspeedSignal,2)*0.0147+0.4132*currentAirspeedSignal+1743)) //sensor signal calibration
-      return currentAirspeedSignal;
+      return ((float)(pow(currentAirspeedSignal,2)*0.0147+0.4132*currentAirspeedSignal+1743)); //sensor signal calibration
 }
 
 void initAirspeedADC(){
