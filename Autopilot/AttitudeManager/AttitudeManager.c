@@ -742,7 +742,7 @@ void readDatalink(void){
                 dropProbe(*(char*)(&cmd->data));
                 break;
             case RESET_PROBE:
-                //dropProbe(*(char*)(&cmd->data);
+                resetProbe(*(char*)(&cmd->data));
                 break;
 
             case NEW_WAYPOINT:
