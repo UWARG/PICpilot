@@ -6,6 +6,7 @@
  */
 
 #include "StateMachine.h"
+#include "Probe_Drop.h"
 #include "../Common/debug.h"
 
 /*
@@ -153,11 +154,9 @@ void lowLevelControl(){
     setPWM(PITCH_OUT_CHANNEL, outputSignal[1]); //Pitch
     setPWM(THROTTLE_OUT_CHANNEL, outputSignal[2]);//Throttle
     setPWM(YAW_OUT_CHANNEL, outputSignal[3]); //Yaw
-    //setPWM(5, goProGimbalPWM);
-    //setPWM(6, verticalGoProPWM);
-    //setPWM(7, gimbalPWM);
-    //setPWM(8, cameraPWM);
     setPWM(FLAP_OUT_CHANNEL, outputSignal[4]); //Flaps
+    setPWM(6, probeStatus(1)); //-240 close
+    setPWM(7, probeStatus(2)); //-230 close
 }
 #elif COPTER
 void highLevelControl(){

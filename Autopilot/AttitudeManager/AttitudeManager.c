@@ -15,6 +15,7 @@
 #include "AttitudeManager.h"
 #include "commands.h"
 #include "cameraManager.h"
+#include "Probe_Drop.h"
 #include "StartupErrorCodes.h"
 #include "main.h"
 #include "InterchipDMA.h"
@@ -733,10 +734,15 @@ void readDatalink(void){
                 if (*(int*)(&cmd->data) == 1234)
                     startArm();
                 break;
-
             case DEARM_VEHICLE:
                 if (*(int*)(&cmd->data) == 1234)
                     stopArm();
+                break;
+            case DROP_PROBE:
+                dropProbe(*(char*)(&cmd->data));
+                break;
+            case RESET_PROBE:
+                //dropProbe(*(char*)(&cmd->data);
                 break;
 
             case NEW_WAYPOINT:

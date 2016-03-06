@@ -64,6 +64,8 @@
 #define SET_FLAP_KD_GAIN 53
 #define SET_FLAP_KP_GAIN 54
 #define SET_FLAP_KI_GAIN 55
+#define DROP_PROBE 56
+#define RESET_PROBE 57
 
 //Multipart Commands
 #define NEW_WAYPOINT 128
