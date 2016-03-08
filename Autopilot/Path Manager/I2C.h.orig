@@ -9,10 +9,10 @@
 #define I2C_H
 
 #include "main.h"
-<<<<<<< a2f3980a842f62ff89235a4325d9d883d911e696
+<<<<<<< HEAD
 =======
 //#include "delay.h"
->>>>>>> Set up probe drop for ideal conditions
+>>>>>>> 8abe64b1fe9e7f087e6e2fc46b405399c29973ad
 
 #define READ 1
 #define WRITE 0
