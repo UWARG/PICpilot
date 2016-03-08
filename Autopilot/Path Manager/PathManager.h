@@ -37,6 +37,7 @@
 #define PM_CALIBRATE_ALTIMETER 32
 #define PM_SET_PATH_GAIN 64
 #define PM_SET_ORBIT_GAIN 65
+#define PM_SET_PROBE_DROP_TARGET 66
 
 
 //Structs and typedefs

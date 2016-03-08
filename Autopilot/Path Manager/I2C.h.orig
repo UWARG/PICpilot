@@ -9,7 +9,10 @@
 #define I2C_H
 
 #include "main.h"
+<<<<<<< HEAD
+=======
 //#include "delay.h"
+>>>>>>> 8abe64b1fe9e7f087e6e2fc46b405399c29973ad
 
 #define READ 1
 #define WRITE 0

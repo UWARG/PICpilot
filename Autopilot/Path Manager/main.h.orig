@@ -14,7 +14,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+<<<<<<< a2f3980a842f62ff89235a4325d9d883d911e696
+#include "../Common/clock.h"
+=======
 //#include "timer.h"
+>>>>>>> Set up probe drop for ideal conditions
 
 //Turns debug mode on or off. Usually contains small snippets of code to output
 //data through UART or to provide small input adjustments

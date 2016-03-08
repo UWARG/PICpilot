@@ -12,6 +12,7 @@
 #include "MPL3115A2.h"
 #include "voltageSensor.h"
 #include "airspeedSensor.h"
+#include "ProbeDrop.h"
 
 #include "InterchipDMA.h"
 
@@ -45,6 +46,7 @@ char pathCount = 0;
 
 int lastKnownHeadingHome = 10;
 char returnHome = 0;
+bool doProbeDrop;
 
 void pathManagerInit(void) {
 #if DEBUG
@@ -159,6 +161,12 @@ void pathManagerRuntime(void) {
         lastKnownHeadingHome = calculateHeadingHome(home, (float*)&position, heading);
     }
 
+    bool verifiedDrop = 1;
+    
+    //Get the position of the target
+    Vector targetPosition;
+    doProbeDrop = probeDrop(verifiedDrop, targetPosition, position, pmData.altitude, pmData.speed, pmData.airspeed);
+    
     pmData.checkbyteDMA = generatePMDataDMAChecksum();
 }
 
