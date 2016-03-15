@@ -46,6 +46,45 @@ extern "C" {
 
 #define UHF_KILL_TIMEOUT_FAST 10000
 
+enum PacketType {
+    ATTITUDE = 1,
+    PICPILOTSTATUS = 2,
+    INPUTS = 3,
+    SETPOINTS = 4,
+    OUTPUTS = 5,
+    LOCATION = 6,
+    CAMERA = 7
+};
+
+union telemBlock {
+    struct attitude_block att_block;
+    struct camera_block cam_block;
+    struct set_point_block  spoint_block;
+    struct location_block  loc_block;
+};
+
+struct attitude_block {
+    const PacketType type = PacketType.ATTITUDE;
+    float pitch, roll, yaw;
+    float pitchRate, rollRate, yawRate;
+};
+
+struct camera_block {
+    const PacketType type = PacketType.CAMERA;
+    int cameraStatus;
+}
+
+struct set_point_block {
+    const PacketType type = PacketType.SETPOINTS;
+    int altitudeSetpoint;
+    int pitchSetpoint, rollSetpoint, headingSetpoint, throttleSetpoint, flapSetpoint; //Angle
+}
+
+struct location_block {
+    const PacketType type = PacketType.LOCATION;
+    long double lat, lon; // Latitude and longitude from gps    // 8Byte
+}
+
 struct telem_block {
     long double lat, lon; // Latitude and longitude from gps    // 8Byte
     float millis;        // Timestamp UTC  // 4Byte
@@ -69,7 +108,7 @@ struct telem_block {
 };
 
 struct telem_buffer {
-    unsigned int sendIndex;             // index into telemetry to send 
+    unsigned int sendIndex;             // index into telemetry to send
     unsigned char header[API_HEADER_LENGTH];    // The header for the telem
     union {
         struct telem_block *asStruct;   // The telemetry block being sent
