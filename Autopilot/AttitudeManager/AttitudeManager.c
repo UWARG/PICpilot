@@ -187,8 +187,15 @@ void attitudeInit() {
     float cal_pitch = -90;
     float cal_yaw = 0.0;
     float offset[3] = {cal_roll,cal_pitch,cal_yaw};
+#if DEBUG
+    debug("INITIALIZATION - VECTORNAV");
+#endif
     setVNOrientationMatrix((float*)&offset);
     VN100_SPI_SetFiltMeasVar(0, (float*)&filterVariance);
+#if DEBUG
+    debug("INITIALIZATION - DATALINK");
+#endif
+    initDataLink();
     initialization();
 }
 

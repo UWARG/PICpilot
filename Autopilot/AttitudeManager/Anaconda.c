@@ -15,6 +15,9 @@
 char vehicleArmed = 0;
 
 void initialization(int* outputSignal){
+#if DEBUG
+    debug("INITIALIZATION - WAITING FOR ARM");
+#endif
     setPWM(THROTTLE_OUT_CHANNEL,MIN_PWM);
     while (!vehicleArmed){
         imuCommunication();
