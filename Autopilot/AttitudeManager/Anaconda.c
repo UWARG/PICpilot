@@ -9,15 +9,14 @@
 #include "AttitudeManager.h"
 #include "delay.h"
 #include "Anaconda.h"
+#include "ProgramStatus.h"
 
 #if ANACONDA_VEHICLE
 
 char vehicleArmed = 0;
 
 void initialization(int* outputSignal){
-#if DEBUG
-    debug("INITIALIZATION - WAITING FOR ARM");
-#endif
+    setProgramStatus(UNARMED);
     setPWM(THROTTLE_OUT_CHANNEL,MIN_PWM);
     while (!vehicleArmed){
         imuCommunication();
@@ -32,9 +31,6 @@ void initialization(int* outputSignal){
 }
 
 void armVehicle(int delayTime){
-#if DEBUG
-    debug("MOTOR STARTUP PROCEDURE STARTED");
-#endif
     asm("CLRWDT");
     Delay(delayTime);
     asm("CLRWDT");
@@ -46,9 +42,6 @@ void armVehicle(int delayTime){
     asm("CLRWDT");
     Delay(delayTime);
     asm("CLRWDT");
-#if DEBUG
-    debug("MOTOR STARTUP PROCEDURE COMPLETE");
-#endif
 }
 
 void dearmVehicle(){
@@ -56,6 +49,7 @@ void dearmVehicle(){
     for (i = 1; i <= NUM_CHANNELS; i++){
         setPWM(i, MIN_PWM);
     }
+    setProgramStatus(UNARMED);
     while (!vehicleArmed){
         readDatalink();
         writeDatalink();
