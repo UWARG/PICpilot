@@ -19,7 +19,7 @@ endif
 endif
 
 # Environment
-MKDIR=gnumkdir -p
+MKDIR=mkdir -p
 RM=rm -f 
 MV=mv 
 CP=cp 
@@ -45,14 +45,17 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=Dubins.c I2C.c InterchipDMA.c main.c MPL3115A2.c NMEAparser.c PathManager.c voltageSensor.c ../Common/clock.c ../Common/Common.c ../Common/debug.c ../Common/UART1.c StartupErrorCodes.c airspeedSensor.c
+SOURCEFILES_QUOTED_IF_SPACED=Dubins.c I2C.c InterchipDMA.c main.c MPL3115A2.c NMEAparser.c PathManager.c voltageSensor.c ../Common/clock.c ../Common/Common.c ../Common/debug.c ../Common/UART1.c StartupErrorCodes.c airspeedSensor.c ProbeDrop.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/Dubins.o ${OBJECTDIR}/I2C.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/main.o ${OBJECTDIR}/MPL3115A2.o ${OBJECTDIR}/NMEAparser.o ${OBJECTDIR}/PathManager.o ${OBJECTDIR}/voltageSensor.o ${OBJECTDIR}/_ext/2108356922/clock.o ${OBJECTDIR}/_ext/2108356922/Common.o ${OBJECTDIR}/_ext/2108356922/debug.o ${OBJECTDIR}/_ext/2108356922/UART1.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/airspeedSensor.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/Dubins.o.d ${OBJECTDIR}/I2C.o.d ${OBJECTDIR}/InterchipDMA.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/MPL3115A2.o.d ${OBJECTDIR}/NMEAparser.o.d ${OBJECTDIR}/PathManager.o.d ${OBJECTDIR}/voltageSensor.o.d ${OBJECTDIR}/_ext/2108356922/clock.o.d ${OBJECTDIR}/_ext/2108356922/Common.o.d ${OBJECTDIR}/_ext/2108356922/debug.o.d ${OBJECTDIR}/_ext/2108356922/UART1.o.d ${OBJECTDIR}/StartupErrorCodes.o.d ${OBJECTDIR}/airspeedSensor.o.d
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/Dubins.o ${OBJECTDIR}/I2C.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/main.o ${OBJECTDIR}/MPL3115A2.o ${OBJECTDIR}/NMEAparser.o ${OBJECTDIR}/PathManager.o ${OBJECTDIR}/voltageSensor.o ${OBJECTDIR}/_ext/2108356922/clock.o ${OBJECTDIR}/_ext/2108356922/Common.o ${OBJECTDIR}/_ext/2108356922/debug.o ${OBJECTDIR}/_ext/2108356922/UART1.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/ProbeDrop.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/Dubins.o.d ${OBJECTDIR}/I2C.o.d ${OBJECTDIR}/InterchipDMA.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/MPL3115A2.o.d ${OBJECTDIR}/NMEAparser.o.d ${OBJECTDIR}/PathManager.o.d ${OBJECTDIR}/voltageSensor.o.d ${OBJECTDIR}/_ext/2108356922/clock.o.d ${OBJECTDIR}/_ext/2108356922/Common.o.d ${OBJECTDIR}/_ext/2108356922/debug.o.d ${OBJECTDIR}/_ext/2108356922/UART1.o.d ${OBJECTDIR}/StartupErrorCodes.o.d ${OBJECTDIR}/ProbeDrop.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/Dubins.o ${OBJECTDIR}/I2C.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/main.o ${OBJECTDIR}/MPL3115A2.o ${OBJECTDIR}/NMEAparser.o ${OBJECTDIR}/PathManager.o ${OBJECTDIR}/voltageSensor.o ${OBJECTDIR}/_ext/2108356922/clock.o ${OBJECTDIR}/_ext/2108356922/Common.o ${OBJECTDIR}/_ext/2108356922/debug.o ${OBJECTDIR}/_ext/2108356922/UART1.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/airspeedSensor.o
+OBJECTFILES=${OBJECTDIR}/Dubins.o ${OBJECTDIR}/I2C.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/main.o ${OBJECTDIR}/MPL3115A2.o ${OBJECTDIR}/NMEAparser.o ${OBJECTDIR}/PathManager.o ${OBJECTDIR}/voltageSensor.o ${OBJECTDIR}/_ext/2108356922/clock.o ${OBJECTDIR}/_ext/2108356922/Common.o ${OBJECTDIR}/_ext/2108356922/debug.o ${OBJECTDIR}/_ext/2108356922/UART1.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/ProbeDrop.o
+
+# Source Files
+SOURCEFILES=Dubins.c I2C.c InterchipDMA.c main.c MPL3115A2.c NMEAparser.c PathManager.c voltageSensor.c ../Common/clock.c ../Common/Common.c ../Common/debug.c ../Common/UART1.c StartupErrorCodes.c ProbeDrop.c
 
 # Source Files
 SOURCEFILES=Dubins.c I2C.c InterchipDMA.c main.c MPL3115A2.c NMEAparser.c PathManager.c voltageSensor.c ../Common/clock.c ../Common/Common.c ../Common/debug.c ../Common/UART1.c StartupErrorCodes.c airspeedSensor.c
@@ -101,6 +104,7 @@ ${OBJECTDIR}/InterchipDMA.o: InterchipDMA.c  nbproject/Makefile-${CND_CONF}.mk
 	@${RM} ${OBJECTDIR}/InterchipDMA.o.d 
 	@${RM} ${OBJECTDIR}/InterchipDMA.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  InterchipDMA.c  -o ${OBJECTDIR}/InterchipDMA.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/InterchipDMA.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -mlarge-data -O0 -msmart-io=1 -Wall -msfr-warn=off
+
 	@${FIXDEPS} "${OBJECTDIR}/InterchipDMA.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
 ${OBJECTDIR}/main.o: main.c  nbproject/Makefile-${CND_CONF}.mk
@@ -179,7 +183,6 @@ ${OBJECTDIR}/airspeedSensor.o: airspeedSensor.c  nbproject/Makefile-${CND_CONF}.
 	@${RM} ${OBJECTDIR}/airspeedSensor.o 
 	${MP_CC} $(MP_EXTRA_CC_PRE)  airspeedSensor.c  -o ${OBJECTDIR}/airspeedSensor.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/airspeedSensor.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -mlarge-data -O0 -msmart-io=1 -Wall -msfr-warn=off
 	@${FIXDEPS} "${OBJECTDIR}/airspeedSensor.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
-	
 else
 ${OBJECTDIR}/Dubins.o: Dubins.c  nbproject/Makefile-${CND_CONF}.mk
 	@${MKDIR} "${OBJECTDIR}" 
@@ -324,7 +327,7 @@ endif
 # Enable dependency checking
 .dep.inc: .depcheck-impl
 
-DEPFILES=$(shell mplabwildcard ${POSSIBLE_DEPFILES})
+DEPFILES=$(shell "${PATH_TO_IDE_BIN}"mplabwildcard ${POSSIBLE_DEPFILES})
 ifneq (${DEPFILES},)
 include ${DEPFILES}
 endif
