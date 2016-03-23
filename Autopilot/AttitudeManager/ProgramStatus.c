@@ -16,10 +16,15 @@ void setSensorStatus(char sensor, char status){
         sensorState[sensor] = status;
 
 #if DEBUG
-        if (status && SENSOR_CONNECTED)
-            debug("Sensor " + (sensor + 48) + " is connected");
-        else if (status && SENSOR_INITIALIZED)
-            debug("Sensor " + (sensor + 48) + " is initialized");
+        char str[20];
+        if (status && SENSOR_CONNECTED){
+            sprintf(str,"Sensor %d is connected", sensor);
+            debug(str);
+        }
+        else if (status && SENSOR_INITIALIZED){
+            sprintf(str, "Sensor %d is initialized", sensor);
+            debug(str);
+        }
 #endif
     }
     else{
@@ -42,7 +47,7 @@ char getSensorStatus(char sensor){
     }
 }
 
-void setProgramStatus(char status){
+void setProgramStatus(int status){
     programState = status;
 
 
@@ -60,6 +65,6 @@ void setProgramStatus(char status){
 
 #endif
 }
-char getProgramStatus(){
+int getProgramStatus(){
     return 0;
 }
