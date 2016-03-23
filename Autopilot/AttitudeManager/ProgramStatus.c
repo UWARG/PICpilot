@@ -17,11 +17,14 @@ void setSensorStatus(char sensor, char status){
 
 #if DEBUG
         char str[20];
-        if (status && SENSOR_CONNECTED)
-            sprintf(str, "Sensor %d is connected", sensor);
-        else if (status && SENSOR_INITIALIZED)
+        if (status && SENSOR_CONNECTED){
+            sprintf(str,"Sensor %d is connected", sensor);
+            debug(str);
+        }
+        else if (status && SENSOR_INITIALIZED){
             sprintf(str, "Sensor %d is initialized", sensor);
-        debug(str);
+            debug(str);
+        }
 #endif
     }
     else{
