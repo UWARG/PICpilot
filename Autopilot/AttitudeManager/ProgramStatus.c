@@ -9,17 +9,19 @@
 #include "../Common/debug.h"
 
 char sensorState[NUM_SENSORS];
-char programState;
+int programState;
 
 void setSensorStatus(char sensor, char status){
     if (sensor < NUM_SENSORS){
-        sensorState[sensor] = status;
+        sensorState[(int)sensor] = status;
 
 #if DEBUG
+        char str[20];
         if (status && SENSOR_CONNECTED)
-            debug("Sensor " + (sensor + 48) + " is connected");
+            sprintf(str, "Sensor %d is connected", sensor);
         else if (status && SENSOR_INITIALIZED)
-            debug("Sensor " + (sensor + 48) + " is initialized");
+            sprintf(str, "Sensor %d is initialized", sensor);
+        debug(str);
 #endif
     }
     else{
@@ -32,19 +34,19 @@ void setSensorStatus(char sensor, char status){
 
 char getSensorStatus(char sensor){
     if (sensor < NUM_SENSORS){
-        return sensorState[sensor];
+        return sensorState[(int)sensor];
     }
     else{
     //Display Error Message
 #if DEBUG
         warning("Invalid Sensor ID");
 #endif
+        return -1;
     }
 }
 
-void setProgramStatus(char status){
+void setProgramStatus(int status){
     programState = status;
-
 
 #if DEBUG
     if (status == INITIALIZATION)
@@ -60,6 +62,6 @@ void setProgramStatus(char status){
 
 #endif
 }
-char getProgramStatus(){
+int getProgramStatus(){
     return 0;
 }

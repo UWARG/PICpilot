@@ -27,6 +27,8 @@ extern "C" {
 #define ARMING 2
 #define MAIN_EXECUTION 3
 
+/* Function Prototypes */
+
 void setSensorStatus(char sensor, char status);
 char getSensorStatus(char sensor);
 
