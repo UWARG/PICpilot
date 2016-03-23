@@ -53,7 +53,7 @@
  *
  **********************************************************************/
 
-#include <p24F16KA102.h>
+#include <p24F16KA101.h>
 #include "uart2.h"
 #include "i2c.h"
 #include <math.h>
@@ -155,6 +155,9 @@ char positionFix = 0;
 //******************************Prototypes************************************
 void Init(void);
 int configGPS(void);
+int identifyString(char *stringArray);
+int ParseGGA(void);
+int ParseVTG(void);
 char readGPSData(void);
 void processData(void);
 void writeDataToDebugPort(void);
@@ -215,7 +218,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
 
         //Identify the packet type once the header has been read
         if (byteCount == 5) {
-            stringType = identifyString(&headerData);
+            stringType = identifyString((char*)&headerData);
         }
         byteCount++;
     }
@@ -239,42 +242,42 @@ void Init(void) {
 
     U2STAbits.UTXEN = 1;
     U2MODEbits.UARTEN = 1; //enable uarts and tx ouputs
-//    U1MODEbits.UARTEN = 1;
-//    U1STAbits.UTXEN = 1;
-//    U1STAbits.URXISEL = 0b10;
-//
-//    //initialize intercom SPI port
-//    TRISBbits.TRISB12 = 0; //SPI data out
-//    TRISBbits.TRISB13 = 0; //SPI clk out
-//    TRISBbits.TRISB15 = 0; //SPI slave select out
-//    PORTBbits.RB15 = 1; //slave disabled
-//
-//    SPI1BUF = 0;
-//    IFS0bits.SPI1IF = 0; // Clear the Interrupt Flag
-//    IEC0bits.SPI1IE = 0; // Disable the Interrupt
-//    //SPI1CON1 Register Settings
-//    SPI1CON1bits.DISSCK = 0; // Internal Serial Clock is Enabled
-//    SPI1CON1bits.DISSDO = 0; // SDOx pin is controlled by the module
-//    SPI1CON1bits.MODE16 = 1; // Communication is byte-wide (8 bits)
-//    SPI1CON1bits.SMP = 0; // Input data is sampled at the middle of data
-//    // output time
-//    SPI1CON1bits.CKE = 0; // Serial output data changes on transition
-//    // from Idle clock state to active clock state
-//    SPI1CON1bits.CKP = 0; // Idle state for clock is a low level; active
-//    // state is a high level
-////    SPI1CON1bits.SSEN = 1;	// Enable slave select pin - don't uncomment this UART won't work
-//    //Total speed is 500kHz according to the scalers
-//    SPI1CON1bits.SPRE = 0b110; // 1:2 scaler
-//    SPI1CON1bits.PPRE = 0b01; // 1:16 scaler
-//    SPI1CON1bits.MSTEN = 1; // Master mode Enabled
-//    SPI1STATbits.SPIROV = 0; // SPI recieve overflow
-//    SPI1STATbits.SPIEN = 1; // Enable SPI module
-//
-//    // Interrupt Controller Settings
-//    IFS0bits.SPI1IF = 0; // Clear the Interrupt Flag
-//    IEC0bits.SPI1IE = 1; // Enable the Interrupt
-//    IFS0bits.U1RXIF = 0; // Clear the Interrupt Flag
-//    IEC0bits.U1RXIE = 1; // Enable the Interrupt
+    U1MODEbits.UARTEN = 1;
+    U1STAbits.UTXEN = 1;
+    U1STAbits.URXISEL = 0b10;
+
+    //initialize intercom SPI port
+    TRISBbits.TRISB12 = 0; //SPI data out
+    TRISBbits.TRISB13 = 0; //SPI clk out
+    TRISBbits.TRISB15 = 0; //SPI slave select out
+    PORTBbits.RB15 = 1; //slave disabled
+
+    SPI1BUF = 0;
+    IFS0bits.SPI1IF = 0; // Clear the Interrupt Flag
+    IEC0bits.SPI1IE = 0; // Disable the Interrupt
+    //SPI1CON1 Register Settings
+    SPI1CON1bits.DISSCK = 0; // Internal Serial Clock is Enabled
+    SPI1CON1bits.DISSDO = 0; // SDOx pin is controlled by the module
+    SPI1CON1bits.MODE16 = 1; // Communication is byte-wide (8 bits)
+    SPI1CON1bits.SMP = 0; // Input data is sampled at the middle of data
+    // output time
+    SPI1CON1bits.CKE = 0; // Serial output data changes on transition
+    // from Idle clock state to active clock state
+    SPI1CON1bits.CKP = 0; // Idle state for clock is a low level; active
+    // state is a high level
+//    SPI1CON1bits.SSEN = 1;	// Enable slave select pin - don't uncomment this UART won't work
+    //Total speed is 500kHz according to the scalers
+    SPI1CON1bits.SPRE = 0b110; // 1:2 scaler
+    SPI1CON1bits.PPRE = 0b01; // 1:16 scaler
+    SPI1CON1bits.MSTEN = 1; // Master mode Enabled
+    SPI1STATbits.SPIROV = 0; // SPI recieve overflow
+    SPI1STATbits.SPIEN = 1; // Enable SPI module
+
+    // Interrupt Controller Settings
+    IFS0bits.SPI1IF = 0; // Clear the Interrupt Flag
+    IEC0bits.SPI1IE = 1; // Enable the Interrupt
+    IFS0bits.U1RXIF = 0; // Clear the Interrupt Flag
+    IEC0bits.U1RXIE = 1; // Enable the Interrupt
 }
 
 int configGPS(void) {
@@ -716,8 +719,7 @@ void writeDataToDebugPort(void) {
 
 void transmitData(void) {
     int i;
-    char *dataGPS = &gpsData;
-    char spiChecksum = 0;
+    char *dataGPS = (char*)&gpsData;
 
     
     PORTBbits.RB15 = 0; //slave enabled
@@ -908,35 +910,29 @@ int Delay_half_us(unsigned int microsec) {
 
 int main(void) {
     Init(); //initialize microcontroller
-//    Delay_ms(2000);		//allow GPS processor to start before trying to program
-//    configGPS(); //configure gps if battery was removed
+    Delay_ms(2000);		//allow GPS processor to start before trying to program
+    configGPS(); //configure gps if battery was removed
     while (1) {
-            while (U2STAbits.UTXBF == 1) {;}
-            U2TXREG = 'H';
-            while (U2STAbits.UTXBF == 1) {;}
-            U2TXREG = 'E';
-            while (U2STAbits.UTXBF == 1) {;}
-            U2TXREG = 'Y';
-//        int i = 0;
-//        for (i = 0; i < 6; i++) {
-//            if (rawHeading[i] == 0x10){
-//               while (U2STAbits.UTXBF == 1) {;}
-//            U2TXREG = gpsData.heading;
-//            }
-//            else{ while (U2STAbits.UTXBF == 1) {;}
-//            U2TXREG = rawHeading[i] + 48;}
-//        }
-//                        i++;
+        int i = 0;
+        for (i = 0; i < 6; i++) {
+            if (rawHeading[i] == 0x10){
+               while (U2STAbits.UTXBF == 1) {;}
+            U2TXREG = gpsData.heading;
+            }
+            else{ while (U2STAbits.UTXBF == 1) {;}
+            U2TXREG = rawHeading[i] + 48;}
+        }
+                        i++;
 
-//        if (newData){
-//            if (readGPSData()) {
-//                convertData();
-//            }
-//            //writeDataToDebugPort();
-//
-//            transmitData();	//to SPI
-//            newData = 0;
-//        }
+        if (newData){
+            if (readGPSData()) {
+                convertData();
+            }
+            //writeDataToDebugPort();
+
+            transmitData();	//to SPI
+            newData = 0;
+        }
 
     }
 }
