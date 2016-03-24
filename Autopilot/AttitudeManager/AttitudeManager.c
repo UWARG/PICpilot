@@ -796,19 +796,51 @@ void readDatalink(void){
     }
  
 }
-int writeDatalink(){
+int writeDatalink(int packet){
      
     struct telem_block* statusData = createTelemetryBlock();//getDebugTelemetryBlock();
 
-    statusData->lat = gps_Latitude;
-    statusData->lon = gps_Longitude;
-    statusData->millis = gps_Time;
-    statusData->pitch = imu_PitchAngle;
-    statusData->roll = imu_RollAngle;
-    statusData->yaw = imu_YawAngle;
-    statusData->pitchRate = imu_PitchRate;
-    statusData->rollRate = imu_RollRate;
-    statusData->yawRate = imu_YawRate;
+    switch(packet){
+        case PACKET_ATTITUDE:
+            statusData->att_block.roll = getRoll();
+            statusData->att_block.pitch = getPitch();
+            statusData->att_block.yaw = getYaw();
+            statusData->att_block.rollRate = getRollRate();
+            statusData->att_block.pitchRate = getPitchRate();
+            statusData->att_block.yawRate = getYawRate();
+            break;
+        case PACKET_STATUS:
+            statusData->stat_block.sysTime = getTime();
+            break;
+        case PACKET_GAIN:
+            statusData->g_block.rollKD = getGain(ROLL,GAIN_KD);
+            statusData->g_block.rollKP = getGain(ROLL,GAIN_KP);
+            statusData->g_block.rollKI = getGain(ROLL,GAIN_KI);
+            statusData->g_block.pitchKD = getGain(PITCH,GAIN_KD);
+            statusData->g_block.pitchKP = getGain(PITCH,GAIN_KP);
+            statusData->g_block.pitchKI = getGain(PITCH,GAIN_KI);
+            statusData->g_block.yawKD = getGain(YAW,GAIN_KD);
+            statusData->g_block.yawKP = getGain(YAW,GAIN_KP);
+            statusData->g_block.yawKI = getGain(YAW, GAIN_KI);
+            break;
+        case PACKET_INPUTS:
+            break;
+        case PACKET_SETPOINTS:
+            break;
+        case PACKET_OUTPUTS:
+            break;
+        case PACKET_LOCATION:
+            statusData->loc_block.lat = getLatitude();
+            statusData->loc_block.lon = getLongitude();
+            statusData->loc_block.alt = getAltitude();
+            statusData->loc_block.UTC = gps_Time;
+            break;
+        case PACKET_CAMERA:
+            break;
+                
+        default:
+            break;
+    }
     statusData->kd_gain = getGain(displayGain, GAIN_KD);
     statusData->kp_gain = getGain(displayGain, GAIN_KP);
     statusData->ki_gain = getGain(displayGain, GAIN_KI);

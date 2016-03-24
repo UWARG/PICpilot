@@ -46,66 +46,92 @@ extern "C" {
 
 #define UHF_KILL_TIMEOUT_FAST 10000
 
-enum PacketType {
-    ATTITUDE = 1,
-    PICPILOTSTATUS = 2,
-    INPUTS = 3,
-    SETPOINTS = 4,
-    OUTPUTS = 5,
-    LOCATION = 6,
-    CAMERA = 7
-};
-
-union telemBlock {
-    struct attitude_block att_block;
-    struct camera_block cam_block;
-    struct set_point_block  spoint_block;
-    struct location_block  loc_block;
-};
+#define PACKET_ATTITUDE 1
+#define PACKET_STATUS 2
+#define PACKET_ERRORS 3
+#define PACKET_GAIN 4
+#define PACKET_INPUTS 5
+#define PACKET_SETPOINTS 6
+#define PACKET_OUTPUTS 7
+#define PACKET_LOCATION 8
+#define PACKET_CAMERA 9
 
 struct attitude_block {
-    const PacketType type = PacketType.ATTITUDE;
+    const int type = PACKET_ATTITUDE;
     float pitch, roll, yaw;
     float pitchRate, rollRate, yawRate;
 };
 
-struct camera_block {
-    const PacketType type = PacketType.CAMERA;
-    int cameraStatus;
-}
+struct status_block {
+    const int type = PACKET_STATUS;
+    long int sysTime; // 8 bytes
+};
 
-struct set_point_block {
-    const PacketType type = PacketType.SETPOINTS;
+struct gain_block {
+    const int type = PACKET_GAIN;
+    float rollKD, rollKP, rollKI; //4 Bytes
+    float pitchKD, pitchKP, pitchKI;
+    float yawKD, yawKP, yawKI;
+
+
+};
+
+struct setpoint_block {
+    const int type = PACKET_SETPOINTS;
     int altitudeSetpoint;
     int pitchSetpoint, rollSetpoint, headingSetpoint, throttleSetpoint, flapSetpoint; //Angle
-}
+};
+
+struct output_block {
+    const int type = PACKET_OUTPUTS;
+};
 
 struct location_block {
-    const PacketType type = PacketType.LOCATION;
+    const int type = PACKET_LOCATION;
     long double lat, lon; // Latitude and longitude from gps    // 8Byte
-}
+    float alt; //4 Byte
+    float UTC; //4 Byte
 
-struct telem_block {
-    long double lat, lon; // Latitude and longitude from gps    // 8Byte
-    float millis;        // Timestamp UTC  // 4Byte
-    float pitch, roll, yaw;                         // 4Byte
-    float pitchRate, rollRate, yawRate;             // 4Byte
-    float kd_gain, kp_gain, ki_gain;          // 4Byte
-    float groundSpeed;
-//    float airspeed;
-    float altitude;
-    int heading;
-    int pitchSetpoint, rollSetpoint, headingSetpoint, throttleSetpoint, flapSetpoint; //Angle
-    int altitudeSetpoint;
-    int cPitchSetpoint, cRollSetpoint, cYawSetpoint;  //Controller input // 2Byte
-    int lastCommandSent;
-    int errorCodes;
-    int cameraStatus;
-    int airspeed;
-    char waypointIndex;
-    char editing_gain, gpsStatus, batteryLevel, waypointCount;                              // 1Byte
-    // TODO: Add additional telemetry to be sent here
 };
+
+struct camera_block {
+    const int type = PACKET_CAMERA;
+    int cameraStatus;
+};
+
+union telem_block {
+    struct attitude_block att_block;
+    struct status_block stat_block;
+//    struct error_block err_block;
+//    struct input_block in_block;
+    struct gain_block g_block;
+    struct setpoint_block  spoint_block;
+    struct output_block out_block;
+    struct location_block  loc_block;
+    struct camera_block cam_block;
+};
+
+//struct telem_block {
+//    long double lat, lon; // Latitude and longitude from gps    // 8Byte
+//    float millis;        // Timestamp UTC  // 4Byte
+//    float pitch, roll, yaw;                         // 4Byte
+//    float pitchRate, rollRate, yawRate;             // 4Byte
+//    float kd_gain, kp_gain, ki_gain;          // 4Byte
+//    float groundSpeed;
+////    float airspeed;
+//    float altitude;
+//    int heading;
+//    int pitchSetpoint, rollSetpoint, headingSetpoint, throttleSetpoint, flapSetpoint; //Angle
+//    int altitudeSetpoint;
+//    int cPitchSetpoint, cRollSetpoint, cYawSetpoint;  //Controller input // 2Byte
+//    int lastCommandSent;
+//    int errorCodes;
+//    int cameraStatus;
+//    int airspeed;
+//    char waypointIndex;
+//    char editing_gain, gpsStatus, batteryLevel, waypointCount;                              // 1Byte
+//    // TODO: Add additional telemetry to be sent here
+//};
 
 struct telem_buffer {
     unsigned int sendIndex;             // index into telemetry to send
