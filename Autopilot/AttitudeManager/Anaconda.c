@@ -19,7 +19,7 @@ void initialization(int* outputSignal){
     while (!vehicleArmed){
         imuCommunication();
         asm("CLRWDT");
-        writeDatalink();
+        writeDatalink(1); //TODO: Change this for multiple packets
         readDatalink();
         inboundBufferMaintenance();
         outboundBufferMaintenance();
@@ -55,7 +55,7 @@ void dearmVehicle(){
     }
     while (!vehicleArmed){
         readDatalink();
-        writeDatalink();
+        writeDatalink(1); //TODO: Change this for multiple packets
         inboundBufferMaintenance();
         outboundBufferMaintenance();
         Delay(200);

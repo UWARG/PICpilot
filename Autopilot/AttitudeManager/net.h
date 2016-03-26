@@ -33,9 +33,7 @@ extern "C" {
 
 //FRAME TYPE
 #define TX_PACKET 0x10
-
 #define BROADCAST_RADIUS 1 //0 is infinite number of hops to reach target
-
 #define RAW_PACKET_BUFFER_SIZE 16   // Number of buffer regions to allow for incoming commands
 
 #define HEARTBEAT_TIMEOUT 10000 //In Milliseconds
@@ -57,53 +55,78 @@ extern "C" {
 #define PACKET_CAMERA 9
 
 struct attitude_block {
-    const int type = PACKET_ATTITUDE;
+    const int type;
     float pitch, roll, yaw;
     float pitchRate, rollRate, yawRate;
+    float airspeed;
+};
+
+struct error_block {
+    const int type;
+    unsigned int startupErrorCodes; //4 bytes
 };
 
 struct status_block {
-    const int type = PACKET_STATUS;
+    const int type;
     long int sysTime; // 8 bytes
+    int lastCommandSent; //4 bytes
+    int batteryLevel1, batteryLevel2; // 4 bytes
+    char wirelessConnection; //1 byte
+    char autopilotActive; //1 byte
 };
 
-struct gain_block {
-    const int type = PACKET_GAIN;
+struct gain_block { //Total: 94 bytes ***Consider splitting into separate blocks
+    const int type;
     float rollKD, rollKP, rollKI; //4 Bytes
     float pitchKD, pitchKP, pitchKI;
     float yawKD, yawKP, yawKI;
+    float headingKD, headingKP, headingKI;
+    float altitudeKD, altitudeKP, altitudeKI;
+    float throttleKD, throttleKP, throttleKI;
+    float flapKD, flapKP, flapKI;
+    float pathGain, orbitGain;
+};
 
-
+struct input_block {
+    const int type;
 };
 
 struct setpoint_block {
-    const int type = PACKET_SETPOINTS;
+    const int type;
     int altitudeSetpoint;
-    int pitchSetpoint, rollSetpoint, headingSetpoint, throttleSetpoint, flapSetpoint; //Angle
+    int rollSetpoint, pitchSetpoint, throttleSetpoint, headingSetpoint, flapSetpoint; //Angle
+    int rollRateSetpoint, pitchRateSetpoint, yawRateSetpoint;
 };
 
-struct output_block {
-    const int type = PACKET_OUTPUTS;
+struct output_block { //Packet Size: 18 bytes
+    const int type;
+    int ch1,ch2,ch3,ch4,ch5,ch6,ch7,ch8;
 };
 
-struct location_block {
-    const int type = PACKET_LOCATION;
+struct location_block { //Packet Size: 37 Bytes
+    const int type;
     long double lat, lon; // Latitude and longitude from gps    // 8Byte
     float alt; //4 Byte
     float UTC; //4 Byte
-
+    float gSpeed;
+    int heading; //2 Byte
+    char gpsStatus; //1 Byte
+    char pathChecksum; //1 byte
+    char numWaypoints; //1 bytes
+    char waypointIndex; //1 byte
+    char pathFollowing; // 1 byte
 };
 
 struct camera_block {
-    const int type = PACKET_CAMERA;
+    const int type;
     int cameraStatus;
 };
 
 union telem_block {
     struct attitude_block att_block;
     struct status_block stat_block;
-//    struct error_block err_block;
-//    struct input_block in_block;
+    struct error_block err_block;
+    struct input_block in_block;
     struct gain_block g_block;
     struct setpoint_block  spoint_block;
     struct output_block out_block;
@@ -137,7 +160,7 @@ struct telem_buffer {
     unsigned int sendIndex;             // index into telemetry to send
     unsigned char header[API_HEADER_LENGTH];    // The header for the telem
     union {
-        struct telem_block *asStruct;   // The telemetry block being sent
+        union telem_block *asStruct;   // The telemetry block being sent
         unsigned char *asArray;         // The telemetry intepreted as an array
     } telemetry;
     unsigned char checksum;             // The checksum so far
@@ -153,34 +176,34 @@ struct command {
 int initDataLink(void);
 
 // Create a telemetry block to use for debugging, only creates one instance
-struct telem_block *getDebugTelemetryBlock(void);
+union telem_block *getDebugTelemetryBlock(int packet);
 
 // Create a telem block returns null if fails
-struct telem_block *createTelemetryBlock(void);
+union telem_block *createTelemetryBlock(int packet);
 // Destroy a dataBlock
-void destroyTelemetryBlock(struct telem_block *data);
+void destroyTelemetryBlock(union telem_block *data);
 
 // Add a telem_block to the outbound data queue
 // Returns the position in the queue or -1 if no room in queue
-int pushOutboundTelemetryQueue(struct telem_block *data);
+int pushOutboundTelemetryQueue(union telem_block *data);
 // Get the number of items waiting to be sent
 int getOutboundQueueLength(void);
 // Clear all telem blocks waiting to be sent
 int clearOutboundTelemetryQueue(void);
 
 // Pop next telem_block from incoming buffer, null if no data
-struct telem_block *popOutboundTelemetryQueue(void);
+union telem_block *popOutboundTelemetryQueue(void);
 
 // generate the header for the a telemetry block
 unsigned int generateApiHeader(unsigned char *apiString, char dataFrame);
 
 // Stage the given telemetry block
-void stageTelemetryBlock(struct telem_block *telem);
+void stageTelemetryBlock(union telem_block *telem);
 // Do outbound buffer maintenance
 void outboundBufferMaintenance(void);
 
 // Send a block of telemetry immediately, probably shouldn't call this directly
-int sendTelemetryBlock(struct telem_block *telem);
+int sendTelemetryBlock(union telem_block *telem);
 
 /****************************************************************************
  * Inbound relevant functions

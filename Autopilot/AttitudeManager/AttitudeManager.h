@@ -125,7 +125,6 @@ float getYaw();
 float getRollRate();
 float getPitchRate();
 float getYawRate();
-int getHeadingSetpoint();
 int getRollAngleSetpoint();
 int getPitchAngleSetpoint();
 int getPitchRateSetpoint();
@@ -133,6 +132,8 @@ int getRollRateSetpoint();
 int getYawRateSetpoint();
 int getThrottleSetpoint();
 int getFlapSetpoint();
+int getAltitudeSetpoint();
+int getHeadingSetpoint();
 void setPitchAngleSetpoint(int setpoint);
 void setRollAngleSetpoint(int setpoint);
 void setPitchRateSetpoint(int setpoint);
@@ -195,7 +196,7 @@ void readDatalink(void);
  * Output:  An error code indicating if the data was added to the queue successfully.
  *
  *****************************************************************************/
-int writeDatalink(void);
+int writeDatalink(int packet);
 
 /*****************************************************************************
  * Function: void adjustVNOrientationMatrix(float* adjustment);

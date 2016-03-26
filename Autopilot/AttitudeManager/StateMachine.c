@@ -65,7 +65,7 @@ void StateMachine(char entryLocation){
     else if(DATALINK_SEND_FREQUENCY <= downlinkTimer){
         //Compile and send data
         downlinkTimer = 0;
-        writeDatalink();
+        writeDatalink(1); //Change this for different packets
         outboundBufferMaintenance();
     }
     else if(UPLINK_CHECK_FREQUENCY <= uplinkTimer){

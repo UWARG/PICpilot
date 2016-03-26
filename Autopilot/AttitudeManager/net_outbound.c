@@ -8,73 +8,160 @@
 #include "p33FJ256GP710.h"
 #include "../Common/UART1.h"
 
-struct telem_block *outBuffer [OUTBOUND_QUEUE_SIZE];
+union telem_block *outBuffer [OUTBOUND_QUEUE_SIZE];
 int outbuff_start = 0;
 int outbuff_end = 0;
 
-struct telem_block *debugTelemetry;
+union telem_block *debugTelemetry;
 
 struct telem_buffer stagingBuffer;
 
-const unsigned int PACKET_LENGTH = API_HEADER_LENGTH + sizeof(struct telem_block) + 1;
+const unsigned int PACKET_LENGTH = API_HEADER_LENGTH + sizeof(union telem_block) + 1;
 
 // Create a telem block returns null if fails
-struct telem_block *createTelemetryBlock(void) {
-    struct telem_block *telem = malloc(sizeof (struct telem_block));
+union telem_block *createTelemetryBlock(int packet) {
+    union telem_block *telem = malloc(sizeof (union telem_block));
+    switch(packet){
+        case PACKET_ATTITUDE:
+            *(int *)telem->att_block.type = PACKET_ATTITUDE;
+            break;
+        case PACKET_ERRORS:
+            *(int *)telem->err_block.type = PACKET_ERRORS;
+            break;
+        case PACKET_STATUS:
+            *(int *)telem->stat_block.type = PACKET_STATUS;
+            break;
+        case PACKET_GAIN:
+            *(int *)telem->g_block.type = PACKET_GAIN;
+            break;
+        case PACKET_INPUTS:
+            *(int *)telem->in_block.type = PACKET_INPUTS;
+            break;
+        case PACKET_SETPOINTS:
+            *(int *)telem->spoint_block.type = PACKET_SETPOINTS;
+            break;
+        case PACKET_OUTPUTS:
+            *(int *)telem->out_block.type = PACKET_OUTPUTS;
+            break;
+        case PACKET_LOCATION:
+            *(int *)telem->loc_block.type = PACKET_LOCATION;
+            break;
+        case PACKET_CAMERA:
+            *(int *)telem->cam_block.type = PACKET_CAMERA;
+            break;
+        default:
+            break;
+    }
+
     return telem;
 }
 
 // Create a telemetry block to use for debugging, only creates one instance
-struct telem_block *getDebugTelemetryBlock(void) {
+union telem_block *getDebugTelemetryBlock(int packet) {
     // If the telemetry block does not exist, create it filled with ones
     // of the respective types
     if (debugTelemetry == 0) {
-        debugTelemetry = createTelemetryBlock();
-        debugTelemetry->millis = (long long) 1;
-        debugTelemetry->lat = (long double) 1;
-        debugTelemetry->lon = (long double) 1;
-        debugTelemetry->pitch = (float) 1;
-        debugTelemetry->roll = (float) 1;;
-        debugTelemetry->yaw = (float) 1;
-        debugTelemetry->pitchRate = (float) 1;
-        debugTelemetry->rollRate = (float) 1;
-        debugTelemetry->yawRate = (float) 1;
-        debugTelemetry->kd_gain = (float) 1;
-        debugTelemetry->kp_gain = (float) 1;
-        debugTelemetry->ki_gain = (float) 1;
-        debugTelemetry->heading = (float) 1;
-        debugTelemetry->groundSpeed = (float) 1;
-        debugTelemetry->pitchSetpoint = (int) 1;
-        debugTelemetry->rollSetpoint = (int) 1;
-        debugTelemetry->headingSetpoint = (int) 1;
-        debugTelemetry->throttleSetpoint = (int) 1;
-        debugTelemetry->flapSetpoint = (int) 1;
-        debugTelemetry->altitudeSetpoint = (int) 1;
-        debugTelemetry->altitude = (float) 1;
-        debugTelemetry->cPitchSetpoint = (int) 1;
-        debugTelemetry->cRollSetpoint = (int) 1;
-        debugTelemetry->cYawSetpoint = (int) 1;
-        debugTelemetry->lastCommandSent = (int) 1;
-        debugTelemetry->errorCodes = (int)1;
-        debugTelemetry->cameraStatus = (int)1;
-        debugTelemetry->waypointIndex = (char)1;
-        debugTelemetry->editing_gain = (char)1;
-        debugTelemetry->gpsStatus = (char)1;
-        debugTelemetry->batteryLevel = (char)1;
-        debugTelemetry->waypointCount = (char)1;
+        switch(packet){
+            case PACKET_ATTITUDE:
+                debugTelemetry->att_block.roll = 1;
+                debugTelemetry->att_block.pitch = 1;
+                debugTelemetry->att_block.yaw = 1;
+                debugTelemetry->att_block.rollRate = 1;
+                debugTelemetry->att_block.pitchRate = 1;
+                debugTelemetry->att_block.yawRate = 1;
+                debugTelemetry->att_block.airspeed = 1;
+                break;
+            case PACKET_ERRORS:
+                debugTelemetry->err_block.startupErrorCodes = 1;
+                break;
+            case PACKET_STATUS:
+                debugTelemetry->stat_block.sysTime = 1;
+                debugTelemetry->stat_block.lastCommandSent = 1;
+                debugTelemetry->stat_block.wirelessConnection = 1;
+                debugTelemetry->stat_block.autopilotActive = 1;
+                debugTelemetry->stat_block.batteryLevel1 = 1;
+                debugTelemetry->stat_block.batteryLevel2 = 1;
+                break;
+            case PACKET_GAIN:
+                debugTelemetry->g_block.rollKD = 1;
+                debugTelemetry->g_block.rollKP = 1;
+                debugTelemetry->g_block.rollKI = 1;
+                debugTelemetry->g_block.pitchKD = 1;
+                debugTelemetry->g_block.pitchKP = 1;
+                debugTelemetry->g_block.pitchKI = 1;
+                debugTelemetry->g_block.yawKD = 1;
+                debugTelemetry->g_block.yawKP = 1;
+                debugTelemetry->g_block.yawKI = 1;
+                debugTelemetry->g_block.headingKD = 1;
+                debugTelemetry->g_block.headingKP = 1;
+                debugTelemetry->g_block.headingKI = 1;
+                debugTelemetry->g_block.altitudeKD = 1;
+                debugTelemetry->g_block.altitudeKP = 1;
+                debugTelemetry->g_block.altitudeKI = 1;
+                debugTelemetry->g_block.throttleKD = 1;
+                debugTelemetry->g_block.throttleKP = 1;
+                debugTelemetry->g_block.throttleKI = 1;
+                debugTelemetry->g_block.flapKD = 1;
+                debugTelemetry->g_block.flapKP = 1;
+                debugTelemetry->g_block.flapKI = 1;
+                break;
+            case PACKET_INPUTS:
+                break;
+            case PACKET_SETPOINTS:
+                debugTelemetry->spoint_block.rollRateSetpoint = 1;
+                debugTelemetry->spoint_block.rollSetpoint = 1;
+                debugTelemetry->spoint_block.pitchRateSetpoint = 1;
+                debugTelemetry->spoint_block.pitchSetpoint = 1;
+                debugTelemetry->spoint_block.throttleSetpoint = 1;
+                debugTelemetry->spoint_block.yawRateSetpoint = 1;
+                debugTelemetry->spoint_block.headingSetpoint = 1;
+                debugTelemetry->spoint_block.altitudeSetpoint = 1;
+                debugTelemetry->spoint_block.flapSetpoint = 1;
+                break;
+            case PACKET_OUTPUTS:
+                debugTelemetry->out_block.ch1 = 1;
+                debugTelemetry->out_block.ch2 = 1;
+                debugTelemetry->out_block.ch3 = 1;
+                debugTelemetry->out_block.ch4 = 1;
+                debugTelemetry->out_block.ch5 = 1;
+                debugTelemetry->out_block.ch6 = 1;
+                debugTelemetry->out_block.ch7 = 1;
+                debugTelemetry->out_block.ch8 = 1;
+                break;
+            case PACKET_LOCATION:
+                debugTelemetry->loc_block.lat = 1;
+                debugTelemetry->loc_block.lon = 1;
+                debugTelemetry->loc_block.alt = 1;
+                debugTelemetry->loc_block.UTC = 1;
+                debugTelemetry->loc_block.gSpeed = 1;
+                debugTelemetry->loc_block.heading = 1;
+                debugTelemetry->loc_block.gpsStatus = 1;
+                debugTelemetry->loc_block.pathChecksum = 1;
+                debugTelemetry->loc_block.numWaypoints = 1;
+                debugTelemetry->loc_block.pathFollowing = 1;
+                debugTelemetry->loc_block.waypointIndex = 1;
+
+                break;
+            case PACKET_CAMERA:
+                debugTelemetry->cam_block.cameraStatus = 1;
+                break;
+
+            default:
+                break;
+        }
     }
     return debugTelemetry;
 }
 
 // Destroy a telemetryBlock
-void destroyTelemetryBlock(struct telem_block *telem) {
+void destroyTelemetryBlock(union telem_block *telem) {
     free(telem);
     telem = 0;
 }
 
 // Add a telem_block to the outbound telemetry queue
 // Returns the position in the queue or -1 if no room in queue
-int pushOutboundTelemetryQueue(struct telem_block *telem) {
+int pushOutboundTelemetryQueue(union telem_block *telem) {
     if (getOutboundQueueLength() >= OUTBOUND_QUEUE_SIZE) {
         return -1;
     }
@@ -143,7 +230,7 @@ void sendNextByte(void) {
 }
 
 // Put the next telemetry
-void stageTelemetryBlock(struct telem_block *telem) {
+void stageTelemetryBlock(union telem_block *telem) {
     stagingBuffer.telemetry.asStruct = telem;
     generateApiHeader(stagingBuffer.header, 0);
     stagingBuffer.checksum = 0;
@@ -153,8 +240,8 @@ void stageTelemetryBlock(struct telem_block *telem) {
 }
 
 // Pop next telem_block from outgoing buffer, null if no telemetry
-struct telem_block *popOutboundTelemetryQueue(void) {
-    struct telem_block* telem = outBuffer[outbuff_start];
+union telem_block *popOutboundTelemetryQueue(void) {
+    union telem_block* telem = outBuffer[outbuff_start];
     outbuff_start += 1;
     outBuffer[outbuff_start - 1] = 0;
     outbuff_start %= OUTBOUND_QUEUE_SIZE;
@@ -167,7 +254,7 @@ struct telem_block *popOutboundTelemetryQueue(void) {
 // Does not check array length!
 unsigned int generateApiHeader(unsigned char *apiString, char dataFrame) {
     unsigned int apiIndex = 0;
-    unsigned int length = API_HEADER_LENGTH - API_HEADER_PREFIX + sizeof(struct telem_block);
+    unsigned int length = API_HEADER_LENGTH - API_HEADER_PREFIX + sizeof(union telem_block);
     //unsigned int telemLength = sizeof(struct telem_block);
 
     // API Mode header
@@ -204,7 +291,7 @@ unsigned int generateApiHeader(unsigned char *apiString, char dataFrame) {
 }
 
 // Send a telemetry block immediately (blocking)
-int sendTelemetryBlock(struct telem_block *telem) {
+int sendTelemetryBlock(union telem_block *telem) {
 
     unsigned char apiHeader[API_HEADER_LENGTH];
     unsigned int headerLength = generateApiHeader(apiHeader, 0);
@@ -227,7 +314,7 @@ int sendTelemetryBlock(struct telem_block *telem) {
     }
     lengthCheck += i;
     // Send the telemetry
-    for (i = 0; i < sizeof(struct telem_block); i++) {
+    for (i = 0; i < sizeof(union telem_block); i++) {
         // Culmulative checksum
         checksum += telemAsArray[i] & 0xFF;
         // Wait for data link to clear from previous send

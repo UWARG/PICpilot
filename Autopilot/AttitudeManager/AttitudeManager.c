@@ -78,7 +78,7 @@ char gps_PositionFix = 0;
 char waypointIndex = 0;
 char waypointChecksum = 0;
 char waypointCount = 0;
-char batteryLevel = 0;
+char batteryLevel1 = 0;
 
 
 // System outputs (get from IMU)
@@ -204,7 +204,7 @@ char checkDMA(){
         gps_Satellites = pmData.satellites;
         gps_PositionFix = pmData.positionFix;
         waypointIndex = pmData.targetWaypoint;
-        batteryLevel = pmData.batteryLevel;
+        batteryLevel1 = pmData.batteryLevel;
         waypointCount = pmData.waypointCount;
         airspeed = pmData.airspeed;
 
@@ -254,9 +254,6 @@ float getPitchRate(){
 float getYawRate(){
     return imu_YawRate;
 }
-int getHeadingSetpoint(){
-    return sp_Heading;
-}
 int getRollAngleSetpoint(){
     return sp_RollAngle;
 }
@@ -277,6 +274,12 @@ int getThrottleSetpoint(){
 }
 int getFlapSetpoint(){
     return sp_FlapRate;
+}
+int getAltitudeSetpoint(){
+    return sp_Altitude;
+}
+int getHeadingSetpoint(){
+    return sp_Heading;
 }
 
 void setPitchAngleSetpoint(int setpoint){
@@ -798,7 +801,7 @@ void readDatalink(void){
 }
 int writeDatalink(int packet){
      
-    struct telem_block* statusData = createTelemetryBlock();//getDebugTelemetryBlock();
+    union telem_block* statusData = createTelemetryBlock(packet);//getDebugTelemetryBlock();
 
     switch(packet){
         case PACKET_ATTITUDE:
@@ -808,9 +811,18 @@ int writeDatalink(int packet){
             statusData->att_block.rollRate = getRollRate();
             statusData->att_block.pitchRate = getPitchRate();
             statusData->att_block.yawRate = getYawRate();
+            statusData->att_block.airspeed = airspeed;
+            break;
+        case PACKET_ERRORS:
+            statusData->err_block.startupErrorCodes = getStartupErrorCodes();
             break;
         case PACKET_STATUS:
             statusData->stat_block.sysTime = getTime();
+            statusData->stat_block.lastCommandSent = lastCommandSentCode;
+            statusData->stat_block.wirelessConnection = (input_RC_UHFSwitch < -429) << 1;//+ RSSI;
+            statusData->stat_block.autopilotActive = input_RC_Switch1 > 380;
+            statusData->stat_block.batteryLevel1 = batteryLevel1;
+            //statusData->stat_block.batteryLevel2 = batterLevel2;
             break;
         case PACKET_GAIN:
             statusData->g_block.rollKD = getGain(ROLL,GAIN_KD);
@@ -822,49 +834,64 @@ int writeDatalink(int packet){
             statusData->g_block.yawKD = getGain(YAW,GAIN_KD);
             statusData->g_block.yawKP = getGain(YAW,GAIN_KP);
             statusData->g_block.yawKI = getGain(YAW, GAIN_KI);
+            statusData->g_block.headingKD = getGain(HEADING, GAIN_KD);
+            statusData->g_block.headingKP = getGain(HEADING, GAIN_KP);
+            statusData->g_block.headingKI = getGain(HEADING, GAIN_KI);
+            statusData->g_block.altitudeKD = getGain(ALTITUDE, GAIN_KD);
+            statusData->g_block.altitudeKP = getGain(ALTITUDE, GAIN_KP);
+            statusData->g_block.altitudeKI = getGain(ALTITUDE, GAIN_KI);
+            statusData->g_block.throttleKD = getGain(THROTTLE, GAIN_KD);
+            statusData->g_block.throttleKP = getGain(THROTTLE, GAIN_KP);
+            statusData->g_block.throttleKI = getGain(THROTTLE, GAIN_KI);
+            statusData->g_block.flapKD = getGain(FLAP, GAIN_KD);
+            statusData->g_block.flapKP = getGain(FLAP, GAIN_KP);
+            statusData->g_block.flapKI = getGain(FLAP, GAIN_KI);
             break;
         case PACKET_INPUTS:
             break;
         case PACKET_SETPOINTS:
+            statusData->spoint_block.rollRateSetpoint = getRollRateSetpoint();
+            statusData->spoint_block.rollSetpoint = getRollAngleSetpoint();
+            statusData->spoint_block.pitchRateSetpoint = getPitchRateSetpoint();
+            statusData->spoint_block.pitchSetpoint = getPitchAngleSetpoint();
+            statusData->spoint_block.throttleSetpoint = getThrottleSetpoint();
+            statusData->spoint_block.yawRateSetpoint = getYawRateSetpoint();
+            statusData->spoint_block.headingSetpoint = getHeadingSetpoint();
+            statusData->spoint_block.altitudeSetpoint = getAltitudeSetpoint();
+            statusData->spoint_block.flapSetpoint = getFlapSetpoint();
             break;
-        case PACKET_OUTPUTS:
+        case PACKET_OUTPUTS:;
+            int* output = checkPWMArray();
+            statusData->out_block.ch1 = output[0];
+            statusData->out_block.ch2 = output[1];
+            statusData->out_block.ch3 = output[2];
+            statusData->out_block.ch4 = output[3];
+            statusData->out_block.ch5 = output[4];
+            statusData->out_block.ch6 = output[5];
+            statusData->out_block.ch7 = output[6];
+            statusData->out_block.ch8 = output[7];
             break;
         case PACKET_LOCATION:
             statusData->loc_block.lat = getLatitude();
             statusData->loc_block.lon = getLongitude();
             statusData->loc_block.alt = getAltitude();
             statusData->loc_block.UTC = gps_Time;
+            statusData->loc_block.gSpeed = gps_GroundSpeed;
+            statusData->loc_block.heading = getHeading();
+            statusData->loc_block.gpsStatus = gps_Satellites + (gps_PositionFix << 4);
+            //statusData->loc_block.pathChecksum =
+            statusData->loc_block.numWaypoints = waypointCount;
+            //statusData->loc_block.following = <true/false>
+            statusData->loc_block.waypointIndex = waypointIndex;
+
             break;
         case PACKET_CAMERA:
+            statusData->cam_block.cameraStatus = cameraCounter;
             break;
                 
         default:
             break;
     }
-    statusData->kd_gain = getGain(displayGain, GAIN_KD);
-    statusData->kp_gain = getGain(displayGain, GAIN_KP);
-    statusData->ki_gain = getGain(displayGain, GAIN_KI);
-    statusData->groundSpeed = gps_GroundSpeed;
-    statusData->altitude = gps_Altitude;
-    statusData->heading = gps_Heading;
-    statusData->pitchSetpoint = getPitchAngleSetpoint();
-    statusData->rollSetpoint = getRollAngleSetpoint();
-    statusData->headingSetpoint = sp_Heading;
-    statusData->throttleSetpoint = (int)(((long int)(sp_ThrottleRate + MAX_PWM) * 100) / MAX_PWM/2);
-    statusData->flapSetpoint = (int)(((long int)(sp_FlapRate + MAX_PWM) * 100) / MAX_PWM/2);
-    statusData->altitudeSetpoint = sp_Altitude;
-    statusData->cPitchSetpoint = getPitchRateSetpoint();
-    statusData->cRollSetpoint = getRollRateSetpoint();
-    statusData->cYawSetpoint = getYawRateSetpoint();
-    statusData->lastCommandSent = lastCommandSentCode;
-    statusData->errorCodes = getErrorCodes() + ((input_RC_UHFSwitch < -429)<< 11);
-    statusData->cameraStatus = cameraCounter;
-    statusData->waypointIndex = waypointIndex;
-    statusData->editing_gain = displayGain + ((input_RC_Switch1 > 380) << 4);
-    statusData->gpsStatus = gps_Satellites + (gps_PositionFix << 4);
-    statusData->batteryLevel = batteryLevel;
-    statusData->waypointCount = waypointCount;
-    statusData->airspeed = (int)airspeed;
 
 
     if (BLOCKING_MODE) {
