@@ -19,19 +19,19 @@ struct telem_buffer stagingBuffer;
 const unsigned int PACKET_LENGTH = API_HEADER_LENGTH + sizeof(struct telem_block) + 1;
 
 // Create a telem block returns null if fails
-struct telem_block *createTelemetryBlock(int packet) {
+struct telem_block *createTelemetryBlock(p_priority packet) {
     struct telem_block *telem = malloc(sizeof (struct telem_block));
     *(int *)telem->type = packet;
     return telem;
 }
 
 // Create a telemetry block to use for debugging, only creates one instance
-struct telem_block *getDebugTelemetryBlock(int packet) {
+struct telem_block *getDebugTelemetryBlock(p_priority packet) {
     // If the telemetry block does not exist, create it filled with ones
     // of the respective types
     if (debugTelemetry == 0) {
         switch(packet){
-            case PACKET_PRIORITY1:
+            case PRIORITY1:
             debugTelemetry->data.p1_block.lat = 1;
             debugTelemetry->data.p1_block.lon = 1;
             debugTelemetry->data.p1_block.sysTime = 1;
@@ -47,7 +47,7 @@ struct telem_block *getDebugTelemetryBlock(int packet) {
             debugTelemetry->data.p1_block.gSpeed = 1;
             debugTelemetry->data.p1_block.heading = 1;
             break;
-        case PACKET_PRIORITY2:
+        case PRIORITY2:
             debugTelemetry->data.p2_block.lastCommandSent = 1;
             debugTelemetry->data.p2_block.batteryLevel1 = 1;
             //debugTelemetry->data.p2_block.batteryLevel2 = 1;
@@ -85,7 +85,7 @@ struct telem_block *getDebugTelemetryBlock(int packet) {
             debugTelemetry->data.p2_block.waypointIndex = 1;
             //debugTelemetry->data.p2_block.following = 1;
             break;
-        case PACKET_PRIORITY3:
+        case PRIORITY3:
             debugTelemetry->data.p3_block.rollKD = 1;
             debugTelemetry->data.p3_block.rollKP = 1;
             debugTelemetry->data.p3_block.rollKI = 1;

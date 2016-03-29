@@ -44,9 +44,11 @@ extern "C" {
 
 #define UHF_KILL_TIMEOUT_FAST 10000
 
-#define PACKET_PRIORITY1 1
-#define PACKET_PRIORITY2 2
-#define PACKET_PRIORITY3 3
+typedef enum _p_priority {
+    PRIORITY1 = 1,
+    PRIORITY2 = 2,
+    PRIORITY3 = 3
+} p_priority;
 
 struct priority1_block { //High Frequency - Multiple times per second
     long double lat, lon; // Latitude and longitude from gps    // 8Byte
@@ -142,10 +144,10 @@ struct command {
 int initDataLink(void);
 
 // Create a telemetry block to use for debugging, only creates one instance
-struct telem_block *getDebugTelemetryBlock(int packet);
+struct telem_block *getDebugTelemetryBlock(p_priority packet);
 
 // Create a telem block returns null if fails
-struct telem_block *createTelemetryBlock(int packet);
+struct telem_block *createTelemetryBlock(p_priority packet);
 // Destroy a dataBlock
 void destroyTelemetryBlock(struct telem_block *data);
 

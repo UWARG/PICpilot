@@ -10,7 +10,6 @@
 #include "VN100.h"
 #include "InputCapture.h"
 #include "OutputCompare.h"
-#include "net.h"
 #include "PWM.h"
 #include "AttitudeManager.h"
 #include "commands.h"
@@ -799,12 +798,12 @@ void readDatalink(void){
     }
  
 }
-int writeDatalink(int packet){
+int writeDatalink(p_priority packet){
      
     struct telem_block* statusData = createTelemetryBlock(packet);//getDebugTelemetryBlock();
 
     switch(packet){
-        case PACKET_PRIORITY1:
+        case PRIORITY1:
             statusData->data.p1_block.lat = getLatitude();
             statusData->data.p1_block.lon = getLongitude();
             statusData->data.p1_block.sysTime = getTime();
@@ -820,7 +819,7 @@ int writeDatalink(int packet){
             statusData->data.p1_block.gSpeed = gps_GroundSpeed;
             statusData->data.p1_block.heading = getHeading();
             break;
-        case PACKET_PRIORITY2:
+        case PRIORITY2:
             statusData->data.p2_block.lastCommandSent = lastCommandSentCode;
             statusData->data.p2_block.batteryLevel1 = batteryLevel1;
             //statusData->data.p2_block.batteryLevel2 =
@@ -860,7 +859,7 @@ int writeDatalink(int packet){
             statusData->data.p2_block.waypointIndex = waypointIndex;
             //statusData->data.p2_block.following = <true/false>
             break;
-        case PACKET_PRIORITY3:
+        case PRIORITY3:
             statusData->data.p3_block.rollKD = getGain(ROLL,GAIN_KD);
             statusData->data.p3_block.rollKP = getGain(ROLL,GAIN_KP);
             statusData->data.p3_block.rollKI = getGain(ROLL,GAIN_KI);

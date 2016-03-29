@@ -12,6 +12,7 @@
 #include "OrientationControl.h"
 #include "StateMachine.h"
 #include "InterchipDMA.h"
+#include "net.h"
 #include "../Common/Common.h"
 
 //Bit masks for levels of control - DON'T CHANGE THESE FOR SHITS AND GIGGLES
@@ -196,7 +197,7 @@ void readDatalink(void);
  * Output:  An error code indicating if the data was added to the queue successfully.
  *
  *****************************************************************************/
-int writeDatalink(int packet);
+int writeDatalink(p_priority packet);
 
 /*****************************************************************************
  * Function: void adjustVNOrientationMatrix(float* adjustment);
