@@ -543,7 +543,6 @@ void readDatalink(void){
         switch (cmd->cmd) {
             case DEBUG_TEST:             // Debugging command, writes to debug UART
 #if DEBUG
-                debug("Foo");
                 debug( (char*) cmd->data);
 #endif
                 break;
@@ -799,9 +798,10 @@ void readDatalink(void){
  
 }
 int writeDatalink(p_priority packet){
-     
     struct telem_block* statusData = createTelemetryBlock(packet);//getDebugTelemetryBlock();
-
+    char str[20];
+    sprintf(str, "%d",sizeof(struct telem_block));
+    debug(str);
     switch(packet){
         case PRIORITY1:
             statusData->data.p1_block.lat = getLatitude();

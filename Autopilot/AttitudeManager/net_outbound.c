@@ -21,7 +21,7 @@ const unsigned int PACKET_LENGTH = API_HEADER_LENGTH + sizeof(struct telem_block
 // Create a telem block returns null if fails
 struct telem_block *createTelemetryBlock(p_priority packet) {
     struct telem_block *telem = malloc(sizeof (struct telem_block));
-    *(int *)telem->type = packet;
+    *(int *)(&(telem->type)) = packet;
     return telem;
 }
 
