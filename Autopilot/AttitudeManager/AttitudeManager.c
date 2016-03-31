@@ -21,6 +21,7 @@
 #include "InterchipDMA.h"
 #include "ProgramStatus.h"
 #include <string.h>
+#include <assert.h>
 
 extern PMData pmData;
 extern AMData amData;
@@ -464,12 +465,79 @@ void setKValues(int type,float* values){
     }
 };
 
+
+char** str_split(char* a_str, const char a_delim)
+{
+    char** result    = 0;
+    size_t count     = 0;
+    char* tmp        = a_str;
+    char* last_comma = 0;
+    char delim[2];
+    delim[0] = a_delim;
+    delim[1] = 0;
+
+    /* Count how many elements will be extracted. */
+    while (*tmp)
+    {
+        if (a_delim == *tmp)
+        {
+            count++;
+            last_comma = tmp;
+        }
+        tmp++;
+    }
+
+    /* Add space for trailing token. */
+    count += last_comma < (a_str + strlen(a_str) - 1);
+
+    /* Add space for terminating null string so caller
+       knows where the list of returned strings ends. */
+    count++;
+
+    result = malloc(sizeof(char*) * count);
+
+    if (result)
+    {
+        size_t idx  = 0;
+        char* token = strtok(a_str, delim);
+
+        while (token)
+        {
+            assert(idx < count);
+            *(result + idx++) = strdup(token);
+            token = strtok(0, delim);
+        }
+        assert(idx == count - 1);
+        *(result + idx) = 0;
+    }
+
+    return result;
+}
+
+
 void imuCommunication(){
     /*****************************************************************************
      *****************************************************************************
                                 IMU COMMUNICATION
      *****************************************************************************
      *****************************************************************************/
+#if SIM
+    unsigned char* _data = getData();
+    char** tokens;
+    tokens = str_split(_data, ',');
+
+    if (tokens){
+        imu_RollRate = atof(*(tokens + 0));
+        imu_PitchRate = atof(*(tokens + 1));
+        imu_YawRate = atof(*(tokens + 2));
+        imu_YawAngle = atof(*(tokens + 3));
+        imu_PitchAngle = atof(*(tokens + 4));
+        imu_RollAngle = atof(*(tokens + 5));
+    }
+
+    char x[30];
+    sprintf(&x, "IMU Roll Rate: %f", imu_RollRate);
+#else
     VN100_SPI_GetRates(0, (float*) &imuData);
 
     //TODO: This is a reminder for me to figure out a more elegant way to fix improper derivative control (based on configuration of the sensor), adding this negative is a temporary fix. Some kind of calibration command or something.
@@ -493,6 +561,7 @@ void imuCommunication(){
 //    debug(&x);
 //    sprintf(&x, "IMU Roll Angle: %f", imu_RollAngle);
 //    debug(&x);
+#endif
 #endif
 }
 

@@ -33,7 +33,9 @@ void StateMachine(char entryLocation){
     downlinkTimer += dTime;
     stateMachineTimer += dTime;
     imuTimer += dTime;
-    
+
+//    imuCommunication();
+
     if(isDMADataAvailable() && checkDMA()){
         //Input from Controller
         inputCapture();
@@ -62,20 +64,20 @@ void StateMachine(char entryLocation){
         lowLevelControl();
 
     }
-    else if(DATALINK_SEND_FREQUENCY <= downlinkTimer){
+    if(DATALINK_SEND_FREQUENCY <= downlinkTimer){
         //Compile and send data
         downlinkTimer = 0;
         writeDatalink();
         outboundBufferMaintenance();
     }
-    else if(UPLINK_CHECK_FREQUENCY <= uplinkTimer){
+    if(UPLINK_CHECK_FREQUENCY <= uplinkTimer){
         uplinkTimer = 0;
         readDatalink();
         inboundBufferMaintenance();
     }
-    else{
-        //Then Sleep
-    }
+//    else{
+//        //Then Sleep
+//    }
     //Loop it back again!
     asm("CLRWDT");
 }
@@ -158,6 +160,14 @@ void lowLevelControl(){
     setPWM(PROBE1_OUT_CHANNEL, probeStatus(PROBE1));
     setPWM(PROBE2_OUT_CHANNEL, probeStatus(PROBE2));
     setPWM(PROBE3_OUT_CHANNEL, probeStatus(PROBE3));
+
+    unsigned char* _data = getData();
+//    printf(_data);
+    UART1_SendString(_data);
+//
+    char simOutput[80];
+    sprintf(&simOutput, "(%d,%d,%d,%d,%d)", getRxPacketStatus(), outputSignal[0], outputSignal[1], outputSignal[2], outputSignal[3]);
+    UART1_SendString(simOutput);
 }
 #elif COPTER
 void highLevelControl(){

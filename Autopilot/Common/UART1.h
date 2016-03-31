@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   UART.h
  * Author: Mitch
  *
@@ -7,10 +7,17 @@
 
 #ifndef UART_H
 #define	UART_H
-#endif	/* UART_H */
 
 void InitUART1();
 
 void UART1_SendChar(char data);
 
 void UART1_SendString(char *s);
+
+unsigned char* getData();
+
+void setData(char* msg);
+
+int getRxPacketStatus();
+
+#endif	/* UART_H */
