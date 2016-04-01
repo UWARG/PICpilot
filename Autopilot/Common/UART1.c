@@ -3,40 +3,56 @@
 #include "UART1.h"
 
 #define RAW_PACKET_BUFFER_SIZE 100
-#define START_DELIMITER '('
-#define END_DELIMITER ')'
+#define START_DELIMITER 0xAA
+#define END_DELIMITER 0xBB
 
-unsigned char rxData[RAW_PACKET_BUFFER_SIZE];
-char dataPacket[RAW_PACKET_BUFFER_SIZE];
+//unsigned char rxData[RAW_PACKET_BUFFER_SIZE];
+//char dataPacket[RAW_PACKET_BUFFER_SIZE];
 
 static int payloadPos = 0;
 static int packetStatus = 0;
 int newPacketReceived = 0;
 
+struct ImuData *simData;
+struct ImuData *rxData;
 
-unsigned char* getData(){
-    return dataPacket;
+struct ImuData *getSimData(void){
+    return simData;
 }
 
-void setData(char* msg){
-
-    //Clear the previous dataPacket
-    *dataPacket = "";
-
-    //Identify the length of the message
-    unsigned int mLength = 0;
-    while (msg[mLength] != '\0' && mLength < RAW_PACKET_BUFFER_SIZE - 1){
-        mLength++;
+void setSimData(struct ImuData *input){
+    int i = 0;
+    for (i = 20; i <25; i++){
+        char x[30];
+        sprintf(&x, "End%d: %02X", i, ((char*)input)[i]);
+        debug(&x);
     }
-
-    //Fill the dataPacket with the new message
-    unsigned int i = 0;
-    for (i = 0; i < mLength; i++){
-        dataPacket[i] = msg[i];
-    }
-    printf("Q");
-    UART1_SendString(dataPacket);
+    simData = input;
 }
+
+//unsigned char* getData(void){
+//    return dataPacket;
+//}
+
+//void setData(char* msg){
+//
+//    //Clear the previous dataPacket
+//    *dataPacket = "";
+//
+//    //Identify the length of the message
+//    unsigned int mLength = 0;
+//    while (msg[mLength] != '\0' && mLength < RAW_PACKET_BUFFER_SIZE - 1){
+//        mLength++;
+//    }
+//
+//    //Fill the dataPacket with the new message
+//    unsigned int i = 0;
+//    for (i = 0; i < mLength; i++){
+//        dataPacket[i] = msg[i];
+//    }
+//    printf("Q");
+//    UART1_SendString(dataPacket);
+//}
 
 //Identifies whether or not there's new information to be processed
 int getRxPacketStatus(){
@@ -53,7 +69,6 @@ void __attribute__ ((interrupt, no_auto_psv)) _U1RXInterrupt(void) {
     //If Overrun error occurs then reset
     if (U1STAbits.OERR == 1){
         debug("Overrun ERROR");
-        *rxData = "";
         U1STAbits.OERR = 0;
         IFS0bits.U1RXIF = 0;
         return;
@@ -73,31 +88,24 @@ void __attribute__ ((interrupt, no_auto_psv)) _U1RXInterrupt(void) {
 
             if (rxByte == START_DELIMITER){
                 packetStatus = 1;
-                *rxData = "";
             }
             else if (rxByte == END_DELIMITER){
                 packetStatus = 0;
-                *rxData = "";
             }
         }
 
         //if a dataPacket has already been started
-        else{
-
+        if(packetStatus){
+            //still receiving parts of packet, so continue assembly
+            ((char*)rxData)[payloadPos] = rxByte;
+            payloadPos++;
             //if the end delimiter is seen, save the packet, reset, and flag
             //that a new packet is ready for processing
             if (rxByte == END_DELIMITER){
-                setData(&rxData);
+                setSimData(rxData);
                 packetStatus = 0;
                 payloadPos = 0;
-                *rxData = "";
                 newPacketReceived = 1;
-            }
-
-            //still receiving parts of packet, so continue assembly
-            else{
-                rxData[payloadPos] = rxByte;
-                payloadPos++;
             }
         }
     }

@@ -161,9 +161,9 @@ void lowLevelControl(){
     setPWM(PROBE2_OUT_CHANNEL, probeStatus(PROBE2));
     setPWM(PROBE3_OUT_CHANNEL, probeStatus(PROBE3));
 
-    unsigned char* _data = getData();
-//    printf(_data);
-    UART1_SendString(_data);
+//    unsigned char* _data = getData();
+////    printf(_data);
+//    UART1_SendString(_data);
 //
     char simOutput[80];
     sprintf(&simOutput, "(%d,%d,%d,%d,%d)", getRxPacketStatus(), outputSignal[0], outputSignal[1], outputSignal[2], outputSignal[3]);

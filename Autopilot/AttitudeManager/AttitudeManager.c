@@ -522,21 +522,21 @@ void imuCommunication(){
      *****************************************************************************
      *****************************************************************************/
 #if SIM
-    unsigned char* _data = getData();
-    char** tokens;
-    tokens = str_split(_data, ',');
-
-    if (tokens){
-        imu_RollRate = atof(*(tokens + 0));
-        imu_PitchRate = atof(*(tokens + 1));
-        imu_YawRate = atof(*(tokens + 2));
-        imu_YawAngle = atof(*(tokens + 3));
-        imu_PitchAngle = atof(*(tokens + 4));
-        imu_RollAngle = atof(*(tokens + 5));
-    }
-
-    char x[30];
-    sprintf(&x, "IMU Roll Rate: %f", imu_RollRate);
+//    unsigned char* _data = getData();
+//    char** tokens;
+//    tokens = str_split(_data, ',');
+//
+//    if (tokens){
+//        imu_RollRate = atof(*(tokens + 0));
+//        imu_PitchRate = atof(*(tokens + 1));
+//        imu_YawRate = atof(*(tokens + 2));
+//        imu_YawAngle = atof(*(tokens + 3));
+//        imu_PitchAngle = atof(*(tokens + 4));
+//        imu_RollAngle = atof(*(tokens + 5));
+//    }
+//
+//    char x[30];
+//    sprintf(&x, "IMU Roll Rate: %f", imu_RollRate);
 #else
     VN100_SPI_GetRates(0, (float*) &imuData);
 
