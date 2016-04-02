@@ -15,16 +15,18 @@
 char vehicleArmed = 0;
 
 void initialization(int* outputSignal){
-    setPWM(THROTTLE_OUT_CHANNEL,MIN_PWM);
+    setPWM(THROTTLE_OUT_CHANNEL, MIN_PWM);
+    p_priority numPacket = PRIORITY1;
     while (!vehicleArmed){
         imuCommunication();
         asm("CLRWDT");
-        writeDatalink(1); //TODO: Change this for multiple packets
+        writeDatalink(numPacket%3); //TODO: Change this for multiple packets
         readDatalink();
         inboundBufferMaintenance();
         outboundBufferMaintenance();
         Delay(200);
         asm("CLRWDT");
+        numPacket = (numPacket + 1) % 3;
     }
 }
 

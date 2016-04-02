@@ -798,31 +798,28 @@ void readDatalink(void){
  
 }
 int writeDatalink(p_priority packet){
-    struct telem_block* statusData = createTelemetryBlock(packet);//getDebugTelemetryBlock();
-    char str[20];
-    sprintf(str, "%d",sizeof(struct telem_block));
-    debug(str);
+    struct telem_block* statusData = createTelemetryBlock(packet);
     switch(packet){
-        case PRIORITY1:
+        case PRIORITY0:
             statusData->data.p1_block.lat = getLatitude();
             statusData->data.p1_block.lon = getLongitude();
             statusData->data.p1_block.sysTime = getTime();
-            statusData->data.p1_block.roll = getRoll();
+            statusData->data.p1_block.UTC = gps_Time;
             statusData->data.p1_block.pitch = getPitch();
+            statusData->data.p1_block.roll = getRoll();
             statusData->data.p1_block.yaw = getYaw();
-            statusData->data.p1_block.rollRate = getRollRate();
             statusData->data.p1_block.pitchRate = getPitchRate();
+            statusData->data.p1_block.rollRate = getRollRate();
             statusData->data.p1_block.yawRate = getYawRate();
             statusData->data.p1_block.airspeed = airspeed;
             statusData->data.p1_block.alt = getAltitude();
-            statusData->data.p1_block.UTC = gps_Time;
             statusData->data.p1_block.gSpeed = gps_GroundSpeed;
             statusData->data.p1_block.heading = getHeading();
             break;
-        case PRIORITY2:
+        case PRIORITY1:
             statusData->data.p2_block.lastCommandSent = lastCommandSentCode;
             statusData->data.p2_block.batteryLevel1 = batteryLevel1;
-            //statusData->data.p2_block.batteryLevel2 =
+            statusData->data.p2_block.batteryLevel2 = 100;
             statusData->data.p2_block.startupErrorCodes = getStartupErrorCodes();
             int* input = getPWMArray();
             statusData->data.p2_block.ch1In = input[0];
@@ -851,15 +848,16 @@ int writeDatalink(p_priority packet){
             statusData->data.p2_block.headingSetpoint = getHeadingSetpoint();
             statusData->data.p2_block.altitudeSetpoint = getAltitudeSetpoint();
             statusData->data.p2_block.flapSetpoint = getFlapSetpoint();
+            statusData->data.p2_block.cameraStatus = cameraCounter;
             statusData->data.p2_block.wirelessConnection = (input_RC_UHFSwitch < -429) << 1;//+ RSSI;
             statusData->data.p2_block.autopilotActive = input_RC_Switch1 > 380;
             statusData->data.p2_block.gpsStatus = gps_Satellites + (gps_PositionFix << 4);
-            //statusData->data.p2_block.pathChecksum =
+//            statusData->data.p2_block.pathChecksum =
             statusData->data.p2_block.numWaypoints = waypointCount;
             statusData->data.p2_block.waypointIndex = waypointIndex;
             //statusData->data.p2_block.following = <true/false>
             break;
-        case PRIORITY3:
+        case PRIORITY2:
             statusData->data.p3_block.rollKD = getGain(ROLL,GAIN_KD);
             statusData->data.p3_block.rollKP = getGain(ROLL,GAIN_KP);
             statusData->data.p3_block.rollKI = getGain(ROLL,GAIN_KI);
@@ -881,7 +879,6 @@ int writeDatalink(p_priority packet){
             statusData->data.p3_block.flapKD = getGain(FLAP, GAIN_KD);
             statusData->data.p3_block.flapKP = getGain(FLAP, GAIN_KP);
             statusData->data.p3_block.flapKI = getGain(FLAP, GAIN_KI);
-            statusData->data.p3_block.cameraStatus = cameraCounter;
             break;
                 
         default:

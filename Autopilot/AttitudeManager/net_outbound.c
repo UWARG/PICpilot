@@ -31,7 +31,7 @@ struct telem_block *getDebugTelemetryBlock(p_priority packet) {
     // of the respective types
     if (debugTelemetry == 0) {
         switch(packet){
-            case PRIORITY1:
+        case PRIORITY0:
             debugTelemetry->data.p1_block.lat = 1;
             debugTelemetry->data.p1_block.lon = 1;
             debugTelemetry->data.p1_block.sysTime = 1;
@@ -47,7 +47,7 @@ struct telem_block *getDebugTelemetryBlock(p_priority packet) {
             debugTelemetry->data.p1_block.gSpeed = 1;
             debugTelemetry->data.p1_block.heading = 1;
             break;
-        case PRIORITY2:
+        case PRIORITY1:
             debugTelemetry->data.p2_block.lastCommandSent = 1;
             debugTelemetry->data.p2_block.batteryLevel1 = 1;
             //debugTelemetry->data.p2_block.batteryLevel2 = 1;
@@ -77,6 +77,7 @@ struct telem_block *getDebugTelemetryBlock(p_priority packet) {
             debugTelemetry->data.p2_block.headingSetpoint = 1;
             debugTelemetry->data.p2_block.altitudeSetpoint = 1;
             debugTelemetry->data.p2_block.flapSetpoint = 1;
+            debugTelemetry->data.p2_block.cameraStatus = 1;
             debugTelemetry->data.p2_block.wirelessConnection = 1;
             debugTelemetry->data.p2_block.autopilotActive = 1;
             debugTelemetry->data.p2_block.gpsStatus = 1;
@@ -85,7 +86,7 @@ struct telem_block *getDebugTelemetryBlock(p_priority packet) {
             debugTelemetry->data.p2_block.waypointIndex = 1;
             //debugTelemetry->data.p2_block.following = 1;
             break;
-        case PRIORITY3:
+        case PRIORITY2:
             debugTelemetry->data.p3_block.rollKD = 1;
             debugTelemetry->data.p3_block.rollKP = 1;
             debugTelemetry->data.p3_block.rollKI = 1;
@@ -107,7 +108,6 @@ struct telem_block *getDebugTelemetryBlock(p_priority packet) {
             debugTelemetry->data.p3_block.flapKD = 1;
             debugTelemetry->data.p3_block.flapKP = 1;
             debugTelemetry->data.p3_block.flapKI = 1;
-            debugTelemetry->data.p3_block.cameraStatus = 1;
             break;
 
         default:
@@ -224,7 +224,7 @@ unsigned int generateApiHeader(unsigned char *apiString, char dataFrame) {
     // API Mode header
     apiString[apiIndex++] = 0x7E;
     // Packet length
-    apiString[apiIndex++] = 0; // MSB (Can only go up to 256)
+    apiString[apiIndex++] = 0; // MSB (Can only go up to 100)
     apiString[apiIndex++] = (length & 0x00FF);      // LSB
 
     //Frame Type

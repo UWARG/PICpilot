@@ -45,10 +45,12 @@ extern "C" {
 #define UHF_KILL_TIMEOUT_FAST 10000
 
 typedef enum _p_priority {
+    PRIORITY0 = 0,
     PRIORITY1 = 1,
     PRIORITY2 = 2,
-    PRIORITY3 = 3
 } p_priority;
+
+
 
 struct priority1_block { //High Frequency - Multiple times per second
     long double lat, lon; // Latitude and longitude from gps    // 8Byte
@@ -69,6 +71,7 @@ struct priority2_block { //Medium Frequency - Once every second
     int ch1In,ch2In,ch3In,ch4In,ch5In,ch6In,ch7In,ch8In;
     int ch1Out,ch2Out,ch3Out,ch4Out,ch5Out,ch6Out,ch7Out,ch8Out;
     int rollRateSetpoint, rollSetpoint, pitchRateSetpoint, pitchSetpoint, throttleSetpoint, yawRateSetpoint, headingSetpoint, altitudeSetpoint, flapSetpoint;
+    int cameraStatus;
     char wirelessConnection; //1 byte
     char autopilotActive; //1 byte  
     char gpsStatus; //1 Byte
@@ -76,7 +79,6 @@ struct priority2_block { //Medium Frequency - Once every second
     char numWaypoints; //1 bytes
     char waypointIndex; //1 byte
     char pathFollowing; // 1 byte
-
 };
 
 struct priority3_block { //Low Frequency - On update...
@@ -88,7 +90,6 @@ struct priority3_block { //Low Frequency - On update...
     float throttleKD, throttleKP, throttleKI;
     float flapKD, flapKP, flapKI;
     float pathGain, orbitGain;
-    int cameraStatus;
 };
 
 typedef union {
@@ -101,28 +102,6 @@ struct telem_block {
     const int type;
     packetPayload data;
 };
-
-//struct telem_block {
-//    long double lat, lon; // Latitude and longitude from gps    // 8Byte
-//    float millis;        // Timestamp UTC  // 4Byte
-//    float pitch, roll, yaw;                         // 4Byte
-//    float pitchRate, rollRate, yawRate;             // 4Byte
-//    float kd_gain, kp_gain, ki_gain;          // 4Byte
-//    float groundSpeed;
-////    float airspeed;
-//    float altitude;
-//    int heading;
-//    int pitchSetpoint, rollSetpoint, headingSetpoint, throttleSetpoint, flapSetpoint; //Angle
-//    int altitudeSetpoint;
-//    int cPitchSetpoint, cRollSetpoint, cYawSetpoint;  //Controller input // 2Byte
-//    int lastCommandSent;
-//    int errorCodes;
-//    int cameraStatus;
-//    int airspeed;
-//    char waypointIndex;
-//    char editing_gain, gpsStatus, batteryLevel, waypointCount;                              // 1Byte
-//    // TODO: Add additional telemetry to be sent here
-//};
 
 struct telem_buffer {
     unsigned int sendIndex;             // index into telemetry to send
