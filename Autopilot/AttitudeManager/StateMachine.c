@@ -15,7 +15,9 @@
 
 //State Machine Triggers (Mostly Timers)
 int uplinkTimer = 0;
-int downlinkTimer = 0;
+int downlinkP0Timer = 0;
+int downlinkP1Timer = 0;
+int downlinkP2Timer = 0;
 int imuTimer = 0;
 char AMUpdate = 0;
 long int stateMachineTimer = 0;
@@ -30,7 +32,9 @@ void StateMachine(char entryLocation){
     dTime = (int)(getTime() - stateMachineTimer);
     stateMachineTimer = getTime();
     uplinkTimer += dTime;
-    downlinkTimer += dTime;
+    downlinkP0Timer += dTime;
+    downlinkP1Timer += dTime;
+    downlinkP2Timer += dTime;
     stateMachineTimer += dTime;
     imuTimer += dTime;
     
@@ -62,10 +66,22 @@ void StateMachine(char entryLocation){
         lowLevelControl();
 
     }
-    else if(DATALINK_SEND_FREQUENCY <= downlinkTimer){
+    else if(P0_SEND_FREQUENCY <= downlinkP0Timer){
         //Compile and send data
-        downlinkTimer = 0;
-        writeDatalink(1); //Change this for different packets
+        downlinkP0Timer = 0;
+        writeDatalink(PRIORITY0);
+        outboundBufferMaintenance();
+    }
+    else if(P1_SEND_FREQUENCY <= downlinkP1Timer){
+        //Compile and send data
+        downlinkP1Timer = 0;
+        writeDatalink(PRIORITY1);
+        outboundBufferMaintenance();
+    }
+    else if(P2_SEND_FREQUENCY <= downlinkP2Timer || areGainsUpdated()){
+        //Compile and send data
+        downlinkP2Timer = 0;
+        writeDatalink(PRIORITY2);
         outboundBufferMaintenance();
     }
     else if(UPLINK_CHECK_FREQUENCY <= uplinkTimer){

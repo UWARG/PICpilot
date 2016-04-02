@@ -9,7 +9,9 @@
 extern "C" {
 #endif
 
-#define DATALINK_SEND_FREQUENCY 100 //Time in milliseconds
+#define P0_SEND_FREQUENCY 100 //Time in milliseconds
+#define P1_SEND_FREQUENCY 1000 //Time in milliseconds
+#define P2_SEND_FREQUENCY 20000 //Time in milliseconds
 #define UPLINK_CHECK_FREQUENCY 100 //Time in milliseconds
 
 #define BLOCKING_MODE 0
