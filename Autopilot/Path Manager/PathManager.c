@@ -46,7 +46,7 @@ char pathCount = 0;
 
 int lastKnownHeadingHome = 10;
 char returnHome = 0;
-bool doProbeDrop;
+char doProbeDrop;
 
 void pathManagerInit(void) {
 #if DEBUG
@@ -155,17 +155,17 @@ void pathManagerRuntime(void) {
     if (returnHome || (pathCount - currentIndex < 1 && pathCount >= 0)){
         pmData.sp_Heading = lastKnownHeadingHome;
     } else if (pathCount - currentIndex >= 1 && pmData.positionFix > 0) {
-        currentIndex = followWaypoints(path[currentIndex], (float*)&position, heading, (int*)&pmData.sp_Heading);
+        currentIndex = followWaypoints(path[currentIndex], (float*)position, heading, (int*)&pmData.sp_Heading);
     }
     if (pmData.positionFix > 0){
-        lastKnownHeadingHome = calculateHeadingHome(home, (float*)&position, heading);
+        lastKnownHeadingHome = calculateHeadingHome(home, (float*)position, heading);
     }
 
-    bool verifiedDrop = 1;
+    char verifiedDrop = 1;
     
     //Get the position of the target
     Vector targetPosition;
-    doProbeDrop = probeDrop(verifiedDrop, targetPosition, position, pmData.altitude, pmData.speed, pmData.airspeed);
+    doProbeDrop = probeDrop(verifiedDrop, &targetPosition, position, &pmData.altitude, &pmData.speed, &pmData.airspeed);
     
     pmData.checkbyteDMA = generatePMDataDMAChecksum();
 }

@@ -5,7 +5,7 @@
 #include "net.h"
 
 #include <stdlib.h>
-#include "p33FJ256GP710.h"
+#include "main.h"
 #include "../Common/UART1.h"
 
 struct telem_block *outBuffer [OUTBOUND_QUEUE_SIZE];
@@ -46,12 +46,25 @@ struct telem_block *getDebugTelemetryBlock(p_priority packet) {
             debugTelemetry->data.p1_block.UTC = 1;
             debugTelemetry->data.p1_block.gSpeed = 1;
             debugTelemetry->data.p1_block.heading = 1;
+            debugTelemetry->data.p1_block.rollRateSetpoint = 1;
+            debugTelemetry->data.p1_block.rollSetpoint = 1;
+            debugTelemetry->data.p1_block.pitchRateSetpoint = 1;
+            debugTelemetry->data.p1_block.pitchSetpoint = 1;
+            debugTelemetry->data.p1_block.throttleSetpoint = 1;
             break;
         case PRIORITY1:
-            debugTelemetry->data.p2_block.lastCommandSent = 1;
+            debugTelemetry->data.p2_block.rollKD = 1;
+            debugTelemetry->data.p2_block.rollKP = 1;
+            debugTelemetry->data.p2_block.pitchKD = 1;
+            debugTelemetry->data.p2_block.pitchKP = 1;
+            debugTelemetry->data.p2_block.yawKD = 1;
+            debugTelemetry->data.p2_block.yawKP = 1;
+            debugTelemetry->data.p2_block.lastCommandsSent[0] = 1;
+            debugTelemetry->data.p2_block.lastCommandsSent[1] = 1;
+            debugTelemetry->data.p2_block.lastCommandsSent[2] = 1;
+            debugTelemetry->data.p2_block.lastCommandsSent[3] = 1;
             debugTelemetry->data.p2_block.batteryLevel1 = 1;
             //debugTelemetry->data.p2_block.batteryLevel2 = 1;
-            debugTelemetry->data.p2_block.startupErrorCodes = 1;
             debugTelemetry->data.p2_block.ch1In = 1;
             debugTelemetry->data.p2_block.ch2In = 1;
             debugTelemetry->data.p2_block.ch3In = 1;
@@ -68,11 +81,6 @@ struct telem_block *getDebugTelemetryBlock(p_priority packet) {
             debugTelemetry->data.p2_block.ch6Out = 1;
             debugTelemetry->data.p2_block.ch7Out = 1;
             debugTelemetry->data.p2_block.ch8Out = 1;
-            debugTelemetry->data.p2_block.rollRateSetpoint = 1;
-            debugTelemetry->data.p2_block.rollSetpoint = 1;
-            debugTelemetry->data.p2_block.pitchRateSetpoint = 1;
-            debugTelemetry->data.p2_block.pitchSetpoint = 1;
-            debugTelemetry->data.p2_block.throttleSetpoint = 1;
             debugTelemetry->data.p2_block.yawRateSetpoint = 1;
             debugTelemetry->data.p2_block.headingSetpoint = 1;
             debugTelemetry->data.p2_block.altitudeSetpoint = 1;
@@ -87,14 +95,8 @@ struct telem_block *getDebugTelemetryBlock(p_priority packet) {
             //debugTelemetry->data.p2_block.following = 1;
             break;
         case PRIORITY2:
-            debugTelemetry->data.p3_block.rollKD = 1;
-            debugTelemetry->data.p3_block.rollKP = 1;
             debugTelemetry->data.p3_block.rollKI = 1;
-            debugTelemetry->data.p3_block.pitchKD = 1;
-            debugTelemetry->data.p3_block.pitchKP = 1;
             debugTelemetry->data.p3_block.pitchKI = 1;
-            debugTelemetry->data.p3_block.yawKD = 1;
-            debugTelemetry->data.p3_block.yawKP = 1;
             debugTelemetry->data.p3_block.yawKI = 1;
             debugTelemetry->data.p3_block.headingKD = 1;
             debugTelemetry->data.p3_block.headingKP = 1;
@@ -108,6 +110,8 @@ struct telem_block *getDebugTelemetryBlock(p_priority packet) {
             debugTelemetry->data.p3_block.flapKD = 1;
             debugTelemetry->data.p3_block.flapKP = 1;
             debugTelemetry->data.p3_block.flapKI = 1;
+            debugTelemetry->data.p3_block.startupErrorCodes = 1;
+            debugTelemetry->data.p3_block.startupSettings = 1;
             break;
 
         default:

@@ -64,16 +64,21 @@ struct priority1_block { //High Frequency - Multiple times per second
     float alt; //4 Byte
     float gSpeed;
     int heading; //2 Byte
+    int rollRateSetpoint, rollSetpoint;
+    int pitchRateSetpoint, pitchSetpoint;
+    int throttleSetpoint;
 };
 
 struct priority2_block { //Medium Frequency - Once every second
-    int lastCommandSent; //4 bytes
+    float rollKD, rollKP;
+    float pitchKD, pitchKP;
+    float yawKD, yawKP;
+    int lastCommandsSent[4]; //4 bytes * 4 = 16
     int batteryLevel1, batteryLevel2; // 4 bytes
-    unsigned int startupErrorCodes; //2 bytes
     int ch1In,ch2In,ch3In,ch4In,ch5In,ch6In,ch7In,ch8In;
     int ch1Out,ch2Out,ch3Out,ch4Out,ch5Out,ch6Out,ch7Out,ch8Out;
-    int rollRateSetpoint, rollSetpoint, pitchRateSetpoint, pitchSetpoint, throttleSetpoint, yawRateSetpoint, headingSetpoint, altitudeSetpoint, flapSetpoint;
     int cameraStatus;
+    int yawRateSetpoint, headingSetpoint, altitudeSetpoint, flapSetpoint;
     char wirelessConnection; //1 byte
     char autopilotActive; //1 byte  
     char gpsStatus; //1 Byte
@@ -84,14 +89,17 @@ struct priority2_block { //Medium Frequency - Once every second
 };
 
 struct priority3_block { //Low Frequency - On update...
-    float rollKD, rollKP, rollKI; //4 Bytes
-    float pitchKD, pitchKP, pitchKI;
-    float yawKD, yawKP, yawKI;
+    float rollKI; //4 Bytes
+    float pitchKI;
+    float yawKI;
     float headingKD, headingKP, headingKI;
     float altitudeKD, altitudeKP, altitudeKI;
     float throttleKD, throttleKP, throttleKI;
     float flapKD, flapKP, flapKI;
     float pathGain, orbitGain;
+    int autonomousLevel;
+    unsigned int startupErrorCodes; //2 bytes
+    int startupSettings;
 };
 
 typedef union {

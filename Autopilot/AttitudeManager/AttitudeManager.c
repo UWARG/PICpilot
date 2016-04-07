@@ -815,12 +815,22 @@ int writeDatalink(p_priority packet){
             statusData->data.p1_block.alt = getAltitude();
             statusData->data.p1_block.gSpeed = gps_GroundSpeed;
             statusData->data.p1_block.heading = getHeading();
+            statusData->data.p1_block.rollRateSetpoint = getRollRateSetpoint();
+            statusData->data.p1_block.rollSetpoint = getRollAngleSetpoint();
+            statusData->data.p1_block.pitchRateSetpoint = getPitchRateSetpoint();
+            statusData->data.p1_block.pitchSetpoint = getPitchAngleSetpoint();
+            statusData->data.p1_block.throttleSetpoint = getThrottleSetpoint();
             break;
         case PRIORITY1:
-            statusData->data.p2_block.lastCommandSent = lastCommandSentCode;
+            statusData->data.p2_block.rollKD = getGain(ROLL,GAIN_KD);
+            statusData->data.p2_block.rollKP = getGain(ROLL,GAIN_KP);
+            statusData->data.p2_block.pitchKD = getGain(PITCH,GAIN_KD);
+            statusData->data.p2_block.pitchKP = getGain(PITCH,GAIN_KP);
+            statusData->data.p2_block.yawKD = getGain(YAW,GAIN_KD);
+            statusData->data.p2_block.yawKP = getGain(YAW,GAIN_KP);
+            statusData->data.p2_block.lastCommandsSent[0] = lastCommandSentCode;
             statusData->data.p2_block.batteryLevel1 = batteryLevel1;
             statusData->data.p2_block.batteryLevel2 = 100;
-            statusData->data.p2_block.startupErrorCodes = getStartupErrorCodes();
             int* input = getPWMArray();
             statusData->data.p2_block.ch1In = input[0];
             statusData->data.p2_block.ch2In = input[1];
@@ -839,11 +849,6 @@ int writeDatalink(p_priority packet){
             statusData->data.p2_block.ch6Out = output[5];
             statusData->data.p2_block.ch7Out = output[6];
             statusData->data.p2_block.ch8Out = output[7];
-            statusData->data.p2_block.rollRateSetpoint = getRollRateSetpoint();
-            statusData->data.p2_block.rollSetpoint = getRollAngleSetpoint();
-            statusData->data.p2_block.pitchRateSetpoint = getPitchRateSetpoint();
-            statusData->data.p2_block.pitchSetpoint = getPitchAngleSetpoint();
-            statusData->data.p2_block.throttleSetpoint = getThrottleSetpoint();
             statusData->data.p2_block.yawRateSetpoint = getYawRateSetpoint();
             statusData->data.p2_block.headingSetpoint = getHeadingSetpoint();
             statusData->data.p2_block.altitudeSetpoint = getAltitudeSetpoint();
@@ -858,14 +863,8 @@ int writeDatalink(p_priority packet){
             //statusData->data.p2_block.following = <true/false>
             break;
         case PRIORITY2:
-            statusData->data.p3_block.rollKD = getGain(ROLL,GAIN_KD);
-            statusData->data.p3_block.rollKP = getGain(ROLL,GAIN_KP);
             statusData->data.p3_block.rollKI = getGain(ROLL,GAIN_KI);
-            statusData->data.p3_block.pitchKD = getGain(PITCH,GAIN_KD);
-            statusData->data.p3_block.pitchKP = getGain(PITCH,GAIN_KP);
             statusData->data.p3_block.pitchKI = getGain(PITCH,GAIN_KI);
-            statusData->data.p3_block.yawKD = getGain(YAW,GAIN_KD);
-            statusData->data.p3_block.yawKP = getGain(YAW,GAIN_KP);
             statusData->data.p3_block.yawKI = getGain(YAW, GAIN_KI);
             statusData->data.p3_block.headingKD = getGain(HEADING, GAIN_KD);
             statusData->data.p3_block.headingKP = getGain(HEADING, GAIN_KP);
@@ -879,6 +878,9 @@ int writeDatalink(p_priority packet){
             statusData->data.p3_block.flapKD = getGain(FLAP, GAIN_KD);
             statusData->data.p3_block.flapKP = getGain(FLAP, GAIN_KP);
             statusData->data.p3_block.flapKI = getGain(FLAP, GAIN_KI);
+            statusData->data.p3_block.autonomousLevel = controlLevel;
+            statusData->data.p3_block.startupErrorCodes = getStartupErrorCodes();
+            statusData->data.p3_block.startupSettings = DEBUG + (COPTER << 1); //TODO: put this in the startuperrorCode file
             break;
                 
         default:

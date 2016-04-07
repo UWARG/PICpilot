@@ -68,8 +68,8 @@ FIXDEPS=fixDeps
 .build-conf:  ${BUILD_SUBPROJECTS}
 	${MAKE} ${MAKE_OPTIONS} -f nbproject/Makefile-default.mk dist/${CND_CONF}/${IMAGE_TYPE}/AttitudeManager.${IMAGE_TYPE}.${OUTPUT_SUFFIX}
 
-MP_PROCESSOR_OPTION=33FJ256GP710
-MP_LINKER_FILE_OPTION=,--script=p33FJ256GP710.gld
+MP_PROCESSOR_OPTION=33FJ256GP710A
+MP_LINKER_FILE_OPTION=,--script=p33FJ256GP710A.gld
 # ------------------------------------------------------------------------------------
 # Rules for buildStep: compile
 ifeq ($(TYPE_IMAGE), DEBUG_RUN)

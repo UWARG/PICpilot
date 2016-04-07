@@ -38,7 +38,7 @@
  ********************************************************************/ 
 
 #include "delay.h"
-#include <p33FJ256GP710.h>
+#include "../AttitudeManager/main.h"
 
 unsigned int temp_count;
 

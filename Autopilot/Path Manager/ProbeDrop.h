@@ -8,6 +8,8 @@
 #ifndef PROBEDROP_H
 #define	PROBEDROP_H
 
-bool probeDrop(bool verifiedDrop, Vector targetPosition, Vector currentPosition, float altitude, float* groundVelocity, float* windVelocity);
+#include "Dubins.h"
+void getVelocityOfWind(float* groundVelocity, float* windVelocity, float* velocityOfWind);
+char probeDrop(char verifiedDrop, Vector* targetPosition, float* currentPosition, float* altitude, float* groundVelocity, float* windVelocity);
 #endif	/* PROBEDROP_H */
 

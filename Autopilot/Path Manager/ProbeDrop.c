@@ -1,45 +1,40 @@
-#include <stdio.h>
 #include <math.h>
-
 #include "ProbeDrop.h"
 #include "PathManager.h"
 #include "Dubins.h"
 
-typedef char bool;
-#define true 1
-#define false 0
-
 double GRAVITY = 9.81;
+double DRAG_CONSTANT = 1;
+double SURFACE_AREA = 1;
+double DENSITY = 1;
+double MASS = 1;
 
-void getVelocityOfWind (float* groundVelocity, float* windVelocity, float& velocityOfWind) {
-    for (int i = 0; i < 3; i++) {
+void getVelocityOfWind(float* groundVelocity, float* windVelocity, float* velocityOfWind){
+    int i = 0;
+    for (i = 0; i < 3; i++){
         velocityOfWind[i] = sqrt(windVelocity[i] - groundVelocity[i]);
     }
 }
 
-bool probeDrop(bool *verifiedDrop, Vector *targetPosition, Vector *currentPosition, float *altitude, float* groundVelocity, float* windVelocity) {
+char probeDrop(char verifiedDrop, Vector* targetPosition, float* currentPosition, float* altitude, float* groundVelocity, float* windVelocity){
     if (!verifiedDrop) {
-        return false;
+        return 0;
     }
-    double DRAG_CONSTANT;
-    double SURFACE_AREA;
-    double DENSITY;
-    double MASS;
 
-    double terminalVelocity = sqrt((2*MASS*GRAVITY)/(DRAG_CONSTANT*AREA));
+    double terminalVelocity = sqrt((2*MASS*GRAVITY)/(DRAG_CONSTANT*SURFACE_AREA));
     double characteristicTime = terminalVelocity/GRAVITY;
     
     //The time until impact when the probe is dropped
-    double impactTime = characteristicTime*acosh(pow(M_E,altitude/(terminalVelocity*characteristicTime)));
+    double impactTime = characteristicTime*acos(pow(MASS,(*altitude)/(terminalVelocity*characteristicTime))); //TODO: is acos correct here?
     
     //The horizontal distance from the target
-    double distanceFromTarget = sqrt(pow(currentPosition->x - targetPosition->x,2) + pow(currentPosition->y - targetPosition->y,2));
+    double distanceFromTarget = sqrt(pow(currentPosition[0] - targetPosition->x,2) + pow(currentPosition[1] - targetPosition->y,2));
     
     
     //double totalDropTime = sqrt(2*altitude/GRAVITY);
     
     //The time it will take the plane to reach the target
-    double timeUntilArrival = distanceFromTarget/windVelocity;
+    double timeUntilArrival = distanceFromTarget/(*windVelocity);
     
     return timeUntilArrival <= impactTime;
     

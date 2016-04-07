@@ -1,4 +1,4 @@
-#include <p33FJ256GP710.h>
+#include "main.h"
 #include "UART2.h"
 
 #if PATH_MANAGER && !GPS_OLD
