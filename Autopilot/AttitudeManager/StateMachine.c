@@ -171,8 +171,9 @@ void lowLevelControl(){
     setPWM(THROTTLE_OUT_CHANNEL, outputSignal[2]);//Throttle
     setPWM(YAW_OUT_CHANNEL, outputSignal[3]); //Yaw
     setPWM(FLAP_OUT_CHANNEL, outputSignal[4]); //Flaps
-    setPWM(6, probeStatus(1)); //-240 close
-    setPWM(7, probeStatus(2)); //-230 close
+    setPWM(PROBE1_OUT_CHANNEL, probeStatus(PROBE1));
+    setPWM(PROBE2_OUT_CHANNEL, probeStatus(PROBE2));
+    setPWM(PROBE3_OUT_CHANNEL, probeStatus(PROBE3));
 }
 #elif COPTER
 void highLevelControl(){

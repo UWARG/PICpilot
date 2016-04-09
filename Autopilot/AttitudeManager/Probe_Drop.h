@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   Probe_Drop.h
  * Author: WARG
  *
@@ -14,11 +14,11 @@ extern "C" {
 
 #define PROBE1 1
 #define PROBE2 2
+#define PROBE3 3
 
 void dropProbe(char num);
+void resetProbe(char num);
 int probeStatus(char num);
-
-
 
 #ifdef	__cplusplus
 }

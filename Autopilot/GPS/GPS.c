@@ -155,6 +155,9 @@ char positionFix = 0;
 //******************************Prototypes************************************
 void Init(void);
 int configGPS(void);
+int identifyString(char *stringArray);
+int ParseGGA(void);
+int ParseVTG(void);
 char readGPSData(void);
 void processData(void);
 void writeDataToDebugPort(void);
@@ -215,7 +218,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
 
         //Identify the packet type once the header has been read
         if (byteCount == 5) {
-            stringType = identifyString(&headerData);
+            stringType = identifyString((char*)&headerData);
         }
         byteCount++;
     }
@@ -716,8 +719,7 @@ void writeDataToDebugPort(void) {
 
 void transmitData(void) {
     int i;
-    char *dataGPS = &gpsData;
-    char spiChecksum = 0;
+    char *dataGPS = (char*)&gpsData;
 
     
     PORTBbits.RB15 = 0; //slave enabled

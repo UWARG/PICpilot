@@ -45,8 +45,8 @@
 #endif
 
 //Define constants for global use in the code
-#define TRUE	1
-#define FALSE	0
+#define TRUE	0xFF
+#define FALSE	0x00
 
 //Mathematical Constants
 #define PI 3.14159265

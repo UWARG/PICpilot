@@ -63,7 +63,7 @@ void PWMOutputCalibration(unsigned int channel, float signalScaleFactor, unsigne
 
 int getPWM(unsigned int channel){
     if (initialized && channel > 0 && channel <= NUM_CHANNELS){ //Is the Input Initialized?
-        return (getICValue(channel) - offsetIn[channel - 1]) * scaleFactorIn[channel - 1];
+        return (int)((getICValue(channel) - offsetIn[channel - 1]) * scaleFactorIn[channel - 1]);
     }
     else { //Not initialized or invalid channel
         //Display Error Message
@@ -79,7 +79,12 @@ int* getPWMArray(){
         unsigned int* icArray = getICValues();
         int i = 0;
         for (i = 0; i < NUM_CHANNELS; i++){
-            pwmArray[i] = (int)((int)icArray[i] - offsetIn[i]) * scaleFactorIn[i];
+            pwmArray[i] = (int)(((int)(icArray[i]) - offsetIn[i]) * scaleFactorIn[i]);
+//            char str[20];
+//            sprintf(str, "ICArray: %d", icArray[0]);
+//            debug(str);
+//            sprintf(str, "ARRAY: %d", pwmArray[0]);
+//            debug(str);
         }
         return pwmArray;
     }

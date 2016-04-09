@@ -17,6 +17,7 @@
       <itemPath>../Common/debug.h</itemPath>
       <itemPath>../Common/UART1.h</itemPath>
       <itemPath>StartupErrorCodes.h</itemPath>
+      <itemPath>airspeedSensor.h</itemPath>
       <itemPath>ProbeDrop.h</itemPath>
       <itemPath>airspeedSensor.h</itemPath>
     </logicalFolder>
@@ -40,6 +41,7 @@
       <itemPath>../Common/debug.c</itemPath>
       <itemPath>../Common/UART1.c</itemPath>
       <itemPath>StartupErrorCodes.c</itemPath>
+      <itemPath>airspeedSensor.c</itemPath>
       <itemPath>ProbeDrop.c</itemPath>
       <itemPath>airspeedSensor.c</itemPath>
     </logicalFolder>

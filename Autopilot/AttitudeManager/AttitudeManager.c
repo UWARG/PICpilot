@@ -18,7 +18,8 @@
 #include "StartupErrorCodes.h"
 #include "main.h"
 #include "InterchipDMA.h"
-
+#include "ProgramStatus.h"
+#include <string.h>
 
 extern PMData pmData;
 extern AMData amData;
@@ -140,6 +141,7 @@ char lastNumSatellites = 0;
 unsigned int cameraCounter = 0;
 
 void attitudeInit() {
+    setProgramStatus(INITIALIZATION);
     //Initialize Timer
     initTimer4();
 
@@ -172,23 +174,45 @@ void attitudeInit() {
     /* Initialize Input Capture and Output Compare Modules */
 #if DEBUG
     initPWM(0b10011111, 0b11111111);
-    debug("INITIALIZATION - ATTITUDE MANAGER");
 #else
     initPWM(0b10011111, 0b11111111);
 #endif
-    /* Initialize IMU with correct orientation matrix and filter settings */
+    /*  *****************************************************************
+     *  IMU
+     *  Initialize IMU with correct orientation matrix and filter settings
+     *  *****************************************************************
+     */
     //In order: Angular Walk, Angular Rate x 3, Magnetometer x 3, Acceleration x 3
     float filterVariance[10] = {1e-9, 1e-9, 1e-9, 1e-9, 1, 1, 1, 1e-3, 1e-3, 1e-3}; //  float filterVariance[10] = {1e-10, 1e-6, 1e-6, 1e-6, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2};
     VN100_initSPI();
-    //IMU position matrix
-    // offset = {roll, pitch, yaw}
-    float cal_roll = -90;
-    float cal_pitch = -90;
-    float cal_yaw = 0.0;
-    float offset[3] = {cal_roll,cal_pitch,cal_yaw};
-    setVNOrientationMatrix((float*)&offset);
-    VN100_SPI_SetFiltMeasVar(0, (float*)&filterVariance);
+
+    char model[12];
+    setSensorStatus(VECTORNAV, (SENSOR_CONNECTED | SENSOR_INITIALIZED) & TRUE);
+    VN100_SPI_GetModel(0, model);
+    if (strcmp(model, "VN-100T-SMD") == 0){
+        setSensorStatus(VECTORNAV, SENSOR_CONNECTED & TRUE);
+        //IMU position matrix
+        // offset = {roll, pitch, yaw}
+        float cal_roll = -90;
+        float cal_pitch = -90;
+        float cal_yaw = 0.0;
+        float offset[3] = {cal_roll,cal_pitch,cal_yaw};
+
+        setVNOrientationMatrix((float*)&offset);
+        VN100_SPI_SetFiltMeasVar(0, (float*)&filterVariance);
+        setSensorStatus(VECTORNAV, SENSOR_INITIALIZED & TRUE);
+    }
+    else{
+        setSensorStatus(VECTORNAV, SENSOR_CONNECTED & FALSE);
+    }
+#if DEBUG
+        debug("Datalink Initialized");
+#endif
+
+    initDataLink();
+    setSensorStatus(XBEE, SENSOR_INITIALIZED & TRUE);
     initialization();
+    setProgramStatus(MAIN_EXECUTION);
 }
 
 
@@ -361,10 +385,34 @@ int getRollAngleInput(char source){
 }
 int getRollRateInput(char source){
     if (source == ROLL_RC_SOURCE){
+           char str[20];
+    sprintf(str, "Func: %d", input_RC_RollRate);
+    debug(str);
         return input_RC_RollRate;
     }
     else if (source == ROLL_GS_SOURCE){
         return input_GS_RollRate;
+    }
+    else
+        return 0;
+}
+int getYawAngleInput(char source){
+    if (source == YAW_RC_SOURCE){
+        return (int)((input_RC_YawRate / ((float)SP_RANGE / MAX_ROLL_ANGLE) ));
+    }
+    else if (source == YAW_GS_SOURCE){
+        return input_GS_Yaw;
+    }
+    else{
+        return 0;
+    }
+}
+int getYawRateInput(char source){
+    if (source == YAW_RC_SOURCE){
+        return input_RC_YawRate;
+    }
+    else if (source == YAW_GS_SOURCE){
+        return input_GS_YawRate;
     }
     else
         return 0;
@@ -743,7 +791,7 @@ void readDatalink(void){
                 dropProbe(*(char*)(&cmd->data));
                 break;
             case RESET_PROBE:
-                //dropProbe(*(char*)(&cmd->data);
+                resetProbe(*(char*)(&cmd->data));
                 break;
 
             case NEW_WAYPOINT:
@@ -886,7 +934,6 @@ int writeDatalink(p_priority packet){
         default:
             break;
     }
-
 
     if (BLOCKING_MODE) {
         sendTelemetryBlock(statusData);
