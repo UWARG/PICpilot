@@ -19,49 +19,100 @@ struct telem_buffer stagingBuffer;
 const unsigned int PACKET_LENGTH = API_HEADER_LENGTH + sizeof(struct telem_block) + 1;
 
 // Create a telem block returns null if fails
-struct telem_block *createTelemetryBlock(void) {
+struct telem_block *createTelemetryBlock(p_priority packet) {
     struct telem_block *telem = malloc(sizeof (struct telem_block));
+    *(int *)(&(telem->type)) = packet;
     return telem;
 }
 
 // Create a telemetry block to use for debugging, only creates one instance
-struct telem_block *getDebugTelemetryBlock(void) {
+struct telem_block *getDebugTelemetryBlock(p_priority packet) {
     // If the telemetry block does not exist, create it filled with ones
     // of the respective types
     if (debugTelemetry == 0) {
-        debugTelemetry = createTelemetryBlock();
-        debugTelemetry->millis = (long long) 1;
-        debugTelemetry->lat = (long double) 1;
-        debugTelemetry->lon = (long double) 1;
-        debugTelemetry->pitch = (float) 1;
-        debugTelemetry->roll = (float) 1;;
-        debugTelemetry->yaw = (float) 1;
-        debugTelemetry->pitchRate = (float) 1;
-        debugTelemetry->rollRate = (float) 1;
-        debugTelemetry->yawRate = (float) 1;
-        debugTelemetry->kd_gain = (float) 1;
-        debugTelemetry->kp_gain = (float) 1;
-        debugTelemetry->ki_gain = (float) 1;
-        debugTelemetry->heading = (float) 1;
-        debugTelemetry->groundSpeed = (float) 1;
-        debugTelemetry->pitchSetpoint = (int) 1;
-        debugTelemetry->rollSetpoint = (int) 1;
-        debugTelemetry->headingSetpoint = (int) 1;
-        debugTelemetry->throttleSetpoint = (int) 1;
-        debugTelemetry->flapSetpoint = (int) 1;
-        debugTelemetry->altitudeSetpoint = (int) 1;
-        debugTelemetry->altitude = (float) 1;
-        debugTelemetry->cPitchSetpoint = (int) 1;
-        debugTelemetry->cRollSetpoint = (int) 1;
-        debugTelemetry->cYawSetpoint = (int) 1;
-        debugTelemetry->lastCommandSent = (int) 1;
-        debugTelemetry->errorCodes = (int)1;
-        debugTelemetry->cameraStatus = (int)1;
-        debugTelemetry->waypointIndex = (char)1;
-        debugTelemetry->editing_gain = (char)1;
-        debugTelemetry->gpsStatus = (char)1;
-        debugTelemetry->batteryLevel = (char)1;
-        debugTelemetry->waypointCount = (char)1;
+        switch(packet){
+        case PRIORITY0:
+            debugTelemetry->data.p1_block.lat = 1;
+            debugTelemetry->data.p1_block.lon = 1;
+            debugTelemetry->data.p1_block.sysTime = 1;
+            debugTelemetry->data.p1_block.roll = 1;
+            debugTelemetry->data.p1_block.pitch = 1;
+            debugTelemetry->data.p1_block.yaw = 1;
+            debugTelemetry->data.p1_block.rollRate = 1;
+            debugTelemetry->data.p1_block.pitchRate = 1;
+            debugTelemetry->data.p1_block.yawRate = 1;
+            debugTelemetry->data.p1_block.airspeed = 1;
+            debugTelemetry->data.p1_block.alt = 1;
+            debugTelemetry->data.p1_block.UTC = 1;
+            debugTelemetry->data.p1_block.gSpeed = 1;
+            debugTelemetry->data.p1_block.heading = 1;
+            break;
+        case PRIORITY1:
+            debugTelemetry->data.p2_block.lastCommandSent = 1;
+            debugTelemetry->data.p2_block.batteryLevel1 = 1;
+            //debugTelemetry->data.p2_block.batteryLevel2 = 1;
+            debugTelemetry->data.p2_block.startupErrorCodes = 1;
+            debugTelemetry->data.p2_block.ch1In = 1;
+            debugTelemetry->data.p2_block.ch2In = 1;
+            debugTelemetry->data.p2_block.ch3In = 1;
+            debugTelemetry->data.p2_block.ch4In = 1;
+            debugTelemetry->data.p2_block.ch5In = 1;
+            debugTelemetry->data.p2_block.ch6In = 1;
+            debugTelemetry->data.p2_block.ch7In = 1;
+            debugTelemetry->data.p2_block.ch8In = 1;
+            debugTelemetry->data.p2_block.ch1Out = 1;
+            debugTelemetry->data.p2_block.ch2Out = 1;
+            debugTelemetry->data.p2_block.ch3Out = 1;
+            debugTelemetry->data.p2_block.ch4Out = 1;
+            debugTelemetry->data.p2_block.ch5Out = 1;
+            debugTelemetry->data.p2_block.ch6Out = 1;
+            debugTelemetry->data.p2_block.ch7Out = 1;
+            debugTelemetry->data.p2_block.ch8Out = 1;
+            debugTelemetry->data.p2_block.rollRateSetpoint = 1;
+            debugTelemetry->data.p2_block.rollSetpoint = 1;
+            debugTelemetry->data.p2_block.pitchRateSetpoint = 1;
+            debugTelemetry->data.p2_block.pitchSetpoint = 1;
+            debugTelemetry->data.p2_block.throttleSetpoint = 1;
+            debugTelemetry->data.p2_block.yawRateSetpoint = 1;
+            debugTelemetry->data.p2_block.headingSetpoint = 1;
+            debugTelemetry->data.p2_block.altitudeSetpoint = 1;
+            debugTelemetry->data.p2_block.flapSetpoint = 1;
+            debugTelemetry->data.p2_block.cameraStatus = 1;
+            debugTelemetry->data.p2_block.wirelessConnection = 1;
+            debugTelemetry->data.p2_block.autopilotActive = 1;
+            debugTelemetry->data.p2_block.gpsStatus = 1;
+            //debugTelemetry->data.p2_block.pathChecksum = 1;
+            debugTelemetry->data.p2_block.numWaypoints = 1;
+            debugTelemetry->data.p2_block.waypointIndex = 1;
+            //debugTelemetry->data.p2_block.following = 1;
+            break;
+        case PRIORITY2:
+            debugTelemetry->data.p3_block.rollKD = 1;
+            debugTelemetry->data.p3_block.rollKP = 1;
+            debugTelemetry->data.p3_block.rollKI = 1;
+            debugTelemetry->data.p3_block.pitchKD = 1;
+            debugTelemetry->data.p3_block.pitchKP = 1;
+            debugTelemetry->data.p3_block.pitchKI = 1;
+            debugTelemetry->data.p3_block.yawKD = 1;
+            debugTelemetry->data.p3_block.yawKP = 1;
+            debugTelemetry->data.p3_block.yawKI = 1;
+            debugTelemetry->data.p3_block.headingKD = 1;
+            debugTelemetry->data.p3_block.headingKP = 1;
+            debugTelemetry->data.p3_block.headingKI = 1;
+            debugTelemetry->data.p3_block.altitudeKD = 1;
+            debugTelemetry->data.p3_block.altitudeKP = 1;
+            debugTelemetry->data.p3_block.altitudeKI = 1;
+            debugTelemetry->data.p3_block.throttleKD = 1;
+            debugTelemetry->data.p3_block.throttleKP = 1;
+            debugTelemetry->data.p3_block.throttleKI = 1;
+            debugTelemetry->data.p3_block.flapKD = 1;
+            debugTelemetry->data.p3_block.flapKP = 1;
+            debugTelemetry->data.p3_block.flapKI = 1;
+            break;
+
+        default:
+            break;
+        }
     }
     return debugTelemetry;
 }
@@ -172,9 +223,9 @@ unsigned int generateApiHeader(unsigned char *apiString, char dataFrame) {
 
     // API Mode header
     apiString[apiIndex++] = 0x7E;
-    // Packet length (can't be more than 100bytes anyway, so length MSB = 0)
-    apiString[apiIndex++] = 0;         // MSB  = 0
-    apiString[apiIndex++] = (length & 0x00FF);  // LSB <= 100
+    // Packet length
+    apiString[apiIndex++] = 0; // MSB (Can only go up to 100)
+    apiString[apiIndex++] = (length & 0x00FF);      // LSB
 
     //Frame Type
     apiString[apiIndex++] = TX_PACKET;

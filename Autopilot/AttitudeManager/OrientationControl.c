@@ -25,7 +25,7 @@ long int lastControlTime[6] = {0, 0, 0, 0, 0, 0};
 int lastError[6] = {0, 0, 0, 0, 0, 0}; //[0],[1],[2] are currently unused
 
 char integralFreeze = 0;
-
+char gainsUpdated = 0;
 
 int controlSignalThrottle(int setpoint, int output){
     int error = setpoint - output;
@@ -125,6 +125,7 @@ float getGain(unsigned char YPRH, unsigned char type){
         return -1;
 }
 void setGain(unsigned char YPRH, unsigned char type, float value){
+    gainsUpdated = 1;
     if (type == GAIN_KD){
         kd_gain[YPRH] = value;
     }
@@ -135,4 +136,8 @@ void setGain(unsigned char YPRH, unsigned char type, float value){
         ki_gain[YPRH] = value;
     }
 
+}
+
+char areGainsUpdated(){
+    return gainsUpdated;
 }

@@ -223,6 +223,6 @@ float getGain(unsigned char YPR, unsigned char type);
  *****************************************************************************/
 
 void setGain(unsigned char YPR, unsigned char type, float value);
-
+char areGainsUpdated();
 
 

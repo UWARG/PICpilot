@@ -12,6 +12,7 @@
 #include "OrientationControl.h"
 #include "StateMachine.h"
 #include "InterchipDMA.h"
+#include "net.h"
 #include "../Common/Common.h"
 
 //Bit masks for levels of control - DON'T CHANGE THESE FOR SHITS AND GIGGLES
@@ -128,7 +129,6 @@ float getYaw();
 float getRollRate();
 float getPitchRate();
 float getYawRate();
-int getHeadingSetpoint();
 int getRollAngleSetpoint();
 int getPitchAngleSetpoint();
 int getPitchRateSetpoint();
@@ -136,6 +136,8 @@ int getRollRateSetpoint();
 int getYawRateSetpoint();
 int getThrottleSetpoint();
 int getFlapSetpoint();
+int getAltitudeSetpoint();
+int getHeadingSetpoint();
 void setPitchAngleSetpoint(int setpoint);
 void setRollAngleSetpoint(int setpoint);
 void setPitchRateSetpoint(int setpoint);
@@ -198,7 +200,7 @@ void readDatalink(void);
  * Output:  An error code indicating if the data was added to the queue successfully.
  *
  *****************************************************************************/
-int writeDatalink(void);
+int writeDatalink(p_priority packet);
 
 /*****************************************************************************
  * Function: void adjustVNOrientationMatrix(float* adjustment);

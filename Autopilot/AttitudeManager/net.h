@@ -9,7 +9,9 @@
 extern "C" {
 #endif
 
-#define DATALINK_SEND_FREQUENCY 100 //Time in milliseconds
+#define P0_SEND_FREQUENCY 100 //Time in milliseconds
+#define P1_SEND_FREQUENCY 1000 //Time in milliseconds
+#define P2_SEND_FREQUENCY 20000 //Time in milliseconds
 #define UPLINK_CHECK_FREQUENCY 100 //Time in milliseconds
 
 #define BLOCKING_MODE 0
@@ -33,9 +35,7 @@ extern "C" {
 
 //FRAME TYPE
 #define TX_PACKET 0x10
-
 #define BROADCAST_RADIUS 1 //0 is infinite number of hops to reach target
-
 #define RAW_PACKET_BUFFER_SIZE 16   // Number of buffer regions to allow for incoming commands
 
 #define HEARTBEAT_TIMEOUT 10000 //In Milliseconds
@@ -46,30 +46,67 @@ extern "C" {
 
 #define UHF_KILL_TIMEOUT_FAST 10000
 
-struct telem_block {
+typedef enum _p_priority {
+    PRIORITY0 = 0,
+    PRIORITY1 = 1,
+    PRIORITY2 = 2,
+} p_priority;
+
+
+
+struct priority1_block { //High Frequency - Multiple times per second
     long double lat, lon; // Latitude and longitude from gps    // 8Byte
-    float millis;        // Timestamp UTC  // 4Byte
-    float pitch, roll, yaw;                         // 4Byte
-    float pitchRate, rollRate, yawRate;             // 4Byte
-    float kd_gain, kp_gain, ki_gain;          // 4Byte
-    float groundSpeed;
-//    float airspeed;
-    float altitude;
-    int heading;
-    int pitchSetpoint, rollSetpoint, headingSetpoint, throttleSetpoint, flapSetpoint; //Angle
-    int altitudeSetpoint;
-    int cPitchSetpoint, cRollSetpoint, cYawSetpoint;  //Controller input // 2Byte
-    int lastCommandSent;
-    int errorCodes;
+    long int sysTime; // 8 bytes
+    float UTC; //4 Byte
+    float pitch, roll, yaw;
+    float pitchRate, rollRate, yawRate;
+    float airspeed;
+    float alt; //4 Byte
+    float gSpeed;
+    int heading; //2 Byte
+};
+
+struct priority2_block { //Medium Frequency - Once every second
+    int lastCommandSent; //4 bytes
+    int batteryLevel1, batteryLevel2; // 4 bytes
+    unsigned int startupErrorCodes; //2 bytes
+    int ch1In,ch2In,ch3In,ch4In,ch5In,ch6In,ch7In,ch8In;
+    int ch1Out,ch2Out,ch3Out,ch4Out,ch5Out,ch6Out,ch7Out,ch8Out;
+    int rollRateSetpoint, rollSetpoint, pitchRateSetpoint, pitchSetpoint, throttleSetpoint, yawRateSetpoint, headingSetpoint, altitudeSetpoint, flapSetpoint;
     int cameraStatus;
-    int airspeed;
-    char waypointIndex;
-    char editing_gain, gpsStatus, batteryLevel, waypointCount;                              // 1Byte
-    // TODO: Add additional telemetry to be sent here
+    char wirelessConnection; //1 byte
+    char autopilotActive; //1 byte  
+    char gpsStatus; //1 Byte
+    char pathChecksum; //1 byte
+    char numWaypoints; //1 bytes
+    char waypointIndex; //1 byte
+    char pathFollowing; // 1 byte
+};
+
+struct priority3_block { //Low Frequency - On update...
+    float rollKD, rollKP, rollKI; //4 Bytes
+    float pitchKD, pitchKP, pitchKI;
+    float yawKD, yawKP, yawKI;
+    float headingKD, headingKP, headingKI;
+    float altitudeKD, altitudeKP, altitudeKI;
+    float throttleKD, throttleKP, throttleKI;
+    float flapKD, flapKP, flapKI;
+    float pathGain, orbitGain;
+};
+
+typedef union {
+    struct priority1_block p1_block;
+    struct priority2_block p2_block;
+    struct priority3_block p3_block;
+} packetPayload;
+
+struct telem_block {
+    const int type;
+    packetPayload data;
 };
 
 struct telem_buffer {
-    unsigned int sendIndex;             // index into telemetry to send 
+    unsigned int sendIndex;             // index into telemetry to send
     unsigned char header[API_HEADER_LENGTH];    // The header for the telem
     union {
         struct telem_block *asStruct;   // The telemetry block being sent
@@ -88,10 +125,10 @@ struct command {
 int initDataLink(void);
 
 // Create a telemetry block to use for debugging, only creates one instance
-struct telem_block *getDebugTelemetryBlock(void);
+struct telem_block *getDebugTelemetryBlock(p_priority packet);
 
 // Create a telem block returns null if fails
-struct telem_block *createTelemetryBlock(void);
+struct telem_block *createTelemetryBlock(p_priority packet);
 // Destroy a dataBlock
 void destroyTelemetryBlock(struct telem_block *data);
 

@@ -139,6 +139,9 @@ void setPWM(unsigned int channel, int pwm);
  *****************************************************************************/
 void setPWMArray(int* ocArray);
 
+int checkPWM(unsigned int channel);
+int* checkPWMArray();
+
 #ifdef	__cplusplus
 }
 #endif

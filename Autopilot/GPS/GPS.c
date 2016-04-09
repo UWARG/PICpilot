@@ -228,9 +228,9 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
 //******************************Functions************************************
 
 void Init(void) {
-//    ODCAbits.ODA6 = 0; // for diagnostic/debuging LED and input
-//    TRISAbits.TRISA6 = 0; //led
-//    AD1PCFG = 0xFFFF; //use inputs in digital mode
+    ODCAbits.ODA6 = 0; // for diagnostic/debuging LED and input
+    TRISAbits.TRISA6 = 0; //led
+    AD1PCFG = 0xFFFF; //use inputs in digital mode
 //
     U2STA = 0; //setup uart 2 - output
     U2MODE = 0x8000; //8 bit, one stop, no parity
@@ -913,16 +913,6 @@ int main(void) {
     Delay_ms(2000);		//allow GPS processor to start before trying to program
     configGPS(); //configure gps if battery was removed
     while (1) {
-        int i = 0;
-        for (i = 0; i < 6; i++) {
-            if (rawHeading[i] == 0x10){
-               while (U2STAbits.UTXBF == 1) {;}
-            U2TXREG = gpsData.heading;
-            }
-            else{ while (U2STAbits.UTXBF == 1) {;}
-            U2TXREG = rawHeading[i] + 48;}
-        }
-                        i++;
 
         if (newData){
             if (readGPSData()) {

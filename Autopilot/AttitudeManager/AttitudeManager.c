@@ -10,7 +10,6 @@
 #include "VN100.h"
 #include "InputCapture.h"
 #include "OutputCompare.h"
-#include "net.h"
 #include "PWM.h"
 #include "AttitudeManager.h"
 #include "commands.h"
@@ -79,7 +78,7 @@ char gps_PositionFix = 0;
 char waypointIndex = 0;
 char waypointChecksum = 0;
 char waypointCount = 0;
-char batteryLevel = 0;
+char batteryLevel1 = 0;
 
 
 // System outputs (get from IMU)
@@ -228,7 +227,7 @@ char checkDMA(){
         gps_Satellites = pmData.satellites;
         gps_PositionFix = pmData.positionFix;
         waypointIndex = pmData.targetWaypoint;
-        batteryLevel = pmData.batteryLevel;
+        batteryLevel1 = pmData.batteryLevel;
         waypointCount = pmData.waypointCount;
         airspeed = pmData.airspeed;
 
@@ -278,9 +277,6 @@ float getPitchRate(){
 float getYawRate(){
     return imu_YawRate;
 }
-int getHeadingSetpoint(){
-    return sp_Heading;
-}
 int getRollAngleSetpoint(){
     return sp_RollAngle;
 }
@@ -301,6 +297,12 @@ int getThrottleSetpoint(){
 }
 int getFlapSetpoint(){
     return sp_FlapRate;
+}
+int getAltitudeSetpoint(){
+    return sp_Altitude;
+}
+int getHeadingSetpoint(){
+    return sp_Heading;
 }
 
 void setPitchAngleSetpoint(int setpoint){
@@ -589,7 +591,6 @@ void readDatalink(void){
         switch (cmd->cmd) {
             case DEBUG_TEST:             // Debugging command, writes to debug UART
 #if DEBUG
-                debug("Foo");
                 debug( (char*) cmd->data);
 #endif
                 break;
@@ -844,47 +845,93 @@ void readDatalink(void){
     }
  
 }
-int writeDatalink(){
-     
-    struct telem_block* statusData = createTelemetryBlock();//getDebugTelemetryBlock();
-
-    statusData->lat = gps_Latitude;
-    statusData->lon = gps_Longitude;
-    statusData->millis = gps_Time;
-    statusData->pitch = imu_PitchAngle;
-    statusData->roll = imu_RollAngle;
-    statusData->yaw = imu_YawAngle;
-    statusData->pitchRate = imu_PitchRate;
-    statusData->rollRate = imu_RollRate;
-    statusData->yawRate = imu_YawRate;
-    statusData->kd_gain = getGain(displayGain, GAIN_KD);
-    statusData->kp_gain = getGain(displayGain, GAIN_KP);
-    statusData->ki_gain = getGain(displayGain, GAIN_KI);
-    statusData->groundSpeed = gps_GroundSpeed;
-    statusData->altitude = gps_Altitude;
-    statusData->heading = gps_Heading;
-    statusData->pitchSetpoint = getPitchAngleSetpoint();
-    statusData->rollSetpoint = getRollAngleSetpoint();
-    statusData->headingSetpoint = sp_Heading;
-    statusData->throttleSetpoint = (int)(((long int)(sp_ThrottleRate + MAX_PWM) * 100) / MAX_PWM/2);
-    statusData->flapSetpoint = (int)(((long int)(sp_FlapRate + MAX_PWM) * 100) / MAX_PWM/2);
-    statusData->altitudeSetpoint = sp_Altitude;
-    statusData->cPitchSetpoint = getPitchRateInput(PITCH_RC_SOURCE);
-    statusData->cRollSetpoint = getRollRateInput(ROLL_RC_SOURCE);
-    statusData->cYawSetpoint = getYawRateInput(YAW_RC_SOURCE);
-    char str[20];
-    sprintf(str, "Link: %d", getRollRateInput(ROLL_RC_SOURCE));
-    debug(str);
-    statusData->lastCommandSent = lastCommandSentCode;
-    statusData->errorCodes = getErrorCodes() + ((input_RC_UHFSwitch < -429)<< 11);
-    statusData->cameraStatus = cameraCounter;
-    statusData->waypointIndex = waypointIndex;
-    statusData->editing_gain = displayGain + ((input_RC_Switch1 > 380) << 4);
-    statusData->gpsStatus = gps_Satellites + (gps_PositionFix << 4);
-    statusData->batteryLevel = batteryLevel;
-    statusData->waypointCount = waypointCount;
-    statusData->airspeed = (int)airspeed;
-
+int writeDatalink(p_priority packet){
+    struct telem_block* statusData = createTelemetryBlock(packet);
+    switch(packet){
+        case PRIORITY0:
+            statusData->data.p1_block.lat = getLatitude();
+            statusData->data.p1_block.lon = getLongitude();
+            statusData->data.p1_block.sysTime = getTime();
+            statusData->data.p1_block.UTC = gps_Time;
+            statusData->data.p1_block.pitch = getPitch();
+            statusData->data.p1_block.roll = getRoll();
+            statusData->data.p1_block.yaw = getYaw();
+            statusData->data.p1_block.pitchRate = getPitchRate();
+            statusData->data.p1_block.rollRate = getRollRate();
+            statusData->data.p1_block.yawRate = getYawRate();
+            statusData->data.p1_block.airspeed = airspeed;
+            statusData->data.p1_block.alt = getAltitude();
+            statusData->data.p1_block.gSpeed = gps_GroundSpeed;
+            statusData->data.p1_block.heading = getHeading();
+            break;
+        case PRIORITY1:
+            statusData->data.p2_block.lastCommandSent = lastCommandSentCode;
+            statusData->data.p2_block.batteryLevel1 = batteryLevel1;
+            statusData->data.p2_block.batteryLevel2 = 100;
+            statusData->data.p2_block.startupErrorCodes = getStartupErrorCodes();
+            int* input = getPWMArray();
+            statusData->data.p2_block.ch1In = input[0];
+            statusData->data.p2_block.ch2In = input[1];
+            statusData->data.p2_block.ch3In = input[2];
+            statusData->data.p2_block.ch4In = input[3];
+            statusData->data.p2_block.ch5In = input[4];
+            statusData->data.p2_block.ch6In = input[5];
+            statusData->data.p2_block.ch7In = input[6];
+            statusData->data.p2_block.ch8In = input[7];
+            int* output = checkPWMArray();
+            statusData->data.p2_block.ch1Out = output[0];
+            statusData->data.p2_block.ch2Out = output[1];
+            statusData->data.p2_block.ch3Out = output[2];
+            statusData->data.p2_block.ch4Out = output[3];
+            statusData->data.p2_block.ch5Out = output[4];
+            statusData->data.p2_block.ch6Out = output[5];
+            statusData->data.p2_block.ch7Out = output[6];
+            statusData->data.p2_block.ch8Out = output[7];
+            statusData->data.p2_block.rollRateSetpoint = getRollRateSetpoint();
+            statusData->data.p2_block.rollSetpoint = getRollAngleSetpoint();
+            statusData->data.p2_block.pitchRateSetpoint = getPitchRateSetpoint();
+            statusData->data.p2_block.pitchSetpoint = getPitchAngleSetpoint();
+            statusData->data.p2_block.throttleSetpoint = getThrottleSetpoint();
+            statusData->data.p2_block.yawRateSetpoint = getYawRateSetpoint();
+            statusData->data.p2_block.headingSetpoint = getHeadingSetpoint();
+            statusData->data.p2_block.altitudeSetpoint = getAltitudeSetpoint();
+            statusData->data.p2_block.flapSetpoint = getFlapSetpoint();
+            statusData->data.p2_block.cameraStatus = cameraCounter;
+            statusData->data.p2_block.wirelessConnection = (input_RC_UHFSwitch < -429) << 1;//+ RSSI;
+            statusData->data.p2_block.autopilotActive = input_RC_Switch1 > 380;
+            statusData->data.p2_block.gpsStatus = gps_Satellites + (gps_PositionFix << 4);
+//            statusData->data.p2_block.pathChecksum =
+            statusData->data.p2_block.numWaypoints = waypointCount;
+            statusData->data.p2_block.waypointIndex = waypointIndex;
+            //statusData->data.p2_block.following = <true/false>
+            break;
+        case PRIORITY2:
+            statusData->data.p3_block.rollKD = getGain(ROLL,GAIN_KD);
+            statusData->data.p3_block.rollKP = getGain(ROLL,GAIN_KP);
+            statusData->data.p3_block.rollKI = getGain(ROLL,GAIN_KI);
+            statusData->data.p3_block.pitchKD = getGain(PITCH,GAIN_KD);
+            statusData->data.p3_block.pitchKP = getGain(PITCH,GAIN_KP);
+            statusData->data.p3_block.pitchKI = getGain(PITCH,GAIN_KI);
+            statusData->data.p3_block.yawKD = getGain(YAW,GAIN_KD);
+            statusData->data.p3_block.yawKP = getGain(YAW,GAIN_KP);
+            statusData->data.p3_block.yawKI = getGain(YAW, GAIN_KI);
+            statusData->data.p3_block.headingKD = getGain(HEADING, GAIN_KD);
+            statusData->data.p3_block.headingKP = getGain(HEADING, GAIN_KP);
+            statusData->data.p3_block.headingKI = getGain(HEADING, GAIN_KI);
+            statusData->data.p3_block.altitudeKD = getGain(ALTITUDE, GAIN_KD);
+            statusData->data.p3_block.altitudeKP = getGain(ALTITUDE, GAIN_KP);
+            statusData->data.p3_block.altitudeKI = getGain(ALTITUDE, GAIN_KI);
+            statusData->data.p3_block.throttleKD = getGain(THROTTLE, GAIN_KD);
+            statusData->data.p3_block.throttleKP = getGain(THROTTLE, GAIN_KP);
+            statusData->data.p3_block.throttleKI = getGain(THROTTLE, GAIN_KI);
+            statusData->data.p3_block.flapKD = getGain(FLAP, GAIN_KD);
+            statusData->data.p3_block.flapKP = getGain(FLAP, GAIN_KP);
+            statusData->data.p3_block.flapKI = getGain(FLAP, GAIN_KI);
+            break;
+                
+        default:
+            break;
+    }
 
     if (BLOCKING_MODE) {
         sendTelemetryBlock(statusData);

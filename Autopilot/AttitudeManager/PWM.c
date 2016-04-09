@@ -10,7 +10,8 @@
 
 char initialized = 0;
 
-int pwmArray[NUM_CHANNELS];
+int pwmArray[NUM_CHANNELS]; //The input
+int checkArray[NUM_CHANNELS]; //The output for status updates
 float scaleFactorIn[NUM_CHANNELS];
 int offsetIn[NUM_CHANNELS];
 float scaleFactorOut[NUM_CHANNELS];
@@ -101,6 +102,7 @@ int* getPWMArray(){
 
 void setPWM(unsigned int channel, int pwm){
     if (initialized && channel > 0 && channel <= NUM_CHANNELS){ //Is the Input Initialized?
+        checkArray[channel - 1] = pwm;
         setOCValue(channel, (int)(pwm * scaleFactorOut[channel - 1] + offsetOut[channel - 1]));
     }
     else { //Not initialized or invalid channel
@@ -114,6 +116,7 @@ void setPWMArray(int* ocArray){
     if (initialized){ //Is the Input Initialized?
         int i = 0;
         for (i = 0; i < NUM_CHANNELS; i++){
+            checkArray[i] = ocArray[i];
             setOCValue(i,(int)(ocArray[i]  * scaleFactorOut[i] + offsetOut[i]));
         }
     }
@@ -125,10 +128,28 @@ void setPWMArray(int* ocArray){
     }
 }
 
-//int checkPWM(){
-//
-//}
-//
-//int checkPWMArray(){
-//
-//}
+int checkPWM(unsigned int channel){
+    if (initialized && channel > 0 && channel <= NUM_CHANNELS){ //Is the Input Initialized?
+        return checkArray[channel - 1];
+    }
+    else { //Not initialized or invalid channel
+           //Display Error Message
+#if DEBUG
+        error("PWM not initialized or invalid channel specified");
+#endif
+        return -1;
+    }
+}
+
+int* checkPWMArray(){
+    if (initialized){ //Is the Input Initialized?
+        return (int *)&checkArray;
+    }
+    else { //Not initialized
+           //Display Error Message
+#if DEBUG
+        error("PWM not initialized.");
+#endif
+        return 0;
+    }
+}
