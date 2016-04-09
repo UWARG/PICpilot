@@ -4,7 +4,7 @@
 
 #include "net.h"
 
-#include "p33FJ256GP710.h"
+#include "main.h"
 #include "UART2.h"
 
 

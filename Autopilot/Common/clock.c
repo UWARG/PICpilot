@@ -5,7 +5,7 @@
  *
  * Created on September 8, 2015, 11:16 PM
  */
-#include <p33FJ256GP710.h>
+#include "../AttitudeManager/main.h"
 #include "clock.h"
 
 void useFRCPLLClock(){

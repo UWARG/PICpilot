@@ -1,5 +1,5 @@
 
-#include <p33FJ256GP710.h>
+#include "../AttitudeManager/main.h"
 #include "UART1.h"
 
 void InitUART1()

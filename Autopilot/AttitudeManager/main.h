@@ -10,7 +10,7 @@
  */
 
 //Include Libraries
-#include <p33FJ256GP710.h>
+#include <p33FJ256GP710A.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -20,7 +20,7 @@
 
 //Turns debug mode on or off. Usually contains small snippets of code to output
 //data through UART or to provide small input adjustments
-#define DEBUG 1
+#define DEBUG 0
 
 //Defines the usage of this chip. It may be one or multiple of the following roles:
 //  Path Manager - Communicates with the GPS in order to provide a constant

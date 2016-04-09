@@ -17,7 +17,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "VN100.h"
 #include "VN_lib.h"
-#include <p33FJ256GP710.h>
 #include "main.h"
 
 
