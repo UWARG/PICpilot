@@ -45,17 +45,25 @@ OBJECTDIR=build/${CND_CONF}/${IMAGE_TYPE}
 DISTDIR=dist/${CND_CONF}/${IMAGE_TYPE}
 
 # Source Files Quoted if spaced
-SOURCEFILES_QUOTED_IF_SPACED=Dubins.c I2C.c InterchipDMA.c main.c MPL3115A2.c NMEAparser.c PathManager.c voltageSensor.c ../Common/clock.c ../Common/Common.c ../Common/debug.c ../Common/UART1.c StartupErrorCodes.c ProbeDrop.c
+SOURCEFILES_QUOTED_IF_SPACED=Dubins.c I2C.c InterchipDMA.c main.c MPL3115A2.c NMEAparser.c PathManager.c voltageSensor.c ../Common/clock.c ../Common/Common.c ../Common/debug.c ../Common/UART1.c StartupErrorCodes.c ../AttitudeManager/delay.c
 
 # Object Files Quoted if spaced
-OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/Dubins.o ${OBJECTDIR}/I2C.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/main.o ${OBJECTDIR}/MPL3115A2.o ${OBJECTDIR}/NMEAparser.o ${OBJECTDIR}/PathManager.o ${OBJECTDIR}/voltageSensor.o ${OBJECTDIR}/_ext/2108356922/clock.o ${OBJECTDIR}/_ext/2108356922/Common.o ${OBJECTDIR}/_ext/2108356922/debug.o ${OBJECTDIR}/_ext/2108356922/UART1.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/ProbeDrop.o
-POSSIBLE_DEPFILES=${OBJECTDIR}/Dubins.o.d ${OBJECTDIR}/I2C.o.d ${OBJECTDIR}/InterchipDMA.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/MPL3115A2.o.d ${OBJECTDIR}/NMEAparser.o.d ${OBJECTDIR}/PathManager.o.d ${OBJECTDIR}/voltageSensor.o.d ${OBJECTDIR}/_ext/2108356922/clock.o.d ${OBJECTDIR}/_ext/2108356922/Common.o.d ${OBJECTDIR}/_ext/2108356922/debug.o.d ${OBJECTDIR}/_ext/2108356922/UART1.o.d ${OBJECTDIR}/StartupErrorCodes.o.d ${OBJECTDIR}/ProbeDrop.o.d
+<<<<<<< a2f3980a842f62ff89235a4325d9d883d911e696
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/Dubins.o ${OBJECTDIR}/I2C.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/main.o ${OBJECTDIR}/MPL3115A2.o ${OBJECTDIR}/NMEAparser.o ${OBJECTDIR}/PathManager.o ${OBJECTDIR}/voltageSensor.o ${OBJECTDIR}/_ext/2108356922/clock.o ${OBJECTDIR}/_ext/2108356922/Common.o ${OBJECTDIR}/_ext/2108356922/debug.o ${OBJECTDIR}/_ext/2108356922/UART1.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/airspeedSensor.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/Dubins.o.d ${OBJECTDIR}/I2C.o.d ${OBJECTDIR}/InterchipDMA.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/MPL3115A2.o.d ${OBJECTDIR}/NMEAparser.o.d ${OBJECTDIR}/PathManager.o.d ${OBJECTDIR}/voltageSensor.o.d ${OBJECTDIR}/_ext/2108356922/clock.o.d ${OBJECTDIR}/_ext/2108356922/Common.o.d ${OBJECTDIR}/_ext/2108356922/debug.o.d ${OBJECTDIR}/_ext/2108356922/UART1.o.d ${OBJECTDIR}/StartupErrorCodes.o.d ${OBJECTDIR}/airspeedSensor.o.d
 
 # Object Files
-OBJECTFILES=${OBJECTDIR}/Dubins.o ${OBJECTDIR}/I2C.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/main.o ${OBJECTDIR}/MPL3115A2.o ${OBJECTDIR}/NMEAparser.o ${OBJECTDIR}/PathManager.o ${OBJECTDIR}/voltageSensor.o ${OBJECTDIR}/_ext/2108356922/clock.o ${OBJECTDIR}/_ext/2108356922/Common.o ${OBJECTDIR}/_ext/2108356922/debug.o ${OBJECTDIR}/_ext/2108356922/UART1.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/ProbeDrop.o
+OBJECTFILES=${OBJECTDIR}/Dubins.o ${OBJECTDIR}/I2C.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/main.o ${OBJECTDIR}/MPL3115A2.o ${OBJECTDIR}/NMEAparser.o ${OBJECTDIR}/PathManager.o ${OBJECTDIR}/voltageSensor.o ${OBJECTDIR}/_ext/2108356922/clock.o ${OBJECTDIR}/_ext/2108356922/Common.o ${OBJECTDIR}/_ext/2108356922/debug.o ${OBJECTDIR}/_ext/2108356922/UART1.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/airspeedSensor.o
+=======
+OBJECTFILES_QUOTED_IF_SPACED=${OBJECTDIR}/Dubins.o ${OBJECTDIR}/I2C.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/main.o ${OBJECTDIR}/MPL3115A2.o ${OBJECTDIR}/NMEAparser.o ${OBJECTDIR}/PathManager.o ${OBJECTDIR}/voltageSensor.o ${OBJECTDIR}/_ext/2108356922/clock.o ${OBJECTDIR}/_ext/2108356922/Common.o ${OBJECTDIR}/_ext/2108356922/debug.o ${OBJECTDIR}/_ext/2108356922/UART1.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/_ext/934988084/delay.o
+POSSIBLE_DEPFILES=${OBJECTDIR}/Dubins.o.d ${OBJECTDIR}/I2C.o.d ${OBJECTDIR}/InterchipDMA.o.d ${OBJECTDIR}/main.o.d ${OBJECTDIR}/MPL3115A2.o.d ${OBJECTDIR}/NMEAparser.o.d ${OBJECTDIR}/PathManager.o.d ${OBJECTDIR}/voltageSensor.o.d ${OBJECTDIR}/_ext/2108356922/clock.o.d ${OBJECTDIR}/_ext/2108356922/Common.o.d ${OBJECTDIR}/_ext/2108356922/debug.o.d ${OBJECTDIR}/_ext/2108356922/UART1.o.d ${OBJECTDIR}/StartupErrorCodes.o.d ${OBJECTDIR}/_ext/934988084/delay.o.d
+
+# Object Files
+OBJECTFILES=${OBJECTDIR}/Dubins.o ${OBJECTDIR}/I2C.o ${OBJECTDIR}/InterchipDMA.o ${OBJECTDIR}/main.o ${OBJECTDIR}/MPL3115A2.o ${OBJECTDIR}/NMEAparser.o ${OBJECTDIR}/PathManager.o ${OBJECTDIR}/voltageSensor.o ${OBJECTDIR}/_ext/2108356922/clock.o ${OBJECTDIR}/_ext/2108356922/Common.o ${OBJECTDIR}/_ext/2108356922/debug.o ${OBJECTDIR}/_ext/2108356922/UART1.o ${OBJECTDIR}/StartupErrorCodes.o ${OBJECTDIR}/_ext/934988084/delay.o
 
 # Source Files
-SOURCEFILES=Dubins.c I2C.c InterchipDMA.c main.c MPL3115A2.c NMEAparser.c PathManager.c voltageSensor.c ../Common/clock.c ../Common/Common.c ../Common/debug.c ../Common/UART1.c StartupErrorCodes.c ProbeDrop.c
+SOURCEFILES=Dubins.c I2C.c InterchipDMA.c main.c MPL3115A2.c NMEAparser.c PathManager.c voltageSensor.c ../Common/clock.c ../Common/Common.c ../Common/debug.c ../Common/UART1.c StartupErrorCodes.c ../AttitudeManager/delay.c
+>>>>>>> Set up probe drop for ideal conditions
 
 
 CFLAGS=
@@ -173,12 +181,20 @@ ${OBJECTDIR}/StartupErrorCodes.o: StartupErrorCodes.c  nbproject/Makefile-${CND_
 	${MP_CC} $(MP_EXTRA_CC_PRE)  StartupErrorCodes.c  -o ${OBJECTDIR}/StartupErrorCodes.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/StartupErrorCodes.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -no-legacy-libc  -mlarge-data -O0 -msmart-io=1 -Wall -msfr-warn=off  
 	@${FIXDEPS} "${OBJECTDIR}/StartupErrorCodes.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
-${OBJECTDIR}/ProbeDrop.o: ProbeDrop.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/ProbeDrop.o.d 
-	@${RM} ${OBJECTDIR}/ProbeDrop.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  ProbeDrop.c  -o ${OBJECTDIR}/ProbeDrop.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/ProbeDrop.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -no-legacy-libc  -mlarge-data -O0 -msmart-io=1 -Wall -msfr-warn=off  
-	@${FIXDEPS} "${OBJECTDIR}/ProbeDrop.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+<<<<<<< a2f3980a842f62ff89235a4325d9d883d911e696
+${OBJECTDIR}/airspeedSensor.o: airspeedSensor.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/airspeedSensor.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  airspeedSensor.c  -o ${OBJECTDIR}/airspeedSensor.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/airspeedSensor.o.d"        -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1  -omf=elf -mlarge-data -O0 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/airspeedSensor.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+=======
+${OBJECTDIR}/_ext/934988084/delay.o: ../AttitudeManager/delay.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/_ext/934988084" 
+	@${RM} ${OBJECTDIR}/_ext/934988084/delay.o.d 
+	@${RM} ${OBJECTDIR}/_ext/934988084/delay.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../AttitudeManager/delay.c  -o ${OBJECTDIR}/_ext/934988084/delay.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/934988084/delay.o.d"      -g -D__DEBUG -D__MPLAB_DEBUGGER_ICD3=1    -omf=elf -no-legacy-libc  -mlarge-data -O0 -msmart-io=1 -Wall -msfr-warn=off  
+	@${FIXDEPS} "${OBJECTDIR}/_ext/934988084/delay.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+>>>>>>> Set up probe drop for ideal conditions
 	
 else
 ${OBJECTDIR}/Dubins.o: Dubins.c  nbproject/Makefile-${CND_CONF}.mk
@@ -272,12 +288,20 @@ ${OBJECTDIR}/StartupErrorCodes.o: StartupErrorCodes.c  nbproject/Makefile-${CND_
 	${MP_CC} $(MP_EXTRA_CC_PRE)  StartupErrorCodes.c  -o ${OBJECTDIR}/StartupErrorCodes.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/StartupErrorCodes.o.d"        -g -omf=elf -no-legacy-libc  -mlarge-data -O0 -msmart-io=1 -Wall -msfr-warn=off  
 	@${FIXDEPS} "${OBJECTDIR}/StartupErrorCodes.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
 	
-${OBJECTDIR}/ProbeDrop.o: ProbeDrop.c  nbproject/Makefile-${CND_CONF}.mk
-	@${MKDIR} "${OBJECTDIR}" 
-	@${RM} ${OBJECTDIR}/ProbeDrop.o.d 
-	@${RM} ${OBJECTDIR}/ProbeDrop.o 
-	${MP_CC} $(MP_EXTRA_CC_PRE)  ProbeDrop.c  -o ${OBJECTDIR}/ProbeDrop.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/ProbeDrop.o.d"        -g -omf=elf -no-legacy-libc  -mlarge-data -O0 -msmart-io=1 -Wall -msfr-warn=off  
-	@${FIXDEPS} "${OBJECTDIR}/ProbeDrop.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+<<<<<<< a2f3980a842f62ff89235a4325d9d883d911e696
+${OBJECTDIR}/airspeedSensor.o: airspeedSensor.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} ${OBJECTDIR} 
+	@${RM} ${OBJECTDIR}/airspeedSensor.o.d 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  airspeedSensor.c  -o ${OBJECTDIR}/airspeedSensor.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/airspeedSensor.o.d"        -g -omf=elf -mlarge-data -O0 -msmart-io=1 -Wall -msfr-warn=off
+	@${FIXDEPS} "${OBJECTDIR}/airspeedSensor.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+=======
+${OBJECTDIR}/_ext/934988084/delay.o: ../AttitudeManager/delay.c  nbproject/Makefile-${CND_CONF}.mk
+	@${MKDIR} "${OBJECTDIR}/_ext/934988084" 
+	@${RM} ${OBJECTDIR}/_ext/934988084/delay.o.d 
+	@${RM} ${OBJECTDIR}/_ext/934988084/delay.o 
+	${MP_CC} $(MP_EXTRA_CC_PRE)  ../AttitudeManager/delay.c  -o ${OBJECTDIR}/_ext/934988084/delay.o  -c -mcpu=$(MP_PROCESSOR_OPTION)  -MMD -MF "${OBJECTDIR}/_ext/934988084/delay.o.d"        -g -omf=elf -no-legacy-libc  -mlarge-data -O0 -msmart-io=1 -Wall -msfr-warn=off  
+	@${FIXDEPS} "${OBJECTDIR}/_ext/934988084/delay.o.d" $(SILENT)  -rsi ${MP_CC_DIR}../ 
+>>>>>>> Set up probe drop for ideal conditions
 	
 endif
 

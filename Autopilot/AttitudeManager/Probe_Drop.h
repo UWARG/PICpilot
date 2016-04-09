@@ -16,6 +16,7 @@ extern "C" {
 #define PROBE2 2
 
 void dropProbe(char num);
+void resetProbe(char num);
 int probeStatus(char num);
 
 
