@@ -52,13 +52,17 @@ void dearmVehicle(){
         setPWM(i, MIN_PWM);
     }
     setProgramStatus(UNARMED);
+    p_priority numPacket = PRIORITY1;
     while (!vehicleArmed){
+        imuCommunication();
+        asm("CLRWDT");
+        writeDatalink(numPacket%3); //TODO: Change this for multiple packets
         readDatalink();
-        writeDatalink(1); //TODO: Change this for multiple packets
         inboundBufferMaintenance();
         outboundBufferMaintenance();
         Delay(200);
         asm("CLRWDT");
+        numPacket = (numPacket + 1) % 3;
     }
 }
 

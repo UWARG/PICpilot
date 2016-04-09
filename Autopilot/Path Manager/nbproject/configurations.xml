@@ -17,11 +17,8 @@
       <itemPath>../Common/debug.h</itemPath>
       <itemPath>../Common/UART1.h</itemPath>
       <itemPath>StartupErrorCodes.h</itemPath>
-<<<<<<< b8d0fe210b004b27dec415f4e3531874d8370b0b
       <itemPath>airspeedSensor.h</itemPath>
-=======
       <itemPath>ProbeDrop.h</itemPath>
->>>>>>> Consider air drag using formulae on hyperphysics
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -43,11 +40,8 @@
       <itemPath>../Common/debug.c</itemPath>
       <itemPath>../Common/UART1.c</itemPath>
       <itemPath>StartupErrorCodes.c</itemPath>
-<<<<<<< b8d0fe210b004b27dec415f4e3531874d8370b0b
       <itemPath>airspeedSensor.c</itemPath>
-=======
       <itemPath>ProbeDrop.c</itemPath>
->>>>>>> Consider air drag using formulae on hyperphysics
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

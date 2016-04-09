@@ -173,6 +173,7 @@ void lowLevelControl(){
     setPWM(FLAP_OUT_CHANNEL, outputSignal[4]); //Flaps
     setPWM(PROBE1_OUT_CHANNEL, probeStatus(PROBE1));
     setPWM(PROBE2_OUT_CHANNEL, probeStatus(PROBE2));
+    setPWM(PROBE3_OUT_CHANNEL, probeStatus(PROBE3));
 }
 #elif COPTER
 void highLevelControl(){
