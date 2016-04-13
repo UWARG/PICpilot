@@ -21,6 +21,7 @@
 #include "VN_lib.h"
 #include "delay.h"
 #include "StateMachine.h"
+#include "ProgramStatus.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -77,49 +78,50 @@ void VN_SPI_SetSS(unsigned char sensorID, VN_PinState state){
 *******************************************************************************/
 unsigned long VN_SPI_SendReceive(unsigned long data){
 
+char smAllowed = getProgramStatus() > ARMING;
 /* User code to send out 4 bytes over SPI goes here */
   unsigned long ret = 0;
     /* Wait for SPI1 Tx buffer empty */
     //while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
-  	while (SPI2STATbits.SPITBF){StateMachine(STATEMACHINE_IMU);}
+  	while (SPI2STATbits.SPITBF){if (smAllowed){StateMachine(STATEMACHINE_IMU);}}
     /* Send SPI1 requests */
     //SPI_I2S_SendData(SPI1, VN_BYTE(data, i));
 	SPI2BUF = VN_BYTE4(data);
-        while (SPI2STATbits.SPITBF){StateMachine(STATEMACHINE_IMU);}
+        while (SPI2STATbits.SPITBF){if (smAllowed){StateMachine(STATEMACHINE_IMU);}}
     /* Wait for response from VN-100 */
     //while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET);
-  	while (!SPI2STATbits.SPIRBF){StateMachine(STATEMACHINE_IMU);}
+  	while (!SPI2STATbits.SPIRBF){if (smAllowed){StateMachine(STATEMACHINE_IMU);}}
         
     /* Save received data in buffer */
     //ret |= ((unsigned long)SPI_I2S_ReceiveData(SPI1) << (8*i));
 	ret |= ((unsigned long)SPI2BUF << (0));
 
-  	while (SPI2STATbits.SPITBF){StateMachine(STATEMACHINE_IMU);}
+  	while (SPI2STATbits.SPITBF){if (smAllowed){StateMachine(STATEMACHINE_IMU);}}
     /* Send SPI1 requests */
     //SPI_I2S_SendData(SPI1, VN_BYTE(data, i));
 	SPI2BUF = VN_BYTE3(data);
 
     /* Wait for response from VN-100 */
     //while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET);
-  	while (!SPI2STATbits.SPIRBF){StateMachine(STATEMACHINE_IMU);}
+  	while (!SPI2STATbits.SPIRBF){if (smAllowed){StateMachine(STATEMACHINE_IMU);}}
     /* Save received data in buffer */
     //ret |= ((unsigned long)SPI_I2S_ReceiveData(SPI1) << (8*i));
 	ret |= ((unsigned long)SPI2BUF << (8));
 
-  	while (SPI2STATbits.SPITBF){StateMachine(STATEMACHINE_IMU);}
+  	while (SPI2STATbits.SPITBF){if (smAllowed){StateMachine(STATEMACHINE_IMU);}}
     /* Send SPI1 requests */
     //SPI_I2S_SendData(SPI1, VN_BYTE(data, i));
 	SPI2BUF = VN_BYTE2(data);
 
     /* Wait for response from VN-100 */
     //while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET);
-  	while (!SPI2STATbits.SPIRBF){StateMachine(STATEMACHINE_IMU);}
+  	while (!SPI2STATbits.SPIRBF){if (smAllowed){StateMachine(STATEMACHINE_IMU);}}
 
     /* Save received data in buffer */
     //ret |= ((unsigned long)SPI_I2S_ReceiveData(SPI1) << (8*i));
 	ret |= ((unsigned long)SPI2BUF << (16));
 
-  	while (SPI2STATbits.SPITBF){StateMachine(STATEMACHINE_IMU);}
+  	while (SPI2STATbits.SPITBF){if (smAllowed){StateMachine(STATEMACHINE_IMU);}}
 
     /* Send SPI1 requests */
     //SPI_I2S_SendData(SPI1, VN_BYTE(data, i));
@@ -127,7 +129,7 @@ unsigned long VN_SPI_SendReceive(unsigned long data){
 
     /* Wait for response from VN-100 */
     //while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET);
-  	while (!SPI2STATbits.SPIRBF){StateMachine(STATEMACHINE_IMU);}
+  	while (!SPI2STATbits.SPIRBF){if (smAllowed){StateMachine(STATEMACHINE_IMU);}}
     /* Save received data in buffer */
     //ret |= ((unsigned long)SPI_I2S_ReceiveData(SPI1) << (8*i));
 	ret |= ((unsigned long)SPI2BUF << (24));

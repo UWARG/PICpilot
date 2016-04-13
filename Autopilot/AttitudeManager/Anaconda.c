@@ -33,6 +33,7 @@ void initialization(int* outputSignal){
 }
 
 void armVehicle(int delayTime){
+    setProgramStatus(ARMING);
     asm("CLRWDT");
     Delay(delayTime);
     asm("CLRWDT");
@@ -64,6 +65,7 @@ void dearmVehicle(){
         asm("CLRWDT");
         numPacket = (numPacket + 1) % 3;
     }
+    setProgramStatus(MAIN_EXECUTION);
 }
 
 void takeOff(){

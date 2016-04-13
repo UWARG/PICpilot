@@ -187,9 +187,8 @@ void attitudeInit() {
     VN100_initSPI();
 
     char model[12];
-    setSensorStatus(VECTORNAV, (SENSOR_CONNECTED | SENSOR_INITIALIZED) & TRUE);
     VN100_SPI_GetModel(0, model);
-    if (strcmp(model, "VN-100T-SMD") == 0){
+    if (strcmp(model, "VN-100T-SMD") == 0 || strcmp(model, "VN-100T") == 0){
         setSensorStatus(VECTORNAV, SENSOR_CONNECTED & TRUE);
         //IMU position matrix
         // offset = {roll, pitch, yaw}
@@ -210,7 +209,9 @@ void attitudeInit() {
 #endif
 
     initDataLink();
-    setSensorStatus(XBEE, SENSOR_INITIALIZED & TRUE);
+    if (checkDataLinkConnection()){
+        setSensorStatus(XBEE, SENSOR_INITIALIZED & TRUE);
+    }
     initialization();
     setProgramStatus(MAIN_EXECUTION);
 }
@@ -877,6 +878,9 @@ int writeDatalink(p_priority packet){
             statusData->data.p2_block.yawKD = getGain(YAW,GAIN_KD);
             statusData->data.p2_block.yawKP = getGain(YAW,GAIN_KP);
             statusData->data.p2_block.lastCommandsSent[0] = lastCommandSentCode;
+            statusData->data.p2_block.lastCommandsSent[1] = 1;
+            statusData->data.p2_block.lastCommandsSent[2] = 2;
+            statusData->data.p2_block.lastCommandsSent[3] = 3;
             statusData->data.p2_block.batteryLevel1 = batteryLevel1;
             statusData->data.p2_block.batteryLevel2 = 100;
             int* input = getPWMArray();
