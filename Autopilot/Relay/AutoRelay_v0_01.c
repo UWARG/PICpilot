@@ -6,9 +6,59 @@
 *
 *******************************************************************************/
 
+
+
 /******************************* Header Files *********************************/
 #include "p24F16KA101.h"
 #include <i2c.h>
+
+
+/*// FBS
+#pragma config BWRP = OFF               // Table Write Protect Boot (Boot segment may be written)
+#pragma config BSS = OFF                // Boot segment Protect (No boot program Flash segment)
+
+// FGS
+#pragma config GWRP = OFF               // General Segment Code Flash Write Protection bit (General segment may be written)
+#pragma config GCP = OFF                // General Segment Code Flash Code Protection bit (No protection)
+
+// FOSCSEL
+#pragma config FNOSC = FRCDIV           // Oscillator Select (8 MHz FRC oscillator with divide-by-N (FRCDIV))
+#pragma config IESO = ON                // Internal External Switch Over bit (Internal External Switchover mode enabled (Two-Speed Start-up enabled))
+
+// FOSC
+#pragma config POSCMOD = NONE           // Primary Oscillator Configuration bits (Primary oscillator disabled)
+#pragma config OSCIOFNC = OFF           // CLKO Enable Configuration bit (CLKO output signal is active on the OSCO pin)
+#pragma config POSCFREQ = HS            // Primary Oscillator Frequency Range Configuration bits (Primary oscillator/external clock input frequency greater than 8 MHz)
+#pragma config SOSCSEL = SOSCHP         // SOSC Power Selection Configuration bits (Secondary oscillator configured for high-power operation)
+#pragma config FCKSM = CSDCMD           // Clock Switching and Monitor Selection (Both Clock Switching and Fail-safe Clock Monitor are disabled)
+
+// FWDT
+#pragma config WDTPS = PS4096           // Watchdog Timer Postscale Select bits (1:4,096)
+#pragma config FWPSA = PR128            // WDT Prescaler (WDT prescaler ratio of 1:128)
+#pragma config WINDIS = OFF             // Windowed Watchdog Timer Disable bit (Standard WDT selected; windowed WDT disabled)
+#pragma config FWDTEN = ON              // Watchdog Timer Enable bit (WDT enabled)
+
+// FPOR
+#pragma config BOREN = BOR3             // Brown-out Reset Enable bits (Brown-out Reset enabled in hardware; SBOREN bit disabled)
+#pragma config PWRTEN = ON              // Power-up Timer Enable bit (PWRT enabled)
+#pragma config I2C1SEL = PRI            // Alternate I2C1 Pin Mapping bit (Default location for SCL1/SDA1 pins)
+#pragma config BORV = V18               // Brown-out Reset Voltage bits (Brown-out Reset set to lowest voltage (1.8V))
+#pragma config MCLRE = ON               // MCLR Pin Enable bit (MCLR pin enabled; RA5 input pin disabled)
+
+// FICD
+#pragma config ICS = PGx1               // ICD Pin Placement Select bits (PGC1/PGD1 are used for programming and debugging the device)
+
+// FDS
+#pragma config DSWDTPS = DSWDTPSF       // Deep Sleep Watchdog Timer Postscale Select bits (1:2,147,483,648 (25.7 Days))
+#pragma config DSWDTOSC = LPRC          // DSWDT Reference Clock Select bit (DSWDT uses LPRC as reference clock)
+#pragma config RTCOSC = SOSC            // RTCC Reference Clock Select bit (RTCC uses SOSC as reference clock)
+#pragma config DSBOREN = ON             // Deep Sleep Zero-Power BOR Enable bit (Deep Sleep BOR enabled in Deep Sleep)
+#pragma config DSWDTEN = ON             // Deep Sleep Watchdog Timer Enable bit (DSWDT enabled)
+
+*/
+
+
+
 
 /********************************* Defines ************************************/
 #define USE_AND_OR	                // To enable AND_OR mask setting for I2C.
@@ -24,9 +74,10 @@ void Delay_ms(unsigned int millisec);
 void readI2C(unsigned char sensor);
 
 /**************************** Global Variables ********************************/
-unsigned int timePeriod= 0;         // Used in interrupt
-unsigned int t1 = 0;                // Used in interrupt
-unsigned int t2 = 0;                // Used in interrupt
+unsigned int timePeriod1 = 0;         // Used in interrupt
+unsigned int timePeriod2 = 0;
+unsigned int t[3] = {0,0,0};                // Used in interrupt
+unsigned int i = 0;
 unsigned int ch8_position = 0;      // Used in Main()
 
 
@@ -43,35 +94,41 @@ unsigned char dataI2C_1;
 unsigned char dataI2C_2;
 
 /******************************* Interrupt ************************************/
-void __attribute__((__interrupt__)) _IC1Interrupt(void)
+void __attribute__((__interrupt__,no_auto_psv)) _IC1Interrupt(void)
 {
-	if (PORTAbits.RA6 == 1)
-	{
-		t1=IC1BUF;
-	}
-	else if (PORTAbits.RA6 == 0)
-	{
-		t2=IC1BUF;
-		if(t2>t1)
-		{
-			timePeriod = t2-t1;
-		}
-		else
-		{
-			timePeriod = (PR2 - t1) + t2;
-		}
-	}
-	ch8_position = timePeriod;
+    t[i] = IC1BUF;
+    if (t[i] > t[(i+2)%3])
+    {
+        timePeriod1 = t[i] - t[(i+2)%3];
+    }
+    else{
+        timePeriod1 = (PR2 - t[(i+2)%3]) + t[i];
+    }
+    if (t[(i+2)%3] > t[(i+1)%3]) {
+        timePeriod2 = t[(i+2)%3] - t[(i+1)%3];
+    }
+    else {
+        timePeriod2 = (PR2 - t[(i+1)%3]) + t[(i+2)%3];
+    }
 
-	//clear watchdog
-	asm("CLRWDT");
+    if (timePeriod1 > timePeriod2)
+	ch8_position = timePeriod2;
+    else
+        ch8_position = timePeriod1;
+        
+        //Setup for next interrupt
+        i++;
+        i = i%3;
 
+        //clear watchdog
+        asm("CLRWDT");
 	IFS0bits.IC1IF=0;
 }
 
 /********************************* Init() *************************************/
 void Init(void)
 {
+    //TODO:Set IC pin as input
 	PORTBbits.RB7 = 0;
 	TRISBbits.TRISB7 = 0;       // Set RB7 as an output
 	AD1PCFG = 0xFFFF;			// Use inputs in digital mode
@@ -128,61 +185,61 @@ void Delay_ms(unsigned int millisec){
 }
 
 /******************************* readI2C() ************************************/
-void readI2C(unsigned char sensor)
-{
-	char byteToRead = 0x07;
-	char status;
-	unsigned char *pRead;
-	unsigned char rx_data[2];	// "MCHP I2C"
-	pRead = rx_data;
-
-		while (1)
-		{
-			StartI2C1();
-			IdleI2C1();
-			Delay_ms(1);
-			MasterWriteI2C1(sensor); //transmit write command
-			IdleI2C1();
-			if( I2C1STATbits.ACKSTAT ) //end message if transmission fails
-			{
-				StopI2C1();
-				IdleI2C1();
-				break;
-			}
-
-			MasterWriteI2C1(byteToRead); //transmit which byte to read
-			IdleI2C1();
-			if( I2C1STATbits.ACKSTAT ) //end message if transmission fails
-			{
-				StopI2C1();
-				IdleI2C1();
-				break;
-			}
-			StopI2C1();
-			IdleI2C1();
-
-			StartI2C1();
-			IdleI2C1();
-
-			MasterWriteI2C1(sensor + 1); //transmit read command
-			IdleI2C1();
-			if( I2C1STATbits.ACKSTAT ) 	//end message if transmission fails
-			{
-				StopI2C1();
-				IdleI2C1();
-				break;
-			}
-
-			status = MastergetsI2C1(2, pRead, 900);		//read byte
-			//if (status==0){PORTAbits.RA6 = 1;}
-			StopI2C1();					//Send the Stop condition
-			IdleI2C1();					//Wait to complete
-			break;
-
-		}
-		dataI2C_1 = pRead[0];
-		dataI2C_2 = pRead[1];
-}
+//void readI2C(unsigned char sensor)
+//{
+//	char byteToRead = 0x07;
+//	char status;
+//	unsigned char *pRead;
+//	unsigned char rx_data[2];	// "MCHP I2C"
+//	pRead = rx_data;
+//
+//		while (1)
+//		{
+//			StartI2C1();
+//			IdleI2C1();
+//			Delay_ms(1);
+//			MasterWriteI2C1(sensor); //transmit write command
+//			IdleI2C1();
+//			if( I2C1STATbits.ACKSTAT ) //end message if transmission fails
+//			{
+//				StopI2C1();
+//				IdleI2C1();
+//				break;
+//			}
+//
+//			MasterWriteI2C1(byteToRead); //transmit which byte to read
+//			IdleI2C1();
+//			if( I2C1STATbits.ACKSTAT ) //end message if transmission fails
+//			{
+//				StopI2C1();
+//				IdleI2C1();
+//				break;
+//			}
+//			StopI2C1();
+//			IdleI2C1();
+//
+//			StartI2C1();
+//			IdleI2C1();
+//
+//			MasterWriteI2C1(sensor + 1); //transmit read command
+//			IdleI2C1();
+//			if( I2C1STATbits.ACKSTAT ) 	//end message if transmission fails
+//			{
+//				StopI2C1();
+//				IdleI2C1();
+//				break;
+//			}
+//
+//			status = MastergetsI2C1(2, pRead, 900);		//read byte
+//			//if (status==0){PORTAbits.RA6 = 1;}
+//			StopI2C1();					//Send the Stop condition
+//			IdleI2C1();					//Wait to complete
+//			break;
+//
+//		}
+//		dataI2C_1 = pRead[0];
+//		dataI2C_2 = pRead[1];
+//}
 
 /********************************* Main() *************************************/
 // range of ch8_position relative to remote controller:
@@ -196,11 +253,11 @@ void readI2C(unsigned char sensor)
 int main (void)
 {
     Init();
-
 	while(1)
 	{
+
                 //The window on the controller is 43%-50%
-		if ((ch8_position > 420) && (ch8_position < 428)) //Controller Setting is: +47%, -33% //(ch8_position > 450)
+		if ((ch8_position > 100) && (ch8_position < 400)) //Controller Setting is: +47%, -33% //(ch8_position > 450)
 		{
 			PORTBbits.RB7 = 1;
 		}

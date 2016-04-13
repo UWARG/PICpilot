@@ -16,3 +16,7 @@ int initDataLink(void) {
 
     return 0;
 }
+
+int checkDataLinkConnection(){
+    return 1;
+}

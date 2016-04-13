@@ -13,9 +13,9 @@ extern "C" {
 #endif
 
 #define MSEC 642//470
-#define UPPER_PWM 1320//1411//941
+#define UPPER_PWM 1284//1320//1411//941
 #define LOWER_PWM 642//705//470
-#define MIDDLE_PWM 981//(int)((UPPER_PWM - LOWER_PWM)/2) + LOWER_PWM//706
+#define MIDDLE_PWM 963//981//(int)((UPPER_PWM - LOWER_PWM)/2) + LOWER_PWM//706
 #define SP_RANGE MAX_PWM//(UPPER_PWM - MIDDLE_PWM)
 
 

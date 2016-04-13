@@ -132,6 +132,9 @@ struct command {
 // Initialize the data link
 int initDataLink(void);
 
+//Check whether or not the datalink is connected to the board properly.
+int checkDataLinkConnection();
+
 // Create a telemetry block to use for debugging, only creates one instance
 struct telem_block *getDebugTelemetryBlock(p_priority packet);
 

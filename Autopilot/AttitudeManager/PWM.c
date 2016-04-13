@@ -80,11 +80,6 @@ int* getPWMArray(){
         int i = 0;
         for (i = 0; i < NUM_CHANNELS; i++){
             pwmArray[i] = (int)(((int)(icArray[i]) - offsetIn[i]) * scaleFactorIn[i]);
-//            char str[20];
-//            sprintf(str, "ICArray: %d", icArray[0]);
-//            debug(str);
-//            sprintf(str, "ARRAY: %d", pwmArray[0]);
-//            debug(str);
         }
         return pwmArray;
     }
