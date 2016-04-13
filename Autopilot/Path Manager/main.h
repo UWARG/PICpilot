@@ -10,7 +10,7 @@
  */
 
 //Include Libraries
-#include <p33FJ256GP710A.h>
+#include <p33FJ256GP710.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -18,7 +18,8 @@
 
 //Turns debug mode on or off. Usually contains small snippets of code to output
 //data through UART or to provide small input adjustments
-#define DEBUG 0
+#define DEBUG 1
+#define SIM 1
 
 //  Path Manager - Communicates with the GPS in order to provide a constant
 //                  heading for the aircraft to follow.

@@ -62,6 +62,8 @@ void InitUART2()
 //	IPC7 = 0x4400;	// Mid Range Interrupt Priority level, no urgent reason
 
         IPC7 = 0x4400;	// Mid Range Interrupt Priority level, no urgent reason
+//        _U2RXIP = 0b111;
+//        _U2TXIP = 0b111;
 
 	IFS1bits.U2TXIF = 0;	// Clear the Transmit Interrupt Flag
 	IEC1bits.U2TXIE = 0;	// Enable Transmit Interrupts

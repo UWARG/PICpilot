@@ -29,7 +29,11 @@ void initAirspeedSensor(){
 
 
 float getCurrentAirspeed(){
+#if !SIM
       return ((float)(pow(currentAirspeedSignal,2)*0.0147+0.4132*currentAirspeedSignal+1743)); //sensor signal calibration
+#else
+      return 5;
+#endif
 }
 
 void initAirspeedADC(){

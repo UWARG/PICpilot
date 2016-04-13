@@ -174,6 +174,11 @@ void lowLevelControl(){
     setPWM(PROBE1_OUT_CHANNEL, probeStatus(PROBE1));
     setPWM(PROBE2_OUT_CHANNEL, probeStatus(PROBE2));
     setPWM(PROBE3_OUT_CHANNEL, probeStatus(PROBE3));
+
+    setTxPacket(getRxPacketStatus(), outputSignal[0], outputSignal[1], outputSignal[2], outputSignal[3]); // should output AAAA BBBB CCCC DDDD 43690, 48059, 52428, 56797
+//    char simOutput[80];
+//    sprintf(&simOutput, "(%d,%d,%d,%d,%d)", getRxPacketStatus(), outputSignal[0], outputSignal[1], outputSignal[2], outputSignal[3]);
+//    UART1_SendString(simOutput);
 }
 #elif COPTER
 void highLevelControl(){

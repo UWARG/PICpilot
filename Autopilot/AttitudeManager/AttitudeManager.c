@@ -21,6 +21,10 @@
 #include "ProgramStatus.h"
 #include <string.h>
 
+#if SIM
+#include "Simulator.h"
+#endif
+
 extern PMData pmData;
 extern AMData amData;
 extern char DMADataAvailable;
@@ -472,6 +476,74 @@ void imuCommunication(){
                                 IMU COMMUNICATION
      *****************************************************************************
      *****************************************************************************/
+#if SIM
+    struct ImuData* imuData = getSimData();
+//    char x[30];
+//    sprintf(x, "start1: %02X", imuData->start);
+//    debug(&x);
+//
+//    char y1[30];
+//    sprintf(y1, "rollAngleRate1: %f", (double)imuData->rollAngleRate);
+//    debug(&y1);
+//
+//    char y2[30];
+//    sprintf(y2, "pitchAngleRate1: %f", (double)imuData->pitchAngleRate);
+//    debug(&y2);
+//
+//    char y3[30];
+//    sprintf(y3, "yawAngleRate1: %f", (double)imuData->yawAngleRate);
+//    debug(&y3);
+//
+//    char y4[30];
+//    sprintf(y4, "rollAngle1: %f", (double)imuData->rollAngle);
+//    debug(&y4);
+//
+//    char y5[30];
+//    sprintf(y5, "pitchAngle1: %f", (double)imuData->pitchAngle);
+//    debug(&y5);
+//
+//    char y6[30];
+//    sprintf(y6, "yawAngle1: %f", (double)imuData->yawAngle);
+//    debug(&y6);
+//
+//    char x1[30];
+//    sprintf(x1, "end1: %02X", imuData->end);
+//    debug(&x1);
+
+    imu_RollRate = imuData->rollAngleRate;
+    imu_PitchRate = imuData->pitchAngleRate;
+    imu_YawRate = imuData->yawAngleRate;
+    imu_YawAngle = imuData->yawAngle;
+    imu_PitchAngle = imuData->pitchAngle;
+    imu_RollAngle = imuData->rollAngle;
+
+//    char y1[30];
+//    sprintf(y1, "imu_RollRate: %f", (double)imu_RollRate);
+//    debug(&y1);
+//
+//    char y2[30];
+//    sprintf(y2, "imu_PitchRate: %f", (double)imu_PitchRate);
+//    debug(&y2);
+//
+//    char y3[30];
+//    sprintf(y3, "imu_YawRate: %f", (double)imu_YawRate);
+//    debug(&y3);
+//
+//    char y4[30];
+//    sprintf(y4, "imu_YawAngle: %f", (double)imu_YawAngle);
+//    debug(&y4);
+//
+//    char y5[30];
+//    sprintf(y5, "imu_PitchAngle: %f", (double)imu_PitchAngle);
+//    debug(&y5);
+//
+//    char y6[30];
+//    sprintf(y6, "imu_RollAngle: %f", (double)imu_RollAngle);
+//    debug(&y6);
+
+//    char x[30];
+//    sprintf(&x, "IMU Roll Rate: %f", imu_RollRate);
+#else
     VN100_SPI_GetRates(0, (float*) &imuData);
 
     //TODO: This is a reminder for me to figure out a more elegant way to fix improper derivative control (based on configuration of the sensor), adding this negative is a temporary fix. Some kind of calibration command or something.
@@ -495,6 +567,7 @@ void imuCommunication(){
 //    debug(&x);
 //    sprintf(&x, "IMU Roll Angle: %f", imu_RollAngle);
 //    debug(&x);
+#endif
 #endif
 }
 
