@@ -46,7 +46,7 @@ int main(int argc, char** argv) {
     AD2PCFGLbits.PCFG5 = 1;
     
 //Debug Mode initialize communication with the serial port (Computer)
-#if DEBUG
+#if (DEBUG || SIM)
     initDebug();
 #endif
 

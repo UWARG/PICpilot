@@ -9,6 +9,9 @@
 #include "Probe_Drop.h"
 #include "../Common/debug.h"
 
+#if SIM
+#include "Simulator.h"
+#endif
 /*
  * 
  */

@@ -16,6 +16,10 @@
 
 #include "InterchipDMA.h"
 
+#if SIM
+#include "Simulator.h"
+#endif
+
 #if DEBUG
 #include <stdio.h>
 #include <stdlib.h>
@@ -49,18 +53,22 @@ char returnHome = 0;
 char doProbeDrop;
 
 void pathManagerInit(void) {
-#if DEBUG
+#if (DEBUG || SIM)
     InitUART1();
 #endif
 
 
 
 //Communication with GPS
+#if !SIM
     init_SPI2();
     init_DMA2();
+#endif
 //  Hack to power altimeter from UART on PM
+#if !SIM
     TRISFbits.TRISF5 = 0;
     PORTFbits.RF5 = 1;
+#endif
     initBatterySensor();
     initAirspeedSensor();
 
@@ -83,11 +91,13 @@ void pathManagerInit(void) {
     while (DMA1REQbits.FORCE == 1);
 
     //Communication with Altimeter
+#if !SIM
     if (initAltimeter()){
         float initialValue = 0;
         while (initialValue == 0) initialValue = getAltitude();
         calibrateAltimeter(initialValue);
     }
+#endif
 
     //Initialize Home Location
     home.altitude = 400;
@@ -135,7 +145,19 @@ void pathManagerRuntime(void) {
 //    sprintf(&str,"%f",pmData.time);
 //    UART1_SendString(&str);
 #endif
+
+    struct GpsData* gData = getSimData();
+
+    gpsData.time = 1832.123;
+    gpsData.longitude = gData->latitude;;
+    gpsData.latitude = 42.631;
+    gpsData.heading = 110;
+    gpsData.speed = 10;
+    gpsData.satellites = 4;
+    gpsData.positionFix = 2;
     copyGPSData();
+
+
 
     if (returnHome){
         pmData.targetWaypoint = -1;
@@ -195,7 +217,9 @@ char followWaypoints(PathData* current, float* position, float heading, int* set
     static DubinsPath progress = DUBINS_PATH_C1;
 
     if (recompute) {
+#if DEBUG
         printf("Recomputing path...\n");
+#endif
         current_position = (Vector) {
             .x = position[0],
             .y = position[1],
@@ -514,6 +538,7 @@ unsigned int insertPathNode(PathData* node, unsigned int previousID, unsigned in
 }
 
 void copyGPSData(){
+    newGPSDataAvailable = 1;
     if (newGPSDataAvailable){
         newGPSDataAvailable = 0;
         pmData.time = gpsData.time;
