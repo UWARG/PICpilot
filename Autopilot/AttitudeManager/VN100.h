@@ -22,7 +22,7 @@
 #include "VN_type.h"
 #include "VN_lib.h"
 
-#define IMU_UPDATE_FREQUENCY 5 //Time in milliseconds
+#define IMU_UPDATE_FREQUENCY 10 //Time in milliseconds
 
 /* Exported constants --------------------------------------------------------*/
 

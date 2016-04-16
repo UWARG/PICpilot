@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-#define P0_SEND_FREQUENCY 100 //Time in milliseconds
+#define P0_SEND_FREQUENCY 50 //Time in miliseconds
 #define P1_SEND_FREQUENCY 1000 //Time in milliseconds
 #define P2_SEND_FREQUENCY 20000 //Time in milliseconds
 #define UPLINK_CHECK_FREQUENCY 100 //Time in milliseconds
