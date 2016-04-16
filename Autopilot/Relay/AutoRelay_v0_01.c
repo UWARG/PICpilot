@@ -257,7 +257,7 @@ int main (void)
 	{
 
                 //The window on the controller is 43%-50%
-		if ((ch8_position > 100) && (ch8_position < 400)) //Controller Setting is: +47%, -33% //(ch8_position > 450)
+		if ((ch8_position > 400) && (ch8_position < 430)) //Controller Setting is: +47%, -33% //(ch8_position > 450)
 		{
 			PORTBbits.RB7 = 1;
 		}
