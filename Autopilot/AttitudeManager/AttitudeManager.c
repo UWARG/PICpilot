@@ -389,9 +389,6 @@ int getRollAngleInput(char source){
 }
 int getRollRateInput(char source){
     if (source == ROLL_RC_SOURCE){
-//           char str[20];
-//    sprintf(str, "Func: %d", input_RC_RollRate);
-//    debug(str);
         return input_RC_RollRate;
     }
     else if (source == ROLL_GS_SOURCE){
