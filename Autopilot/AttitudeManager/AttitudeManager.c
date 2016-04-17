@@ -191,11 +191,11 @@ void attitudeInit() {
     if (strcmp(model, "VN-100T-SMD") == 0 || strcmp(model, "VN-100T") == 0){
         setSensorStatus(VECTORNAV, SENSOR_CONNECTED & TRUE);
         //IMU position matrix
-        // offset = {roll, pitch, yaw}
-        float cal_roll = -90;
-        float cal_pitch = -90;
-        float cal_yaw = 0.0;
-        float offset[3] = {cal_roll,cal_pitch,cal_yaw};
+        // offset = {x, y, z}
+        float cal_x = -90;
+        float cal_y = -90;
+        float cal_z = 0.0;
+        float offset[3] = {cal_x,cal_y,cal_z};
 
         setVNOrientationMatrix((float*)&offset);
         VN100_SPI_SetFiltMeasVar(0, (float*)&filterVariance);
@@ -212,7 +212,10 @@ void attitudeInit() {
     if (checkDataLinkConnection()){
         setSensorStatus(XBEE, SENSOR_INITIALIZED & TRUE);
     }
-    initialization();
+    //If the chip resets for whatever reason, unless it was a manual reset, don't go through the arming process
+    if (getStartupErrorCodes() != 0b11){
+        initialization();
+    }
     setProgramStatus(MAIN_EXECUTION);
 }
 
@@ -386,9 +389,9 @@ int getRollAngleInput(char source){
 }
 int getRollRateInput(char source){
     if (source == ROLL_RC_SOURCE){
-           char str[20];
-    sprintf(str, "Func: %d", input_RC_RollRate);
-    debug(str);
+//           char str[20];
+//    sprintf(str, "Func: %d", input_RC_RollRate);
+//    debug(str);
         return input_RC_RollRate;
     }
     else if (source == ROLL_GS_SOURCE){

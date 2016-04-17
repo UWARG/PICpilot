@@ -38,6 +38,9 @@ void StateMachine(char entryLocation){
     stateMachineTimer += dTime;
     imuTimer += dTime;
     
+    //Clear Watchdog timer
+    asm("CLRWDT");
+
     if(isDMADataAvailable() && checkDMA()){
         //Input from Controller
         inputCapture();
