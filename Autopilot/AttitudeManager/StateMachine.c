@@ -94,6 +94,7 @@ void StateMachine(char entryLocation){
     }
     else{
         //Then Sleep
+        Delay(1);
     }
     //Loop it back again!
     asm("CLRWDT");

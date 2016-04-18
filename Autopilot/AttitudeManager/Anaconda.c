@@ -22,7 +22,7 @@ void initialization(int* outputSignal){
     while (!vehicleArmed){
         imuCommunication();
         asm("CLRWDT");
-        writeDatalink(numPacket%3); //TODO: Change this for multiple packets
+        writeDatalink(numPacket%3);
         readDatalink();
         inboundBufferMaintenance();
         outboundBufferMaintenance();

@@ -213,9 +213,9 @@ void attitudeInit() {
         setSensorStatus(XBEE, SENSOR_INITIALIZED & TRUE);
     }
     //If the chip resets for whatever reason, unless it was a manual reset, don't go through the arming process
-    if (getStartupErrorCodes() != 0b11){
+//    if (getStartupErrorCodes() != 0b11){
         initialization();
-    }
+//    }
     setProgramStatus(MAIN_EXECUTION);
 }
 
@@ -848,6 +848,13 @@ void readDatalink(void){
 }
 int writeDatalink(p_priority packet){
     struct telem_block* statusData = createTelemetryBlock(packet);
+
+    //If Malloc fails, then quit...wait until there is memory available
+    if (!statusData){return 0;}
+    
+    int* input;
+    int* output; //Pointers used for RC channel inputs and outputs
+
     switch(packet){
         case PRIORITY0:
             statusData->data.p1_block.lat = getLatitude();
@@ -883,7 +890,8 @@ int writeDatalink(p_priority packet){
             statusData->data.p2_block.lastCommandsSent[3] = 3;
             statusData->data.p2_block.batteryLevel1 = batteryLevel1;
             statusData->data.p2_block.batteryLevel2 = 100;
-            int* input = getPWMArray();
+//            debug("SW3");
+            input = getPWMArray();
             statusData->data.p2_block.ch1In = input[0];
             statusData->data.p2_block.ch2In = input[1];
             statusData->data.p2_block.ch3In = input[2];
@@ -892,7 +900,7 @@ int writeDatalink(p_priority packet){
             statusData->data.p2_block.ch6In = input[5];
             statusData->data.p2_block.ch7In = input[6];
             statusData->data.p2_block.ch8In = input[7];
-            int* output = checkPWMArray();
+            output = checkPWMArray();
             statusData->data.p2_block.ch1Out = output[0];
             statusData->data.p2_block.ch2Out = output[1];
             statusData->data.p2_block.ch3Out = output[2];
@@ -901,6 +909,7 @@ int writeDatalink(p_priority packet){
             statusData->data.p2_block.ch6Out = output[5];
             statusData->data.p2_block.ch7Out = output[6];
             statusData->data.p2_block.ch8Out = output[7];
+//            debug("SW4");
             statusData->data.p2_block.yawRateSetpoint = getYawRateSetpoint();
             statusData->data.p2_block.headingSetpoint = getHeadingSetpoint();
             statusData->data.p2_block.altitudeSetpoint = getAltitudeSetpoint();

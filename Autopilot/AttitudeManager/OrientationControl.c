@@ -139,5 +139,9 @@ void setGain(unsigned char YPRH, unsigned char type, float value){
 }
 
 char areGainsUpdated(){
-    return gainsUpdated;
+    if (gainsUpdated){
+        gainsUpdated = 0;
+        return 1;
+    }
+    return 0;
 }
