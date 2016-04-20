@@ -100,6 +100,9 @@
 #define PROBE3_OUT_CHANNEL 8
 
 
+//Misc
+#define COMMAND_HISTORY_SIZE 4
+
 /* FUNCTION PROTOTYPES */
 /*****************************************************************************  
  * Function: void attitudeInit(void)
