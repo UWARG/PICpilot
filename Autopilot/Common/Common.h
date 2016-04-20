@@ -9,7 +9,10 @@
 #define	COMMON_H
 
 //Includes
-#include "../AttitudeManager/main.h"
+#include <p33FJ256GP710A.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 
 //Constants
 #define EARTH_RADIUS 6378.137
@@ -17,6 +20,17 @@
 #define RELATIVE_LONGITUDE -71.64781
 //43.473004
 #define RELATIVE_LATITUDE 48.51031
+
+//Define constants for global use in the code
+#define TRUE	0xFF
+#define FALSE	0x00
+
+//Mathematical Constants
+#define PI 3.14159265
+
+//Basic Mathematical Conversions
+#define deg2rad(DEG) ((DEG) * PI/180.0)
+#define rad2deg(RAD) ((RAD) * 180.0/PI)
 
 //Waypoint Management Commands
 #define PM_DEBUG_TEST 0

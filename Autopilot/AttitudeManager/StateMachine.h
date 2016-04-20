@@ -15,6 +15,8 @@ extern "C" {
 #define STATEMACHINE_MAINLOOP 0
 #define STATEMACHINE_IMU 1
 
+#define DMA_UPDATE_FREQUENCY 10
+
 #include "main.h"
 #include "AttitudeManager.h"
 #include "InterchipDMA.h"

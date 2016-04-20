@@ -50,11 +50,8 @@ int main(int argc, char** argv) {
     initDebug();
 #endif
 
-pathManagerInit();
 checkErrorCodes();
-
-
-
+pathManagerInit();
     while (1) {
         pathManagerRuntime();
         asm("CLRWDT");

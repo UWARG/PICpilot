@@ -21,11 +21,13 @@ void initialization(int* outputSignal){
     setProgramStatus(UNARMED);
     while (!vehicleArmed){
         imuCommunication();
+        checkDMA();
         asm("CLRWDT");
         writeDatalink(numPacket%3);
         readDatalink();
         inboundBufferMaintenance();
         outboundBufferMaintenance();
+        asm("CLRWDT");
         Delay(200);
         asm("CLRWDT");
         numPacket = (numPacket + 1) % 3;

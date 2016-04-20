@@ -9,11 +9,10 @@
 #define	PATHMANGER_H
 
 //Include
-#include "main.h"
 #include "../Common/Common.h"
 
 //Constants
-
+    
 //In Radians or (90 degrees)
 #define MAX_PATH_APPROACH_ANGLE PI/2 
 

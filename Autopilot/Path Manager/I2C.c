@@ -1,3 +1,4 @@
+#include "../Common/Common.h"
 #include "I2C.h"
 void initI2C()
 {
@@ -25,8 +26,8 @@ void initI2C()
     I2C2CONbits.I2CEN = 1;
 
 //    //Clear bus send stop condition
-//    I2C2CONbits.PEN = 1;
-//    I2CIdle();
+    I2C2CONbits.PEN = 1;
+    I2CIdle();
 
 }
 
@@ -46,7 +47,6 @@ char checkDevicePresence(char devAddress, char reg){
     I2CIdle(); //Wait until acknowledge is sent from the slave
     I2C2TRN = (devAddress << 1) + 1; //Shift and add the read bit(1) - Prep for restart
     I2CIdle(); //Wait until acknowledge is sent from the slave
-
     ///THE MESSAGE FROM THE SLAVE IS SENT HERE
     I2C2CONbits.RCEN = 1; //Enable receive mode
     I2CIdle(); //Wait until all 8 bits have been acquired
@@ -55,8 +55,9 @@ char checkDevicePresence(char devAddress, char reg){
     //Send back a NACK
     I2C2CONbits.ACKDT = 1; //Send NACK
     I2C2CONbits.ACKEN = 1; //Start the acknowledge sequence
-    I2CIdle(); //Wait until done
-
+    if (data){
+        I2CIdle(); //Wait until done
+    }
     if (data){
         connected = 1;
     }

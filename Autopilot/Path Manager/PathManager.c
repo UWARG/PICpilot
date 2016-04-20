@@ -49,18 +49,11 @@ char returnHome = 0;
 char doProbeDrop;
 
 void pathManagerInit(void) {
-#if DEBUG
-    InitUART1();
-#endif
-
 
 
 //Communication with GPS
     init_SPI2();
     init_DMA2();
-//  Hack to power altimeter from UART on PM
-    TRISFbits.TRISF5 = 0;
-    PORTFbits.RF5 = 1;
     initBatterySensor();
     initAirspeedSensor();
 
@@ -88,7 +81,6 @@ void pathManagerInit(void) {
         while (initialValue == 0) initialValue = getAltitude();
         calibrateAltimeter(initialValue);
     }
-
     //Initialize Home Location
     home.altitude = 400;
     home.latitude = RELATIVE_LATITUDE;
@@ -514,20 +506,32 @@ unsigned int insertPathNode(PathData* node, unsigned int previousID, unsigned in
 }
 
 void copyGPSData(){
-    if (newGPSDataAvailable){
-        newGPSDataAvailable = 0;
-        pmData.time = gpsData.time;
-        pmData.longitude = gpsData.longitude;
-        pmData.latitude = gpsData.latitude;
-        pmData.heading = gpsData.heading;
-        pmData.speed = gpsData.speed;
-        pmData.satellites = (char)gpsData.satellites;
-        pmData.positionFix = (char)gpsData.positionFix;
-    }
-    pmData.batteryLevel = getCurrentPercent();
-    pmData.airspeed = getCurrentAirspeed();
-    pmData.altitude = getAltitude(); //gpsData.altitude; //want to get altitude regardless of if there is new GPS data
+//    if (newGPSDataAvailable){
+//        newGPSDataAvailable = 0;
+//        pmData.time = gpsData.time;
+//        pmData.longitude = gpsData.longitude;
+//        pmData.latitude = gpsData.latitude;
+//        pmData.heading = gpsData.heading;
+//        pmData.speed = gpsData.speed;
+//        pmData.satellites = (char)gpsData.satellites;
+//        pmData.positionFix = (char)gpsData.positionFix;
+//    }
+//    pmData.batteryLevel = getCurrentPercent();
+//    pmData.airspeed = getCurrentAirspeed();
+//    pmData.altitude = getAltitude(); //want to get altitude regardless of if there is new GPS data
+//    pmData.checkbyteDMA = generatePMDataDMAChecksum();
+    pmData.time = 0xAA;
+    pmData.longitude = 0xAA;
+    pmData.latitude = 0xAA;
+    pmData.heading = 0xAA;
+    pmData.speed = 0xAA;
+    pmData.satellites = 0xAA;
+    pmData.positionFix = 0xAA;
+    pmData.batteryLevel = 0xAA;
+    pmData.airspeed = 0xAA;
+    pmData.altitude = 0xAA; //want to get altitude regardless of if there is new GPS data
     pmData.checkbyteDMA = generatePMDataDMAChecksum();
+
 }
 
 

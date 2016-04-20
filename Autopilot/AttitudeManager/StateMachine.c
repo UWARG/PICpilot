@@ -8,12 +8,15 @@
 #include "StateMachine.h"
 #include "Probe_Drop.h"
 #include "../Common/debug.h"
+#include "../Common/Common.h"
+#include "main.h"
 
 /*
  * 
  */
 
 //State Machine Triggers (Mostly Timers)
+int dmaTimer = 0;
 int uplinkTimer = 0;
 int downlinkP0Timer = 0;
 int downlinkP1Timer = 0;
@@ -37,11 +40,13 @@ void StateMachine(char entryLocation){
     downlinkP2Timer += dTime;
     stateMachineTimer += dTime;
     imuTimer += dTime;
+    dmaTimer += dTime;
+    
     
     //Clear Watchdog timer
     asm("CLRWDT");
 
-    if(isDMADataAvailable() && checkDMA()){
+    if(DMA_UPDATE_FREQUENCY <= dmaTimer && isDMADataAvailable() && checkDMA()){
         //Input from Controller
         inputCapture();
         //Recalculate all data dependent on any DMA data

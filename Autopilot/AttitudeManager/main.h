@@ -10,13 +10,9 @@
  */
 
 //Include Libraries
-#include <p33FJ256GP710A.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+#include "../Common/Common.h"
 #include "timer.h"
 #include "delay.h"
-#include "../Common/Common.h"
 
 //Turns debug mode on or off. Usually contains small snippets of code to output
 //data through UART or to provide small input adjustments
@@ -43,17 +39,6 @@
 #define COPTER 1
 #define FIXED_WING 0
 #endif
-
-//Define constants for global use in the code
-#define TRUE	0xFF
-#define FALSE	0x00
-
-//Mathematical Constants
-#define PI 3.14159265
-
-//Basic Mathematical Conversions
-#define deg2rad(DEG) ((DEG) * PI/180.0)
-#define rad2deg(RAD) ((RAD) * 180.0/PI)
 
 #if DEBUG
     #include "../Common/debug.h"

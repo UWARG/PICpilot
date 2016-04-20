@@ -224,8 +224,13 @@ char checkDMA(){
     //Transfer data from PATHMANAGER CHIP
     lastNumSatellites = gps_Satellites; //get the last number of satellites
     DMADataAvailable = 0;
-
+//    debug("CHECK");
+    input_AP_Altitude = pmData.altitude;
+//    char str[20];
+//    sprintf(str,"Altitude:%d, Checksum%d",input_AP_Altitude,pmData.checkbyteDMA);
+//    debug(str);
     if (generatePMDataDMAChecksum() == pmData.checkbyteDMA) {
+        debug("CHECKSUM");
         gps_Time = pmData.time;
         input_AP_Altitude = pmData.sp_Altitude;
         gps_Satellites = pmData.satellites;
