@@ -83,10 +83,6 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
 //#endif
 //        }
 //    }
-    int a = 0;
-    for (a = 0; a < sizeof(pmData); a++){
-        UART1_SendChar(*(char*)(&pmData+a));
-    }
     DMADataAvailable = 1;
     IFS0bits.DMA0IF = 0;// Clear the DMA1 Interrupt Flag
 //    IEC0bits.DMA0IE = 1; // Enable DMA0 Interrupts
@@ -109,10 +105,10 @@ void init_DMA0(){
     DMA0CONbits.DIR = 0; //Transfer from SPI to DSPRAM
     DMA0CONbits.AMODE = 0b00; //With post increment mode
     DMA0CONbits.MODE = 0b00; //Transfer continuously
-    DMA0CONbits.SIZE = 0; //Transfer words (16 bits)
+    DMA0CONbits.SIZE = 1; //Transfer byte (8 bits)
     DMA0STA = __builtin_dmaoffset(&pmData); //Primary Transfer Buffer
     DMA0PAD = (volatile unsigned int) &SPI1BUF; //Peripheral Address
-    DMA0CNT = PATH_MANAGER?(sizeof(AMData)/2 + sizeof(AMData) % 2 - 1):(sizeof(PMData)/2 + sizeof(PMData) % 2 - 1); //+1 for checksum //DMA Transfer Count Length
+    DMA0CNT = (sizeof(PMData) - 1); //+1 for checksum //DMA Transfer Count Length
     DMA0REQ = 0x000A;//0b0100001; //IRQ code for SPI1
     DMA0CONbits.CHEN = 1; //Enable the channel
 }
@@ -126,11 +122,11 @@ void init_DMA1(){
     DMA1CONbits.DIR = 1; //Transfer from DSPRAM to SPI
     DMA1CONbits.AMODE = 0b00; //Without post increment mode
     DMA1CONbits.MODE = 0b00; //Transfer continuously, ping ponging between buffers
-    DMA1CONbits.SIZE = 0; //Transfer words (16 bits)
+    DMA1CONbits.SIZE = 1; //Transfer byte (8 bits)
     DMA1STA = __builtin_dmaoffset(&amData); //Primary Transfer Buffer
 
     DMA1PAD = (volatile unsigned int) &SPI1BUF; //Peripheral Address
-    DMA1CNT = PATH_MANAGER?(sizeof(PMData)/2 + sizeof(PMData) % 2 - 1):(sizeof(AMData)/2 + sizeof(AMData) % 2 - 1); //+1 for checksum //DMA Transfer Count Length
+    DMA1CNT = (sizeof(AMData) - 1); //+1 for checksum //DMA Transfer Count Length
     DMA1REQ = 0x000A;//0b0100001; //IRQ code for SPI1
     DMA1CONbits.CHEN = 1; //Enable the channel
 
@@ -150,7 +146,9 @@ void init_SPI1(){
     //Output pins are controlled by this module
     SPI1CON1bits.DISSDO = 0;
     //16/8 bit communication mode (1/0)
-    SPI1CON1bits.MODE16 = 1; //16
+    SPI1CON1bits.MODE16 = 0; //8
+    
+    SPI1CON2bits.FRMEN = 0; // Framed mode disabled
     //Master mode(1)/Slave mode(0)
     SPI1CON1bits.MSTEN = 0; //Slave
     //Enable Slave Select

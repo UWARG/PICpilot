@@ -47,6 +47,7 @@ void StateMachine(char entryLocation){
     asm("CLRWDT");
 
     if(DMA_UPDATE_FREQUENCY <= dmaTimer && isDMADataAvailable() && checkDMA()){
+        dmaTimer = 0;
         //Input from Controller
         inputCapture();
         //Recalculate all data dependent on any DMA data

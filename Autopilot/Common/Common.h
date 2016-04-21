@@ -56,6 +56,7 @@ typedef struct _waypointWrapper{
     char nextId; //For use with insertNode() or operations that require reference to another node
     char previousId; //For use with insertNode() or operations that require reference to another node
     char id;    //Array ID
+    char type; //Regular or probe drop location
 }WaypointWrapper;
 
 typedef struct _PathData{
@@ -69,7 +70,7 @@ typedef struct _PathData{
     char index;
 } PathData;
 
-typedef struct _PMData {
+typedef struct _PMData { //44 Bytes
     float time;     //4 Bytes   -  hhmmss.ssss
     long double latitude;  //8 Bytes - ddd.mmmmmm
     long double longitude; //8 Bytes - ddd.mmmmmm
@@ -87,7 +88,7 @@ typedef struct _PMData {
     char checkbyteDMA;
 } PMData;
 
-typedef struct _AMData {
+typedef struct _AMData { //44 Bytes
     WaypointWrapper waypoint;
     float pathGain;
     float orbitGain;

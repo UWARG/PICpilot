@@ -183,7 +183,7 @@ void attitudeInit() {
      *  *****************************************************************
      */
     //In order: Angular Walk, Angular Rate x 3, Magnetometer x 3, Acceleration x 3
-    float filterVariance[10] = {1e-9, 1e-9, 1e-9, 1e-9, 1, 1, 1, 1e-3, 1e-3, 1e-3}; //  float filterVariance[10] = {1e-10, 1e-6, 1e-6, 1e-6, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2};
+    float filterVariance[10] = {1e-9, 1e-9, 1e-9, 1e-9, 1, 1, 1, 1e-4, 1e-4, 1e-4}; //  float filterVariance[10] = {1e-10, 1e-6, 1e-6, 1e-6, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2};
     VN100_initSPI();
 
     char model[12];
@@ -212,10 +212,7 @@ void attitudeInit() {
     if (checkDataLinkConnection()){
         setSensorStatus(XBEE, SENSOR_INITIALIZED & TRUE);
     }
-    //If the chip resets for whatever reason, unless it was a manual reset, don't go through the arming process
-//    if (getStartupErrorCodes() != 0b11){
-        initialization();
-//    }
+    initialization();
     setProgramStatus(MAIN_EXECUTION);
 }
 
@@ -224,11 +221,11 @@ char checkDMA(){
     //Transfer data from PATHMANAGER CHIP
     lastNumSatellites = gps_Satellites; //get the last number of satellites
     DMADataAvailable = 0;
-//    debug("CHECK");
-    input_AP_Altitude = pmData.altitude;
-//    char str[20];
-//    sprintf(str,"Altitude:%d, Checksum%d",input_AP_Altitude,pmData.checkbyteDMA);
-//    debug(str);
+    gps_Altitude = pmData.altitude;
+    int checkbyte = (int)(pmData.checkbyteDMA);
+    char str[20];
+    sprintf(str,"Altitude:%f, Checksum:%d",gps_Altitude,checkbyte);
+    debug(str);
     if (generatePMDataDMAChecksum() == pmData.checkbyteDMA) {
         debug("CHECKSUM");
         gps_Time = pmData.time;
@@ -244,6 +241,7 @@ char checkDMA(){
         if (gps_Altitude == pmData.altitude && gps_Heading == pmData.heading && gps_GroundSpeed == pmData.speed && gps_Latitude == pmData.latitude && gps_Longitude == pmData.longitude){
             return FALSE;
         }
+        
         gps_Heading = pmData.heading;
         gps_GroundSpeed = pmData.speed * 1000.0/3600.0; //Convert from km/h to m/s
         gps_Longitude = pmData.longitude;
@@ -252,8 +250,27 @@ char checkDMA(){
         if (gps_PositionFix){
             sp_Heading = pmData.sp_Heading;
         }
+        debug("N");
+        return TRUE;
     }
-    return TRUE;
+    else{
+//        INTERCOM_2 = 1;
+        SPI1STATbits.SPIEN = 0; //Disable SPI1
+        DMA0CONbits.CHEN = 0; //Disable DMA0 channel
+        DMA1CONbits.CHEN = 0; //Disable DMA1 channel
+        while(SPI1STATbits.SPIRBF) { //Clear SPI1
+            int dummy = SPI1BUF;
+        }
+//        INTERCOM_2 = 0;
+//        while(INTERCOM_4);
+        init_SPI1(); // Restart SPI
+        init_DMA0(); // Restart DMA0
+        init_DMA1(); // Restart DMA1
+        DMA1REQbits.FORCE = 1;
+        while (DMA1REQbits.FORCE == 1);
+        return FALSE;
+    }
+    
 }
 
 float getAltitude(){

@@ -506,30 +506,19 @@ unsigned int insertPathNode(PathData* node, unsigned int previousID, unsigned in
 }
 
 void copyGPSData(){
-//    if (newGPSDataAvailable){
-//        newGPSDataAvailable = 0;
-//        pmData.time = gpsData.time;
-//        pmData.longitude = gpsData.longitude;
-//        pmData.latitude = gpsData.latitude;
-//        pmData.heading = gpsData.heading;
-//        pmData.speed = gpsData.speed;
-//        pmData.satellites = (char)gpsData.satellites;
-//        pmData.positionFix = (char)gpsData.positionFix;
-//    }
-//    pmData.batteryLevel = getCurrentPercent();
-//    pmData.airspeed = getCurrentAirspeed();
-//    pmData.altitude = getAltitude(); //want to get altitude regardless of if there is new GPS data
-//    pmData.checkbyteDMA = generatePMDataDMAChecksum();
-    pmData.time = 0xAA;
-    pmData.longitude = 0xAA;
-    pmData.latitude = 0xAA;
-    pmData.heading = 0xAA;
-    pmData.speed = 0xAA;
-    pmData.satellites = 0xAA;
-    pmData.positionFix = 0xAA;
-    pmData.batteryLevel = 0xAA;
-    pmData.airspeed = 0xAA;
-    pmData.altitude = 0xAA; //want to get altitude regardless of if there is new GPS data
+    if (newGPSDataAvailable){
+        newGPSDataAvailable = 0;
+        pmData.time = gpsData.time;
+        pmData.longitude = gpsData.longitude;
+        pmData.latitude = gpsData.latitude;
+        pmData.heading = gpsData.heading;
+        pmData.speed = gpsData.speed;
+        pmData.satellites = (char)gpsData.satellites;
+        pmData.positionFix = (char)gpsData.positionFix;
+    }
+    pmData.batteryLevel = getCurrentPercent();
+    pmData.airspeed = getCurrentAirspeed();
+    pmData.altitude = getAltitude(); //want to get altitude regardless of if there is new GPS data
     pmData.checkbyteDMA = generatePMDataDMAChecksum();
 
 }
@@ -604,6 +593,24 @@ void checkAMData(){
             default:
                 break;
         }
+    }
+    else{
+////        INTERCOM_4 = 1;
+////        while(!INTERCOM_2);
+//        SPI1STATbits.SPIEN = 0; //Disable SPI1
+//        DMA0CONbits.CHEN = 0; //Disable DMA0 channel
+//        DMA1CONbits.CHEN = 0; //Disable DMA1 channel
+//        while(SPI1STATbits.SPIRBF) { //Clear SPI1
+//            int dummy = SPI1BUF;
+//        }
+//        // Clear flags
+////        INTERCOM_4 = 0;
+////        while(INTERCOM_2);
+//        init_SPI1(); // Restart SPI
+//        init_DMA0(); // Restart DMA0
+//        init_DMA1(); // Restart DMA1
+//        DMA1REQbits.FORCE = 1;
+//        while (DMA1REQbits.FORCE == 1);
     }
 }
 

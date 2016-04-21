@@ -19,6 +19,9 @@ void initialization(int* outputSignal){
     setPWM(THROTTLE_OUT_CHANNEL, MIN_PWM);
     p_priority numPacket = PRIORITY1;
     setProgramStatus(UNARMED);
+    char str[20];
+    sprintf(str,"AM:%d, PM:%d",sizeof(AMData), sizeof(PMData));
+    debug(str);
     while (!vehicleArmed){
         imuCommunication();
         checkDMA();
