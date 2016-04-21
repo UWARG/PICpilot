@@ -85,12 +85,12 @@
 
 
 //channels
-#define ROLL_IN_CHANNEL 1
-#define ROLL_OUT_CHANNEL 1
-#define PITCH_IN_CHANNEL 2
-#define PITCH_OUT_CHANNEL 2
-#define THROTTLE_IN_CHANNEL 3
-#define THROTTLE_OUT_CHANNEL 3
+#define ROLL_IN_CHANNEL 2
+#define ROLL_OUT_CHANNEL 2
+#define PITCH_IN_CHANNEL 3
+#define PITCH_OUT_CHANNEL 3
+#define THROTTLE_IN_CHANNEL 1
+#define THROTTLE_OUT_CHANNEL 1
 #define YAW_IN_CHANNEL 4
 #define YAW_OUT_CHANNEL 4
 #define FLAP_IN_CHANNEL 5
@@ -99,6 +99,9 @@
 #define PROBE2_OUT_CHANNEL 7
 #define PROBE3_OUT_CHANNEL 8
 
+
+//Misc
+#define COMMAND_HISTORY_SIZE 4
 
 /* FUNCTION PROTOTYPES */
 /*****************************************************************************  

@@ -127,7 +127,8 @@ float scaleFactor = 20; //Change this
 
 char displayGain = 0;
 int controlLevel = 0;
-int lastCommandSentCode = 0;
+int lastCommandSentCode[COMMAND_HISTORY_SIZE];
+int lastCommandCounter = 0;
 
 int headingCounter = 0;
 char altitudeTrigger = 0;
@@ -598,11 +599,13 @@ void readDatalink(void){
     struct command* cmd = popCommand();
     //TODO: Add rudimentary input validation
     if ( cmd ) {
-        if (lastCommandSentCode/100 == cmd->cmd){
+        if (lastCommandSentCode[lastCommandCounter]/100 == cmd->cmd){
             lastCommandSentCode++;
         }
         else{
-            lastCommandSentCode = cmd->cmd * 100;
+            lastCommandCounter++;
+            lastCommandCounter %= COMMAND_HISTORY_SIZE;
+            lastCommandSentCode[lastCommandCounter] = cmd->cmd * 100;
         }
         switch (cmd->cmd) {
             case DEBUG_TEST:             // Debugging command, writes to debug UART
@@ -899,10 +902,10 @@ int writeDatalink(p_priority packet){
             statusData->data.p2_block.pitchKP = getGain(PITCH,GAIN_KP);
             statusData->data.p2_block.yawKD = getGain(YAW,GAIN_KD);
             statusData->data.p2_block.yawKP = getGain(YAW,GAIN_KP);
-            statusData->data.p2_block.lastCommandsSent[0] = lastCommandSentCode;
-            statusData->data.p2_block.lastCommandsSent[1] = 1;
-            statusData->data.p2_block.lastCommandsSent[2] = 2;
-            statusData->data.p2_block.lastCommandsSent[3] = 3;
+            statusData->data.p2_block.lastCommandsSent[0] = lastCommandSentCode[lastCommandCounter];
+            statusData->data.p2_block.lastCommandsSent[1] = lastCommandSentCode[(lastCommandCounter + (COMMAND_HISTORY_SIZE - 1))%COMMAND_HISTORY_SIZE];
+            statusData->data.p2_block.lastCommandsSent[2] = lastCommandSentCode[(lastCommandCounter + (COMMAND_HISTORY_SIZE - 2))%COMMAND_HISTORY_SIZE];
+            statusData->data.p2_block.lastCommandsSent[3] = lastCommandSentCode[(lastCommandCounter + (COMMAND_HISTORY_SIZE - 3))%COMMAND_HISTORY_SIZE];
             statusData->data.p2_block.batteryLevel1 = batteryLevel1;
             statusData->data.p2_block.batteryLevel2 = 100;
 //            debug("SW3");
