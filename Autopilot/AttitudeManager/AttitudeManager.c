@@ -225,7 +225,7 @@ char checkDMA(){
         gps_Time = pmData.time;
         input_AP_Altitude = pmData.sp_Altitude;
         gps_Satellites = pmData.satellites;
-        gps_PositionFix = pmData.positionFix;
+        gps_PositionFix = pmData.positionFix;   
         waypointIndex = pmData.targetWaypoint;
         batteryLevel1 = pmData.batteryLevel;
         waypointCount = pmData.waypointCount;
