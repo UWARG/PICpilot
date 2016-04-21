@@ -507,6 +507,7 @@ unsigned int insertPathNode(PathData* node, unsigned int previousID, unsigned in
 
 void copyGPSData(){
     if (newGPSDataAvailable){
+        debug("YO");
         newGPSDataAvailable = 0;
         pmData.time = gpsData.time;
         pmData.longitude = gpsData.longitude;
@@ -516,6 +517,7 @@ void copyGPSData(){
         pmData.satellites = (char)gpsData.satellites;
         pmData.positionFix = (char)gpsData.positionFix;
     }
+    debug("Yoza");
     pmData.batteryLevel = getCurrentPercent();
     pmData.airspeed = getCurrentAirspeed();
     pmData.altitude = getAltitude(); //want to get altitude regardless of if there is new GPS data

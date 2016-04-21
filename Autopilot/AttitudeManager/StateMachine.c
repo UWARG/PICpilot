@@ -45,7 +45,7 @@ void StateMachine(char entryLocation){
     
     //Clear Watchdog timer
     asm("CLRWDT");
-
+    debug("START");
     if(DMA_UPDATE_FREQUENCY <= dmaTimer && isDMADataAvailable() && checkDMA()){
         dmaTimer = 0;
         //Input from Controller
@@ -66,6 +66,7 @@ void StateMachine(char entryLocation){
         lowLevelControl();
     }
     else if(IMU_UPDATE_FREQUENCY <= imuTimer && entryLocation != STATEMACHINE_IMU){
+        debug("IMU");
         imuTimer = 0;
         //Poll Sensor
         imuCommunication();
@@ -76,24 +77,28 @@ void StateMachine(char entryLocation){
 
     }
     else if(P0_SEND_FREQUENCY <= downlinkP0Timer){
+        debug("P0");
         //Compile and send data
         downlinkP0Timer = 0;
         writeDatalink(PRIORITY0);
         outboundBufferMaintenance();
     }
     else if(P1_SEND_FREQUENCY <= downlinkP1Timer){
+        debug("P1");
         //Compile and send data
         downlinkP1Timer = 0;
         writeDatalink(PRIORITY1);
         outboundBufferMaintenance();
     }
     else if(P2_SEND_FREQUENCY <= downlinkP2Timer || areGainsUpdated()){
+        debug("P2");
         //Compile and send data
         downlinkP2Timer = 0;
         writeDatalink(PRIORITY2);
         outboundBufferMaintenance();
     }
     else if(UPLINK_CHECK_FREQUENCY <= uplinkTimer){
+        debug("P3");
         uplinkTimer = 0;
         readDatalink();
         inboundBufferMaintenance();

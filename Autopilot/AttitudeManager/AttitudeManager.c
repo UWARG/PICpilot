@@ -221,13 +221,7 @@ char checkDMA(){
     //Transfer data from PATHMANAGER CHIP
     lastNumSatellites = gps_Satellites; //get the last number of satellites
     DMADataAvailable = 0;
-    gps_Altitude = pmData.altitude;
-    int checkbyte = (int)(pmData.checkbyteDMA);
-    char str[20];
-    sprintf(str,"Altitude:%f, Checksum:%d",gps_Altitude,checkbyte);
-    debug(str);
     if (generatePMDataDMAChecksum() == pmData.checkbyteDMA) {
-        debug("CHECKSUM");
         gps_Time = pmData.time;
         input_AP_Altitude = pmData.sp_Altitude;
         gps_Satellites = pmData.satellites;
@@ -250,7 +244,6 @@ char checkDMA(){
         if (gps_PositionFix){
             sp_Heading = pmData.sp_Heading;
         }
-        debug("N");
         return TRUE;
     }
     else{

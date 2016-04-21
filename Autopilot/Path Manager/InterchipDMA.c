@@ -153,7 +153,7 @@ void init_SPI2(){
     //Master mode(1)/Slave mode(0)
     SPI2CON1bits.MSTEN = 0; //Slave
     //Enable Slave Select
-    SPI2CON1bits.SSEN = 0;
+    SPI2CON1bits.SSEN = 1;
     //Sample Phase (end/middle)
     SPI2CON1bits.SMP = 0; //Sample the input at the end of the square wave
     //Clock Edge Select
@@ -162,31 +162,34 @@ void init_SPI2(){
     SPI2CON1bits.CKP = 0; //Idle clock state is low, active clock state is high
 
 
-    //Secondary Prescale (The prescale of the prescale)(3 bits)
-    SPI2CON1bits.SPRE = 0; //8:1 prescale
-    //Primary Prescale (The prescale of the clock) (2 bits)
-    SPI2CON1bits.PPRE = 0; //64:1 prescale
-
     //Clear Receive Overflow
     SPI2STATbits.SPIROV = 0;
 
     //Enable SPI
     SPI2STATbits.SPIEN = 1;
 
-    //Then write to the SPI1BUF
+    //Then write to the SPI2BUF
 
 
 }
-    char spiChecksum = 0;
+
+char spiChecksum = 0;
 char GPSDataFlag = 0;
 
 GPSData gpsData __attribute__((space(dma))); //Moved line outside Compiler Statement for a Quick Fix.... Needs to be turned on either wa for both GPS's
 /*
  *
  */
+void __attribute__((__interrupt__,no_auto_psv)) _SPI2Interrupt(void){
+    debug("INT");
+    SPI2STATbits.SPIROV = 0;
+    IFS2bits.SPI2IF = 0;
+    IFS2bits.SPI2EIF = 0;
+}
 
 void __attribute__((__interrupt__, no_auto_psv)) _DMA2Interrupt(void){
     newGPSDataAvailable = 1;
+    debug("INT");
     IFS1bits.DMA2IF = 0;// Clear the DMA2 Interrupt Flag
 }
 void init_DMA2(){
@@ -196,7 +199,7 @@ void init_DMA2(){
     DMA2CONbits.AMODE = 0b00; //Register Indirect Mode
     DMA2CONbits.DIR = 0; //Transfer from SPI to DSPRAM
     DMA2CONbits.MODE = 0b00; //Transfer continuously
-    DMA2CONbits.SIZE = 1; //Transfer bytes (8 bits)
+    DMA2CONbits.SIZE = 0; //Transfer bytes (16 bits)
     DMA2STA = __builtin_dmaoffset(&gpsData); //Primary Transfer Buffer
     DMA2PAD = (volatile unsigned int) &SPI2BUF; //Peripheral Address
     DMA2CNT = sizeof(GPSData) - 1; //+1 for checksum //DMA Transfer Count Length
