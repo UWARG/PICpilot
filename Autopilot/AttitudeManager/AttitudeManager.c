@@ -600,7 +600,7 @@ void readDatalink(void){
     //TODO: Add rudimentary input validation
     if ( cmd ) {
         if (lastCommandSentCode[lastCommandCounter]/100 == cmd->cmd){
-            lastCommandSentCode++;
+            lastCommandSentCode[lastCommandCounter]++;
         }
         else{
             lastCommandCounter++;
@@ -718,10 +718,10 @@ void readDatalink(void){
                 sp_Heading = *(int*)(&cmd->data);
                 break;
             case SET_THROTTLE:
-                input_GS_Throttle = (int)(((long int)(*(int*)(&cmd->data))) * MAX_PWM * 2 / 100) - MAX_PWM;
+                input_GS_Throttle = *(int*)(&cmd->data);//(int)(((long int)(*(int*)(&cmd->data))) * MAX_PWM * 2 / 100) - MAX_PWM;
                 break;
             case SET_FLAP:
-                input_GS_Flap = (int)(((long int)(*(int*)(&cmd->data))) * MAX_PWM * 2 / 100) - MAX_PWM;
+                input_GS_Flap = *(int*)(&cmd->data);//(int)(((long int)(*(int*)(&cmd->data))) * MAX_PWM * 2 / 100) - MAX_PWM;
                 break;
             case SET_AUTONOMOUS_LEVEL:
                 controlLevel = *(int*)(&cmd->data);
@@ -811,6 +811,10 @@ void readDatalink(void){
                 break;
             case RESET_PROBE:
                 resetProbe(*(char*)(&cmd->data));
+                break;
+            case FOLLOW_PATH:
+                //start = 1, start = 0
+                //TODO: Add this here
                 break;
 
             case NEW_WAYPOINT:
@@ -934,12 +938,13 @@ int writeDatalink(p_priority packet){
             statusData->data.p2_block.flapSetpoint = getFlapSetpoint();
             statusData->data.p2_block.cameraStatus = cameraCounter;
             statusData->data.p2_block.wirelessConnection = (input_RC_UHFSwitch < -429) << 1;//+ RSSI;
-            statusData->data.p2_block.autopilotActive = input_RC_Switch1 > 380;
+            statusData->data.p2_block.autopilotActive = getProgramStatus() + ((input_RC_Switch1 > 380) << 7);
+            //statusData->data.p2_block.sensorStat = getSensorStatus(0) + (getSensorStatus(1) << 2);
             statusData->data.p2_block.gpsStatus = gps_Satellites + (gps_PositionFix << 4);
-//            statusData->data.p2_block.pathChecksum =
+            statusData->data.p2_block.pathChecksum = 0;
             statusData->data.p2_block.numWaypoints = waypointCount;
             statusData->data.p2_block.waypointIndex = waypointIndex;
-            //statusData->data.p2_block.following = <true/false>
+            statusData->data.p2_block.pathFollowing = 0; //True or false
             break;
         case PRIORITY2:
             statusData->data.p3_block.rollKI = getGain(ROLL,GAIN_KI);
