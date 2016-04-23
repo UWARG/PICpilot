@@ -17,7 +17,7 @@ extern "C" {
 //TODO: Add descriptions for each function
 void initBatterySensor();
 //float timeRemaining();
-char getCurrentPercent();
+int getBatteryLevel();
 void initVoltageADC();
 
 #ifdef	__cplusplus

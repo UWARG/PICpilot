@@ -34,8 +34,8 @@ void initBatterySensor(){
 //    return time;
 //}
 
-char getCurrentPercent(){
-    percent = (char)((long int)currentVoltage*100/4096);
+int getBatteryLevel(){
+    percent = currentVoltage;
     return percent;
 }
 

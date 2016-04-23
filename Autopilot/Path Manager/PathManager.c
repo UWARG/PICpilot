@@ -47,6 +47,7 @@ char pathCount = 0;
 int lastKnownHeadingHome = 10;
 char returnHome = 0;
 char doProbeDrop;
+char followPath;
 
 void pathManagerInit(void) {
 
@@ -144,7 +145,7 @@ void pathManagerRuntime(void) {
     position[2] = gpsData.altitude;
     heading = (float)gpsData.heading;
 
-    if (returnHome || (pathCount - currentIndex < 1 && pathCount >= 0)){
+    if (returnHome || (followPath && pathCount - currentIndex < 1 && pathCount >= 0)){
         pmData.sp_Heading = lastKnownHeadingHome;
     } else if (pathCount - currentIndex >= 1 && pmData.positionFix > 0) {
         currentIndex = followWaypoints(path[currentIndex], (float*)position, heading, (int*)&pmData.sp_Heading);
@@ -539,7 +540,7 @@ void copyGPSData(){
         pmData.satellites = (char)gpsData.satellites;
         pmData.positionFix = (char)gpsData.positionFix;
     }
-    pmData.batteryLevel = getCurrentPercent();
+    pmData.batteryLevel = getBatteryLevel();
     pmData.airspeed = getCurrentAirspeed();
     pmData.altitude = getAltitude(); //want to get altitude regardless of if there is new GPS data
     pmData.pmOrbitGain = k_gain[ORBIT];
@@ -618,6 +619,9 @@ void checkAMData(){
                 break;
             case PM_CANCEL_RETURN_HOME:
                 returnHome = 0;
+                break;
+           case PM_FOLLOW_PATH:
+                followPath = amData.followPath;
                 break;
 
             case PM_CALIBRATE_ALTIMETER:

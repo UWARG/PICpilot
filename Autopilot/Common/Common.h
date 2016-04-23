@@ -43,6 +43,7 @@
 #define PM_SET_RETURN_HOME_COORDINATES 7
 #define PM_RETURN_HOME 8
 #define PM_CANCEL_RETURN_HOME 9
+#define PM_FOLLOW_PATH 10
 #define PM_CALIBRATE_ALTIMETER 32
 #define PM_SET_PATH_GAIN 64
 #define PM_SET_ORBIT_GAIN 65
@@ -71,7 +72,7 @@ typedef struct _PathData{
     char index;
 } PathData;
 
-typedef struct _PMData { //53 Bytes
+typedef struct _PMData { //54 Bytes
     float time;     //4 Bytes   -  hhmmss.ssss
     long double latitude;  //8 Bytes - ddd.mmmmmm
     long double longitude; //8 Bytes - ddd.mmmmmm
@@ -83,23 +84,23 @@ typedef struct _PMData { //53 Bytes
     int sp_Altitude; // Meters
     int heading;  //Degrees
     int sp_Heading; //Degrees
+    int batteryLevel;
     char satellites;    //1 Byte
     char positionFix;   //0 = No GPS, 1 = GPS fix, 2 = DGSP Fix
     char targetWaypoint;
     char waypointCount;
     char waypointChecksum;
-    char batteryLevel;
     char checkbyteDMA;
 } PMData;
 
-typedef struct _AMData { //53 Bytes
+typedef struct _AMData { //54 Bytes
     WaypointWrapper waypoint;
     float pathGain;
     float orbitGain;
     float calibrationHeight;
     char command;
     char checksum;
-    char padding0;
+    char followPath;
     char padding1;
     char padding2;
     char padding3;
@@ -109,6 +110,7 @@ typedef struct _AMData { //53 Bytes
     char padding7;
     char padding8;
     char padding9;
+    char padding10;
     char checkbyteDMA;
 } AMData;
 
