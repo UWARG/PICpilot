@@ -37,15 +37,15 @@
 #define PM_NEW_WAYPOINT 1
 #define PM_CLEAR_WAYPOINTS 2
 #define PM_INSERT_WAYPOINT 3
-#define PM_REMOVE_WAYPOINT 4
-#define PM_SET_TARGET_WAYPOINT 5
-#define PM_SET_RETURN_HOME_COORDINATES 6
-#define PM_RETURN_HOME 7
-#define PM_CANCEL_RETURN_HOME 8
+#define PM_UPDATE_WAYPOINT 4
+#define PM_REMOVE_WAYPOINT 5
+#define PM_SET_TARGET_WAYPOINT 6
+#define PM_SET_RETURN_HOME_COORDINATES 7
+#define PM_RETURN_HOME 8
+#define PM_CANCEL_RETURN_HOME 9
 #define PM_CALIBRATE_ALTIMETER 32
 #define PM_SET_PATH_GAIN 64
 #define PM_SET_ORBIT_GAIN 65
-
 
 //Structs and typedefs
 typedef struct _waypointWrapper{
@@ -66,17 +66,20 @@ typedef struct _PathData{
     long double latitude;
     float altitude;
     float radius; //Radius of turn
+    char type;
     char id;    //Array ID
     char index;
 } PathData;
 
-typedef struct _PMData { //44 Bytes
+typedef struct _PMData { //53 Bytes
     float time;     //4 Bytes   -  hhmmss.ssss
     long double latitude;  //8 Bytes - ddd.mmmmmm
     long double longitude; //8 Bytes - ddd.mmmmmm
     float speed;    //KM/H
     float altitude;
     float airspeed;
+    float pmPathGain;
+    float pmOrbitGain;
     int sp_Altitude; // Meters
     int heading;  //Degrees
     int sp_Heading; //Degrees
@@ -84,19 +87,29 @@ typedef struct _PMData { //44 Bytes
     char positionFix;   //0 = No GPS, 1 = GPS fix, 2 = DGSP Fix
     char targetWaypoint;
     char waypointCount;
+    char waypointChecksum;
     char batteryLevel;
     char checkbyteDMA;
 } PMData;
 
-typedef struct _AMData { //44 Bytes
+typedef struct _AMData { //53 Bytes
     WaypointWrapper waypoint;
     float pathGain;
     float orbitGain;
     float calibrationHeight;
     char command;
     char checksum;
+    char padding0;
+    char padding1;
+    char padding2;
+    char padding3;
+    char padding4;
+    char padding5;
+    char padding6;
+    char padding7;
+    char padding8;
+    char padding9;
     char checkbyteDMA;
-    char padding;
 } AMData;
 
 char generatePMDataDMAChecksum(void);

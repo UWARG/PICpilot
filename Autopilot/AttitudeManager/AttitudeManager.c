@@ -75,6 +75,8 @@ float gps_Altitude = 0;
 float airspeed = 0;
 char gps_Satellites = 0;
 char gps_PositionFix = 0;
+float pmOrbitGain = 0;
+float pmPathGain = 0;
 char waypointIndex = 0;
 char waypointChecksum = 0;
 char waypointCount = 0;
@@ -231,6 +233,8 @@ char checkDMA(){
         batteryLevel1 = pmData.batteryLevel;
         waypointCount = pmData.waypointCount;
         airspeed = pmData.airspeed;
+        pmOrbitGain = pmData.pmOrbitGain;
+        pmPathGain = pmData.pmPathGain;
 
         //Check if this data is new and requires action or if it is old and redundant
         if (gps_Altitude == pmData.altitude && gps_Heading == pmData.heading && gps_GroundSpeed == pmData.speed && gps_Latitude == pmData.latitude && gps_Longitude == pmData.longitude){
@@ -962,6 +966,8 @@ int writeDatalink(p_priority packet){
             statusData->data.p3_block.flapKD = getGain(FLAP, GAIN_KD);
             statusData->data.p3_block.flapKP = getGain(FLAP, GAIN_KP);
             statusData->data.p3_block.flapKI = getGain(FLAP, GAIN_KI);
+            statusData->data.p3_block.pathGain = pmPathGain;
+            statusData->data.p3_block.orbitGain = pmOrbitGain;
             statusData->data.p3_block.autonomousLevel = controlLevel;
             statusData->data.p3_block.startupErrorCodes = getStartupErrorCodes();
             statusData->data.p3_block.startupSettings = DEBUG + (COPTER << 1); //TODO: put this in the startuperrorCode file

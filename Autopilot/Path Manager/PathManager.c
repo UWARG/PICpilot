@@ -448,6 +448,29 @@ unsigned int appendPathNode(PathData* node){
 
     return node->id;
 }
+
+unsigned int updatePathNode(PathData* node, unsigned int ID){
+    unsigned int nodeIndex = getIndexFromID(ID);
+    if (nodeIndex == -1){
+        return -1;
+    }
+    PathData* currentNode = path[nodeIndex];
+    PathData* previousNode = currentNode->previous;
+    PathData* nextNode = currentNode->next;
+
+    //Reassign pointers to new node
+    node->next = nextNode;
+    node->previous = previousNode;
+    previousNode->next = node;
+    nextNode->previous = node;
+
+    //Destroy old node
+    destroyPathNode(currentNode);
+    currentNode = 0;
+
+    return node->id;
+}
+
 unsigned int removePathNode(unsigned int ID){ //Also attempts to destroys the node.
 
     unsigned int nodeIndex = getIndexFromID(ID);
@@ -519,6 +542,9 @@ void copyGPSData(){
     pmData.batteryLevel = getCurrentPercent();
     pmData.airspeed = getCurrentAirspeed();
     pmData.altitude = getAltitude(); //want to get altitude regardless of if there is new GPS data
+    pmData.pmOrbitGain = k_gain[ORBIT];
+    pmData.pmPathGain = k_gain[PATH];
+    pmData.waypointChecksum = getWaypointChecksum();
     pmData.checkbyteDMA = generatePMDataDMAChecksum();
 
 }
@@ -538,6 +564,7 @@ void checkAMData(){
                 node->latitude = amData.waypoint.latitude;
                 node->longitude = amData.waypoint.longitude;
                 node->radius = amData.waypoint.radius;
+                node->type = amData.waypoint.type;
                 appendPathNode(node);
                 break;
             case PM_CLEAR_WAYPOINTS:
@@ -549,8 +576,18 @@ void checkAMData(){
                 node->latitude = amData.waypoint.latitude;
                 node->longitude = amData.waypoint.longitude;
                 node->radius = amData.waypoint.radius;
+                node->type = amData.waypoint.type;
                 insertPathNode(node,amData.waypoint.previousId,amData.waypoint.nextId);
                 break;
+            case PM_UPDATE_WAYPOINT:
+                node = initializePathNode();
+                node->altitude = amData.waypoint.altitude;
+                node->latitude = amData.waypoint.latitude;
+                node->longitude = amData.waypoint.longitude;
+                node->radius = amData.waypoint.radius;
+                node->type = amData.waypoint.type;
+                updatePathNode(node,amData.waypoint.id);
+               break;
             case PM_REMOVE_WAYPOINT:
                 removePathNode(amData.waypoint.id);
                 break;
@@ -560,6 +597,7 @@ void checkAMData(){
                 node->latitude = gpsData.latitude;
                 node->longitude = gpsData.longitude;
                 node->radius = 1; //Arbitrary value
+                node->type = DEFAULT_WAYPOINT;
                 if (path[getIndexFromID(amData.waypoint.id)] && path[getIndexFromID(amData.waypoint.id)]->previous){
                     insertPathNode(node,path[getIndexFromID(amData.waypoint.id)]->previous->id,amData.waypoint.id);
                     currentIndex = node->index;
@@ -573,6 +611,7 @@ void checkAMData(){
                 home.longitude = amData.waypoint.longitude;
                 home.radius = 1;
                 home.id = -1;
+                home.type = DEFAULT_WAYPOINT;
                 break;
             case PM_RETURN_HOME:
                 returnHome = 1;

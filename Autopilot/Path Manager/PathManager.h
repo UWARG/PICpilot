@@ -23,21 +23,9 @@
 #define PATH 0
 #define ORBIT 1
 
-//Waypoint Management Commands
-#define PM_DEBUG_TEST 0
-#define PM_NEW_WAYPOINT 1
-#define PM_CLEAR_WAYPOINTS 2
-#define PM_INSERT_WAYPOINT 3
-#define PM_REMOVE_WAYPOINT 4
-#define PM_SET_TARGET_WAYPOINT 5
-#define PM_SET_RETURN_HOME_COORDINATES 6
-#define PM_RETURN_HOME 7
-#define PM_CANCEL_RETURN_HOME 8
-#define PM_CALIBRATE_ALTIMETER 32
-#define PM_SET_PATH_GAIN 64
-#define PM_SET_ORBIT_GAIN 65
-#define PM_SET_PROBE_DROP_TARGET 66
-
+//Waypoint types
+#define DEFAULT_WAYPOINT 0
+#define PROBE_DROP_WAYPOINT 1
 
 //Structs and typedefs
 
@@ -58,6 +46,7 @@ PathData* initializePathNode(void);
 unsigned int destroyPathNode(PathData* node);
 PathData* initializePathNodeAndNext(void);
 unsigned int appendPathNode(PathData* node);
+unsigned int updatePathNode(PathData* node, unsigned int ID);
 unsigned int removePathNode(unsigned int ID);
 void clearPathNodes(void);
 unsigned int insertPathNode(PathData* node, unsigned int previousID, unsigned int nextID);
