@@ -152,8 +152,8 @@ void init_SPI2(){
     SPI2CON1bits.MODE16 = 1; //16
     //Master mode(1)/Slave mode(0)
     SPI2CON1bits.MSTEN = 0; //Slave
-    //Enable Slave Select
-    SPI2CON1bits.SSEN = 1;
+    //Disable Slave Select
+    SPI2CON1bits.SSEN = 0;
     //Sample Phase (end/middle)
     SPI2CON1bits.SMP = 0; //Sample the input at the end of the square wave
     //Clock Edge Select
@@ -167,6 +167,7 @@ void init_SPI2(){
 
     //Enable SPI
     SPI2STATbits.SPIEN = 1;
+//    IEC2bits.SPI2IE = 1;
 
     //Then write to the SPI2BUF
 
@@ -181,7 +182,6 @@ GPSData gpsData __attribute__((space(dma))); //Moved line outside Compiler State
  *
  */
 void __attribute__((__interrupt__,no_auto_psv)) _SPI2Interrupt(void){
-    debug("INT");
     SPI2STATbits.SPIROV = 0;
     IFS2bits.SPI2IF = 0;
     IFS2bits.SPI2EIF = 0;
@@ -189,7 +189,6 @@ void __attribute__((__interrupt__,no_auto_psv)) _SPI2Interrupt(void){
 
 void __attribute__((__interrupt__, no_auto_psv)) _DMA2Interrupt(void){
     newGPSDataAvailable = 1;
-    debug("INT");
     IFS1bits.DMA2IF = 0;// Clear the DMA2 Interrupt Flag
 }
 void init_DMA2(){
@@ -199,7 +198,7 @@ void init_DMA2(){
     DMA2CONbits.AMODE = 0b00; //Register Indirect Mode
     DMA2CONbits.DIR = 0; //Transfer from SPI to DSPRAM
     DMA2CONbits.MODE = 0b00; //Transfer continuously
-    DMA2CONbits.SIZE = 0; //Transfer bytes (16 bits)
+    DMA2CONbits.SIZE = 1; //Transfer bytes (8 bits)
     DMA2STA = __builtin_dmaoffset(&gpsData); //Primary Transfer Buffer
     DMA2PAD = (volatile unsigned int) &SPI2BUF; //Peripheral Address
     DMA2CNT = sizeof(GPSData) - 1; //+1 for checksum //DMA Transfer Count Length
