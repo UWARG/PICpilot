@@ -18,6 +18,10 @@
 #define MAX_PITCH_ANGLE 20
 #define MAX_SPEED 17.0 // ???m/s
 
+//Define directionality of heading to roll and altitude to pitch
+#define HEADING_TO_ROLL_DIRECTION -1
+#define ALTITUDE_TO_PITCH_DIRECTION -1
+
 // A scaling factor used in the PID control loops
 #define SERVO_SCALE_FACTOR (-MAX_PWM / 45.0)
 #define ALTITUDE_PITCH_SCALE_FACTOR 1 //0.1 degrees per meter in altitude change
@@ -224,5 +228,5 @@ float getGain(unsigned char YPR, unsigned char type);
 
 void setGain(unsigned char YPR, unsigned char type, float value);
 char areGainsUpdated();
-
+void forceGainUpdate();
 

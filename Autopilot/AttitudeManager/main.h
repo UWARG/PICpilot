@@ -26,6 +26,9 @@
 #define PATH_MANAGER 0
 #define ATTITUDE_MANAGER !PATH_MANAGER
 
+//Define this for competition, includes higher restrictions for safety
+#define COMP_MODE 0
+
 /* CHANGE THIS HEADER FILE WHEN MODIFYING THIS FOR A NEW PLANE OR VEHICLE */
 #define ANACONDA_VEHICLE 1
 #define QUAD_VEHICLE 0

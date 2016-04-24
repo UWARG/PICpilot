@@ -27,7 +27,7 @@ extern char DMADataAvailable;
 
 long int lastTime = 0;
 long int heartbeatTimer = 0;
-long int UHFSafetyTimer = 0;
+long int UHFTimer = 0;
 long int gpsTimer = 0;
 
 float* velocityComponents;
@@ -79,6 +79,7 @@ float pmOrbitGain = 0;
 float pmPathGain = 0;
 char waypointIndex = 0;
 char waypointChecksum = 0;
+char pathFollowing = 0;
 char waypointCount = 0;
 char batteryLevel1 = 0;
 
@@ -119,8 +120,10 @@ int input_GS_RollRate = 0;
 int input_GS_PitchRate = 0;
 int input_GS_YawRate = 0;
 int input_GS_Altitude = 0;
+int input_GS_Heading = 0;
 
 int input_AP_Altitude = 0;
+int input_AP_Heading = 0;
 
 //PID Global Variable Storage Values
 int rollPID, pitchPID, throttlePID, yawPID, flapPID;
@@ -232,6 +235,8 @@ char checkDMA(){
         waypointIndex = pmData.targetWaypoint;
         batteryLevel1 = pmData.batteryLevel;
         waypointCount = pmData.waypointCount;
+        waypointChecksum = pmData.waypointChecksum;
+        pathFollowing = pmData.pathFollowing;
         airspeed = pmData.airspeed;
         pmOrbitGain = pmData.pmOrbitGain;
         pmPathGain = pmData.pmPathGain;
@@ -247,7 +252,7 @@ char checkDMA(){
         gps_Latitude = pmData.latitude;
         gps_Altitude = pmData.altitude;
         if (gps_PositionFix){
-            sp_Heading = pmData.sp_Heading;
+            input_AP_Heading = pmData.sp_Heading;
         }
         return TRUE;
     }
@@ -479,6 +484,17 @@ int getAltitudeInput(char source){
         return 0;
 }
 
+int getHeadingInput(char source){
+    if (source == HEADING_GS_SOURCE){
+        return input_GS_Heading;
+    }
+    else if (source == HEADING_AP_SOURCE){
+        return input_AP_Heading;
+    }
+    else
+        return 0;
+}
+
 void setKValues(int type,float* values){
     int Kchannel[7] = {YAW, PITCH, ROLL, HEADING, ALTITUDE, THROTTLE, FLAP};
     int i;
@@ -521,7 +537,7 @@ void imuCommunication(){
 
 int altitudeControl(int setpoint, int sensorAltitude){
     //Altitude
-    ctrl_PitchAngle = controlSignalAltitude(setpoint, sensorAltitude);
+    ctrl_PitchAngle = controlSignalAltitude(setpoint, sensorAltitude) * ALTITUDE_TO_PITCH_DIRECTION; //TODO: Add -1 as a variable to flip directions
     if (ctrl_PitchAngle > MAX_PITCH_ANGLE)
         ctrl_PitchAngle = MAX_PITCH_ANGLE;
     if (ctrl_PitchAngle < -MAX_PITCH_ANGLE)
@@ -550,7 +566,7 @@ int headingControl(int setpoint, int sensor){
         setpoint += 360;
 
     setHeadingSetpoint(setpoint);
-    ctrl_Heading = controlSignalHeading(setpoint, sensor);//gps_Satellites>=4?gps_Heading:(int)imu_YawAngle); //changed to monitor satellites, since we know these are good values while PositionFix might be corrupt...
+    ctrl_Heading = controlSignalHeading(setpoint, sensor) * HEADING_TO_ROLL_DIRECTION;//gps_Satellites>=4?gps_Heading:(int)imu_YawAngle); //changed to monitor satellites, since we know these are good values while PositionFix might be corrupt...
     //Approximating Roll angle from Heading
     sp_RollAngle = ctrl_Heading;      //TODO: HOW IS HEADING HANDLED DIFFERENTLY BETWEEN QUADS AND PLANES
 
@@ -719,7 +735,7 @@ void readDatalink(void){
                 input_GS_Altitude = *(int*)(&cmd->data);
                 break;
             case SET_HEADING:
-                sp_Heading = *(int*)(&cmd->data);
+                input_GS_Heading = *(int*)(&cmd->data);
                 break;
             case SET_THROTTLE:
                 input_GS_Throttle = *(int*)(&cmd->data);//(int)(((long int)(*(int*)(&cmd->data))) * MAX_PWM * 2 / 100) - MAX_PWM;
@@ -729,6 +745,7 @@ void readDatalink(void){
                 break;
             case SET_AUTONOMOUS_LEVEL:
                 controlLevel = *(int*)(&cmd->data);
+                forceGainUpdate();
                 break;
             case SET_ANGULAR_WALK_VARIANCE:
                 setAngularWalkVariance(*(float*)(&cmd->data));
@@ -793,11 +810,11 @@ void readDatalink(void){
                 break;
             case KILL_PLANE:
                 if (*(int*)(&cmd->data) == 1234)
-//                    killingPlane = 1;
+                    killPlane(TRUE);
                 break;
             case UNKILL_PLANE:
                 if (*(int*)(&cmd->data) == 1234)
-//                    killingPlane = 0;
+                    killPlane(FALSE);
                 break;
             case LOCK_GOPRO:
                     lockGoPro(*(int*)(&cmd->data));
@@ -817,8 +834,10 @@ void readDatalink(void){
                 resetProbe(*(char*)(&cmd->data));
                 break;
             case FOLLOW_PATH:
-                //start = 1, start = 0
-                //TODO: Add this here
+                amData.command = PM_FOLLOW_PATH;
+                amData.followPath = *(char*)(&cmd->data);
+                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checksum = generateAMDataChecksum(&amData);
                 break;
 
             case NEW_WAYPOINT:
@@ -839,6 +858,15 @@ void readDatalink(void){
                 amData.waypoint.nextId = (*(WaypointWrapper*)(&cmd->data)).nextId;
                 amData.waypoint.previousId = (*(WaypointWrapper*)(&cmd->data)).previousId;
                 amData.command = PM_INSERT_WAYPOINT;
+                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checksum = generateAMDataChecksum(&amData);
+                break;
+            case UPDATE_WAYPOINT:
+                amData.waypoint.altitude = (*(WaypointWrapper*)(&cmd->data)).altitude;
+                amData.waypoint.latitude = (*(WaypointWrapper*)(&cmd->data)).latitude;
+                amData.waypoint.longitude = (*(WaypointWrapper*)(&cmd->data)).longitude;
+                amData.waypoint.radius = (*(WaypointWrapper*)(&cmd->data)).radius;
+                amData.command = PM_UPDATE_WAYPOINT;
                 amData.checkbyteDMA = generateAMDataDMAChecksum();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
@@ -941,14 +969,14 @@ int writeDatalink(p_priority packet){
             statusData->data.p2_block.altitudeSetpoint = getAltitudeSetpoint();
             statusData->data.p2_block.flapSetpoint = getFlapSetpoint();
             statusData->data.p2_block.cameraStatus = cameraCounter;
-            statusData->data.p2_block.wirelessConnection = (input_RC_UHFSwitch < -429) << 1;//+ RSSI;
-            statusData->data.p2_block.autopilotActive = getProgramStatus() + ((input_RC_Switch1 > 380) << 7);
+            statusData->data.p2_block.wirelessConnection = ((input_RC_UHFSwitch < -429) << 1) + (input_RC_Switch1 > 380);//+ RSSI;
+            statusData->data.p2_block.autopilotActive = getProgramStatus();
             //statusData->data.p2_block.sensorStat = getSensorStatus(0) + (getSensorStatus(1) << 2);
             statusData->data.p2_block.gpsStatus = gps_Satellites + (gps_PositionFix << 4);
-            statusData->data.p2_block.pathChecksum = 0;
+            statusData->data.p2_block.pathChecksum = waypointChecksum;
             statusData->data.p2_block.numWaypoints = waypointCount;
             statusData->data.p2_block.waypointIndex = waypointIndex;
-            statusData->data.p2_block.pathFollowing = 0; //True or false
+            statusData->data.p2_block.pathFollowing = pathFollowing; //True or false
             break;
         case PRIORITY2:
             statusData->data.p3_block.rollKI = getGain(ROLL,GAIN_KI);
@@ -987,6 +1015,40 @@ int writeDatalink(p_priority packet){
     return 0;
 
 }
+
+void checkUHFStatus(){
+    if (input_RC_UHFSwitch > 429 && input_RC_UHFSwitch < 440){
+        setProgramStatus(KILL_MODE_WARNING);
+        if (getTime() - UHFTimer > UHF_KILL_TIMEOUT){
+            killPlane(TRUE);
+        }
+    }
+
+}
+
+void checkHeartbeat(){
+    if (getTime() - heartbeatTimer > HEARTBEAT_TIMEOUT){
+        setProgramStatus(KILL_MODE_WARNING);
+        amData.command = PM_RETURN_HOME;
+        amData.checksum = generateAMDataChecksum();
+    }
+    else if (getTime() - heartbeatTimer > HEARTBEAT_KILL_TIMEOUT){
+        killPlane(TRUE);
+    }
+}
+
+void checkGPS(){
+    if (gps_PositionFix == 0){
+        setProgramStatus(KILL_MODE_WARNING);
+        if (getTime() - gpsTimer > GPS_TIMEOUT){
+            killPlane(TRUE);
+        }
+    }
+    else{
+        gpsTimer = getTime();
+    }
+}
+
 
 void adjustVNOrientationMatrix(float* adjustment){
 

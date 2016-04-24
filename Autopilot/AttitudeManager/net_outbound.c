@@ -16,13 +16,20 @@ struct telem_block *debugTelemetry;
 
 struct telem_buffer stagingBuffer;
 
+int packetCounter = 0;
+
 const unsigned int PACKET_LENGTH = API_HEADER_LENGTH + sizeof(struct telem_block) + 1;
 
 // Create a telem block returns null if fails
 struct telem_block *createTelemetryBlock(p_priority packet) {
     struct telem_block *telem = malloc(sizeof (struct telem_block));
     *(int *)(&(telem->type)) = packet;
+    packetCounter++;
     return telem;
+}
+
+int packetCount(){
+    return packetCounter;
 }
 
 // Create a telemetry block to use for debugging, only creates one instance
@@ -125,6 +132,7 @@ struct telem_block *getDebugTelemetryBlock(p_priority packet) {
 void destroyTelemetryBlock(struct telem_block *telem) {
     free(telem);
     telem = 0;
+    packetCounter--;
 }
 
 // Add a telem_block to the outbound telemetry queue

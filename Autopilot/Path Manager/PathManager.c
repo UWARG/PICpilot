@@ -546,6 +546,7 @@ void copyGPSData(){
     pmData.pmOrbitGain = k_gain[ORBIT];
     pmData.pmPathGain = k_gain[PATH];
     pmData.waypointChecksum = getWaypointChecksum();
+    pmData.pathFollowing = followPath;
     pmData.checkbyteDMA = generatePMDataDMAChecksum();
 
 }

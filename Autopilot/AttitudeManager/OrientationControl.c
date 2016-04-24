@@ -145,3 +145,7 @@ char areGainsUpdated(){
     }
     return 0;
 }
+
+void forceGainUpdate(){
+    gainsUpdated = 1;
+}

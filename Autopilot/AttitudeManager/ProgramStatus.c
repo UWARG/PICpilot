@@ -62,8 +62,11 @@ void setProgramStatus(int status){
         debug("Motor Startup Procedure Complete");
         debug("Autopilot Running...");
     }
-    elseif (status == KILL_MODE){
-        debug("I am attempting to destroy myself.");
+    else if (status == WAITING_TO_DIE_MODE){
+        debug("I am contemplating suicide.");
+    }
+    else if (status == KILL_MODE){
+        debug("I am attempting to destroy myself now.");
     }
 
 #endif

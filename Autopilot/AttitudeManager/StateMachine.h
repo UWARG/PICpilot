@@ -28,6 +28,7 @@ extern "C" {
     void highLevelControl();
     void lowLevelControl();
     void forceStateMachineUpdate();
+    void killPlane(char action);
 
 #ifdef	__cplusplus
 }
