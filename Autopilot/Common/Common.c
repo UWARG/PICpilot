@@ -13,11 +13,15 @@ char generatePMDataDMAChecksum(void) {
     return 0xAA;
 }
 
+char generateAMDataDMACheckbyte(void){
+    return 0xAB;
+}
+
 char generateAMDataChecksum(AMData* data){
     char checksum = 0;
     int i = 0;
     //Two checksums and padding = 3 bytes
-    for (i = 0; i < sizeof(AMData) - 3; i++){
+    for (i = 0; i < sizeof(AMData) - 2; i++){
         checksum += ((char*)data)[i];
     }
     return checksum;

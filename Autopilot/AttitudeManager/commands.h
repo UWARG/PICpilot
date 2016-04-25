@@ -66,6 +66,7 @@
 #define SET_FLAP_KI_GAIN 55
 #define DROP_PROBE 56
 #define RESET_PROBE 57
+#define FOLLOW_PATH 58
 
 //Multipart Commands
 #define NEW_WAYPOINT 128
@@ -76,6 +77,7 @@
 #define SET_KDVALUES 133
 #define SET_KPVALUES 134
 #define SET_KIVALUES 135
+#define UPDATE_WAYPOINT 136
 
 //Multipart Command Structs
 typedef struct _newwaypointwrapper {

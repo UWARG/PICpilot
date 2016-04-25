@@ -19,13 +19,18 @@ void initialization(int* outputSignal){
     setPWM(THROTTLE_OUT_CHANNEL, MIN_PWM);
     p_priority numPacket = PRIORITY1;
     setProgramStatus(UNARMED);
+//    char str[20];
+//    sprintf(str,"AM:%d, PM:%d",sizeof(AMData), sizeof(PMData));
+//    debug(str);
     while (!vehicleArmed){
         imuCommunication();
+        checkDMA();
         asm("CLRWDT");
         writeDatalink(numPacket%3);
         readDatalink();
         inboundBufferMaintenance();
         outboundBufferMaintenance();
+        asm("CLRWDT");
         Delay(200);
         asm("CLRWDT");
         numPacket = (numPacket + 1) % 3;
@@ -76,13 +81,13 @@ void landing(){
 }
 
 void inputMixing(int* channels, int* rollRate, int* pitchRate, int* throttle, int* yawRate, int* flap){
-        if (getControlPermission(ROLL_CONTROL_SOURCE, ROLL_RC_SOURCE,0)){
+        if (getControlPermission(ROLL_CONTROL_SOURCE, ROLL_RC_SOURCE,ROLL_CONTROL_SOURCE_SHIFT)){
             (*rollRate) = channels[0];
         }
-        if (getControlPermission(THROTTLE_CONTROL_SOURCE, THROTTLE_RC_SOURCE,0))
+        if (getControlPermission(THROTTLE_CONTROL_SOURCE, THROTTLE_RC_SOURCE,THROTTLE_CONTROL_SOURCE_SHIFT))
             (*throttle) = (channels[2]);
         
-        if (getControlPermission(FLAP_CONTROL_SOURCE, FLAP_RC_SOURCE,0))
+        if (getControlPermission(FLAP_CONTROL_SOURCE, FLAP_RC_SOURCE,FLAP_CONTROL_SOURCE_SHIFT))
             (*flap) = channels[FLAP_IN_CHANNEL-1];
 
 

@@ -85,12 +85,12 @@
 
 
 //channels
-#define ROLL_IN_CHANNEL 2
-#define ROLL_OUT_CHANNEL 2
-#define PITCH_IN_CHANNEL 3
-#define PITCH_OUT_CHANNEL 3
-#define THROTTLE_IN_CHANNEL 1
-#define THROTTLE_OUT_CHANNEL 1
+#define ROLL_IN_CHANNEL 1
+#define ROLL_OUT_CHANNEL 1
+#define PITCH_IN_CHANNEL 2
+#define PITCH_OUT_CHANNEL 2
+#define THROTTLE_IN_CHANNEL 3
+#define THROTTLE_OUT_CHANNEL 3
 #define YAW_IN_CHANNEL 4
 #define YAW_OUT_CHANNEL 4
 #define FLAP_IN_CHANNEL 5
@@ -159,6 +159,7 @@ int getRollRateInput(char source);
 int getThrottleInput(char source);
 int getFlapInput(char source);
 int getAltitudeInput(char source);
+int getHeadingInput(char source);
 void imuCommunication();
 int altitudeControl(int setpoint, int sensorAltitude);
 int throttleControl(int setpoint, int sensor);
@@ -205,6 +206,9 @@ void readDatalink(void);
  *****************************************************************************/
 int writeDatalink(p_priority packet);
 
+void checkHeartbeat();
+void checkGPS();
+
 /*****************************************************************************
  * Function: void adjustVNOrientationMatrix(float* adjustment);
  *
@@ -244,7 +248,6 @@ void setAngularWalkVariance(float variance);
 void setGyroVariance(float variance);
 void setMagneticVariance(float variance);
 void setAccelVariance(float variance);
-char generateAMDataDMAChecksum(void);
 
 
 #endif	/* ATTITUDEMANAGER_H */

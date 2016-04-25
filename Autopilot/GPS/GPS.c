@@ -53,7 +53,7 @@
  *
  **********************************************************************/
 
-#include <p24F16KA101.h>
+#include "p24F16KA101.h"
 #include "uart2.h"
 #include "i2c.h"
 #include <math.h>
@@ -156,9 +156,9 @@ char positionFix = 0;
 void Init(void);
 int configGPS(void);
 int identifyString(char *stringArray);
+char readGPSData(void);
 int ParseGGA(void);
 int ParseVTG(void);
-char readGPSData(void);
 void processData(void);
 void writeDataToDebugPort(void);
 char HexConvert(unsigned char ascciSymbol);
@@ -218,7 +218,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
 
         //Identify the packet type once the header has been read
         if (byteCount == 5) {
-            stringType = identifyString((char*)&headerData);
+            stringType = identifyString(&headerData);
         }
         byteCount++;
     }
@@ -231,14 +231,14 @@ void Init(void) {
     ODCAbits.ODA6 = 0; // for diagnostic/debuging LED and input
     TRISAbits.TRISA6 = 0; //led
     AD1PCFG = 0xFFFF; //use inputs in digital mode
-//
+
     U2STA = 0; //setup uart 2 - output
     U2MODE = 0x8000; //8 bit, one stop, no parity
-    U2BRG = 8; //set baud to 115200
+    U2BRG = 8; //set baud to 115200 64100
 
     U1STA = 0; //setup uart 1 - gps d33322
     U1MODE = 0x8000; //8 bit, one stop, no parity
-    U1BRG = 103;//8; //set baud to 25 = 38400 (8 = 115200) (103 = 9600[DEFAULT])
+    U1BRG = 8; //set baud to 25 = 38400 (8 = 115200) (103 = 9600[DEFAULT])
 
     U2STAbits.UTXEN = 1;
     U2MODEbits.UARTEN = 1; //enable uarts and tx ouputs
@@ -266,9 +266,8 @@ void Init(void) {
     SPI1CON1bits.CKP = 0; // Idle state for clock is a low level; active
     // state is a high level
 //    SPI1CON1bits.SSEN = 1;	// Enable slave select pin - don't uncomment this UART won't work
-    //Total speed is 500kHz according to the scalers
-    SPI1CON1bits.SPRE = 0b110; // 1:2 scaler
-    SPI1CON1bits.PPRE = 0b01; // 1:16 scaler
+    SPI1CON1bits.SPRE = 0b110;
+    SPI1CON1bits.PPRE = 0b01;
     SPI1CON1bits.MSTEN = 1; // Master mode Enabled
     SPI1STATbits.SPIROV = 0; // SPI recieve overflow
     SPI1STATbits.SPIEN = 1; // Enable SPI module
@@ -719,7 +718,8 @@ void writeDataToDebugPort(void) {
 
 void transmitData(void) {
     int i;
-    char *dataGPS = (char*)&gpsData;
+    char *dataGPS = &gpsData;
+    char spiChecksum = 0;
 
     
     PORTBbits.RB15 = 0; //slave enabled
@@ -913,13 +913,21 @@ int main(void) {
     Delay_ms(2000);		//allow GPS processor to start before trying to program
     configGPS(); //configure gps if battery was removed
     while (1) {
-
+//        int i = 0;
+//        for (i = 0; i < 6; i++) {
+//            if (rawHeading[i] == 0x10){
+//               while (U2STAbits.UTXBF == 1) {;}
+//            U2TXREG = gpsData.heading;
+//            }
+//            else{ while (U2STAbits.UTXBF == 1) {;}
+//            U2TXREG = rawHeading[i] + 48;}
+//        }
+//                        i++;
         if (newData){
             if (readGPSData()) {
                 convertData();
             }
-            //writeDataToDebugPort();
-
+//            writeDataToDebugPort();
             transmitData();	//to SPI
             newData = 0;
         }

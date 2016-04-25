@@ -9,16 +9,15 @@
 extern "C" {
 #endif
 
-#define P0_SEND_FREQUENCY 50 //Time in miliseconds
+#define P0_SEND_FREQUENCY 250 //Time in miliseconds
 #define P1_SEND_FREQUENCY 1000 //Time in milliseconds
 #define P2_SEND_FREQUENCY 20000 //Time in milliseconds
 #define UPLINK_CHECK_FREQUENCY 100 //Time in milliseconds
 
 #define BLOCKING_MODE 0
 
-#define OUTBOUND_QUEUE_SIZE 20
+#define OUTBOUND_QUEUE_SIZE 30
 #define INBOUND_QUEUE_SIZE 100
-#define MAX_PACKET_SIZE 20
 
 #define EDIT_NONE 0
 #define EDIT_PITCH_GAIN 1
@@ -39,12 +38,12 @@ extern "C" {
 #define RAW_PACKET_BUFFER_SIZE 16   // Number of buffer regions to allow for incoming commands
 
 #define HEARTBEAT_TIMEOUT 10000 //In Milliseconds
-
+    
 #define GPS_TIMEOUT 30000 //In Milliseconds
 
 #define HEARTBEAT_KILL_TIMEOUT 120000 //In Milliseconds
 
-#define UHF_KILL_TIMEOUT_FAST 10000
+#define UHF_KILL_TIMEOUT 10000
 
 typedef enum _p_priority {
     PRIORITY0 = 0,
@@ -140,6 +139,8 @@ struct telem_block *getDebugTelemetryBlock(p_priority packet);
 
 // Create a telem block returns null if fails
 struct telem_block *createTelemetryBlock(p_priority packet);
+
+int packetCount();
 // Destroy a dataBlock
 void destroyTelemetryBlock(struct telem_block *data);
 

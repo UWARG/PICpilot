@@ -26,6 +26,9 @@ extern "C" {
 #define UNARMED 1
 #define ARMING 2
 #define MAIN_EXECUTION 3
+#define KILL_MODE_WARNING 4
+#define WAITING_TO_DIE_MODE KILL_MODE_WARNING
+#define KILL_MODE 5
 
 /* Function Prototypes */
 

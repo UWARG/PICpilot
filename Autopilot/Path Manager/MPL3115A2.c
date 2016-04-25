@@ -22,7 +22,7 @@ char initAltimeter() {
     }
     else{
 #if DEBUG
-        warning("Altimeter Device Not Connected!");
+        debug("Altimeter Device Not Connected!");
 #endif
     }
     return altimeterConnected;

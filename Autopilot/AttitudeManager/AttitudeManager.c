@@ -27,7 +27,7 @@ extern char DMADataAvailable;
 
 long int lastTime = 0;
 long int heartbeatTimer = 0;
-long int UHFSafetyTimer = 0;
+long int UHFTimer = 0;
 long int gpsTimer = 0;
 
 float* velocityComponents;
@@ -75,8 +75,11 @@ float gps_Altitude = 0;
 float airspeed = 0;
 char gps_Satellites = 0;
 char gps_PositionFix = 0;
+float pmOrbitGain = 0;
+float pmPathGain = 0;
 char waypointIndex = 0;
 char waypointChecksum = 0;
+char pathFollowing = 0;
 char waypointCount = 0;
 char batteryLevel1 = 0;
 
@@ -117,8 +120,10 @@ int input_GS_RollRate = 0;
 int input_GS_PitchRate = 0;
 int input_GS_YawRate = 0;
 int input_GS_Altitude = 0;
+int input_GS_Heading = 0;
 
 int input_AP_Altitude = 0;
+int input_AP_Heading = 0;
 
 //PID Global Variable Storage Values
 int rollPID, pitchPID, throttlePID, yawPID, flapPID;
@@ -153,7 +158,7 @@ void attitudeInit() {
     TRISDbits.TRISD14 = 0;
     LATDbits.LATD14 = 0;
 
-    amData.checkbyteDMA = generateAMDataDMAChecksum();
+    amData.checkbyteDMA = generateAMDataDMACheckbyte();
 
     //Initialize Interchip Interrupts for Use in DMA Reset
     //Set opposite Input / Output Configuration on the PathManager
@@ -184,7 +189,7 @@ void attitudeInit() {
      *  *****************************************************************
      */
     //In order: Angular Walk, Angular Rate x 3, Magnetometer x 3, Acceleration x 3
-    float filterVariance[10] = {1e-9, 1e-9, 1e-9, 1e-9, 1, 1, 1, 1e-3, 1e-3, 1e-3}; //  float filterVariance[10] = {1e-10, 1e-6, 1e-6, 1e-6, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2};
+    float filterVariance[10] = {1e-9, 1e-9, 1e-9, 1e-9, 1, 1, 1, 1e-4, 1e-4, 1e-4}; //  float filterVariance[10] = {1e-10, 1e-6, 1e-6, 1e-6, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2};
     VN100_initSPI();
 
     char model[12];
@@ -213,10 +218,7 @@ void attitudeInit() {
     if (checkDataLinkConnection()){
         setSensorStatus(XBEE, SENSOR_INITIALIZED & TRUE);
     }
-    //If the chip resets for whatever reason, unless it was a manual reset, don't go through the arming process
-//    if (getStartupErrorCodes() != 0b11){
-        initialization();
-//    }
+    initialization();
     setProgramStatus(MAIN_EXECUTION);
 }
 
@@ -225,31 +227,53 @@ char checkDMA(){
     //Transfer data from PATHMANAGER CHIP
     lastNumSatellites = gps_Satellites; //get the last number of satellites
     DMADataAvailable = 0;
-
     if (generatePMDataDMAChecksum() == pmData.checkbyteDMA) {
         gps_Time = pmData.time;
         input_AP_Altitude = pmData.sp_Altitude;
         gps_Satellites = pmData.satellites;
-        gps_PositionFix = pmData.positionFix;
+        gps_PositionFix = pmData.positionFix;   
         waypointIndex = pmData.targetWaypoint;
         batteryLevel1 = pmData.batteryLevel;
         waypointCount = pmData.waypointCount;
+        waypointChecksum = pmData.waypointChecksum;
+        pathFollowing = pmData.pathFollowing;
         airspeed = pmData.airspeed;
+        pmOrbitGain = pmData.pmOrbitGain;
+        pmPathGain = pmData.pmPathGain;
 
         //Check if this data is new and requires action or if it is old and redundant
         if (gps_Altitude == pmData.altitude && gps_Heading == pmData.heading && gps_GroundSpeed == pmData.speed && gps_Latitude == pmData.latitude && gps_Longitude == pmData.longitude){
             return FALSE;
         }
+        
         gps_Heading = pmData.heading;
         gps_GroundSpeed = pmData.speed * 1000.0/3600.0; //Convert from km/h to m/s
         gps_Longitude = pmData.longitude;
         gps_Latitude = pmData.latitude;
         gps_Altitude = pmData.altitude;
         if (gps_PositionFix){
-            sp_Heading = pmData.sp_Heading;
+            input_AP_Heading = pmData.sp_Heading;
         }
+        return TRUE;
     }
-    return TRUE;
+    else{
+//        INTERCOM_2 = 1;
+        SPI1STATbits.SPIEN = 0; //Disable SPI1
+        DMA0CONbits.CHEN = 0; //Disable DMA0 channel
+        DMA1CONbits.CHEN = 0; //Disable DMA1 channel
+        while(SPI1STATbits.SPIRBF) { //Clear SPI1
+            int dummy = SPI1BUF;
+        }
+//        INTERCOM_2 = 0;
+//        while(INTERCOM_4);
+        init_SPI1(); // Restart SPI
+        init_DMA0(); // Restart DMA0
+        init_DMA1(); // Restart DMA1
+        DMA1REQbits.FORCE = 1;
+        while (DMA1REQbits.FORCE == 1);
+        return FALSE;
+    }
+    
 }
 
 float getAltitude(){
@@ -460,6 +484,17 @@ int getAltitudeInput(char source){
         return 0;
 }
 
+int getHeadingInput(char source){
+    if (source == HEADING_GS_SOURCE){
+        return input_GS_Heading;
+    }
+    else if (source == HEADING_AP_SOURCE){
+        return input_AP_Heading;
+    }
+    else
+        return 0;
+}
+
 void setKValues(int type,float* values){
     int Kchannel[7] = {YAW, PITCH, ROLL, HEADING, ALTITUDE, THROTTLE, FLAP};
     int i;
@@ -502,7 +537,7 @@ void imuCommunication(){
 
 int altitudeControl(int setpoint, int sensorAltitude){
     //Altitude
-    ctrl_PitchAngle = controlSignalAltitude(setpoint, sensorAltitude);
+    ctrl_PitchAngle = controlSignalAltitude(setpoint, sensorAltitude) * ALTITUDE_TO_PITCH_DIRECTION; //TODO: Add -1 as a variable to flip directions
     if (ctrl_PitchAngle > MAX_PITCH_ANGLE)
         ctrl_PitchAngle = MAX_PITCH_ANGLE;
     if (ctrl_PitchAngle < -MAX_PITCH_ANGLE)
@@ -531,7 +566,7 @@ int headingControl(int setpoint, int sensor){
         setpoint += 360;
 
     setHeadingSetpoint(setpoint);
-    ctrl_Heading = controlSignalHeading(setpoint, sensor);//gps_Satellites>=4?gps_Heading:(int)imu_YawAngle); //changed to monitor satellites, since we know these are good values while PositionFix might be corrupt...
+    ctrl_Heading = controlSignalHeading(setpoint, sensor) * HEADING_TO_ROLL_DIRECTION;//gps_Satellites>=4?gps_Heading:(int)imu_YawAngle); //changed to monitor satellites, since we know these are good values while PositionFix might be corrupt...
     //Approximating Roll angle from Heading
     sp_RollAngle = ctrl_Heading;      //TODO: HOW IS HEADING HANDLED DIFFERENTLY BETWEEN QUADS AND PLANES
 
@@ -585,7 +620,7 @@ void readDatalink(void){
     //TODO: Add rudimentary input validation
     if ( cmd ) {
         if (lastCommandSentCode[lastCommandCounter]/100 == cmd->cmd){
-            lastCommandSentCode++;
+            lastCommandSentCode[lastCommandCounter]++;
         }
         else{
             lastCommandCounter++;
@@ -666,13 +701,13 @@ void readDatalink(void){
             case SET_PATH_GAIN:
                 amData.pathGain = *(float*)(&cmd->data);
                 amData.command = PM_SET_PATH_GAIN;
-                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case SET_ORBIT_GAIN:
                 amData.orbitGain = *(float*)(&cmd->data);
                 amData.command = PM_SET_ORBIT_GAIN;
-                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case SHOW_GAIN:
@@ -700,16 +735,17 @@ void readDatalink(void){
                 input_GS_Altitude = *(int*)(&cmd->data);
                 break;
             case SET_HEADING:
-                sp_Heading = *(int*)(&cmd->data);
+                input_GS_Heading = *(int*)(&cmd->data);
                 break;
             case SET_THROTTLE:
-                input_GS_Throttle = (int)(((long int)(*(int*)(&cmd->data))) * MAX_PWM * 2 / 100) - MAX_PWM;
+                input_GS_Throttle = *(int*)(&cmd->data);//(int)(((long int)(*(int*)(&cmd->data))) * MAX_PWM * 2 / 100) - MAX_PWM;
                 break;
             case SET_FLAP:
-                input_GS_Flap = (int)(((long int)(*(int*)(&cmd->data))) * MAX_PWM * 2 / 100) - MAX_PWM;
+                input_GS_Flap = *(int*)(&cmd->data);//(int)(((long int)(*(int*)(&cmd->data))) * MAX_PWM * 2 / 100) - MAX_PWM;
                 break;
             case SET_AUTONOMOUS_LEVEL:
                 controlLevel = *(int*)(&cmd->data);
+                forceGainUpdate();
                 break;
             case SET_ANGULAR_WALK_VARIANCE:
                 setAngularWalkVariance(*(float*)(&cmd->data));
@@ -729,35 +765,35 @@ void readDatalink(void){
             case CALIBRATE_ALTIMETER:
                 amData.calibrationHeight = *(float*)(&cmd->data);
                 amData.command = PM_CALIBRATE_ALTIMETER;
-                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case CLEAR_WAYPOINTS:
                 amData.waypoint.id = (*(char *)(&cmd->data)); //Dummy Data
                 amData.command = PM_CLEAR_WAYPOINTS;
-                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case REMOVE_WAYPOINT:
                 amData.waypoint.id = (*(char *)(&cmd->data));
                 amData.command = PM_REMOVE_WAYPOINT;
-                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case SET_TARGET_WAYPOINT:
                 amData.waypoint.id = *(char *)(&cmd->data);
                 amData.command = PM_SET_TARGET_WAYPOINT;
-                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case RETURN_HOME:
                 amData.command = PM_RETURN_HOME;
-                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case CANCEL_RETURN_HOME:
                 amData.command = PM_CANCEL_RETURN_HOME;
-                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case SEND_HEARTBEAT:
@@ -774,11 +810,11 @@ void readDatalink(void){
                 break;
             case KILL_PLANE:
                 if (*(int*)(&cmd->data) == 1234)
-//                    killingPlane = 1;
+                    killPlane(TRUE);
                 break;
             case UNKILL_PLANE:
                 if (*(int*)(&cmd->data) == 1234)
-//                    killingPlane = 0;
+                    killPlane(FALSE);
                 break;
             case LOCK_GOPRO:
                     lockGoPro(*(int*)(&cmd->data));
@@ -797,6 +833,12 @@ void readDatalink(void){
             case RESET_PROBE:
                 resetProbe(*(char*)(&cmd->data));
                 break;
+            case FOLLOW_PATH:
+                amData.command = PM_FOLLOW_PATH;
+                amData.followPath = *(char*)(&cmd->data);
+                amData.checkbyteDMA = generateAMDataDMACheckbyte();
+                amData.checksum = generateAMDataChecksum(&amData);
+                break;
 
             case NEW_WAYPOINT:
                 amData.waypoint.altitude = (*(WaypointWrapper*)(&cmd->data)).altitude;
@@ -804,8 +846,9 @@ void readDatalink(void){
                 amData.waypoint.latitude = (*(WaypointWrapper*)(&cmd->data)).latitude;
                 amData.waypoint.longitude = (*(WaypointWrapper*)(&cmd->data)).longitude;
                 amData.waypoint.radius = (*(WaypointWrapper*)(&cmd->data)).radius;
+                amData.waypoint.type = (*(WaypointWrapper*)(&cmd->data)).type;
                 amData.command = PM_NEW_WAYPOINT;
-                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case INSERT_WAYPOINT:
@@ -815,8 +858,20 @@ void readDatalink(void){
                 amData.waypoint.radius = (*(WaypointWrapper*)(&cmd->data)).radius;
                 amData.waypoint.nextId = (*(WaypointWrapper*)(&cmd->data)).nextId;
                 amData.waypoint.previousId = (*(WaypointWrapper*)(&cmd->data)).previousId;
+                amData.waypoint.type = (*(WaypointWrapper*)(&cmd->data)).type;
                 amData.command = PM_INSERT_WAYPOINT;
-                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checkbyteDMA = generateAMDataDMACheckbyte();
+                amData.checksum = generateAMDataChecksum(&amData);
+                break;
+            case UPDATE_WAYPOINT:
+                amData.waypoint.altitude = (*(WaypointWrapper*)(&cmd->data)).altitude;
+                amData.waypoint.id = (*(WaypointWrapper*)(&cmd->data)).id;
+                amData.waypoint.latitude = (*(WaypointWrapper*)(&cmd->data)).latitude;
+                amData.waypoint.longitude = (*(WaypointWrapper*)(&cmd->data)).longitude;
+                amData.waypoint.radius = (*(WaypointWrapper*)(&cmd->data)).radius;
+                amData.waypoint.type = (*(WaypointWrapper*)(&cmd->data)).type;
+                amData.command = PM_UPDATE_WAYPOINT;
+                amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case SET_RETURN_HOME_COORDINATES:
@@ -824,7 +879,7 @@ void readDatalink(void){
                 amData.waypoint.latitude = (*(WaypointWrapper*)(&cmd->data)).latitude;
                 amData.waypoint.longitude = (*(WaypointWrapper*)(&cmd->data)).longitude;
                 amData.command = PM_SET_RETURN_HOME_COORDINATES;
-                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case TARE_IMU:
@@ -918,13 +973,14 @@ int writeDatalink(p_priority packet){
             statusData->data.p2_block.altitudeSetpoint = getAltitudeSetpoint();
             statusData->data.p2_block.flapSetpoint = getFlapSetpoint();
             statusData->data.p2_block.cameraStatus = cameraCounter;
-            statusData->data.p2_block.wirelessConnection = (input_RC_UHFSwitch < -429) << 1;//+ RSSI;
-            statusData->data.p2_block.autopilotActive = input_RC_Switch1 > 380;
+            statusData->data.p2_block.wirelessConnection = ((input_RC_UHFSwitch < -429) << 1) + (input_RC_Switch1 > 380);//+ RSSI;
+            statusData->data.p2_block.autopilotActive = getProgramStatus();
+            //statusData->data.p2_block.sensorStat = getSensorStatus(0) + (getSensorStatus(1) << 2);
             statusData->data.p2_block.gpsStatus = gps_Satellites + (gps_PositionFix << 4);
-//            statusData->data.p2_block.pathChecksum =
+            statusData->data.p2_block.pathChecksum = waypointChecksum;
             statusData->data.p2_block.numWaypoints = waypointCount;
             statusData->data.p2_block.waypointIndex = waypointIndex;
-            //statusData->data.p2_block.following = <true/false>
+            statusData->data.p2_block.pathFollowing = pathFollowing; //True or false
             break;
         case PRIORITY2:
             statusData->data.p3_block.rollKI = getGain(ROLL,GAIN_KI);
@@ -942,6 +998,8 @@ int writeDatalink(p_priority packet){
             statusData->data.p3_block.flapKD = getGain(FLAP, GAIN_KD);
             statusData->data.p3_block.flapKP = getGain(FLAP, GAIN_KP);
             statusData->data.p3_block.flapKI = getGain(FLAP, GAIN_KI);
+            statusData->data.p3_block.pathGain = pmPathGain;
+            statusData->data.p3_block.orbitGain = pmOrbitGain;
             statusData->data.p3_block.autonomousLevel = controlLevel;
             statusData->data.p3_block.startupErrorCodes = getStartupErrorCodes();
             statusData->data.p3_block.startupSettings = DEBUG + (COPTER << 1); //TODO: put this in the startuperrorCode file
@@ -961,6 +1019,41 @@ int writeDatalink(p_priority packet){
     return 0;
 
 }
+
+void checkUHFStatus(){
+    if (input_RC_UHFSwitch > 429 && input_RC_UHFSwitch < 440){
+        setProgramStatus(KILL_MODE_WARNING);
+        if (getTime() - UHFTimer > UHF_KILL_TIMEOUT){
+            killPlane(TRUE);
+        }
+    }
+
+}
+
+void checkHeartbeat(){
+    if (getTime() - heartbeatTimer > HEARTBEAT_TIMEOUT){
+        setProgramStatus(KILL_MODE_WARNING);
+        amData.command = PM_RETURN_HOME;
+        amData.checkbyteDMA = generateAMDataDMACheckbyte();
+        amData.checksum = generateAMDataChecksum(&amData);
+    }
+    else if (getTime() - heartbeatTimer > HEARTBEAT_KILL_TIMEOUT){
+        killPlane(TRUE);
+    }
+}
+
+void checkGPS(){
+    if (gps_PositionFix == 0){
+        setProgramStatus(KILL_MODE_WARNING);
+        if (getTime() - gpsTimer > GPS_TIMEOUT){
+            killPlane(TRUE);
+        }
+    }
+    else{
+        gpsTimer = getTime();
+    }
+}
+
 
 void adjustVNOrientationMatrix(float* adjustment){
 
@@ -1043,8 +1136,4 @@ void setAccelVariance(float variance){
     previousVariance[9] = variance; //Z
     VN100_SPI_SetFiltMeasVar(0, (float*)&previousVariance);
     VN100_SPI_WriteSettings(0);
-}
-
-char generateAMDataDMAChecksum(void){
-    return 0xAB;
 }

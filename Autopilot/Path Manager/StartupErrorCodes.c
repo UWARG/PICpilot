@@ -5,6 +5,7 @@
  * Created on October 15, 2013, 7:57 PM
  */
 #include "main.h"
+#include "../Common/Common.h"
 #include "StartupErrorCodes.h"
 
 unsigned int lastRuntimeErrors = 0;
@@ -21,7 +22,7 @@ void checkErrorCodes(){
 
     if (RCONbits.IOPUWR == 1) {
 #if DEBUG
-            error("Illegal Opcode Reset Occurred");
+        error("Illegal Opcode Reset Occurred");
 #endif
         lastRuntimeErrors += (1 << 8);
         RCONbits.IOPUWR = 0;

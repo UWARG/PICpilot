@@ -5,6 +5,7 @@
  * Created on June 15, 2013, 3:40 PM
  */
 #include "main.h"
+#include "../Common/Common.h"
 #include "voltageSensor.h"
 
 
@@ -33,8 +34,8 @@ void initBatterySensor(){
 //    return time;
 //}
 
-char getCurrentPercent(){
-    percent = (char)((long int)currentVoltage*100/4096);
+int getBatteryLevel(){
+    percent = currentVoltage;
     return percent;
 }
 

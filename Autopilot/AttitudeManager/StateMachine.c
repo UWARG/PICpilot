@@ -8,12 +8,16 @@
 #include "StateMachine.h"
 #include "Probe_Drop.h"
 #include "../Common/debug.h"
+#include "../Common/Common.h"
+#include "main.h"
+#include "ProgramStatus.h"
 
 /*
  * 
  */
 
 //State Machine Triggers (Mostly Timers)
+int dmaTimer = 0;
 int uplinkTimer = 0;
 int downlinkP0Timer = 0;
 int downlinkP1Timer = 0;
@@ -26,6 +30,7 @@ int dTime = 0;
 //Important Autopilot Variables
 int outputSignal[5];
 int control_Roll, control_Pitch, control_Yaw, control_Throttle, control_Flap;
+char killingPlane = 0;
 
 void StateMachine(char entryLocation){
     //Timers
@@ -37,20 +42,14 @@ void StateMachine(char entryLocation){
     downlinkP2Timer += dTime;
     stateMachineTimer += dTime;
     imuTimer += dTime;
+    dmaTimer += dTime;
+    
     
     //Clear Watchdog timer
     asm("CLRWDT");
-
-    if(isDMADataAvailable() && checkDMA()){
-        //Input from Controller
-        inputCapture();
-        //Recalculate all data dependent on any DMA data
-        highLevelControl();
-        lowLevelControl();
-    }
     //Feedback systems such as this autopilot are very sensitive to timing. In order to keep it consistent we should try to keep the timing between the calculation of error corrections and the output the same.
     //In other words, roll pitch and yaw control, mixing, and output should take place in the same step.
-    else if(AMUpdate){
+    if(AMUpdate){
         AMUpdate = 0;
         //Run - Angle control, and angular rate control
         //Input from Controller
@@ -60,6 +59,7 @@ void StateMachine(char entryLocation){
         lowLevelControl();
     }
     else if(IMU_UPDATE_FREQUENCY <= imuTimer && entryLocation != STATEMACHINE_IMU){
+//        debug("IMU");
         imuTimer = 0;
         //Poll Sensor
         imuCommunication();
@@ -69,34 +69,43 @@ void StateMachine(char entryLocation){
         lowLevelControl();
 
     }
-    else if(P0_SEND_FREQUENCY <= downlinkP0Timer){
-        //Compile and send data
-        downlinkP0Timer = 0;
-        writeDatalink(PRIORITY0);
-        outboundBufferMaintenance();
-    }
-    else if(P1_SEND_FREQUENCY <= downlinkP1Timer){
-        //Compile and send data
-        downlinkP1Timer = 0;
-        writeDatalink(PRIORITY1);
-        outboundBufferMaintenance();
-    }
-    else if(P2_SEND_FREQUENCY <= downlinkP2Timer || areGainsUpdated()){
-        //Compile and send data
-        downlinkP2Timer = 0;
-        writeDatalink(PRIORITY2);
-        outboundBufferMaintenance();
-    }
     else if(UPLINK_CHECK_FREQUENCY <= uplinkTimer){
         uplinkTimer = 0;
         readDatalink();
-        inboundBufferMaintenance();
+    }
+    else if(isDMADataAvailable() && checkDMA()){
+        //Input from Controller
+        inputCapture();
+        //Recalculate all data dependent on any DMA data
+        highLevelControl();
+        lowLevelControl();
+    }
+    else{
+    }
+    if(P0_SEND_FREQUENCY <= downlinkP0Timer){
+//        debug("P0");
+        //Compile and send data
+        downlinkP0Timer = 0;
+        writeDatalink(PRIORITY0);
+    }
+    else if(P1_SEND_FREQUENCY <= downlinkP1Timer){
+//        debug("P1");
+        //Compile and send data
+        downlinkP1Timer = 0;
+        writeDatalink(PRIORITY1);
+    }
+    else if(P2_SEND_FREQUENCY <= downlinkP2Timer || areGainsUpdated()){
+//        debug("P2");
+        //Compile and send data
+        downlinkP2Timer = 0;
+        writeDatalink(PRIORITY2);
     }
     else{
         //Then Sleep
-        Delay(1);
     }
     //Loop it back again!
+    inboundBufferMaintenance();
+    outboundBufferMaintenance();
     asm("CLRWDT");
 }
 
@@ -111,8 +120,8 @@ void highLevelControl(){
     //If commands come from the RC controller
     else setPitchAngleSetpoint(getPitchAngleInput(PITCH_RC_SOURCE));
 
-    //If commands come from the autopilot
-    if (getControlPermission(HEADING_CONTROL, HEADING_CONTROL_ON, HEADING_CONTROL_SHIFT)) {setRollAngleSetpoint(headingControl(getHeadingSetpoint(), getHeading()));}
+    //If commands come from the autopilot -//TODO:ADD heading autopilt source
+    if (getControlPermission(HEADING_CONTROL, HEADING_CONTROL_ON, HEADING_CONTROL_SHIFT)) {setRollAngleSetpoint(headingControl(getHeadingInput(HEADING_GS_SOURCE), getHeading()));}
     //If commands come from the ground station
     else if (getControlPermission(ROLL_CONTROL_SOURCE, ROLL_GS_SOURCE, ROLL_CONTROL_SOURCE_SHIFT)) {setRollAngleSetpoint(getRollAngleInput(ROLL_GS_SOURCE));}
     //If commands come from the RC controller
@@ -169,15 +178,31 @@ void lowLevelControl(){
     unsigned int goProGimbalPWM = goProGimbalStabilization(getRoll());
     unsigned int verticalGoProPWM = goProVerticalstabilization(getPitch());
     //For fixed-wing aircraft: Typically 0 = Roll, 1 = Pitch, 2 = Throttle, 3 = Yaw
-    
-    setPWM(ROLL_OUT_CHANNEL, outputSignal[0]);//Roll
-    setPWM(PITCH_OUT_CHANNEL, outputSignal[1]); //Pitch
-    setPWM(THROTTLE_OUT_CHANNEL, outputSignal[2]);//Throttle
-    setPWM(YAW_OUT_CHANNEL, outputSignal[3]); //Yaw
+
+    if (!killingPlane){
+        setPWM(ROLL_OUT_CHANNEL, outputSignal[0]);//Roll
+        setPWM(PITCH_OUT_CHANNEL, outputSignal[1]); //Pitch
+        setPWM(THROTTLE_OUT_CHANNEL, outputSignal[2]);//Throttle
+        setPWM(YAW_OUT_CHANNEL, outputSignal[3]); //Yaw
+    }
+    else{
+        setPWM(ROLL_OUT_CHANNEL, MIN_PWM);//Roll
+        setPWM(PITCH_OUT_CHANNEL, MIN_PWM); //Pitch
+        setPWM(THROTTLE_OUT_CHANNEL, MIN_PWM);//Throttle
+        setPWM(YAW_OUT_CHANNEL, MIN_PWM); //Yaw
+    }
     setPWM(FLAP_OUT_CHANNEL, outputSignal[4]); //Flaps
     setPWM(PROBE1_OUT_CHANNEL, probeStatus(PROBE1));
     setPWM(PROBE2_OUT_CHANNEL, probeStatus(PROBE2));
     setPWM(PROBE3_OUT_CHANNEL, probeStatus(PROBE3));
+
+    //Check for kill mode
+#if COMP_MODE
+    checkGPS();
+    checkHeartbeat();
+    checkUHF();
+#endif
+
 }
 #elif COPTER
 void highLevelControl(){
@@ -206,5 +231,16 @@ void lowLevelControl(){
 #endif
 void forceStateMachineUpdate(){
     AMUpdate = 1;
+}
+
+void killPlane(char action){
+    if (action){
+        killingPlane = 1;
+        setProgramStatus(KILL_MODE);
+    }
+    else{
+        killingPlane = 0;
+        setProgramStatus(MAIN_EXECUTION);
+    }
 }
 
