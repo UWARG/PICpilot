@@ -159,6 +159,7 @@ int getRollRateInput(char source);
 int getThrottleInput(char source);
 int getFlapInput(char source);
 int getAltitudeInput(char source);
+int getHeadingInput(char source);
 void imuCommunication();
 int altitudeControl(int setpoint, int sensorAltitude);
 int throttleControl(int setpoint, int sensor);

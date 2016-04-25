@@ -73,8 +73,14 @@ void StateMachine(char entryLocation){
         uplinkTimer = 0;
         readDatalink();
     }
+    else if(isDMADataAvailable() && checkDMA()){
+        //Input from Controller
+        inputCapture();
+        //Recalculate all data dependent on any DMA data
+        highLevelControl();
+        lowLevelControl();
+    }
     else{
-        Delay(1);
     }
     if(P0_SEND_FREQUENCY <= downlinkP0Timer){
 //        debug("P0");
@@ -96,7 +102,6 @@ void StateMachine(char entryLocation){
     }
     else{
         //Then Sleep
-        Delay(1);
     }
     //Loop it back again!
     inboundBufferMaintenance();

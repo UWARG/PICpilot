@@ -91,6 +91,7 @@ typedef struct _PMData { //54 Bytes
     char waypointCount;
     char waypointChecksum;
     char pathFollowing;
+    char padding;
     char checkbyteDMA;
 } PMData;
 
@@ -113,6 +114,7 @@ typedef struct _AMData { //54 Bytes
     char padding9;
     char padding10;
     char padding11;
+    char padding12;
     char checkbyteDMA;
 } AMData;
 

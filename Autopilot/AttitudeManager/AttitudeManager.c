@@ -863,6 +863,7 @@ void readDatalink(void){
                 break;
             case UPDATE_WAYPOINT:
                 amData.waypoint.altitude = (*(WaypointWrapper*)(&cmd->data)).altitude;
+                amData.waypoint.id = (*(WaypointWrapper*)(&cmd->data)).id;
                 amData.waypoint.latitude = (*(WaypointWrapper*)(&cmd->data)).latitude;
                 amData.waypoint.longitude = (*(WaypointWrapper*)(&cmd->data)).longitude;
                 amData.waypoint.radius = (*(WaypointWrapper*)(&cmd->data)).radius;
@@ -1030,7 +1031,8 @@ void checkHeartbeat(){
     if (getTime() - heartbeatTimer > HEARTBEAT_TIMEOUT){
         setProgramStatus(KILL_MODE_WARNING);
         amData.command = PM_RETURN_HOME;
-        amData.checksum = generateAMDataChecksum();
+        amData.checkbyteDMA = generateAMDataDMAChecksum();
+        amData.checksum = generateAMDataChecksum(&amData);
     }
     else if (getTime() - heartbeatTimer > HEARTBEAT_KILL_TIMEOUT){
         killPlane(TRUE);

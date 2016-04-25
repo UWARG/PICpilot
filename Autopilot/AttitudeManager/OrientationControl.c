@@ -15,8 +15,8 @@
 
 //TODO: Change these variable names to more generic names for inclusion of heading
 //25.2125988006591
-float kd_gain[7] = {20.15, 15, 15, 0, 0, 0, 0};
-float kp_gain[7] = {5, 2, 2, 2, 1, 1, 1};//{1, 0.5, 2.5, 1.5, 1.25, 0.05};
+float kd_gain[7] = {3.5, 3.5, 3, 5, 0, 0, 0};
+float kp_gain[7] = {1, 1.6, 4.8, 2, 1.5, 1, 1};//{1, 0.5, 2.5, 1.5, 1.25, 0.05};
 float ki_gain[7]= {0, 0, 0, 0, 0, 0,0};
 //Interal Values
 float sum_gain[6] = {0, 0, 0, 0, 0, 0};

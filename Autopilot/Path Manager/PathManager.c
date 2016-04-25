@@ -554,7 +554,7 @@ void copyGPSData(){
 
 void checkAMData(){
     char checksum = 0xAB;
-    if (amData.checksum == checksum){
+    if (amData.checkbyteDMA == checksum){
        // All commands/actions that need to be run go here
        switch (amData.command){
             case PM_DEBUG_TEST:
