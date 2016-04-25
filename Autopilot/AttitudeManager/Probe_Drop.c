@@ -11,9 +11,9 @@
 #include "../Common/debug.h"
 #include "Probe_Drop.h"
 
-int prob_drop[3] = {-10,-10,-10};
-// prob_drop_1 (channle 6) close 10  open -350
-// prob_drop_2 (channle 7) close 10  open -350
+static int prob_drop[3] = {175,-50,0};
+// prob_drop_1 (channel 6)
+// prob_drop_2 (channel 7)
 
 //char dropping = 0;
 //int prob_old_state = 0
@@ -25,7 +25,16 @@ void dropProbe(char num)
 
 void resetProbe(char num)
 {
-    prob_drop[num -1] = -10;
+    if (num==1)
+    {
+        prob_drop[num -1] = 175;
+    }
+    else if (num==2)
+    {
+        prob_drop[num- 1] = -50;
+    }
+    else
+        prob_drop[num-1] = 0;
 }
 
 int probeStatus(char num)

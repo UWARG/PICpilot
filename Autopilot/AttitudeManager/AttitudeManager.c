@@ -158,7 +158,7 @@ void attitudeInit() {
     TRISDbits.TRISD14 = 0;
     LATDbits.LATD14 = 0;
 
-    amData.checkbyteDMA = generateAMDataDMAChecksum();
+    amData.checkbyteDMA = generateAMDataDMACheckbyte();
 
     //Initialize Interchip Interrupts for Use in DMA Reset
     //Set opposite Input / Output Configuration on the PathManager
@@ -701,13 +701,13 @@ void readDatalink(void){
             case SET_PATH_GAIN:
                 amData.pathGain = *(float*)(&cmd->data);
                 amData.command = PM_SET_PATH_GAIN;
-                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case SET_ORBIT_GAIN:
                 amData.orbitGain = *(float*)(&cmd->data);
                 amData.command = PM_SET_ORBIT_GAIN;
-                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case SHOW_GAIN:
@@ -765,35 +765,35 @@ void readDatalink(void){
             case CALIBRATE_ALTIMETER:
                 amData.calibrationHeight = *(float*)(&cmd->data);
                 amData.command = PM_CALIBRATE_ALTIMETER;
-                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case CLEAR_WAYPOINTS:
                 amData.waypoint.id = (*(char *)(&cmd->data)); //Dummy Data
                 amData.command = PM_CLEAR_WAYPOINTS;
-                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case REMOVE_WAYPOINT:
                 amData.waypoint.id = (*(char *)(&cmd->data));
                 amData.command = PM_REMOVE_WAYPOINT;
-                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case SET_TARGET_WAYPOINT:
                 amData.waypoint.id = *(char *)(&cmd->data);
                 amData.command = PM_SET_TARGET_WAYPOINT;
-                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case RETURN_HOME:
                 amData.command = PM_RETURN_HOME;
-                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case CANCEL_RETURN_HOME:
                 amData.command = PM_CANCEL_RETURN_HOME;
-                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case SEND_HEARTBEAT:
@@ -836,7 +836,7 @@ void readDatalink(void){
             case FOLLOW_PATH:
                 amData.command = PM_FOLLOW_PATH;
                 amData.followPath = *(char*)(&cmd->data);
-                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
 
@@ -846,8 +846,9 @@ void readDatalink(void){
                 amData.waypoint.latitude = (*(WaypointWrapper*)(&cmd->data)).latitude;
                 amData.waypoint.longitude = (*(WaypointWrapper*)(&cmd->data)).longitude;
                 amData.waypoint.radius = (*(WaypointWrapper*)(&cmd->data)).radius;
+                amData.waypoint.type = (*(WaypointWrapper*)(&cmd->data)).type;
                 amData.command = PM_NEW_WAYPOINT;
-                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case INSERT_WAYPOINT:
@@ -857,8 +858,9 @@ void readDatalink(void){
                 amData.waypoint.radius = (*(WaypointWrapper*)(&cmd->data)).radius;
                 amData.waypoint.nextId = (*(WaypointWrapper*)(&cmd->data)).nextId;
                 amData.waypoint.previousId = (*(WaypointWrapper*)(&cmd->data)).previousId;
+                amData.waypoint.type = (*(WaypointWrapper*)(&cmd->data)).type;
                 amData.command = PM_INSERT_WAYPOINT;
-                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case UPDATE_WAYPOINT:
@@ -867,8 +869,9 @@ void readDatalink(void){
                 amData.waypoint.latitude = (*(WaypointWrapper*)(&cmd->data)).latitude;
                 amData.waypoint.longitude = (*(WaypointWrapper*)(&cmd->data)).longitude;
                 amData.waypoint.radius = (*(WaypointWrapper*)(&cmd->data)).radius;
+                amData.waypoint.type = (*(WaypointWrapper*)(&cmd->data)).type;
                 amData.command = PM_UPDATE_WAYPOINT;
-                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case SET_RETURN_HOME_COORDINATES:
@@ -876,7 +879,7 @@ void readDatalink(void){
                 amData.waypoint.latitude = (*(WaypointWrapper*)(&cmd->data)).latitude;
                 amData.waypoint.longitude = (*(WaypointWrapper*)(&cmd->data)).longitude;
                 amData.command = PM_SET_RETURN_HOME_COORDINATES;
-                amData.checkbyteDMA = generateAMDataDMAChecksum();
+                amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case TARE_IMU:
@@ -1031,7 +1034,7 @@ void checkHeartbeat(){
     if (getTime() - heartbeatTimer > HEARTBEAT_TIMEOUT){
         setProgramStatus(KILL_MODE_WARNING);
         amData.command = PM_RETURN_HOME;
-        amData.checkbyteDMA = generateAMDataDMAChecksum();
+        amData.checkbyteDMA = generateAMDataDMACheckbyte();
         amData.checksum = generateAMDataChecksum(&amData);
     }
     else if (getTime() - heartbeatTimer > HEARTBEAT_KILL_TIMEOUT){
@@ -1133,8 +1136,4 @@ void setAccelVariance(float variance){
     previousVariance[9] = variance; //Z
     VN100_SPI_SetFiltMeasVar(0, (float*)&previousVariance);
     VN100_SPI_WriteSettings(0);
-}
-
-char generateAMDataDMAChecksum(void){
-    return 0xAB;
 }

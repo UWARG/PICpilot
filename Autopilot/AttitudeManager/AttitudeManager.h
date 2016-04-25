@@ -248,7 +248,6 @@ void setAngularWalkVariance(float variance);
 void setGyroVariance(float variance);
 void setMagneticVariance(float variance);
 void setAccelVariance(float variance);
-char generateAMDataDMAChecksum(void);
 
 
 #endif	/* ATTITUDEMANAGER_H */

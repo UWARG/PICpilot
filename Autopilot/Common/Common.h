@@ -54,10 +54,10 @@ typedef struct _waypointWrapper{
     long double latitude;
     float altitude;
     float radius; //Radius of turn
+    char type; //Regular or probe drop location
     char nextId; //For use with insertNode() or operations that require reference to another node
     char previousId; //For use with insertNode() or operations that require reference to another node
     char id;    //Array ID
-    char type; //Regular or probe drop location
 }WaypointWrapper;
 
 typedef struct _PathData{
@@ -91,7 +91,7 @@ typedef struct _PMData { //54 Bytes
     char waypointCount;
     char waypointChecksum;
     char pathFollowing;
-    char padding;
+//    char padding;
     char checkbyteDMA;
 } PMData;
 
@@ -101,24 +101,25 @@ typedef struct _AMData { //54 Bytes
     float orbitGain;
     float calibrationHeight;
     char command;
-    char checksum;
     char followPath;
-    char padding1;
-    char padding2;
-    char padding3;
-    char padding4;
-    char padding5;
-    char padding6;
-    char padding7;
-    char padding8;
-    char padding9;
-    char padding10;
-    char padding11;
-    char padding12;
+//    char padding1;
+//    char padding2;
+//    char padding3;
+//    char padding4;
+//    char padding5;
+//    char padding6;
+//    char padding7;
+//    char padding8;
+//    char padding9;
+//    char padding10;
+//    char padding11;
+//    char padding12;
+    char checksum;
     char checkbyteDMA;
 } AMData;
 
 char generatePMDataDMAChecksum(void);
+char generateAMDataDMACheckbyte(void);
 char generateAMDataChecksum(AMData* data);
 float getDistance(long double lat1, long double lon1, long double lat2, long double lon2);
 
