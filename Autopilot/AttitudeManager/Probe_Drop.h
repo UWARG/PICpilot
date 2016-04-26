@@ -16,9 +16,20 @@ extern "C" {
 #define PROBE2 2
 #define PROBE3 3
 
+#define MAX_PROBE 3
+
+#define PROBE1_DEFAULT 175
+#define PROBE2_DEFAULT -50
+#define PROBE3_DEFAULT 0
+
+#define PROBE1_ACTIVE -370
+#define PROBE2_ACTIVE -370
+#define PROBE3_ACTIVE -370
+
 void dropProbe(char num);
 void resetProbe(char num);
-int probeStatus(char num);
+int probePWM(char num);
+char getProbeStatus();
 
 #ifdef	__cplusplus
 }
