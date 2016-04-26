@@ -16,7 +16,7 @@ void getVelocityOfWind(float* groundVelocity, float* windVelocity, float* veloci
     }
 }
 
-char probeDrop(char verifiedDrop, Vector* targetPosition, float* currentPosition, float* altitude, float* groundVelocity, float* windVelocity){
+char probeDrop(char verifiedDrop, float* targetPosition, float* currentPosition, float* altitude, float* groundVelocity, float* windVelocity){
     if (!verifiedDrop) {
         return 0;
     }
@@ -28,7 +28,7 @@ char probeDrop(char verifiedDrop, Vector* targetPosition, float* currentPosition
     double impactTime = characteristicTime*acos(pow(MASS,(*altitude)/(terminalVelocity*characteristicTime))); //TODO: is acos correct here?
     
     //The horizontal distance from the target
-    double distanceFromTarget = sqrt(pow(currentPosition[0] - targetPosition->x,2) + pow(currentPosition[1] - targetPosition->y,2));
+    double distanceFromTarget = getDistance(currentPosition[0], currentPosition[1], targetPosition[0], targetPosition[1]);
     
     
     //double totalDropTime = sqrt(2*altitude/GRAVITY);

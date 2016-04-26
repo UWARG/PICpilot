@@ -10,6 +10,6 @@
 
 #include "Dubins.h"
 void getVelocityOfWind(float* groundVelocity, float* windVelocity, float* velocityOfWind);
-char probeDrop(char verifiedDrop, Vector* targetPosition, float* currentPosition, float* altitude, float* groundVelocity, float* windVelocity);
+char probeDrop(char verifiedDrop, float* targetPosition, float* currentPosition, float* altitude, float* groundVelocity, float* windVelocity);
 #endif	/* PROBEDROP_H */
 

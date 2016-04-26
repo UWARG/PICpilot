@@ -52,9 +52,7 @@ void clearPathNodes(void);
 unsigned int insertPathNode(PathData* node, unsigned int previousID, unsigned int nextID);
 void copyGPSData(void);
 void checkAMData(void);
-char getWaypointChecksum(void);
-char generatePMDataDMAChecksum(void);
-float getDistance(long double lat1, long double lon1, long double lat2, long double lon2);
+float getWaypointChecksum(void);
 
 
 #endif	/* PATHMANGER_H */

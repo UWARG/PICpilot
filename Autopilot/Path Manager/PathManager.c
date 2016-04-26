@@ -120,6 +120,11 @@ void pathManagerInit(void) {
 //    node->longitude = -80.540073;
 //    node->radius = 5;
 //    appendPathNode(node);
+#if DEBUG
+    char str[20];
+    sprintf(str, "PM:%d, AM:%d", sizeof(PMData),sizeof(AMData));
+    debug(str);
+#endif
 }
 
 void pathManagerRuntime(void) {
@@ -157,10 +162,16 @@ void pathManagerRuntime(void) {
     char verifiedDrop = 1;
     
     //Get the position of the target
-    Vector targetPosition;
-    doProbeDrop = probeDrop(verifiedDrop, &targetPosition, position, &pmData.altitude, &pmData.speed, &pmData.airspeed);
+    if (path[currentIndex]->type == 1){
+        float targetWaypoint[2];
+        targetWaypoint[0] = path[currentIndex]->next->longitude;
+        targetWaypoint[1] = path[currentIndex]->next->latitude;
+        doProbeDrop = probeDrop(verifiedDrop, (float*)&targetWaypoint, position, &pmData.altitude, &pmData.speed, &pmData.airspeed);
+    }
     
-    pmData.checkbyteDMA = generatePMDataDMAChecksum();
+    
+    pmData.checkbyteDMA1 = generatePMDataDMAChecksum1();
+    pmData.checkbyteDMA2 = generatePMDataDMAChecksum2();
 }
 
 char followWaypoints(PathData* current, float* position, float heading, int* setpoint) {
@@ -438,6 +449,12 @@ unsigned int appendPathNode(PathData* node){
     }
     PathData* previousNode = path[previousIndex];
     node->previous = previousNode;
+
+    //Check to make sure it is not a duplicate of the previous node
+    if (previousNode->latitude == node->latitude && previousNode->longitude == node->longitude){
+        return -1;
+    }
+
     if (node->index){
         path[currentBufferIndex] = node;
         node->index = currentBufferIndex++;
@@ -548,8 +565,8 @@ void copyGPSData(){
     pmData.waypointCount = pathCount;
     pmData.waypointChecksum = getWaypointChecksum();
     pmData.pathFollowing = followPath;
-    pmData.checkbyteDMA = generatePMDataDMAChecksum();
-
+    pmData.checkbyteDMA1 = generatePMDataDMAChecksum1();
+    pmData.checkbyteDMA2 = generatePMDataDMAChecksum2();
 }
 
 
@@ -571,7 +588,6 @@ void checkAMData(){
                     node->radius = amData.waypoint.radius;
                     node->type = amData.waypoint.type;
                     appendPathNode(node);
-                    debug("NEW WAYPOINT");
                     break;
                 case PM_CLEAR_WAYPOINTS:
                     clearPathNodes();
@@ -598,18 +614,18 @@ void checkAMData(){
                     removePathNode(amData.waypoint.id);
                     break;
                 case PM_SET_TARGET_WAYPOINT:
-                    node = initializePathNode();
-                    node->altitude = gpsData.altitude;
-                    node->latitude = gpsData.latitude;
-                    node->longitude = gpsData.longitude;
-                    node->radius = 1; //Arbitrary value
-                    node->type = DEFAULT_WAYPOINT;
+//                    node = initializePathNode();
+//                    node->altitude = gpsData.altitude;
+//                    node->latitude = gpsData.latitude;
+//                    node->longitude = gpsData.longitude;
+//                    node->radius = 1; //Arbitrary value
+//                    node->type = DEFAULT_WAYPOINT;
                     if (path[getIndexFromID(amData.waypoint.id)] && path[getIndexFromID(amData.waypoint.id)]->previous){
-                        insertPathNode(node,path[getIndexFromID(amData.waypoint.id)]->previous->id,amData.waypoint.id);
-                        currentIndex = node->index;
+                        debug("TEST");
+//                        insertPathNode(node,path[getIndexFromID(amData.waypoint.id)]->previous->id,amData.waypoint.id);
+                        currentIndex = getIndexFromID(amData.waypoint.id);
                     }
                     returnHome = 0;
-
                     break;
                 case PM_SET_RETURN_HOME_COORDINATES:
                     home.altitude = amData.waypoint.altitude;
@@ -663,11 +679,11 @@ void checkAMData(){
     }
 }
 
-char getWaypointChecksum(void){
+float getWaypointChecksum(void){
     unsigned int i = 0;
-    char checksum = 0;
+    float checksum;
     for (i = 0; i < pathCount; i++){
-        checksum ^= (char)(path[i]->latitude + path[i]->longitude + path[i]->altitude + path[i]->radius) & 0xFF;
+        checksum += path[i]->latitude + path[i]->longitude + path[i]->altitude + path[i]->radius + (float)path[i]->type;
     }
     return checksum;
 }

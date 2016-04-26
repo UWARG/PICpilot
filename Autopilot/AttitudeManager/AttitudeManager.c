@@ -78,7 +78,7 @@ char gps_PositionFix = 0;
 float pmOrbitGain = 0;
 float pmPathGain = 0;
 char waypointIndex = 0;
-char waypointChecksum = 0;
+float waypointChecksum = 0;
 char pathFollowing = 0;
 char waypointCount = 0;
 char batteryLevel1 = 0;
@@ -228,7 +228,7 @@ char checkDMA(){
     //Transfer data from PATHMANAGER CHIP
     lastNumSatellites = gps_Satellites; //get the last number of satellites
     DMADataAvailable = 0;
-    if (generatePMDataDMAChecksum() == pmData.checkbyteDMA) {
+    if (generatePMDataDMAChecksum1() == pmData.checkbyteDMA1 && generatePMDataDMAChecksum2() == pmData.checkbyteDMA2) {
         gps_Time = pmData.time;
         input_AP_Altitude = pmData.sp_Altitude;
         gps_Satellites = pmData.satellites;
@@ -254,16 +254,17 @@ char checkDMA(){
         gps_Altitude = pmData.altitude;
 
 
-        if (pmData.dropProbe > lastProbeDrop){
-            lastProbeDrop = pmData.dropProbe;
-            char availableProbes = getProbeStatus();
-            for (int i = 0; i < MAX_PROBE; i++){
-                if (availableProbes & (1 << i)){
-                    dropProbe(pmData.dropProbe);
-                }
-            }
-            
-        }
+//        if (pmData.dropProbe > lastProbeDrop){
+//            lastProbeDrop = pmData.dropProbe;
+//            char availableProbes = getProbeStatus();
+//            int i = 0;
+//            for (i = 0; i < MAX_PROBE; i++){
+//                if (availableProbes & (1 << i)){
+//                    dropProbe(pmData.dropProbe);
+//                }
+//            }
+//
+//        }
         if (gps_PositionFix){
             input_AP_Heading = pmData.sp_Heading;
         }

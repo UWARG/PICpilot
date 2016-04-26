@@ -55,9 +55,9 @@ typedef struct _waypointWrapper{
     float altitude;
     float radius; //Radius of turn
     char type; //Regular or probe drop location
+    char id;    //Array ID
     char nextId; //For use with insertNode() or operations that require reference to another node
     char previousId; //For use with insertNode() or operations that require reference to another node
-    char id;    //Array ID
 }WaypointWrapper;
 
 typedef struct _PathData{
@@ -81,6 +81,7 @@ typedef struct _PMData { //54 Bytes
     float airspeed;
     float pmPathGain;
     float pmOrbitGain;
+    float waypointChecksum;
     int sp_Altitude; // Meters
     int heading;  //Degrees
     int sp_Heading; //Degrees
@@ -89,10 +90,10 @@ typedef struct _PMData { //54 Bytes
     char positionFix;   //0 = No GPS, 1 = GPS fix, 2 = DGSP Fix
     char targetWaypoint;
     char waypointCount;
-    char waypointChecksum;
     char pathFollowing;
-    char dropProbe; //0 = No drop, 1 = Drop
-    char checkbyteDMA;
+    char dropProbe; //0 = No drop, 1 = 1st drop, 2 - 2nd drop, etc..
+    char checkbyteDMA1;
+    char checkbyteDMA2;
 } PMData;
 
 typedef struct _AMData { //54 Bytes
@@ -102,23 +103,28 @@ typedef struct _AMData { //54 Bytes
     float calibrationHeight;
     char command;
     char followPath;
-//    char padding1;
-//    char padding2;
-//    char padding3;
-//    char padding4;
-//    char padding5;
-//    char padding6;
-//    char padding7;
-//    char padding8;
-//    char padding9;
-//    char padding10;
-//    char padding11;
-//    char padding12;
+    char padding1;
+    char padding2;
+    char padding3;
+    char padding4;
+    char padding5;
+    char padding6;
+    char padding7;
+    char padding8;
+    char padding9;
+    char padding10;
+    char padding11;
+    char padding12;
+    char padding13;
+    char padding14;
+    char padding15;
+    char padding16;
     char checksum;
     char checkbyteDMA;
 } AMData;
 
-char generatePMDataDMAChecksum(void);
+char generatePMDataDMAChecksum1(void);
+char generatePMDataDMAChecksum2(void);
 char generateAMDataDMACheckbyte(void);
 char generateAMDataChecksum(AMData* data);
 float getDistance(long double lat1, long double lon1, long double lat2, long double lon2);

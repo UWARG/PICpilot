@@ -72,6 +72,7 @@ struct priority2_block { //Medium Frequency - Once every second
     float rollKD, rollKP;
     float pitchKD, pitchKP;
     float yawKD, yawKP;
+    float pathChecksum; //1 byte
     int lastCommandsSent[4]; //4 bytes * 4 = 16
     int batteryLevel1, batteryLevel2; // 4 bytes
     int ch1In,ch2In,ch3In,ch4In,ch5In,ch6In,ch7In,ch8In;
@@ -81,7 +82,6 @@ struct priority2_block { //Medium Frequency - Once every second
     char wirelessConnection; //1 byte
     char autopilotActive; //1 byte  
     char gpsStatus; //1 Byte
-    char pathChecksum; //1 byte
     char numWaypoints; //1 bytes
     char waypointIndex; //1 byte
     char pathFollowing; // 1 byte

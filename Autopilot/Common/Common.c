@@ -9,8 +9,11 @@
 #include "Common.h"
 
 // TODO: make me a real checksum!
-char generatePMDataDMAChecksum(void) {
+char generatePMDataDMAChecksum1(void) {
     return 0xAA;
+}
+char generatePMDataDMAChecksum2(void) {
+    return 0x55;
 }
 
 char generateAMDataDMACheckbyte(void){
