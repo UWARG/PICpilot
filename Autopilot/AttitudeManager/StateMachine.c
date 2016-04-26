@@ -192,9 +192,9 @@ void lowLevelControl(){
         setPWM(YAW_OUT_CHANNEL, MIN_PWM); //Yaw
     }
     setPWM(FLAP_OUT_CHANNEL, outputSignal[4]); //Flaps
-    setPWM(PROBE1_OUT_CHANNEL, probeStatus(PROBE1));
-    setPWM(PROBE2_OUT_CHANNEL, probeStatus(PROBE2));
-    setPWM(PROBE3_OUT_CHANNEL, probeStatus(PROBE3));
+    setPWM(PROBE1_OUT_CHANNEL, probePWM(PROBE1));
+    setPWM(PROBE2_OUT_CHANNEL, probePWM(PROBE2));
+    setPWM(PROBE3_OUT_CHANNEL, probePWM(PROBE3));
 
     //Check for kill mode
 #if COMP_MODE

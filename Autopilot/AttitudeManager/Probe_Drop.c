@@ -11,15 +11,19 @@
 #include "../Common/debug.h"
 #include "Probe_Drop.h"
 
-static int prob_drop[3] = {175,-50,0};
+static int prob_drop[3] = {PROBE1_DEFAULT, PROBE2_DEFAULT, PROBE3_DEFAULT};
 // prob_drop_1 (channel 6)
 // prob_drop_2 (channel 7)
 
-//char dropping = 0;
+char dropped = 0;
 //int prob_old_state = 0
 void dropProbe(char num)
 {
-    prob_drop[num - 1] = -370;
+    if (num > 0){
+        prob_drop[num - 1] = PROBE1_ACTIVE;
+        //Mark the probe as dropped
+        dropped |= (1 << (num - 1));
+    }
 }
 
 
@@ -27,18 +31,24 @@ void resetProbe(char num)
 {
     if (num==1)
     {
-        prob_drop[num -1] = 175;
+        prob_drop[num -1] = PROBE1_DEFAULT;
     }
     else if (num==2)
     {
-        prob_drop[num- 1] = -50;
+        prob_drop[num- 1] = PROBE2_DEFAULT;
     }
     else
-        prob_drop[num-1] = 0;
+        prob_drop[num-1] = PROBE3_DEFAULT;
+    //Unmark the probe as dropped
+    dropped &= ~(1 << (num - 1));
 }
 
-int probeStatus(char num)
+int probePWM(char num)
 {
     return prob_drop[num - 1];
 }
-//char getProbeDropState(){
+
+char getProbeStatus(){
+    //Returns bit indicating which probes were dropped
+    return dropped;
+}
