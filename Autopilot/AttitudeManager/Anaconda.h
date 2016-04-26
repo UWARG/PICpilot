@@ -35,6 +35,8 @@ void stopArm();
 #define MAX_YAW_PWM (MAX_PWM - 109) //This was - 25
 #define MIN_YAW_PWM (MIN_PWM + 109) //This was + 25
 
+#define STALL_SPEED 48.15 //km/h
+
 #define TAIL_TYPE 2 // Standard (0) or V-Tail (1) or Inverse V-Tail (2)
 #define STANDARD_TAIL 0
 #define V_TAIL 1

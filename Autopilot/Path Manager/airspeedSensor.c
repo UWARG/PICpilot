@@ -10,7 +10,8 @@
 
 
 int currentAirspeedSignal = 0;
-
+int airspeedHistory[AIRSPEED_HISTORY];
+int historyCounter = 0;
 
 void __attribute__((interrupt, no_auto_psv)) _ADC1Interrupt(void)
 {
@@ -23,14 +24,22 @@ void __attribute__((interrupt, no_auto_psv)) _ADC1Interrupt(void)
 
 void initAirspeedSensor(){
     //RA6/AN22 is the pin to get the airspeed information
-    TRISAbits.TRISA6 = 1;
+    TRISBbits.TRISB10 = 1;
     initAirspeedADC();
 
 }
 
 
 float getCurrentAirspeed(){
-      return ((float)(pow(currentAirspeedSignal,2)*0.0147+0.4132*currentAirspeedSignal+1743)); //sensor signal calibration
+     airspeedHistory[historyCounter++] = currentAirspeedSignal;
+     historyCounter %= AIRSPEED_HISTORY;
+     int i = 0;
+     float avgAirspeed = 0;
+     for (i = 0; i < AIRSPEED_HISTORY; i++){
+         avgAirspeed += (float)airspeedHistory[i];
+     }
+     avgAirspeed /= AIRSPEED_HISTORY;
+          return (0.30*(avgAirspeed-1417)); //sensor signal calibration
 }
 
 void initAirspeedADC(){
@@ -51,8 +60,8 @@ void initAirspeedADC(){
     AD1CON3bits.SAMC=0; 		// Auto Sample Time = 0*Tad
     AD1CON3bits.ADCS=6;			// ADC Conversion Clock Tad=Tcy*(ADCS+1)= (1/40M)*7 = 175nS
 
-    AD1CHS0bits.CH0SA = 22; //Channel 0 positive input on AN22 (Sample A)
-    AD1CHS0bits.CH0SB = 22; //Channel 0 positive input on AN22 (Sample B)
+    AD1CHS0bits.CH0SA = 11; //Channel 0 positive input on AN22 (Sample A)
+    AD1CHS0bits.CH0SB = 11; //Channel 0 positive input on AN22 (Sample B)
 
     AD1PCFGL = 0;
     // TODO why is this an error? AD2PCFGH = 0;

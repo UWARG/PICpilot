@@ -20,6 +20,8 @@
 #define PATH_FREE 0
 #define PATH_FULL 1
 
+#define DUBINS_PATH TRUE
+
 #define PATH 0
 #define ORBIT 1
 

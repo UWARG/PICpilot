@@ -12,6 +12,8 @@
 extern "C" {
 #endif
 
+#define AIRSPEED_HISTORY 20
+
 
 //Function Prototypes
 //TODO: Add descriptions for each function
