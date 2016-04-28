@@ -180,9 +180,9 @@ void attitudeInit() {
 
     /* Initialize Input Capture and Output Compare Modules */
 #if DEBUG
-    initPWM(0b10011111, 0b11111111);
+    initPWM(0b11111111, 0b11111111);
 #else
-    initPWM(0b10011111, 0b11111111);
+    initPWM(0b11111111, 0b11111111);
 #endif
     /*  *****************************************************************
      *  IMU
@@ -382,7 +382,7 @@ void inputCapture(){
     inputMixing(channelIn, &input_RC_RollRate, &input_RC_PitchRate, &input_RC_Throttle, &input_RC_YawRate, &input_RC_Flap);
 
     // Switches and Knobs
-    input_RC_UHFSwitch = channelIn[4];
+    input_RC_UHFSwitch = channelIn[5];
 //        sp_Type = channelIn[5];
 //        sp_Value = channelIn[6];
     input_RC_Switch1 = channelIn[7];
@@ -960,8 +960,8 @@ int writeDatalink(p_priority packet){
             statusData->data.p2_block.lastCommandsSent[1] = lastCommandSentCode[(lastCommandCounter + (COMMAND_HISTORY_SIZE - 1))%COMMAND_HISTORY_SIZE];
             statusData->data.p2_block.lastCommandsSent[2] = lastCommandSentCode[(lastCommandCounter + (COMMAND_HISTORY_SIZE - 2))%COMMAND_HISTORY_SIZE];
             statusData->data.p2_block.lastCommandsSent[3] = lastCommandSentCode[(lastCommandCounter + (COMMAND_HISTORY_SIZE - 3))%COMMAND_HISTORY_SIZE];
-            statusData->data.p2_block.batteryLevel1 = batteryLevel1;
-            statusData->data.p2_block.batteryLevel2 = 100;
+            statusData->data.p2_block.batteryLevel1 = 0;
+            statusData->data.p2_block.batteryLevel2 = 0;
 //            debug("SW3");
             input = getPWMArray();
             statusData->data.p2_block.ch1In = input[0];
@@ -987,7 +987,7 @@ int writeDatalink(p_priority packet){
             statusData->data.p2_block.altitudeSetpoint = getAltitudeSetpoint();
             statusData->data.p2_block.flapSetpoint = getFlapSetpoint();
             statusData->data.p2_block.cameraStatus = cameraCounter;
-            statusData->data.p2_block.wirelessConnection = ((input_RC_UHFSwitch < -429) << 1) + (input_RC_Switch1 > 380);//+ RSSI;
+            statusData->data.p2_block.wirelessConnection = ((input[5] < 180) << 1) + (input[7] > 0);//+ RSSI;
             statusData->data.p2_block.autopilotActive = getProgramStatus();
             //statusData->data.p2_block.sensorStat = getSensorStatus(0) + (getSensorStatus(1) << 2);
             statusData->data.p2_block.gpsStatus = gps_Satellites + (gps_PositionFix << 4);
@@ -1017,6 +1017,7 @@ int writeDatalink(p_priority packet){
             statusData->data.p3_block.autonomousLevel = controlLevel;
             statusData->data.p3_block.startupErrorCodes = getStartupErrorCodes();
             statusData->data.p3_block.startupSettings = DEBUG + (COPTER << 1); //TODO: put this in the startuperrorCode file
+            statusData->data.p3_block.probeStatus = getProbeStatus();
             break;
                 
         default:
