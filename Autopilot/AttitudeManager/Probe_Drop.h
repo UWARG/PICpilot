@@ -18,11 +18,11 @@ extern "C" {
 
 #define MAX_PROBE 3
 
-#define PROBE1_DEFAULT 175
-#define PROBE2_DEFAULT -50
+#define PROBE1_DEFAULT 105
+#define PROBE2_DEFAULT -150
 #define PROBE3_DEFAULT 0
 
-#define PROBE1_ACTIVE -370
+#define PROBE1_ACTIVE -240
 #define PROBE2_ACTIVE -370
 #define PROBE3_ACTIVE -370
 

@@ -58,6 +58,7 @@ void pathManagerInit(void) {
     initBatterySensor();
     initAirspeedSensor();
 
+
     //Interchip Communication
     //Initialize Interchip Interrupts for Use in DMA Reset
     //Set opposite Input / Output Configuration on the AttitudeManager
@@ -150,12 +151,12 @@ void pathManagerRuntime(void) {
     position[2] = gpsData.altitude;
     heading = (float)gpsData.heading;
 
-    if (returnHome || (followPath && pathCount - currentIndex < 1 && pathCount >= 0)){
+    if (returnHome || (pathCount - currentIndex < 1 && pathCount >= 0)){
         pmData.sp_Heading = lastKnownHeadingHome;
     } else if (pathCount - currentIndex >= 1 && pmData.positionFix > 0) {
         currentIndex = followWaypoints(path[currentIndex], (float*)position, heading, (int*)&pmData.sp_Heading);
     }
-    if (pmData.positionFix > 0){
+    if (pmData.positionFix >= 1){
         lastKnownHeadingHome = calculateHeadingHome(home, (float*)position, heading);
     }
 
@@ -445,7 +446,9 @@ float followStraightPath(float* waypointDirection, float* targetWaypoint, float*
     }
 
     float pathError = -sin(courseAngle) * (position[0] - targetWaypoint[0]) + cos(courseAngle) * (position[1] - targetWaypoint[1]);
-
+    char str[20];
+    sprintf(str,"PathError: %f",pathError);
+    debug(str);
     return 90 - rad2deg(courseAngle - MAX_PATH_APPROACH_ANGLE * 2/PI * atan(k_gain[PATH] * pathError)); //Heading in degrees (magnetic)
 
 }

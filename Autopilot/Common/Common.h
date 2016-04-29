@@ -17,11 +17,10 @@
 //Constants
 #define EARTH_RADIUS 6378.137
 //Flying Dutchmen: 43.473004, -80.539678
-//Thunder Bay Hotel: 49.422083, -89.273722
+//Thunder Bay Hotel: 48.422083, -89.273722
 //Southport, Manitoba: 49.912153, -98.268836
-#define RELATIVE_LATITUDE 49.422083
-#define RELATIVE_LONGITUDE -89.273722
-
+#define RELATIVE_LATITUDE 49.913561
+#define RELATIVE_LONGITUDE -98.272736
 
 
 //Define constants for global use in the code

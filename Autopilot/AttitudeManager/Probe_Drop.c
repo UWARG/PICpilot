@@ -31,11 +31,18 @@ char dropped = 0;
 //int prob_old_state = 0
 void dropProbe(char num)
 {
-    if (num > 0){
-        prob_drop[num - 1] = PROBE1_ACTIVE;
-        //Mark the probe as dropped
-        dropped |= (1 << (num - 1));
+    if (num == 1)
+    {
+        prob_drop[num -1] = PROBE1_ACTIVE;
     }
+    else if (num == 2)
+    {
+        prob_drop[num- 1] = PROBE2_ACTIVE;
+    }
+    else
+        prob_drop[num-1] = PROBE3_ACTIVE;
+        //Mark the probe as dropped
+    dropped |= (1 << (num - 1));
 }
 
 void resetProbe(char num) // close on probe
