@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-#define P0_SEND_FREQUENCY 250 //Time in miliseconds
+#define P0_SEND_FREQUENCY 300 //Time in miliseconds
 #define P1_SEND_FREQUENCY 1000 //Time in milliseconds
 #define P2_SEND_FREQUENCY 20000 //Time in milliseconds
 #define UPLINK_CHECK_FREQUENCY 100 //Time in milliseconds
@@ -41,7 +41,7 @@ extern "C" {
     
 #define GPS_TIMEOUT 30000 //In Milliseconds
 
-#define HEARTBEAT_KILL_TIMEOUT 120000 //In Milliseconds
+#define HEARTBEAT_KILL_TIMEOUT 20000 //In Milliseconds
 
 #define UHF_KILL_TIMEOUT 10000
 

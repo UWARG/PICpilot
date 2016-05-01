@@ -180,7 +180,7 @@ void checkLimits(int* channels){
 void startArm()
 {
     vehicleArmed = 1;
-    armVehicle(2000);
+    armVehicle(500);
 }
 
 void stopArm()

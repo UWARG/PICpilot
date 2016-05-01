@@ -69,10 +69,6 @@ void StateMachine(char entryLocation){
         lowLevelControl();
 
     }
-    else if(UPLINK_CHECK_FREQUENCY <= uplinkTimer){
-        uplinkTimer = 0;
-        readDatalink();
-    }
     else if(isDMADataAvailable() && checkDMA()){
         //Input from Controller
         inputCapture();
@@ -82,6 +78,12 @@ void StateMachine(char entryLocation){
     }
     else{
     }
+
+    if(UPLINK_CHECK_FREQUENCY <= uplinkTimer){
+        uplinkTimer = 0;
+        readDatalink();
+    }
+
     if(P0_SEND_FREQUENCY <= downlinkP0Timer){
 //        debug("P0");
         //Compile and send data

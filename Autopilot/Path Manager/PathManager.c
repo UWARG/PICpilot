@@ -46,8 +46,8 @@ char pathCount = 0;
 
 int lastKnownHeadingHome = 10;
 char returnHome = 0;
-char doProbeDrop;
-char followPath;
+char doProbeDrop = 0;
+char followPath = 0;
 
 void pathManagerInit(void) {
 
@@ -153,7 +153,7 @@ void pathManagerRuntime(void) {
 
     if (returnHome || (pathCount - currentIndex < 1 && pathCount >= 0)){
         pmData.sp_Heading = lastKnownHeadingHome;
-    } else if (pathCount - currentIndex >= 1 && pmData.positionFix > 0) {
+    } else if (followPath && pathCount - currentIndex >= 1 && pmData.positionFix > 0) {
         currentIndex = followWaypoints(path[currentIndex], (float*)position, heading, (int*)&pmData.sp_Heading);
     }
     if (pmData.positionFix >= 1){
@@ -446,10 +446,8 @@ float followStraightPath(float* waypointDirection, float* targetWaypoint, float*
     }
 
     float pathError = -sin(courseAngle) * (position[0] - targetWaypoint[0]) + cos(courseAngle) * (position[1] - targetWaypoint[1]);
-    char str[20];
-    sprintf(str,"PathError: %f",pathError);
-    debug(str);
-    return 90 - rad2deg(courseAngle - MAX_PATH_APPROACH_ANGLE * 2/PI * atan(k_gain[PATH] * pathError)); //Heading in degrees (magnetic)
+    float calcHeading = 90 - rad2deg(courseAngle - MAX_PATH_APPROACH_ANGLE * 2/PI * atan(k_gain[PATH] * pathError)); //Heading in degrees (magnetic)
+    return calcHeading;
 
 }
 
@@ -630,7 +628,7 @@ unsigned int insertPathNode(PathData* node, unsigned int previousID, unsigned in
 }
 
 void copyGPSData(){
-    if (newGPSDataAvailable){
+    if (newGPSDataAvailable && gpsData.longitude < -98.0 && gpsData.latitude > 49.0){ //Hack fix for competition
         newGPSDataAvailable = 0;
         pmData.time = gpsData.time;
         pmData.longitude = gpsData.longitude;
@@ -657,7 +655,7 @@ void checkAMData(){
     if (amData.checkbyteDMA == generateAMDataDMACheckbyte()){
         if (lastAMDataChecksum != amData.checksum && amData.checksum == generateAMDataChecksum(&amData)){
             lastAMDataChecksum = amData.checksum;
-            debug("Command");
+//            debug("Command");
            // All commands/actions that need to be run go here
            switch (amData.command){
                 case PM_DEBUG_TEST:
@@ -671,6 +669,11 @@ void checkAMData(){
                     node->radius = amData.waypoint.radius;
                     node->type = amData.waypoint.type;
                     appendPathNode(node);
+//                    debug("new");
+//                    char str[20];
+//                    sprintf(str, "Lat: %f, Lon: %f, count: %d", node->latitude, node->longitude, pathCount);
+//                    debug(str);
+
                     break;
                 case PM_CLEAR_WAYPOINTS:
                     clearPathNodes();
@@ -704,7 +707,6 @@ void checkAMData(){
 //                    node->radius = 1; //Arbitrary value
 //                    node->type = DEFAULT_WAYPOINT;
                     if (path[getIndexFromID(amData.waypoint.id)] && path[getIndexFromID(amData.waypoint.id)]->previous){
-                        debug("TEST");
 //                        insertPathNode(node,path[getIndexFromID(amData.waypoint.id)]->previous->id,amData.waypoint.id);
                         currentIndex = getIndexFromID(amData.waypoint.id);
                     }
