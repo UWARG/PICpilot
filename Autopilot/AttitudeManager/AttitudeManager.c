@@ -228,7 +228,7 @@ char checkDMA(){
     //Transfer data from PATHMANAGER CHIP
     lastNumSatellites = gps_Satellites; //get the last number of satellites
     DMADataAvailable = 0;
-    if (generatePMDataDMAChecksum1() == pmData.checkbyteDMA1 && generatePMDataDMAChecksum2() == pmData.checkbyteDMA2) {
+    if (generatePMDataDMAChecksum1() == pmData.checkbyteDMA1 && generatePMDataDMAChecksum2() == pmData.checkbyteDMA2 && pmData.longitude < -98.0 && pmData.latitude > 49.0) {
         gps_Time = pmData.time;
         input_AP_Altitude = pmData.sp_Altitude;
         gps_Satellites = pmData.satellites;
@@ -1057,15 +1057,15 @@ void checkHeartbeat(){
 }
 
 void checkGPS(){
-    if (gps_PositionFix == 0){
-        setProgramStatus(KILL_MODE_WARNING);
-        if (getTime() - gpsTimer > GPS_TIMEOUT){
-            killPlane(TRUE);
-        }
-    }
-    else{
-        gpsTimer = getTime();
-    }
+//    if (gps_PositionFix == 0){
+//        setProgramStatus(KILL_MODE_WARNING);
+//        if (getTime() - gpsTimer > GPS_TIMEOUT){
+//            killPlane(TRUE);
+//        }
+//    }
+//    else{
+//        gpsTimer = getTime();
+//    }
 }
 
 
