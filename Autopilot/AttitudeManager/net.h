@@ -99,6 +99,7 @@ struct priority3_block { //Low Frequency - On update...
     int autonomousLevel;
     unsigned int startupErrorCodes; //2 bytes
     int startupSettings;
+    char probeStatus;
 };
 
 typedef union {
