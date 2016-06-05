@@ -199,7 +199,7 @@ void attitudeInit() {
         setSensorStatus(VECTORNAV, SENSOR_CONNECTED & TRUE);
         //IMU position matrix
         // offset = {x, y, z}
-        float cal_x = -90;
+        float cal_x = 0;
         float cal_y = -90;
         float cal_z = 0.0;
         float offset[3] = {cal_x,cal_y,cal_z};
@@ -228,7 +228,7 @@ char checkDMA(){
     //Transfer data from PATHMANAGER CHIP
     lastNumSatellites = gps_Satellites; //get the last number of satellites
     DMADataAvailable = 0;
-    if (generatePMDataDMAChecksum1() == pmData.checkbyteDMA1 && generatePMDataDMAChecksum2() == pmData.checkbyteDMA2 && pmData.longitude < -98.0 && pmData.latitude > 49.0) {
+    if (generatePMDataDMAChecksum1() == pmData.checkbyteDMA1 && generatePMDataDMAChecksum2() == pmData.checkbyteDMA2) {
         gps_Time = pmData.time;
         input_AP_Altitude = pmData.sp_Altitude;
         gps_Satellites = pmData.satellites;

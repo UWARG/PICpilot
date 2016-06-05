@@ -204,7 +204,7 @@ void lowLevelControl(){
 #if COMP_MODE
     checkGPS();
     checkHeartbeat();
-    checkUHF();
+    checkUHFStatus();
 #endif
 
 }

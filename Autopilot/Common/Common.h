@@ -19,8 +19,8 @@
 //Flying Dutchmen: 43.473004, -80.539678
 //Thunder Bay Hotel: 48.422083, -89.273722
 //Southport, Manitoba: 49.912153, -98.268836
-#define RELATIVE_LATITUDE 49.913561
-#define RELATIVE_LONGITUDE -98.272736
+#define RELATIVE_LATITUDE 43.473004
+#define RELATIVE_LONGITUDE -80.539678
 
 
 //Define constants for global use in the code
