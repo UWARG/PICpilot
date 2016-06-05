@@ -228,7 +228,7 @@ char checkDMA(){
     //Transfer data from PATHMANAGER CHIP
     lastNumSatellites = gps_Satellites; //get the last number of satellites
     DMADataAvailable = 0;
-    if (generatePMDataDMAChecksum1() == pmData.checkbyteDMA1 && generatePMDataDMAChecksum2() == pmData.checkbyteDMA2 && pmData.longitude < -98.0 && pmData.latitude > 49.0) {
+    if (generatePMDataDMAChecksum1() == pmData.checkbyteDMA1 && generatePMDataDMAChecksum2() == pmData.checkbyteDMA2) {
         gps_Time = pmData.time;
         input_AP_Altitude = pmData.sp_Altitude;
         gps_Satellites = pmData.satellites;
