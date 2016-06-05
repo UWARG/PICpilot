@@ -199,7 +199,7 @@ void attitudeInit() {
         setSensorStatus(VECTORNAV, SENSOR_CONNECTED & TRUE);
         //IMU position matrix
         // offset = {x, y, z}
-        float cal_x = -90;
+        float cal_x = 0;
         float cal_y = -90;
         float cal_z = 0.0;
         float offset[3] = {cal_x,cal_y,cal_z};
@@ -534,7 +534,7 @@ void imuCommunication(){
     VN100_SPI_GetYPR(0, &imuData[YAW], &imuData[PITCH], &imuData[ROLL]);
     imu_YawAngle = imuData[YAW];
     imu_PitchAngle = imuData[PITCH];
-    imu_RollAngle = (imuData[ROLL] + 90);
+    imu_RollAngle = (imuData[ROLL]);
 #if DEBUG
     // Rate - Radians, Angle - Degrees
 //    char x[30];
