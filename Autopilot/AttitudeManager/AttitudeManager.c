@@ -199,7 +199,7 @@ void attitudeInit() {
         setSensorStatus(VECTORNAV, SENSOR_CONNECTED & TRUE);
         //IMU position matrix
         // offset = {x, y, z}
-        float cal_x = 0;
+        float cal_x = -90;
         float cal_y = -90;
         float cal_z = 0.0;
         float offset[3] = {cal_x,cal_y,cal_z};
