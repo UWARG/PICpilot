@@ -534,7 +534,7 @@ void imuCommunication(){
     VN100_SPI_GetYPR(0, &imuData[YAW], &imuData[PITCH], &imuData[ROLL]);
     imu_YawAngle = imuData[YAW];
     imu_PitchAngle = imuData[PITCH];
-    imu_RollAngle = (imuData[ROLL]);
+    imu_RollAngle = (imuData[ROLL] + 90);
 #if DEBUG
     // Rate - Radians, Angle - Degrees
 //    char x[30];
