@@ -20,6 +20,7 @@
 #include "InterchipDMA.h"
 #include "ProgramStatus.h"
 #include <string.h>
+#include "MPU6050.h"
 
 extern PMData pmData;
 extern AMData amData;
@@ -211,6 +212,15 @@ void attitudeInit() {
     else{
         setSensorStatus(VECTORNAV, SENSOR_CONNECTED & FALSE);
     }
+
+    //Todo: Finish this code to test the MPU IMU
+    if (init_MPU6050()){
+        //setSensorStatus
+        getAccel();
+        getGyro();
+        //debug(
+    }
+
 #if DEBUG
         debug("Datalink Initialized");
 #endif
