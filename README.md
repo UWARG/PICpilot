@@ -1,10 +1,10 @@
 PICpilot
 ====================
 
-The WARG Custom Autopilot for fixed wing aircraft and copters on PIC processors.
+The WARG Custom Autopilot for fixed wing, vtol, and multirotor aircraft on PIC processors.
 
-For details on the project, check out the [wiki](https://github.com/UWARG/PICpilot/wiki).
+For details on the project, check out the [docs](http://docs.uwarg.com/picpilot/).
 
-Checkout the [Installation and Setup](https://github.com/UWARG/PICpilot/wiki/Setup) section if you are getting started.
+Check out the [Introduction](http://docs.uwarg.com/picpilot/introduction/) section if you are getting started.
 
-Checkout the [FAQ](https://github.com/UWARG/PICpilot/wiki/FAQ) if you have any questions.
+For the schematic and PCB, check out [GrabCAD](https://workbench.grabcad.com/workbench/projects/gcMS11AcdVnQvS14KhtlL2Ihf33rdxOGKYGdbkc53rDmB_#/folder/1932453).
