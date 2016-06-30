@@ -36,7 +36,7 @@ void initBatterySensor(){
 
 int getBatteryLevel(){
     percent = currentVoltage;
-    return percent;
+    return 0;
 }
 
 void initVoltageADC(){
@@ -57,8 +57,8 @@ void initVoltageADC(){
     AD2CON3bits.SAMC=0; 		// Auto Sample Time = 0*Tad
     AD2CON3bits.ADCS=6;			// ADC Conversion Clock Tad=Tcy*(ADCS+1)= (1/40M)*7 = 175nS
 
-    AD2CHS0bits.CH0SA = 12; //Channel 0 positive input on AN22 (Sample A)
-    AD2CHS0bits.CH0SB = 12; //Channel 0 positive input on AN22 (Sample B)
+    AD2CHS0bits.CH0SA = 12; //Channel 0 positive input on AN12 (Sample A)
+    AD2CHS0bits.CH0SB = 12; //Channel 0 positive input on AN12 (Sample B)
 
     AD2PCFGL = 0;
     // TODO why is this an error? AD2PCFGH = 0;
