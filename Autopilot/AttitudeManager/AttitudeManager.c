@@ -517,11 +517,11 @@ void setKValues(int type,float* values){
     }
 }
 
-void setGains(int* type, float* values){
+void setGains(int channel, float* values){
     int gains[3] = {GAIN_KD,GAIN_KP,GAIN_KI};
     int i;  
-    for(i=0; i<3; i++){
-       setGain(type,gains[i],values[i]);
+    for(i=1; i<4; i++){
+       setGain(channel,gains[i-1],values[i]); // values are found at index 1 to 3 in data array, while gains are a separate array with indexes 0 to 2
     }
 }
 
@@ -921,9 +921,8 @@ void readDatalink(void){
                 break;
             case SET_GAINS:
             {
-                int type = 0; //(int*) (&cmd->data);
-                &cmd->data;
-                setGains(type,(float*)(&cmd->data));
+                char* channel = (char*) (&cmd->data);
+                setGains(*channel,(float*)(&cmd->data));
                 break;
             }
             default:
