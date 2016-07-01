@@ -920,9 +920,12 @@ void readDatalink(void){
                 setKValues(GAIN_KI,(float*)(&cmd->data));
                 break;
             case SET_GAINS:
-                int type = (int*) (&cmd->data);
+            {
+                int type = 0; //(int*) (&cmd->data);
+                &cmd->data;
                 setGains(type,(float*)(&cmd->data));
                 break;
+            }
             default:
                 break;
         }
