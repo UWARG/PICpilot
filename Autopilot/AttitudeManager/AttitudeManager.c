@@ -518,11 +518,10 @@ void setKValues(int type,float* values){
 }
 
 void setGains(int channel, float* values){
-    int gains[3] = {GAIN_KD,GAIN_KP,GAIN_KI};
-    int i;  
-    for(i=1; i<4; i++){
-       setGain(channel,gains[i-1],values[i]); // values are found at index 1 to 3 in data array, while gains are a separate array with indexes 0 to 2
-    }
+    // values are found at index 1 to 3 in the data array
+    setGain(channel,GAIN_KD,values[1]);
+    setGain(channel,GAIN_KP,values[2]);
+    setGain(channel,GAIN_KI,values[3]);
 }
 
 void imuCommunication(){
