@@ -6,25 +6,26 @@
  */
 #include "main.h"
 #include "../Common/Common.h"
-#include "voltageSensor.h"
+#include "MainBatterySensor.h"
 
 
 char percent = 0;
-int currentVoltage = 0;
+int batteryVoltage = 0;
 
 void __attribute__((interrupt, no_auto_psv)) _ADC2Interrupt(void)
 {
 
-    currentVoltage = ADC2BUF0;
+    batteryVoltage = ADC2BUF0;
+        
     IFS1bits.AD2IF = 0;		// Clear the ADC Interrupt Flag
 
 
 }
 
-void initBatterySensor(){
+void initMainBatterySensor(){
     //AN12 is the pin to get the battery information
     TRISBbits.TRISB12 = 1;
-    initVoltageADC();
+    initMainBatteryADC();
 
 }
 
@@ -34,12 +35,12 @@ void initBatterySensor(){
 //    return time;
 //}
 
-int getBatteryLevel(){
-    percent = currentVoltage;
-    return 0;
+int getMainBatteryLevel(){
+    //return value is (voltage*10-64), to stay in the range of a char
+    return ((double)(batteryVoltage)/3/127*13)-64;
 }
 
-void initVoltageADC(){
+void initMainBatteryADC(){
     AD2CON1bits.FORM = 0;		// Data Output Format: Unsigned Int
     AD2CON1bits.SSRC = 7;		// Internal Counter (SAMC) ends sampling and starts convertion
     AD2CON1bits.ASAM = 1;		// Sampling begins when SAMP bit is set (for now)
@@ -61,7 +62,6 @@ void initVoltageADC(){
     AD2CHS0bits.CH0SB = 12; //Channel 0 positive input on AN12 (Sample B)
 
     AD2PCFGL = 0;
-    // TODO why is this an error? AD2PCFGH = 0;
     AD2PCFGLbits.PCFG0 = 0; //Port pin set to analog mode (voltage sampling)
     AD2PCFGLbits.PCFG1 = 0; //Port pin set to analog mode (voltage sampling)
     AD2PCFGLbits.PCFG2 = 0; //Port pin set to analog mode (voltage sampling)

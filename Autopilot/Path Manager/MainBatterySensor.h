@@ -15,10 +15,9 @@ extern "C" {
 
 //Function Prototypes
 //TODO: Add descriptions for each function
-void initBatterySensor();
-//float timeRemaining();
-int getBatteryLevel();
-void initVoltageADC();
+void initMainBatterySensor();
+int getMainBatteryLevel();
+void initMainBatteryADC();
 
 #ifdef	__cplusplus
 }

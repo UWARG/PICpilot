@@ -23,8 +23,8 @@ void __attribute__((interrupt, no_auto_psv)) _ADC1Interrupt(void)
 
 
 void initAirspeedSensor(){
-    //RA6/AN22 is the pin to get the airspeed information
-    TRISBbits.TRISB10 = 1;
+    //RA11/AN11 is the pin to get the airspeed information
+    TRISBbits.TRISB11 = 1;
     initAirspeedADC();
 
 }

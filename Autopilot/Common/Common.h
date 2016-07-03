@@ -87,7 +87,8 @@ typedef struct _PMData { //54 Bytes
     int sp_Altitude; // Meters
     int heading;  //Degrees
     int sp_Heading; //Degrees
-    int batteryLevel;
+    int batteryLevel1;
+    int batteryLevel2;
     char satellites;    //1 Byte
     char positionFix;   //0 = No GPS, 1 = GPS fix, 2 = DGSP Fix
     char targetWaypoint;
