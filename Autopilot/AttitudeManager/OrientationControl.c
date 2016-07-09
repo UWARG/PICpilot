@@ -124,18 +124,20 @@ float getGain(unsigned char YPRH, unsigned char type){
     else
         return -1;
 }
-void setGain(unsigned char YPRH, unsigned char type, float value){
+void setGain(unsigned char channel, unsigned char type, float value){
     gainsUpdated = 1;
-    if (type == GAIN_KD){
-        kd_gain[YPRH] = value;
+    if (channel < GAIN_CHANNELS)
+    {
+        if (type == GAIN_KD){
+            kd_gain[channel] = value;
+        }
+        else if (type == GAIN_KP){
+            kp_gain[channel] = value;
+        }
+        else if (type == GAIN_KI){
+            ki_gain[channel] = value;
+        }
     }
-    else if (type == GAIN_KP){
-        kp_gain[YPRH] = value;
-    }
-    else if (type == GAIN_KI){
-        ki_gain[YPRH] = value;
-    }
-
 }
 
 char areGainsUpdated(){

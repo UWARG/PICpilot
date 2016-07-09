@@ -515,7 +515,14 @@ void setKValues(int type,float* values){
     for(i=0; i<7; i++){
        setGain(Kchannel[i],type,values[i]);
     }
-};
+}
+
+void setGains(int channel, float* values){
+    // values are found at index 1 to 3 in the data array
+    setGain(channel,GAIN_KD,values[0]);
+    setGain(channel,GAIN_KP,values[1]);
+    setGain(channel,GAIN_KI,values[2]);
+}
 
 void imuCommunication(){
     /*****************************************************************************
@@ -911,6 +918,12 @@ void readDatalink(void){
             case SET_KIVALUES:
                 setKValues(GAIN_KI,(float*)(&cmd->data));
                 break;
+            case SET_GAINS:
+            {
+                char* channel = (char*) (&cmd->data);
+                setGains(*channel,((float*)(&cmd->data)) + 1);
+                break;
+            }
             default:
                 break;
         }
