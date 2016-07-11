@@ -11,7 +11,6 @@
       <itemPath>MPL3115A2.h</itemPath>
       <itemPath>NMEAparser.h</itemPath>
       <itemPath>PathManager.h</itemPath>
-      <itemPath>voltageSensor.h</itemPath>
       <itemPath>../Common/clock.h</itemPath>
       <itemPath>../Common/Common.h</itemPath>
       <itemPath>../Common/debug.h</itemPath>
@@ -20,6 +19,7 @@
       <itemPath>airspeedSensor.h</itemPath>
       <itemPath>ProbeDrop.h</itemPath>
       <itemPath>../AttitudeManager/ExtBatterySensor.h</itemPath>
+      <itemPath>../AttitudeManager/MainBatterySensor.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -35,7 +35,6 @@
       <itemPath>MPL3115A2.c</itemPath>
       <itemPath>NMEAparser.c</itemPath>
       <itemPath>PathManager.c</itemPath>
-      <itemPath>voltageSensor.c</itemPath>
       <itemPath>../Common/clock.c</itemPath>
       <itemPath>../Common/Common.c</itemPath>
       <itemPath>../Common/debug.c</itemPath>
@@ -44,6 +43,7 @@
       <itemPath>airspeedSensor.c</itemPath>
       <itemPath>ProbeDrop.c</itemPath>
       <itemPath>../AttitudeManager/ExtBatterySensor.c</itemPath>
+      <itemPath>../AttitudeManager/MainBatterySensor.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

@@ -1,39 +1,48 @@
 /*
- * File:   ExtBatterySensor.c
- * Author: Stephen Cholvat
+ * File:   voltageSensor.c
+ * Author: Chris
  *
- * Created on July 3, 2016, 7:23 PM
+ * Created on June 15, 2013, 3:40 PM
  */
-/*
 #include "main.h"
 #include "../Common/Common.h"
-#include "ExtBatterySensor.h"
+#include "MainBatterySensor.h"
 
-int ExtBatteryVoltage = 0;
+
+char percent = 0;
+int batteryVoltage = 0;
 
 void __attribute__((interrupt, no_auto_psv)) _ADC2Interrupt(void)
 {
 
-    ExtBatteryVoltage = ADC2BUF0;
+    batteryVoltage = ADC2BUF0;
         
     IFS1bits.AD2IF = 0;		// Clear the ADC Interrupt Flag
 
 
 }
 
-void initExtBatterySensor(){
-    //AN10 is the pin to get the battery information
+void initMainBatterySensor(){
+    //AN12 is the pin to get the battery information
+    TRISBbits.TRISB12 = 1;
     TRISBbits.TRISB10 = 1;
-    initExtBatteryADC();
+    initMainBatteryADC();
 
 }
 
-int getExtBatteryLevel(){
+//float timeRemaining(){
+//    float dP = (currentPercent - lastPercent)/vTimeInterval; //Rate of change (Percent/second)
+//    float time = currentPercent/dP;
+//    return time;
+//}
+
+int getMainBatteryLevel(){
     //return value is (voltage*10-64), to stay in the range of a char
-    return ((double)(ExtBatteryVoltage)/3/127*13)-64;
+    //return ((double)(batteryVoltage)/3/127*13)-64;
+    return ((double)(batteryVoltage)/3/100*13);
 }
 
-void initExtBatteryADC(){
+void initMainBatteryADC(){
     AD2CON1bits.FORM = 0;		// Data Output Format: Unsigned Int
     AD2CON1bits.SSRC = 7;		// Internal Counter (SAMC) ends sampling and starts convertion
     AD2CON1bits.ASAM = 1;		// Sampling begins when SAMP bit is set (for now)
@@ -51,8 +60,8 @@ void initExtBatteryADC(){
     AD2CON3bits.SAMC=0; 		// Auto Sample Time = 0*Tad
     AD2CON3bits.ADCS=6;			// ADC Conversion Clock Tad=Tcy*(ADCS+1)= (1/40M)*7 = 175nS
 
-    AD2CHS0bits.CH0SA = 10; //Channel 0 positive input on AN10 (Sample A)
-    AD2CHS0bits.CH0SB = 10; //Channel 0 positive input on AN10 (Sample B)
+    AD2CHS0bits.CH0SA = 12; //Channel 0 positive input on AN12 (Sample A)
+    AD2CHS0bits.CH0SB = 12; //Channel 0 positive input on AN12 (Sample B)
 
     AD2PCFGL = 0;
     AD2PCFGLbits.PCFG0 = 0; //Port pin set to analog mode (voltage sampling)
@@ -77,4 +86,3 @@ void initExtBatteryADC(){
     AD2CON1bits.ADON = 1;		// Turn on the A/D converter
 
 }
-*/
