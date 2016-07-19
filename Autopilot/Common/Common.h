@@ -16,11 +16,16 @@
 
 //Constants
 #define EARTH_RADIUS 6378.137
+
 //Flying Dutchmen: 43.473004, -80.539678
-//Thunder Bay Hotel: 48.422083, -89.273722
-//Southport, Manitoba: 49.912153, -98.268836
 #define RELATIVE_LATITUDE 43.473004
 #define RELATIVE_LONGITUDE -80.539678
+//Southport, Manitoba: 49.912153, -98.268836
+//#define RELATIVE_LATITUDE 49.912153
+//#define RELATIVE_LONGITUDE -98.268836
+
+//used for error checking to see if GPS coordinates make sense
+#define GPS_ERROR 3 
 
 
 //Define constants for global use in the code

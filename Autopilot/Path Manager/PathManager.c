@@ -628,7 +628,7 @@ unsigned int insertPathNode(PathData* node, unsigned int previousID, unsigned in
 }
 
 void copyGPSData(){
-    if (newGPSDataAvailable && gpsData.longitude < -98.0 && gpsData.latitude > 49.0){ //Hack fix for competition
+    if (newGPSDataAvailable && gpsErrorCheck(gpsData)){// && gpsData.longitude < -98.0 && gpsData.latitude > 49.0){ //Hack fix for competition
         newGPSDataAvailable = 0;
         pmData.time = gpsData.time;
         pmData.longitude = gpsData.longitude;
@@ -648,6 +648,15 @@ void copyGPSData(){
     pmData.pathFollowing = followPath;
     pmData.checkbyteDMA1 = generatePMDataDMAChecksum1();
     pmData.checkbyteDMA2 = generatePMDataDMAChecksum2();
+}
+
+//returns 1 if gps location makes sense, 0 if not
+char gpsErrorCheck(GPSData gpsData){
+    if(abs(gpsData.longitude - RELATIVE_LONGITUDE)<GPS_ERROR && abs(gpsData.latitude - RELATIVE_LATITUDE)<GPS_ERROR){
+        return 1;
+    }
+        
+        return 0;
 }
 
 
