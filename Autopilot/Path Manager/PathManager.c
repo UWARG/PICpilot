@@ -11,7 +11,6 @@
 #include "Dubins.h"
 #include "MPL3115A2.h"
 #include "MainBatterySensor.h"
-//#include "ExtBatterySensor.h"
 #include "airspeedSensor.h"
 #include "ProbeDrop.h"
 
@@ -57,7 +56,6 @@ void pathManagerInit(void) {
     init_SPI2();
     init_DMA2();
     initMainBatterySensor();
-    //initExtBatterySensor();
     initAirspeedSensor();
 
 
