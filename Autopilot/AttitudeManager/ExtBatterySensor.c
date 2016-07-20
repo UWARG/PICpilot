@@ -4,7 +4,6 @@
  *
  * Created on July 3, 2016, 7:23 PM
  */
-/*
 #include "main.h"
 #include "../Common/Common.h"
 #include "ExtBatterySensor.h"
@@ -77,4 +76,3 @@ void initExtBatteryADC(){
     AD2CON1bits.ADON = 1;		// Turn on the A/D converter
 
 }
-*/
