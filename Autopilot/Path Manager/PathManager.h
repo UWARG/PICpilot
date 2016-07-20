@@ -53,7 +53,7 @@ unsigned int removePathNode(unsigned int ID);
 void clearPathNodes(void);
 unsigned int insertPathNode(PathData* node, unsigned int previousID, unsigned int nextID);
 void copyGPSData(void);
-char gpsErrorCheck(GPSData);
+char gpsErrorCheck(double lat, double lon);
 void checkAMData(void);
 float getWaypointChecksum(void);
 
