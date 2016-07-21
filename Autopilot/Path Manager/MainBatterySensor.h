@@ -11,14 +11,10 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
-    
-#define CELLS 2
-
 
 //Function Prototypes
-//TODO: Add descriptions for each function
 void initMainBatterySensor();
-char getMainBatteryLevel();
+int getMainBatteryLevel();
 void initMainBatteryADC();
 
 #ifdef	__cplusplus

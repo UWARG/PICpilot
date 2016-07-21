@@ -9,7 +9,6 @@
 #include "MainBatterySensor.h"
 
 
-int percent = 0;
 int batteryVoltage = 0;
 
 void __attribute__((interrupt, no_auto_psv)) _ADC2Interrupt(void)
@@ -29,18 +28,9 @@ void initMainBatterySensor(){
 
 }
 
-char getMainBatteryLevel(){
-    //return percent of 2 cell battery. 
-    //To calculate percent, the formula takes into account the voltage divider, bit size of a char, minimum 6V of a LiPo 2S, and max charge of 8.4V
-    percent = (((double)(batteryVoltage)/3*13/128)-36*CELLS)*100/(6*CELLS);
-    
-    //error checking
-    if(percent>100){
-        percent=100;
-    }else if(percent<0){
-        percent=0;
-    }
-    return (char) percent;
+int getMainBatteryLevel(){
+//return raw voltage value
+    return batteryVoltage;
 }
 
 void initMainBatteryADC(){

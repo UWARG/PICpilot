@@ -81,8 +81,8 @@ char waypointIndex = 0;
 float waypointChecksum = 0;
 char pathFollowing = 0;
 char waypointCount = 0;
-char batteryLevel1 = 0;
-char batteryLevel2 = 0;
+int batteryLevel1 = 0;
+int batteryLevel2 = 0;
 char lastProbeDrop = 0;
 
 
