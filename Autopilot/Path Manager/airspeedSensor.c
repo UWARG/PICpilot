@@ -16,7 +16,8 @@ int historyCounter = 0;
 void __attribute__((interrupt, no_auto_psv)) _ADC1Interrupt(void)
 {
 
-    currentAirspeedSignal = ADC1BUF0;
+    currentAirspeedSignal = ADC1BUF0;    
+    
     IFS0bits.AD1IF = 0;		// Clear the ADC1 Interrupt Flag
 
 }

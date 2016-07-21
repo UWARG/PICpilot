@@ -78,6 +78,7 @@
 #define SET_KPVALUES 134
 #define SET_KIVALUES 135
 #define UPDATE_WAYPOINT 136
+#define SET_GAINS 137
 
 //Multipart Command Structs
 typedef struct _newwaypointwrapper {

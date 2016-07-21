@@ -12,6 +12,7 @@
 #define GAIN_KD 0
 #define GAIN_KP 1
 #define GAIN_KI 2
+#define GAIN_CHANNELS 7
 
 //Maximum rates for PID loop outputs
 #define MAX_ROLL_ANGLE 35 // max allowed roll angle in degrees
