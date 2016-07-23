@@ -21,19 +21,7 @@ void __attribute__((interrupt, no_auto_psv)) _ADC2Interrupt(void)
 
 }
 
-void initMainBatterySensor(){
-    //AN12 is the pin to get the battery information
-    TRISBbits.TRISB12 = 1;
-    initMainBatteryADC();
-
-}
-
-int getMainBatteryLevel(){
-//return raw voltage value
-    return batteryVoltage;
-}
-
-void initMainBatteryADC(){
+static void initMainBatteryADC(){
     AD2CON1bits.FORM = 0;		// Data Output Format: Unsigned Int
     AD2CON1bits.SSRC = 7;		// Internal Counter (SAMC) ends sampling and starts convertion
     AD2CON1bits.ASAM = 1;		// Sampling begins when SAMP bit is set (for now)
@@ -76,4 +64,16 @@ void initMainBatteryADC(){
     IEC1bits.AD2IE = 1;			// Enable A/D interrupt
     AD2CON1bits.ADON = 1;		// Turn on the A/D converter
 
+}
+
+void initMainBatterySensor(){
+    //AN12 is the pin to get the battery information
+    TRISBbits.TRISB12 = 1;
+    initMainBatteryADC();
+
+}
+
+int getMainBatteryLevel(){
+//return raw voltage value
+    return batteryVoltage;
 }

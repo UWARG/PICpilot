@@ -15,7 +15,6 @@ extern "C" {
 //Function Prototypes
 void initMainBatterySensor();
 int getMainBatteryLevel();
-void initMainBatteryADC();
 
 #ifdef	__cplusplus
 }
