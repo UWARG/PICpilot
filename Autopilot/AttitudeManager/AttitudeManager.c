@@ -81,7 +81,8 @@ char waypointIndex = 0;
 float waypointChecksum = 0;
 char pathFollowing = 0;
 char waypointCount = 0;
-char batteryLevel1 = 0;
+int batteryLevel1 = 0;
+int batteryLevel2 = 0;
 char lastProbeDrop = 0;
 
 
@@ -234,7 +235,8 @@ char checkDMA(){
         gps_Satellites = pmData.satellites;
         gps_PositionFix = pmData.positionFix;   
         waypointIndex = pmData.targetWaypoint;
-        batteryLevel1 = pmData.batteryLevel;
+        batteryLevel1 = pmData.batteryLevel1;
+        batteryLevel2 = pmData.batteryLevel2;
         waypointCount = pmData.waypointCount;
         waypointChecksum = pmData.waypointChecksum;
         pathFollowing = pmData.pathFollowing;
@@ -973,8 +975,8 @@ int writeDatalink(p_priority packet){
             statusData->data.p2_block.lastCommandsSent[1] = lastCommandSentCode[(lastCommandCounter + (COMMAND_HISTORY_SIZE - 1))%COMMAND_HISTORY_SIZE];
             statusData->data.p2_block.lastCommandsSent[2] = lastCommandSentCode[(lastCommandCounter + (COMMAND_HISTORY_SIZE - 2))%COMMAND_HISTORY_SIZE];
             statusData->data.p2_block.lastCommandsSent[3] = lastCommandSentCode[(lastCommandCounter + (COMMAND_HISTORY_SIZE - 3))%COMMAND_HISTORY_SIZE];
-            statusData->data.p2_block.batteryLevel1 = 0;
-            statusData->data.p2_block.batteryLevel2 = 0;
+            statusData->data.p2_block.batteryLevel1 = batteryLevel1;
+            statusData->data.p2_block.batteryLevel2 = batteryLevel2;
 //            debug("SW3");
             input = getPWMArray();
             statusData->data.p2_block.ch1In = input[0];

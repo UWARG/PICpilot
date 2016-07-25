@@ -24,8 +24,8 @@ void __attribute__((interrupt, no_auto_psv)) _ADC1Interrupt(void)
 
 
 void initAirspeedSensor(){
-    //RA6/AN22 is the pin to get the airspeed information
-    TRISBbits.TRISB10 = 1;
+    //RA11/AN11 is the pin to get the airspeed information
+    TRISBbits.TRISB11 = 1;
     initAirspeedADC();
 
 }
@@ -61,8 +61,8 @@ void initAirspeedADC(){
     AD1CON3bits.SAMC=0; 		// Auto Sample Time = 0*Tad
     AD1CON3bits.ADCS=6;			// ADC Conversion Clock Tad=Tcy*(ADCS+1)= (1/40M)*7 = 175nS
 
-    AD1CHS0bits.CH0SA = 11; //Channel 0 positive input on AN22 (Sample A)
-    AD1CHS0bits.CH0SB = 11; //Channel 0 positive input on AN22 (Sample B)
+    AD1CHS0bits.CH0SA = 11; //Channel 0 positive input on AN11 (Sample A)
+    AD1CHS0bits.CH0SB = 11; //Channel 0 positive input on AN11 (Sample B)
 
     AD1PCFGL = 0;
     // TODO why is this an error? AD2PCFGH = 0;

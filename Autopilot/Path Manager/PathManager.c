@@ -10,7 +10,7 @@
 #include "../Common/Common.h"
 #include "Dubins.h"
 #include "MPL3115A2.h"
-#include "voltageSensor.h"
+#include "MainBatterySensor.h"
 #include "airspeedSensor.h"
 #include "ProbeDrop.h"
 
@@ -55,7 +55,7 @@ void pathManagerInit(void) {
 //Communication with GPS
     init_SPI2();
     init_DMA2();
-    initBatterySensor();
+    initMainBatterySensor();
     initAirspeedSensor();
 
 
@@ -638,7 +638,8 @@ void copyGPSData(){
         pmData.satellites = (char)gpsData.satellites;
         pmData.positionFix = (char)gpsData.positionFix;
     }
-    pmData.batteryLevel = getBatteryLevel();
+    pmData.batteryLevel1 = getMainBatteryLevel();
+    pmData.batteryLevel2 = 5;
     pmData.airspeed = getCurrentAirspeed();
     pmData.altitude = getAltitude(); //want to get altitude regardless of if there is new GPS data
     pmData.pmOrbitGain = k_gain[ORBIT];
