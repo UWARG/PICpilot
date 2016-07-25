@@ -8,17 +8,12 @@
 #include "../Common/Common.h"
 #include "MainBatterySensor.h"
 
-
 int batteryVoltage = 0;
 
-void __attribute__((interrupt, no_auto_psv)) _ADC2Interrupt(void)
-{
+void __attribute__((interrupt, no_auto_psv)) _ADC2Interrupt(void){
 
     batteryVoltage = ADC2BUF0;
-        
     IFS1bits.AD2IF = 0;		// Clear the ADC Interrupt Flag
-
-
 }
 
 static void initMainBatteryADC(){
@@ -57,9 +52,6 @@ static void initMainBatteryADC(){
     AD2PCFGLbits.PCFG11 = 0; //Port pin set to analog mode (voltage sampling)
     AD2PCFGLbits.PCFG12 = 0; //Port pin set to analog mode (voltage sampling)
     
-    
-
-    
     IFS1bits.AD2IF = 0;			// Clear the A/D interrupt flag bit
     IEC1bits.AD2IE = 1;			// Enable A/D interrupt
     AD2CON1bits.ADON = 1;		// Turn on the A/D converter
@@ -70,7 +62,6 @@ void initMainBatterySensor(){
     //AN12 is the pin to get the battery information
     TRISBbits.TRISB12 = 1;
     initMainBatteryADC();
-
 }
 
 int getMainBatteryLevel(){
