@@ -926,6 +926,14 @@ void readDatalink(void){
                 setGains(*channel,((float*)(&cmd->data)) + 1);
                 break;
             }
+            case TRIGGER_CAMERA_AND_DROP_PROBE:
+                // The only incoming cmd data will be the number of the
+                // probe to drop (1, 2, or 3)
+                dropProbe(*(char*)(&cmd->data));
+                
+                // Camera pwm trigger value doesn't matter
+                triggerCamera(0);
+                break;
             default:
                 break;
         }
