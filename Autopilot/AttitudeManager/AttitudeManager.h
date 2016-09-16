@@ -85,19 +85,21 @@
 
 
 //channels
-#define ROLL_IN_CHANNEL 1
-#define ROLL_OUT_CHANNEL 1
-#define PITCH_IN_CHANNEL 2
-#define PITCH_OUT_CHANNEL 2
-#define THROTTLE_IN_CHANNEL 3
-#define THROTTLE_OUT_CHANNEL 3
+#define THROTTLE_IN_CHANNEL 1
+#define THROTTLE_OUT_CHANNEL 1
+#define ROLL_IN_CHANNEL 2
+#define ROLL_OUT_CHANNEL 2
+#define PITCH_IN_CHANNEL 3
+#define PITCH_OUT_CHANNEL 3
 #define YAW_IN_CHANNEL 4
 #define YAW_OUT_CHANNEL 4
 #define FLAP_IN_CHANNEL 5
 #define FLAP_OUT_CHANNEL 5
+#define UHF_STATUS_IN_CHANNEL 5
 #define PROBE1_OUT_CHANNEL 6
 #define PROBE2_OUT_CHANNEL 7
 #define PROBE3_OUT_CHANNEL 8
+#define AUTOPILOT_ACTIVE_IN_CHANNEL 8 //Do not change this value, as only 8 will work hardware-wise
 
 
 //Misc
