@@ -926,6 +926,10 @@ void readDatalink(void){
                 setGains(*channel,((float*)(&cmd->data)) + 1);
                 break;
             }
+            case DROP_AND_SNAP:
+                dropProbe(*(char*)(&cmd->data));
+                triggerCamera(MIN_PWM);
+                break;
             default:
                 break;
         }
