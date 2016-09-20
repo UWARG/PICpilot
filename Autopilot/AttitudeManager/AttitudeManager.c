@@ -926,6 +926,10 @@ void readDatalink(void){
                 setGains(*channel,((float*)(&cmd->data)) + 1);
                 break;
             }
+            case DROP_PROBE_AND_TRIGGER_CAMERA: //Command From Groundstation
+                dropProbe(*(char*)(&cmd->data)); //Drop probe 1, 2, or 3 depending on command
+ +              triggerCamera(MIN_PWM); //Trigger camera using PWM signal
+ +              break;
             default:
                 break;
         }
