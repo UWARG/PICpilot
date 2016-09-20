@@ -67,6 +67,7 @@
 #define DROP_PROBE 56
 #define RESET_PROBE 57
 #define FOLLOW_PATH 58
+#define DROP_AND_SNAP 59
 
 //Multipart Commands
 #define NEW_WAYPOINT 128
@@ -79,7 +80,6 @@
 #define SET_KIVALUES 135
 #define UPDATE_WAYPOINT 136
 #define SET_GAINS 137
-#define DROP_AND_SNAP 138
 
 //Multipart Command Structs
 typedef struct _newwaypointwrapper {
