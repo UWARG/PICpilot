@@ -80,6 +80,7 @@
 #define UPDATE_WAYPOINT 136
 #define SET_GAINS 137
 
+//Command From Groundstation
 #define DROP_PROBE_AND_TRIGGER_CAMERA  138
 
 //Multipart Command Structs
