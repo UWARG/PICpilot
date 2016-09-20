@@ -80,7 +80,7 @@
 #define UPDATE_WAYPOINT 136
 #define SET_GAINS 137
 
-#define DROP_PROBE_AND_TRIGGER_CAMERA
+#define DROP_PROBE_AND_TRIGGER_CAMERA  138
 
 //Multipart Command Structs
 typedef struct _newwaypointwrapper {
