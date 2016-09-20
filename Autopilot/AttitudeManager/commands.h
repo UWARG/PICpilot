@@ -80,6 +80,9 @@
 #define UPDATE_WAYPOINT 136
 #define SET_GAINS 137
 
+//Command From Groundstation
+#define DROP_PROBE_AND_TRIGGER_CAMERA 138
+
 //Multipart Command Structs
 typedef struct _newwaypointwrapper {
     long double longitude;  //TODO: Longitude and Latitude is bulky. If problems arise, change the format.
