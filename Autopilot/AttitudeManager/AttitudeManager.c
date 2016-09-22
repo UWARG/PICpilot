@@ -384,10 +384,10 @@ void inputCapture(){
     inputMixing(channelIn, &input_RC_RollRate, &input_RC_PitchRate, &input_RC_Throttle, &input_RC_YawRate, &input_RC_Flap);
 
     // Switches and Knobs
-    input_RC_UHFSwitch = channelIn[5];
+    input_RC_UHFSwitch = channelIn[UHF_STATUS_IN_CHANNEL - 1];
 //        sp_Type = channelIn[5];
 //        sp_Value = channelIn[6];
-    input_RC_Switch1 = channelIn[7];
+    input_RC_Switch1 = channelIn[AUTOPILOT_ACTIVE_IN_CHANNEL - 1];
 
     //Controller Input Interpretation Code
     if (input_RC_Switch1 > MIN_PWM && input_RC_Switch1 < MIN_PWM + 50) {
