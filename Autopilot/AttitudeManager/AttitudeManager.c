@@ -856,6 +856,10 @@ void readDatalink(void){
             case RESET_PROBE:
                 resetProbe(*(char*)(&cmd->data));
                 break;
+            case DROP_SNAP:
+                dropProbe((*(DropSnap*)(&cmd->data)).probeNum);
+                triggerCamera((*(DropSnap*)(&cmd->data)).camSignal);
+                break;
             case FOLLOW_PATH:
                 amData.command = PM_FOLLOW_PATH;
                 amData.followPath = *(char*)(&cmd->data);
