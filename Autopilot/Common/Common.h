@@ -67,6 +67,11 @@ typedef struct _waypointWrapper{
     char previousId; //For use with insertNode() or operations that require reference to another node
 }WaypointWrapper;
 
+typedef struct _dropsnap {
+    char probeNum;
+    unsigned int camSignal;
+} DropSnap;
+
 typedef struct _PathData{
     struct _PathData* next;
     struct _PathData* previous;
