@@ -857,8 +857,8 @@ void readDatalink(void){
                 resetProbe(*(char*)(&cmd->data));
                 break;
             case DROP_SNAP:
-                dropProbe((*(DropSnap*)(&cmd->data)).probeNum);
-                triggerCamera((*(DropSnap*)(&cmd->data)).camSignal);
+                dropProbe(*(char*)(&cmd->data)); // Drop specified probe 
+                triggerCamera(0); // PWM signal isn't used?
                 break;
             case FOLLOW_PATH:
                 amData.command = PM_FOLLOW_PATH;
