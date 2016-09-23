@@ -862,7 +862,11 @@ void readDatalink(void){
                 amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
-
+            case EXIT_HOLD_ORBIT:
+                amData.command = PM_BREAK_HOLD_ORBIT;
+                amData.checkbyteDMA = generateAMDataDMACheckbyte();
+                amData.checksum = generateAMDataChecksum(&amData);
+                break;
             case NEW_WAYPOINT:
                 amData.waypoint.altitude = (*(WaypointWrapper*)(&cmd->data)).altitude;
                 amData.waypoint.id = (*(WaypointWrapper*)(&cmd->data)).id;

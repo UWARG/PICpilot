@@ -48,6 +48,7 @@ int lastKnownHeadingHome = 10;
 char returnHome = 0;
 char doProbeDrop = 0;
 char followPath = 0;
+char inHold = FALSE;
 
 void pathManagerInit(void) {
 
@@ -336,51 +337,46 @@ char followWaypoints(PathData* currentWaypoint, float* position, float heading, 
             float dotProduct = waypointDirection[0] * (position[0] - halfPlane[0]) + waypointDirection[1] * (position[1] - halfPlane[1]) + waypointDirection[2] * (position[2] - halfPlane[2]);
             if (dotProduct > 0){
                 orbitPathStatus = ORBIT;
+                if (targetWaypoint->type == HOLD_WAYPOINT)
+                {
+                    inHold = TRUE;
+                }
             }
 
             *sp_Heading = (int)followStraightPath((float*)&waypointDirection, (float*)targetCoordinates, (float*)position, heading);
         }
         else{            
             
-            // if target waypoint is a hold waypoint the plane will follow the orbit until the waypoint is updated or removed
-            if (targetWaypoint->type == HOLD_WAYPOINT) {
-                char turnDirection = waypointDirection[0] * nextWaypointDirection[1] - waypointDirection[1] * nextWaypointDirection[0]>0?1:-1;
-                float euclideanWaypointDirection = sqrt(pow(nextWaypointDirection[0] - waypointDirection[0],2) + pow(nextWaypointDirection[1] - waypointDirection[1],2) + pow(nextWaypointDirection[2] - waypointDirection[2],2)) * ((nextWaypointDirection[0] - waypointDirection[0]) < 0?-1:1) * ((nextWaypointDirection[1] - waypointDirection[1]) < 0?-1:1) * ((nextWaypointDirection[2] - waypointDirection[2]) < 0?-1:1);
-                
-                float turnCenter[3];
-                turnCenter[0] = targetCoordinates[0] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[0] - waypointDirection[0])/euclideanWaypointDirection);
-                turnCenter[1] = targetCoordinates[1] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[1] - waypointDirection[1])/euclideanWaypointDirection);
-                turnCenter[2] = targetCoordinates[2] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[2] - waypointDirection[2])/euclideanWaypointDirection);
-                
-                *sp_Heading = (int)followOrbit((float*) &turnCenter,targetWaypoint->radius, turnDirection, (float*)position, heading);
-                
-                return currentWaypoint->index;
-            }
-            
             float halfPlane[3];
             halfPlane[0] = targetCoordinates[0] + (targetWaypoint->radius/tan(turningAngle/2)) * nextWaypointDirection[0];
             halfPlane[1] = targetCoordinates[1] + (targetWaypoint->radius/tan(turningAngle/2)) * nextWaypointDirection[1];
             halfPlane[2] = targetCoordinates[2] + (targetWaypoint->radius/tan(turningAngle/2)) * nextWaypointDirection[2];
+            
+            char turnDirection = waypointDirection[0] * nextWaypointDirection[1] - waypointDirection[1] * nextWaypointDirection[0]>0?1:-1;
+            float euclideanWaypointDirection = sqrt(pow(nextWaypointDirection[0] - waypointDirection[0],2) + pow(nextWaypointDirection[1] - waypointDirection[1],2) + pow(nextWaypointDirection[2] - waypointDirection[2],2)) * ((nextWaypointDirection[0] - waypointDirection[0]) < 0?-1:1) * ((nextWaypointDirection[1] - waypointDirection[1]) < 0?-1:1) * ((nextWaypointDirection[2] - waypointDirection[2]) < 0?-1:1);
+
+            float turnCenter[3];
+            turnCenter[0] = targetCoordinates[0] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[0] - waypointDirection[0])/euclideanWaypointDirection);
+            turnCenter[1] = targetCoordinates[1] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[1] - waypointDirection[1])/euclideanWaypointDirection);
+            turnCenter[2] = targetCoordinates[2] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[2] - waypointDirection[2])/euclideanWaypointDirection);
+            
+            // if target waypoint is a hold waypoint the plane will follow the orbit until the break hold method is called
+            if (inHold == TRUE) {
+                *sp_Heading = (int)orbitWaypoint((float*) &turnCenter, targetWaypoint->radius, turnDirection, (float*)position, heading); //float OrbitWaypoint (float* center, float radius, char direction, float* position, float heading){
+                return currentWaypoint->index;
+            }
 
             float dotProduct = nextWaypointDirection[0] * (position[0] - halfPlane[0]) + nextWaypointDirection[1] * (position[1] - halfPlane[1]) + nextWaypointDirection[2] * (position[2] - halfPlane[2]);
             if (dotProduct > 0){
                 orbitPathStatus = PATH;
                 return targetWaypoint->index;
             }
-
-            char turnDirection = waypointDirection[0] * nextWaypointDirection[1] - waypointDirection[1] * nextWaypointDirection[0]>0?1:-1;
-            float euclideanWaypointDirection = sqrt(pow(nextWaypointDirection[0] - waypointDirection[0],2) + pow(nextWaypointDirection[1] - waypointDirection[1],2) + pow(nextWaypointDirection[2] - waypointDirection[2],2)) * ((nextWaypointDirection[0] - waypointDirection[0]) < 0?-1:1) * ((nextWaypointDirection[1] - waypointDirection[1]) < 0?-1:1) * ((nextWaypointDirection[2] - waypointDirection[2]) < 0?-1:1);
-
+            
             //If two waypoints are parallel to each other (no turns)
             if (euclideanWaypointDirection == 0){
                 orbitPathStatus = PATH;
                 return targetWaypoint->index;
             }
-
-            float turnCenter[3];
-            turnCenter[0] = targetCoordinates[0] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[0] - waypointDirection[0])/euclideanWaypointDirection);
-            turnCenter[1] = targetCoordinates[1] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[1] - waypointDirection[1])/euclideanWaypointDirection);
-            turnCenter[2] = targetCoordinates[2] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[2] - waypointDirection[2])/euclideanWaypointDirection);
 
             *sp_Heading = (int)followOrbit((float*) &turnCenter,targetWaypoint->radius, turnDirection, (float*)position, heading);
         }
@@ -432,6 +428,10 @@ int followLastLineSegment(PathData* currentWaypoint, float* position, float head
     }
 
     return (int)followStraightPath((float*)&waypointDirection, (float*)targetCoordinates, (float*)position, heading);
+}
+
+float OrbitWaypoint (float* center, float radius, char direction, float* position, float heading){
+    return (int)followOrbit(center, radius, direction, position, heading);
 }
 
 // direction: ccw = 1, cw = -1
@@ -754,7 +754,9 @@ void checkAMData(){
                case PM_FOLLOW_PATH:
                     followPath = amData.followPath;
                     break;
-
+               case PM_EXIT_HOLD_ORBIT:
+                   inHold = FALSE;
+                   break;
                 case PM_CALIBRATE_ALTIMETER:
                     calibrateAltimeter(amData.calibrationHeight);
                     break;
