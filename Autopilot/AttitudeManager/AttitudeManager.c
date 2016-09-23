@@ -526,6 +526,16 @@ void setGains(int channel, float* values){
     setGain(channel,GAIN_KI,values[2]);
 }
 
+//// For Embedded Software Bootcamp
+    // This function drops a probe identified by probe number
+    // and snaps a picture using the triggerCamera method
+void dropAndSnap(char probeNumber)
+{
+    int pwmSignal = 0; // Use default PWM of 0 (no orientation change)
+    dropProbe(probeNumber);
+    triggerCamera(pwmSignal);
+}
+
 void imuCommunication(){
     /*****************************************************************************
      *****************************************************************************
@@ -924,6 +934,12 @@ void readDatalink(void){
             {
                 char* channel = (char*) (&cmd->data);
                 setGains(*channel,((float*)(&cmd->data)) + 1);
+                break;
+            }
+            case DROP_AND_SNAP:
+            {
+                char probeNumber = *(char*)(&cmd->data);
+                dropAndSnap(probeNumber);
                 break;
             }
             default:
