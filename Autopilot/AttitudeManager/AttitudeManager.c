@@ -863,7 +863,7 @@ void readDatalink(void){
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case EXIT_HOLD_ORBIT:
-                amData.command = PM_BREAK_HOLD_ORBIT;
+                amData.command = PM_EXIT_HOLD_ORBIT;
                 amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
