@@ -6,40 +6,17 @@
  */
 #include "main.h"
 #include "../Common/Common.h"
-#include "voltageSensor.h"
+#include "MainBatterySensor.h"
 
+int batteryVoltage = 0;
 
-char percent = 0;
-int currentVoltage = 0;
+void __attribute__((interrupt, no_auto_psv)) _ADC2Interrupt(void){
 
-void __attribute__((interrupt, no_auto_psv)) _ADC2Interrupt(void)
-{
-
-    currentVoltage = ADC2BUF0;
+    batteryVoltage = ADC2BUF0;
     IFS1bits.AD2IF = 0;		// Clear the ADC Interrupt Flag
-
-
 }
 
-void initBatterySensor(){
-    //AN12 is the pin to get the battery information
-    TRISBbits.TRISB12 = 1;
-    initVoltageADC();
-
-}
-
-//float timeRemaining(){
-//    float dP = (currentPercent - lastPercent)/vTimeInterval; //Rate of change (Percent/second)
-//    float time = currentPercent/dP;
-//    return time;
-//}
-
-int getBatteryLevel(){
-    percent = currentVoltage;
-    return percent;
-}
-
-void initVoltageADC(){
+static void initMainBatteryADC(){
     AD2CON1bits.FORM = 0;		// Data Output Format: Unsigned Int
     AD2CON1bits.SSRC = 7;		// Internal Counter (SAMC) ends sampling and starts convertion
     AD2CON1bits.ASAM = 1;		// Sampling begins when SAMP bit is set (for now)
@@ -57,11 +34,10 @@ void initVoltageADC(){
     AD2CON3bits.SAMC=0; 		// Auto Sample Time = 0*Tad
     AD2CON3bits.ADCS=6;			// ADC Conversion Clock Tad=Tcy*(ADCS+1)= (1/40M)*7 = 175nS
 
-    AD2CHS0bits.CH0SA = 12; //Channel 0 positive input on AN22 (Sample A)
-    AD2CHS0bits.CH0SB = 12; //Channel 0 positive input on AN22 (Sample B)
+    AD2CHS0bits.CH0SA = 12; //Channel 0 positive input on AN12 (Sample A)
+    AD2CHS0bits.CH0SB = 12; //Channel 0 positive input on AN12 (Sample B)
 
     AD2PCFGL = 0;
-    // TODO why is this an error? AD2PCFGH = 0;
     AD2PCFGLbits.PCFG0 = 0; //Port pin set to analog mode (voltage sampling)
     AD2PCFGLbits.PCFG1 = 0; //Port pin set to analog mode (voltage sampling)
     AD2PCFGLbits.PCFG2 = 0; //Port pin set to analog mode (voltage sampling)
@@ -76,11 +52,19 @@ void initVoltageADC(){
     AD2PCFGLbits.PCFG11 = 0; //Port pin set to analog mode (voltage sampling)
     AD2PCFGLbits.PCFG12 = 0; //Port pin set to analog mode (voltage sampling)
     
-    
-
-    
     IFS1bits.AD2IF = 0;			// Clear the A/D interrupt flag bit
     IEC1bits.AD2IE = 1;			// Enable A/D interrupt
     AD2CON1bits.ADON = 1;		// Turn on the A/D converter
 
+}
+
+void initMainBatterySensor(){
+    //AN12 is the pin to get the battery information
+    TRISBbits.TRISB12 = 1;
+    initMainBatteryADC();
+}
+
+int getMainBatteryLevel(){
+//return raw voltage value
+    return batteryVoltage;
 }

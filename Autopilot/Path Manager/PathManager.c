@@ -10,7 +10,7 @@
 #include "../Common/Common.h"
 #include "Dubins.h"
 #include "MPL3115A2.h"
-#include "voltageSensor.h"
+#include "MainBatterySensor.h"
 #include "airspeedSensor.h"
 #include "ProbeDrop.h"
 
@@ -55,7 +55,7 @@ void pathManagerInit(void) {
 //Communication with GPS
     init_SPI2();
     init_DMA2();
-    initBatterySensor();
+    initMainBatterySensor();
     initAirspeedSensor();
 
 
@@ -628,7 +628,7 @@ unsigned int insertPathNode(PathData* node, unsigned int previousID, unsigned in
 }
 
 void copyGPSData(){
-    if (newGPSDataAvailable && gpsData.longitude < -98.0 && gpsData.latitude > 49.0){ //Hack fix for competition
+    if (newGPSDataAvailable && gpsErrorCheck(gpsData.latitude, gpsData.longitude)){
         newGPSDataAvailable = 0;
         pmData.time = gpsData.time;
         pmData.longitude = gpsData.longitude;
@@ -638,7 +638,8 @@ void copyGPSData(){
         pmData.satellites = (char)gpsData.satellites;
         pmData.positionFix = (char)gpsData.positionFix;
     }
-    pmData.batteryLevel = getBatteryLevel();
+    pmData.batteryLevel1 = getMainBatteryLevel();
+    pmData.batteryLevel2 = 5;
     pmData.airspeed = getCurrentAirspeed();
     pmData.altitude = getAltitude(); //want to get altitude regardless of if there is new GPS data
     pmData.pmOrbitGain = k_gain[ORBIT];
@@ -648,6 +649,14 @@ void copyGPSData(){
     pmData.pathFollowing = followPath;
     pmData.checkbyteDMA1 = generatePMDataDMAChecksum1();
     pmData.checkbyteDMA2 = generatePMDataDMAChecksum2();
+}
+
+//returns 1 if gps location makes sense, 0 if not
+char gpsErrorCheck(double lat, double lon){
+    if(abs(lon - RELATIVE_LONGITUDE)<GPS_ERROR && abs(lat - RELATIVE_LATITUDE)<GPS_ERROR){
+        return 1;
+    }
+        return 0;
 }
 
 
