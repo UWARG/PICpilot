@@ -862,7 +862,11 @@ void readDatalink(void){
                 amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
-
+            case DROP_PICTURE:
+                dropProbe(*(char*)(&cmd->data));
+                triggerCamera(1);
+                break;
+                
             case NEW_WAYPOINT:
                 amData.waypoint.altitude = (*(WaypointWrapper*)(&cmd->data)).altitude;
                 amData.waypoint.id = (*(WaypointWrapper*)(&cmd->data)).id;
