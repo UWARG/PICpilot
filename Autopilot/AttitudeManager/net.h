@@ -1,5 +1,10 @@
 /**
- * net.h
+ * @file net.h 
+ * @author Chris Hajduk 
+ * @date Sep 2015
+ * @brief List of defines required for XBEE communication and telemetry 
+ * @copyright Waterloo Aerial Robotics Group 2016 \n
+ *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE 
  */
 
 #ifndef NET_H
@@ -9,10 +14,17 @@
 extern "C" {
 #endif
 
-#define P0_SEND_FREQUENCY 300 //Time in miliseconds
-#define P1_SEND_FREQUENCY 1000 //Time in milliseconds
-#define P2_SEND_FREQUENCY 20000 //Time in milliseconds
-#define UPLINK_CHECK_FREQUENCY 100 //Time in milliseconds
+/** Time in miliseconds for how often a P0(high priority) packet gets sent down. Default=300 **/
+#define P0_SEND_FREQUENCY 300 
+
+/** Time in miliseconds for how often a P1(medium priority) packet gets sent down. Default=1000 **/
+#define P1_SEND_FREQUENCY 1000
+
+/** Time in miliseconds for how often a P2(low priority) packet gets sent down. Default=20000 **/
+#define P2_SEND_FREQUENCY 20000
+
+/** Time in miliseconds for how often to check for new messages from the uplink. Default=100 **/
+#define UPLINK_CHECK_FREQUENCY 100
 
 #define BLOCKING_MODE 0
 
