@@ -1,9 +1,14 @@
+/**
+ * @file UART2.c
+ * @author Mitch Hatfield
+ * @date Jun 2013
+ * @brief Contains implementation for initializing UART2 
+ * @copyright Waterloo Aerial Robotics Group 2016 \n
+ *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE 
+ */
+
 #include "main.h"
 #include "UART2.h"
-
-#if PATH_MANAGER && !GPS_OLD
-UART_RX_Buffer _buff;
-#endif
 
 void InitUART2()
 {
@@ -61,22 +66,14 @@ void InitUART2()
 
 //	IPC7 = 0x4400;	// Mid Range Interrupt Priority level, no urgent reason
 
-        IPC7 = 0x4400;	// Mid Range Interrupt Priority level, no urgent reason
+  IPC7 = 0x4400;	// Mid Range Interrupt Priority level, no urgent reason
 
 	IFS1bits.U2TXIF = 0;	// Clear the Transmit Interrupt Flag
 	IEC1bits.U2TXIE = 0;	// Enable Transmit Interrupts
 	IFS1bits.U2RXIF = 0;	// Clear the Recieve Interrupt Flag
 
-#if PATH_MANAGER && !GPS_OLD
-	IEC1bits.U2RXIE = 1;	// Enable Recieve Interrupts
-#else
-        IEC1bits.U2RXIE = 0;	// Enable Recieve Interrupts
-#endif
+  IEC1bits.U2RXIE = 0;	// Enable Recieve Interrupts
 
-#if PATH_MANAGER && !GPS_OLD
-	U1MODEbits.UARTEN = 1;	// And turn the peripheral on
-	U1STAbits.UTXEN = 1;
-#endif
 	U2MODEbits.UARTEN = 1;	// And turn the peripheral on
 
 	U2STAbits.UTXEN = 1;
@@ -93,70 +90,3 @@ void InitUART2()
             i++;
         }
 }
-
-void UART2_SendChar(char data)
-{
-    U2TXREG = data;
-    while(U2STAbits.TRMT == 0);
-#if !PATH_MANAGER
-    U2STAbits.TRMT = 0;
-#endif
-}
-
-void UART2_SendString(char *s)
-{
-    do
-    {
-        UART2_SendChar(*s);
-        s++;
-        //Delay10TCYx(250);
-    }while(*s != 0);
-
-          UART2_SendChar('\n');
-}
-
-#if PATH_MANAGER && !GPS_OLD
-void __attribute__((interrupt, no_auto_psv)) _U2RXInterrupt( void )
-{
-    write_rx_buffer(U2RXREG,&_buff);
-    IFS1bits.U2RXIF = 0;
-}
-
-void init_rx_buffer(UART_RX_Buffer *buff)
-{
-    buff->get = 0;
-    buff->put = 1;
-}
-void write_rx_buffer(char c, UART_RX_Buffer *buff)
-{
-    buff->data[buff->put] = c;
-    if(buff->put < 255)
-        buff->put++;
-    else
-        buff->put = 0;
-
-    if(buff->put == buff->get)
-    {
-        buff->get++;
-        if(buff->get > 255)
-            buff->get = 0;
-    }
-}
-char read_rx_buffer(UART_RX_Buffer *buff)
-{
-    char c = buff->data[buff->get];
-    short oldGet = buff->get;
-    if(buff->get < 255)
-        buff->get++;
-    else
-        buff->get = 0;
-
-    if(buff->get == buff->put)
-    {
-        buff->get = oldGet;
-        return 0;
-    }
-
-    return c;
-}
-#endif
