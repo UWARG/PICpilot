@@ -15,3 +15,5 @@ The PICpilot uses Doxygen to generate automatic API documentation of the code. Y
 
 If you'd like to generate the documentation, you can run the upload-docs.sh script (preferably under linux). Make sure to actually 
 install the doxygen and graphviz package first.
+
+[Click here to view generated API docs](http://uwarg.github.io/PICpilot/)
