@@ -48,7 +48,7 @@ int lastKnownHeadingHome = 10;
 char returnHome = 0;
 char doProbeDrop = 0;
 char followPath = 0;
-char inHold = FALSE;
+char inHold = 0;
 
 void pathManagerInit(void) {
 
