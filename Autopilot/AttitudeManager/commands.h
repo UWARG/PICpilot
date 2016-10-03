@@ -67,6 +67,7 @@
 #define DROP_PROBE 56
 #define RESET_PROBE 57
 #define FOLLOW_PATH 58
+#define EXIT_HOLD_ORBIT 59
 
 //Multipart Commands
 #define NEW_WAYPOINT 128
