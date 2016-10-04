@@ -37,3 +37,5 @@ Makefile
 
 # Vim swap files
 *.swp
+
+Autopilot/AttitudeManager/tags/
