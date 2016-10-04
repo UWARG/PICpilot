@@ -2,7 +2,7 @@
 
 # Note: You will need to install both doxygen as well as graphviz packages!
 
-rm -rf ./docs/*
+rm -rf ./docs/html
 
 doxygen doxygen.conf
 
