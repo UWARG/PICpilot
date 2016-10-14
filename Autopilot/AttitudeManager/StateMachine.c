@@ -214,7 +214,7 @@ void highLevelControl(){
 }
 
 void lowLevelControl(){
-    control_Throttle = throttleControl(getAltitudeInput(), getAltitude());       //Hold a steady throttle (more or less airspeed for fixed wings)
+    control_Throttle = throttleControl(getAltitudeInput(ALTITUDE_AP_SOURCE), getAltitude());       //Hold a steady throttle (more or less airspeed for fixed wings)
     setRollRateSetpoint(rollAngleControl(getRollAngleSetpoint(), getRoll()));       //Keep a steady Roll Angle
     setPitchRateSetpoint(pitchAngleControl(getPitchAngleSetpoint(), getPitch()));   //Keep a steady Pitch Angle
     control_Roll = rollRateControl(getRollRateSetpoint(), getRollRate());
@@ -222,7 +222,7 @@ void lowLevelControl(){
     control_Yaw = yawRateControl(getYawRateSetpoint(), getYawRate());
 
     //Mixing!
-    outputMixing(outputSignal, &control_Roll, &control_Pitch, &control_Throttle, &control_Yaw, &control_Flap);
+    outputMixing(outputSignal, &control_Roll, &control_Pitch, &control_Throttle, &control_Yaw);
 
     //Error Checking
     checkLimits(outputSignal);

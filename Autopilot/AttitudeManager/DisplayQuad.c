@@ -19,7 +19,7 @@ void initialization(){
     while (!vehicleArmed){
         imuCommunication();
         asm("CLRWDT");
-        writeDatalink();
+        writeDatalink(NULL); // Change this parameter
         readDatalink();
         inboundBufferMaintenance();
         outboundBufferMaintenance();
@@ -54,7 +54,7 @@ void dearmVehicle(){
     }
     while (!vehicleArmed){
         readDatalink();
-        writeDatalink();
+        writeDatalink(NULL); // Change this parameter
         inboundBufferMaintenance();
         outboundBufferMaintenance();
         Delay(200);
