@@ -651,11 +651,19 @@ void copyGPSData(){
     pmData.checkbyteDMA2 = generatePMDataDMAChecksum2();
 }
 
+void GPSLock(){
+    home.latitude = gpsData.latitude;
+    home.longitude = gpsData.longitude;
+    home.altitude = gpsData.altitude;
+}
+
 //returns 1 if gps location makes sense, 0 if not
 char gpsErrorCheck(double lat, double lon){
     if(abs(lon - RELATIVE_LONGITUDE)<GPS_ERROR && abs(lat - RELATIVE_LATITUDE)<GPS_ERROR){
         return 1;
     }
+    else
+        GPSLock();
         return 0;
 }
 
