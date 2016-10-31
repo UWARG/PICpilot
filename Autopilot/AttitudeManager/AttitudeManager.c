@@ -381,8 +381,13 @@ void setHeadingSetpoint(int setpoint){
 void inputCapture(){
     int* channelIn;
     channelIn = getPWMArray();
+    
+#if FIXED_WING
+    inputMixing(channelIn, &input_RC_RollRate, &input_RC_PitchRate, &input_RC_Throttle, &input_RC_YawRate, &input_RC_Flap);
+#elif COPTER
     inputMixing(channelIn, &input_RC_RollRate, &input_RC_PitchRate, &input_RC_Throttle, &input_RC_YawRate);
-
+#endif
+    
     // Switches and Knobs
     input_RC_UHFSwitch = channelIn[UHF_STATUS_IN_CHANNEL - 1];
 //        sp_Type = channelIn[5];

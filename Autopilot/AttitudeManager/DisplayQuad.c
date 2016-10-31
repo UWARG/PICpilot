@@ -10,21 +10,28 @@
 #include "AttitudeManager.h"
 #include "delay.h"
 #include "DisplayQuad.h"
+#include "ProgramStatus.h"
 
 #if QUAD_VEHICLE
 
 char vehicleArmed = 0;
 
 void initialization(){
+    setPWM(THROTTLE_OUT_CHANNEL, MIN_PWM);
+    p_priority numPacket = PRIORITY1;
+    setProgramStatus(UNARMED);
+    
     while (!vehicleArmed){
         imuCommunication();
         asm("CLRWDT");
-        writeDatalink(NULL); // Change this parameter
+        writeDatalink(numPacket%3);
         readDatalink();
         inboundBufferMaintenance();
         outboundBufferMaintenance();
+        asm("CLRWDT");
         Delay(200);
         asm("CLRWDT");
+        numPacket = (numPacket + 1) % 3;
     }
 }
 
@@ -52,14 +59,22 @@ void dearmVehicle(){
     for (i = 1; i <= NUM_CHANNELS; i++){
         setPWM(i, MIN_PWM);
     }
+    
+    setProgramStatus(UNARMED);
+    p_priority numPacket = PRIORITY1;
+    
     while (!vehicleArmed){
+        imuCommunication();
+        asm("CLRWDT");
+        writeDatalink(numPacket%3); //TODO: Change this for multiple packets
         readDatalink();
-        writeDatalink(NULL); // Change this parameter
         inboundBufferMaintenance();
         outboundBufferMaintenance();
         Delay(200);
         asm("CLRWDT");
+        numPacket = (numPacket + 1) % 3;
     }
+    setProgramStatus(MAIN_EXECUTION);
 }
 
 //void takeOff(){

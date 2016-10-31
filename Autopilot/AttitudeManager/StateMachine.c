@@ -85,19 +85,19 @@ void StateMachine(char entryLocation){
     }
 
     if(P0_SEND_FREQUENCY <= downlinkP0Timer){
-//        debug("P0");
+        //debug("P0");
         //Compile and send data
         downlinkP0Timer = 0;
         writeDatalink(PRIORITY0);
     }
     else if(P1_SEND_FREQUENCY <= downlinkP1Timer){
-//        debug("P1");
+        //debug("P1");
         //Compile and send data
         downlinkP1Timer = 0;
         writeDatalink(PRIORITY1);
     }
     else if(P2_SEND_FREQUENCY <= downlinkP2Timer || areGainsUpdated()){
-//        debug("P2");
+        //debug("P2");
         //Compile and send data
         downlinkP2Timer = 0;
         writeDatalink(PRIORITY2);
