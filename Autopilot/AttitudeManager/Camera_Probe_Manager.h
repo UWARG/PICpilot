@@ -4,6 +4,6 @@
 #include "Probe_Drop.h"
 #include "cameraManager.h"
 
-void probeDropTrigger(int* command);  
+void probeDropTrigger(unsigned char* command);  
 
 #endif // __CAMERA_PROBE_MANAGER

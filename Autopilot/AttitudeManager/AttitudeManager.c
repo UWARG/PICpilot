@@ -932,7 +932,7 @@ void readDatalink(void){
             }
             case PROBE_DROP_TRIGGER:		// bootcamp case. Command sent is 2 integers, one for the probe and the other for the camera pwm
             	{
-            		probeDropTrigger((int*) (&cmd->data));
+            		probeDropTrigger((&cmd->data));
 				}
             default:
                 break;
