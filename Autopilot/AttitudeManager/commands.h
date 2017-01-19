@@ -80,6 +80,7 @@
 #define SET_KIVALUES 135
 #define UPDATE_WAYPOINT 136
 #define SET_GAINS 137
+#define PROBE_DROP_TRIGGER 138
 
 //Multipart Command Structs
 typedef struct _newwaypointwrapper {
