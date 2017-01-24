@@ -57,6 +57,8 @@
 #define PM_SET_ORBIT_GAIN 65
 
 //Structs and typedefs
+/*  WAYPOINT WRAPPER IS USED FOR NETWORKING 
+    DO NOT CHANGE THIS UNLESS YOU KNOW WHAT YOU ARE DOING */
 typedef struct _waypointWrapper{
     long double longitude;  //TODO: Longitude and Latitude is bulky. If problems arise, change the format.
     long double latitude;
