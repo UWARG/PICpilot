@@ -14,7 +14,7 @@
 #include "InterchipDMA.h"
 #include "net.h"
 #include "../Common/Common.h"
-#include "Camera_Probe_Manager.h"
+
 
 //Bit masks for levels of control - DON'T CHANGE THESE FOR SHITS AND GIGGLES
 #define PITCH_CONTROL_TYPE 0b00000001 //Pitch Rate(0) or Pitch Angles(1)
