@@ -671,7 +671,7 @@ void copyGPSData(){
 
  char checkForReset(){
      if (RCONbits.POR || RCONbits.BOR || RCONbits.WDTO || RCONbits.SWR || RCONbits.EXTR){
-         // clear all RCON(Reset control) bits)
+         // clear RCON(Reset control) bits)
          RCONbits.BOR = 0;
          RCONbits.EXTR = 0;
          RCONbits.POR = 0;
