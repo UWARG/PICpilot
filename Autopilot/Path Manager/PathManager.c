@@ -13,6 +13,7 @@
 #include "MainBatterySensor.h"
 #include "airspeedSensor.h"
 #include "ProbeDrop.h"
+#include "StartupErrorCodes.h"
 
 #include "InterchipDMA.h"
 
@@ -21,6 +22,11 @@
 #include <stdlib.h>
 #include "../Common/UART1.h"
 #endif
+
+#define BOR_RESET (1<<1)
+#define POR_RESET 1
+
+static void checkForFirstGPSLock(); // function prototype for static function at line 679
 
 extern GPSData gpsData;
 extern PMData pmData;
@@ -653,6 +659,7 @@ void copyGPSData(){
         pmData.speed = gpsData.speed;
         pmData.satellites = (char)gpsData.satellites;
         pmData.positionFix = (char)gpsData.positionFix;
+        checkForFirstGPSLock();
     }
     pmData.batteryLevel1 = getMainBatteryLevel();
     pmData.batteryLevel2 = 5;
@@ -665,6 +672,19 @@ void copyGPSData(){
     pmData.pathFollowing = followPath;
     pmData.checkbyteDMA1 = generatePMDataDMAChecksum1();
     pmData.checkbyteDMA2 = generatePMDataDMAChecksum2();
+}
+
+static void checkForFirstGPSLock(){
+	static char gpsLockFlag = 1;
+	
+	if(((getErrorCodes() & BOR_RESET) || (getErrorCodes() & POR_RESET)) && gpsLockFlag){
+		home.latitude = gpsData.latitude;
+		home.longitude = gpsData.longitude;
+		home.altitude = gpsData.altitude;
+			
+		gpsLockFlag = 0;
+	}
+	
 }
 
 //returns 1 if gps location makes sense, 0 if not
