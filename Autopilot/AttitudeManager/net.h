@@ -64,10 +64,19 @@ typedef enum _p_priority {
 } p_priority;
 
 
+/* For reference: 
+ In MPLAB XC 16 compiler:
+ char           : 1 byte
+ int            : 2 bytes
+ long int       : 4 bytes
+ float          : 4 bytes
+ long double    : 8 bytes
+ */
 
+// 72 bytes
 struct priority1_block { //High Frequency - Multiple times per second
-    long double lat, lon; // Latitude and longitude from gps    // 8Byte
-    long int sysTime; // 8 bytes
+    long double lat, lon; // Latitude and longitude from gps    // 2x8 Byte
+    long int sysTime; // 4 bytes
     float UTC; //4 Byte
     float pitch, roll, yaw;
     float pitchRate, rollRate, yawRate;
@@ -80,13 +89,14 @@ struct priority1_block { //High Frequency - Multiple times per second
     int throttleSetpoint;
 };
 
+// 88 bytes
 struct priority2_block { //Medium Frequency - Once every second
     float rollKD, rollKP;
     float pitchKD, pitchKP;
     float yawKD, yawKP;
-    float pathChecksum; //1 byte
-    int lastCommandsSent[4]; //4 bytes * 4 = 16
-    int batteryLevel1, batteryLevel2; // 4 bytes
+    float pathChecksum; // 4 bytes
+    int lastCommandsSent[4]; //4*2 bytes
+    int batteryLevel1, batteryLevel2; // 2*2 bytes
     int ch1In,ch2In,ch3In,ch4In,ch5In,ch6In,ch7In,ch8In;
     int ch1Out,ch2Out,ch3Out,ch4Out,ch5Out,ch6Out,ch7Out,ch8Out;
     int cameraStatus;
@@ -99,6 +109,7 @@ struct priority2_block { //Medium Frequency - Once every second
     char pathFollowing; // 1 byte
 };
 
+// 75 bytes
 struct priority3_block { //Low Frequency - On update...
     float rollKI; //4 Bytes
     float pitchKI;

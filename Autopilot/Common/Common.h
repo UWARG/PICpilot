@@ -57,15 +57,28 @@
 #define PM_SET_ORBIT_GAIN 65
 
 //Structs and typedefs
-typedef struct _waypointWrapper{
-    long double longitude;  //TODO: Longitude and Latitude is bulky. If problems arise, change the format.
+
+/* For reference: 
+ In MPLAB XC 16 compiler:
+ char           : 1 byte
+ int            : 2 bytes
+ long int       : 4 bytes
+ float          : 4 bytes
+ long double    : 8 bytes
+ */
+
+
+/*  WAYPOINT WRAPPER IS USED FOR NETWORKING 
+    DO NOT CHANGE THIS UNLESS YOU KNOW WHAT YOU ARE DOING */
+typedef struct _waypointWrapper{ // 28 bytes
+    long double longitude; //TODO: Longitude and Latitude is bulky. If problems arise, change the format.
     long double latitude;
     float altitude;
     float radius; //Radius of turn
     char type; //Regular or probe drop location
-    char id;    //Array ID
-    char nextId; //For use with insertNode() or operations that require reference to another node
     char previousId; //For use with insertNode() or operations that require reference to another node
+    char nextId; //For use with insertNode() or operations that require reference to another node
+    char id;    //Array ID
 }WaypointWrapper;
 
 typedef struct _PathData{
@@ -80,10 +93,10 @@ typedef struct _PathData{
     char index;
 } PathData;
 
-typedef struct _PMData { //54 Bytes
-    float time;     //4 Bytes   -  hhmmss.ssss
-    long double latitude;  //8 Bytes - ddd.mmmmmm
-    long double longitude; //8 Bytes - ddd.mmmmmm
+typedef struct _PMData { // 62 Bytes
+    float time;     // 4 Bytes   -  hhmmss.ssss
+    long double latitude;  // 8 Bytes - ddd.mmmmmm
+    long double longitude; // 8 Bytes - ddd.mmmmmm
     float speed;    //KM/H
     float altitude;
     float airspeed;
@@ -105,29 +118,14 @@ typedef struct _PMData { //54 Bytes
     char checkbyteDMA2;
 } PMData;
 
-typedef struct _AMData { //54 Bytes
-    WaypointWrapper waypoint;
+typedef struct _AMData { // 60 Bytes
+    WaypointWrapper waypoint; //28 bytes
     float pathGain;
     float orbitGain;
     float calibrationHeight;
     char command;
     char followPath;
-    char padding1;
-    char padding2;
-    char padding3;
-    char padding4;
-    char padding5;
-    char padding6;
-    char padding7;
-    char padding8;
-    char padding9;
-    char padding10;
-    char padding11;
-    char padding12;
-    char padding13;
-    char padding14;
-    char padding15;
-    char padding16;
+    char padding[16];
     char checksum;
     char checkbyteDMA;
 } AMData;
