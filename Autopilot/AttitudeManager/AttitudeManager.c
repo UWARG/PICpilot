@@ -873,43 +873,25 @@ void readDatalink(void){
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case NEW_WAYPOINT:
-                amData.waypoint.altitude = (*(WaypointWrapper*)(&cmd->data)).altitude;
-                amData.waypoint.id = (*(WaypointWrapper*)(&cmd->data)).id;
-                amData.waypoint.latitude = (*(WaypointWrapper*)(&cmd->data)).latitude;
-                amData.waypoint.longitude = (*(WaypointWrapper*)(&cmd->data)).longitude;
-                amData.waypoint.radius = (*(WaypointWrapper*)(&cmd->data)).radius;
-                amData.waypoint.type = (*(WaypointWrapper*)(&cmd->data)).type;
+                amData.waypoint = *(WaypointWrapper*)(&cmd->data);
                 amData.command = PM_NEW_WAYPOINT;
                 amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case INSERT_WAYPOINT:
-                amData.waypoint.altitude = (*(WaypointWrapper*)(&cmd->data)).altitude;
-                amData.waypoint.latitude = (*(WaypointWrapper*)(&cmd->data)).latitude;
-                amData.waypoint.longitude = (*(WaypointWrapper*)(&cmd->data)).longitude;
-                amData.waypoint.radius = (*(WaypointWrapper*)(&cmd->data)).radius;
-                amData.waypoint.nextId = (*(WaypointWrapper*)(&cmd->data)).nextId;
-                amData.waypoint.previousId = (*(WaypointWrapper*)(&cmd->data)).previousId;
-                amData.waypoint.type = (*(WaypointWrapper*)(&cmd->data)).type;
+                amData.waypoint = *(WaypointWrapper*)(&cmd->data);
                 amData.command = PM_INSERT_WAYPOINT;
                 amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case UPDATE_WAYPOINT:
-                amData.waypoint.altitude = (*(WaypointWrapper*)(&cmd->data)).altitude;
-                amData.waypoint.id = (*(WaypointWrapper*)(&cmd->data)).id;
-                amData.waypoint.latitude = (*(WaypointWrapper*)(&cmd->data)).latitude;
-                amData.waypoint.longitude = (*(WaypointWrapper*)(&cmd->data)).longitude;
-                amData.waypoint.radius = (*(WaypointWrapper*)(&cmd->data)).radius;
-                amData.waypoint.type = (*(WaypointWrapper*)(&cmd->data)).type;
+                amData.waypoint = *(WaypointWrapper*)(&cmd->data);
                 amData.command = PM_UPDATE_WAYPOINT;
                 amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case SET_RETURN_HOME_COORDINATES:
-                amData.waypoint.altitude = (*(WaypointWrapper*)(&cmd->data)).altitude;
-                amData.waypoint.latitude = (*(WaypointWrapper*)(&cmd->data)).latitude;
-                amData.waypoint.longitude = (*(WaypointWrapper*)(&cmd->data)).longitude;
+                amData.waypoint = *(WaypointWrapper*)(&cmd->data);
                 amData.command = PM_SET_RETURN_HOME_COORDINATES;
                 amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
