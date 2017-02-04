@@ -79,8 +79,12 @@ static void initInputCapture(char initIC)
     if (initIC & 0b01) {
         IC1CONbits.ICM = 0b00; // Disable Input Capture 1 module (required to change it)
         IC1CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
-        IC1CONbits.ICI = 0b11; // Interrupt on every capture event
-        IC1CONbits.ICM = 0b001; // Generate capture event on every Rising and Falling edge
+        
+        /**
+         * Generate capture event on every Rising and Falling edge
+         * Note that the ICI register is ignored when ICM is in edge detection mode (001)
+         */
+        IC1CONbits.ICM = 0b001; 
 
         // Enable Capture Interrupt And Timer2
         IPC0bits.IC1IP = 7; // Setup IC1 interrupt priority level - Highest
@@ -90,7 +94,6 @@ static void initInputCapture(char initIC)
     if (initIC & 0b10) {
         IC2CONbits.ICM = 0b00;
         IC2CONbits.ICTMR = 1;
-        IC2CONbits.ICI = 0b11;
         IC2CONbits.ICM = 0b001;
 
         IPC1bits.IC2IP = 7;
@@ -100,7 +103,6 @@ static void initInputCapture(char initIC)
     if (initIC & 0b100) {
         IC3CONbits.ICM = 0b00;
         IC3CONbits.ICTMR = 1;
-        IC3CONbits.ICI = 0b11;
         IC3CONbits.ICM = 0b001;
 
         IPC9bits.IC3IP = 7;
@@ -110,7 +112,6 @@ static void initInputCapture(char initIC)
     if (initIC & 0b1000) {
         IC4CONbits.ICM = 0b00;
         IC4CONbits.ICTMR = 1;
-        IC4CONbits.ICI = 0b11;
         IC4CONbits.ICM = 0b001;
 
         IPC9bits.IC4IP = 7;
@@ -120,7 +121,6 @@ static void initInputCapture(char initIC)
     if (initIC & 0b10000) {
         IC5CONbits.ICM = 0b00;
         IC5CONbits.ICTMR = 1;
-        IC5CONbits.ICI = 0b11;
         IC5CONbits.ICM = 0b001;
 
         IPC9bits.IC5IP = 7;
@@ -130,7 +130,6 @@ static void initInputCapture(char initIC)
     if (initIC & 0b100000) {
         IC6CONbits.ICM = 0b00;
         IC6CONbits.ICTMR = 1;
-        IC6CONbits.ICI = 0b11;
         IC6CONbits.ICM = 0b001;
 
         IPC10bits.IC6IP = 7;
@@ -140,7 +139,6 @@ static void initInputCapture(char initIC)
     if (initIC & 0b1000000) {
         IC7CONbits.ICM = 0b00;
         IC7CONbits.ICTMR = 1;
-        IC7CONbits.ICI = 0b11;
         IC7CONbits.ICM = 0b001;
 
         IPC5bits.IC7IP = 7;
@@ -150,7 +148,6 @@ static void initInputCapture(char initIC)
     if (initIC & 0b10000000) {
         IC8CONbits.ICM = 0b00;
         IC8CONbits.ICTMR = 1;
-        IC8CONbits.ICI = 0b11;
         IC8CONbits.ICM = 0b001;
 
         IPC5bits.IC8IP = 7;
