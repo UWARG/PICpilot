@@ -177,6 +177,17 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC1Interrupt(void)
         end_time[0] = IC1BUF;
         new_data_available[0] = 1;
     }
+    
+    /**
+     * Clear the input compare buffer to avoid any issues when hot swapping PWM cables.
+     * Without this, when hot-swapping PWM connections, you may get weird values (in the 10000's range)
+     * when reading off of the connection. Note that in normal circumstances, the maximum size
+     * of the buffer at any time will be 1, so this while loop should never execute. Its only when
+     * you disconnect it and reconnect it that stuff gets weird.
+     */
+    while (IC1CONbits.ICBNE) { //while the ic buffer not empty flag is set
+        IC1BUF; //read a value from the 4-size FIFO buffer
+    }
     IFS0bits.IC1IF = 0; //reset the interrupt flag
 }
 
@@ -190,6 +201,10 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC2Interrupt(void)
     } else {
         end_time[1] = IC2BUF;
         new_data_available[1] = 1;
+    }
+    
+    while (IC2CONbits.ICBNE) {
+        IC2BUF;
     }
     IFS0bits.IC2IF = 0;
 }
@@ -205,6 +220,10 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC3Interrupt(void)
         end_time[2] = IC3BUF;
         new_data_available[2] = 1;
     }
+    
+    while (IC3CONbits.ICBNE) {
+        IC3BUF;
+    }
     IFS2bits.IC3IF = 0;
 }
 
@@ -218,6 +237,10 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC4Interrupt(void)
     } else {
         end_time[3] = IC4BUF;
         new_data_available[3] = 1;
+    }
+    
+    while (IC4CONbits.ICBNE) {
+        IC4BUF;
     }
     IFS2bits.IC4IF = 0;
 }
@@ -233,6 +256,10 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC5Interrupt(void)
         end_time[4] = IC5BUF;
         new_data_available[4] = 1;
     }
+    
+    while (IC5CONbits.ICBNE) {
+        IC5BUF;
+    }
     IFS2bits.IC5IF = 0;
 }
 
@@ -246,6 +273,10 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC6Interrupt(void)
     } else {
         end_time[5] = IC6BUF;
         new_data_available[5] = 1;
+    }
+    
+    while (IC6CONbits.ICBNE) {
+        IC6BUF;
     }
     IFS2bits.IC6IF = 0;
 }
@@ -261,6 +292,10 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC7Interrupt(void)
         end_time[6] = IC7BUF;
         new_data_available[6] = 1;
     }
+
+    while (IC7CONbits.ICBNE) {
+        IC7BUF;
+    }
     IFS1bits.IC7IF = 0;
 }
 
@@ -274,6 +309,10 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC8Interrupt(void)
     } else {
         end_time[7] = IC8BUF;
         new_data_available[7] = 1;
+    }
+
+    while (IC8CONbits.ICBNE) {
+        IC8BUF;
     }
     IFS1bits.IC8IF = 0;
 }
