@@ -11,8 +11,8 @@
 /**
  * Raw captures of timer1 and timer2 for all 8 channels
  */
-static int start_time[8];
-static int end_time[8];
+static unsigned int start_time[8];
+static unsigned int end_time[8];
 
 /**
  * Interrupt flag for if new data is available
@@ -53,7 +53,7 @@ static void calculateICValue(unsigned char channel)
     if (new_data_available[channel] == 1) {
         //If the second time is greater than the first time then we have not met roll over
         if (end_time[channel] > start_time[channel]) {
-            capture_value[channel] = (end_time[channel] - start_time[channel]);
+            capture_value[channel] = end_time[channel] - start_time[channel];
         } else {
             /*
              * We've reached roll over. Add the maximum time (PR2) to the original start time,
