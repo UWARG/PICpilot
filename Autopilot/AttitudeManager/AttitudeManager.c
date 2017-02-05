@@ -973,7 +973,7 @@ int writeDatalink(p_priority packet){
             statusData->data.p2_block.ch6In = input[5];
             statusData->data.p2_block.ch7In = input[6];
             statusData->data.p2_block.ch8In = input[7];
-            output = checkPWMArray();
+            output = getPWMOutputs();
             statusData->data.p2_block.ch1Out = output[0];
             statusData->data.p2_block.ch2Out = output[1];
             statusData->data.p2_block.ch3Out = output[2];

@@ -3,7 +3,7 @@
  * @author Chris Hajduk
  * @created March 3, 2013, 12:42 AM
  * @desription Provides functions for utilizing the output compare feature of the
- * chip. Basically lets you control the output of the PWM capable pins.
+ * chip. Basically lets you set the PWM duty cycle for one of the 8 output channels
  */
 
 #ifndef OUTPUTCAPTURE_H

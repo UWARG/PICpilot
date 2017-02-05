@@ -1,116 +1,56 @@
-/* 
- * File:   PWM.h
- * Author: Chris Hajduk
- *
- * Created on August 21, 2014, 11:45 PM
+/**
+ * @file PWM.h
+ * @author Chris Hajduk
+ * @created August 21, 2014, 11:45 PM
+ * @description This module abstracts the PWM input and output functionalities of the
+ * chip. It combines the InputCompare and OutputCompare module, and provides functions
+ * for scaling/calibrating PWM values, reading scaled PWM values, and setting scaled PWM values
+ * for any of the 8 available PWM channels on the chip.
+ * 
+ * Note that this is the module that scales the PWM inputs from the RC controller
+ * range to the -1024 to 1024 range, as well as scales the outputs in the opposite manner.
  */
 
 #ifndef PWM_H
 #define	PWM_H
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
-
-// Includes
-#include "main.h"
-
-// Definitions
+/**
+ * Number of channels available. This is not meant to be configurable, so don't change it
+ */
 #define NUM_CHANNELS 8
+
+/**
+ * The inputs received from the RC controlled will be scaled according to these 
+ * MIN_PWM and MAX_PWM values. In addition, the pre-scaled outputs must be within
+ * this range.
+ */
 #define MAX_PWM 1024
 #define MIN_PWM -1024
 
-//TODO: These were defined in OutputCompare.h    
-#define UPPER_PWM 1284//1320//1411//941
-#define LOWER_PWM 642//705//470
-#define MIDDLE_PWM 963//981//(int)((UPPER_PWM - LOWER_PWM)/2) + LOWER_PWM//706
+/**
+ * Maximum and minimum limits received from the controller. These should be calibrated,
+ * and the scaling from these values to the MAX and MIN PWM values will depend on these.
+ * Note that these will be used as the default/initial values, however the actual scaling values
+ * can be set by the groundstation
+ */
+#define UPPER_PWM 1284
+#define LOWER_PWM 642
+
 #define SP_RANGE MAX_PWM//(UPPER_PWM - MIDDLE_PWM)
 
-// Function Prototypes
-/*****************************************************************************
- * Function: void initPWM(char inputChannels, char outputChannels);
- *
- * Preconditions: None.
- *
- * Overview: Initializes the PWM ports. For instance if inputChannels = 0b00100101
- *      then channels 1,3, and 6 will be initialized.
- *
- * Input: char inputChannels -> The inputs to be initialized. Each bit represents
- *          a channel.
- *
- * Output: None.
- *
- *****************************************************************************/
+/**
+ * Initializes the PWM input and output channels. Also initializes Timer2
+ * @param inputChannels 8-bit bit mask indicating which inputs to initialize (probably want to send 0xFF for all)
+ * @param outputChannels 8-bit bit mask indicating which outputs to initialize
+ */
 void initPWM(char inputChannels, char outputChannels);
 
-/*****************************************************************************
- * Function: void PWMInputCalibration(unsigned int channel, float signalScaleFactor, unsigned int signalOffset);
- *
- * Preconditions: None.
- *
- * Overview: Calibrates the input range and trim of the device.
- *
- * Input: unsigned int channel -> The channel to calibrate.
- *        float signalScaleFactor -> The scale factor to increase or decrease the range by.
- *                                  For instance, if the target range is from -1024 to 1024,
- *                                  the scale factor would be 1024/(half the detected input range)
- *        unsigned int signalOffset -> Compensation for a non-zero offset on the input. This is
- *                                      known as trim.
- *
- * Output: None.
- *
- *****************************************************************************/
-void PWMInputCalibration(unsigned int channel, float signalScaleFactor, unsigned int signalOffset);
-
-/*****************************************************************************
- * Function: void PWMdOutputCalibration(unsigned int channel, float signalScaleFactor, unsigned int signalOffset);
- *
- * Preconditions: None.
- *
- * Overview: Calibrates the output range and trim of the device.
- *
- * Input: unsigned int channel -> The channel to calibrate.
- *        float signalScaleFactor -> The scale factor to increase or decrease the range by.
- *                                  For instance, if the range is from -1024 to 1024,
- *                                  the scale factor would be (half the desired output range)/1024
- *        unsigned int signalOffset -> Compensation for a non-zero offset on the input. This is
- *                                      known as trim.
- *
- * Output: None.
- *
- *****************************************************************************/
-void PWMOutputCalibration(unsigned int channel, float signalScaleFactor, unsigned int signalOffset);
-
-/*****************************************************************************
- * Function: int getPWM(unsigned int channel);
- *
- * Preconditions: The PWM inputs must have been initialized for valid data.
- *
- * Overview: Retrieves input (via controller) through the input capture pins on
- *             the device.
- *
- * Input: unsigned int channel -> The channel to collect the data from.
- *
- * Output: int -> The input signal of the channel. Determined by the scaling
- *                factor range (usually 1024).
- *
- *****************************************************************************/
-int getPWM(unsigned int channel);
-
-/*****************************************************************************
- * Function: int* getPWMArray();
- *
- * Preconditions: The PWM inputs must have been initialized for valid data.
- *
- * Overview: Retrieves input (via controller) through the input capture pins on
- *             the device.
- *
- * Input: None.
- *
- * Output: int* -> A pointer to the values of the array, which represent the
- *                  inputs of each channel. (usuall ranging between +-1024)
- *
- *****************************************************************************/
+/**
+ * Gets the scaled PWM values in the rnage of MIN_PWM and MAX_PWM from all the channels.
+ * Make sure that initPWM is called before calling this, otherwise the results will be useless
+ * @return An integer array of size 8 containing the PWM values for all the channels. Note that
+ * this array is zero-indexed, so channel 1 is index 0 (unlike the getPWM function)
+ */
 int* getPWMArray();
 
 /*****************************************************************************
@@ -127,30 +67,44 @@ int* getPWMArray();
  * Output: None.
  *
  *****************************************************************************/
+/**
+ * Sets the PWM output of a particular output. Make sure initPWM is called before
+ * this, otherwise unexpected behavior will occur
+ * @param channel Number from 1-8 (not zero-indexed) indicating the channel. Values outside
+ *      of this range will be ignored
+ * @param pwm Value from MIN_PWM to MAX_PWM range (or -1024 to 1024). Values outside
+ *      of this range will be ignored
+ */
 void setPWM(unsigned int channel, int pwm);
 
-/*****************************************************************************
- * Function: void setPWMArray(int* ocArray);
- *
- * Preconditions: The PWM outputs must have been initialized for valid output.
- *
-  Overview: Sets the output through the output compare pins on the device
- *          according to the values indicated in the ocArray.
- *
- * Input: int* ocArray -> An array containing the values for each corresponding
- *                       channel.
- *
- * Output: None.
- *
- *****************************************************************************/
-void setPWMArray(int* ocArray);
+/**
+ * Gets an array of all the set PWM values for all the 8 channel outputs
+ * @return An array of size 8 containing the latest set PWM value in the range of MIN_PWM and MAX_PWM
+ *      for all the channels. Note the array is 0-indexed, so channel 1 is array index 0
+ */
+int* getPWMOutputs();
 
-int checkPWM(unsigned int channel);
-int* checkPWMArray();
+/**
+ * Calibrates the input range and trim of a PWM channel input
+ * @param channel Number from 1-8 indicating the channel (not zero-based)
+ * @param signalScaleFactor The scale factor that the input will be scaled by
+ * @param signalOffset The signal offset for the signal, or trim
+ * 
+ * @note The signal factor and signal offset should be values such that:
+ *      (any_received_pwm_value - signal_offset)*scale_factor ~= -1024 - 1024 (MIN_PWM - MAX_PWM)
+ */
+void calibratePWMInputs(unsigned int channel, float signalScaleFactor, unsigned int signalOffset);
 
-#ifdef	__cplusplus
-}
+/**
+ * Calibrates the output range and trim of a PWM output
+ * @param channel Number from 1-8 indicating the channel (not zero-based)
+ * @param signalScaleFactor The scale factor that the input will be scaled by
+ * @param signalOffset The signal offset for the signal, or trim
+ * 
+ * @note The signal factor and signal offset should be values such that:
+ *      (any_PWM_value*scale_factor + signal_offset =~ Servo Range PWM
+ *      Where any any_PWM_value value will be in the range of -1024 to 1024 (MIN_PWM and MAX_PWM)
+ */
+void calibratePWMOutputs(unsigned int channel, float signalScaleFactor, unsigned int signalOffset);
+
 #endif
-
-#endif	/* PWM_H */
-

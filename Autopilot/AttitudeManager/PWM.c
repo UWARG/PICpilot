@@ -1,151 +1,96 @@
-/*
- * File:   PWM.c
- *
- * Created on August 21, 2014, 11:40 PM
+/**
+ * @file PWM.c
+ * @created August 21, 2014, 11:40 PM
  */
 #include "PWM.h"
 #include "OutputCompare.h"
 #include "InputCapture.h"
-#include "../Common/debug.h"
 
-char initialized = 0;
+/**
+ * The middle of the PWM range of the RC controller. This is used as the initial
+ * offset in the output and input scaling calculations
+ */
+#define MIDDLE_PWM (int)(((UPPER_PWM - LOWER_PWM)/2) + LOWER_PWM)
 
-int pwmArray[NUM_CHANNELS]; //The input
-int checkArray[NUM_CHANNELS]; //The output for status updates
-float scaleFactorIn[NUM_CHANNELS];
-int offsetIn[NUM_CHANNELS];
-float scaleFactorOut[NUM_CHANNELS];
-int offsetOut[NUM_CHANNELS];
+/**
+ * Initial scale factors used for scaling the RC inputs to the MIN_PWM - MAX_PWM range,
+ * and scaling outputs in the same range to the RC input range suitable for servos.
+ * These scale factors should be reconfigured by the ground station, hence they are just the DEFAULT
+ */
+#define DEFAULT_INPUT_SCALE_FACTOR (MAX_PWM/(float)(UPPER_PWM - MIDDLE_PWM))
+#define DEFAULT_OUTPUT_SCALE_FACTOR ((float)(UPPER_PWM - MIDDLE_PWM)/MAX_PWM) //its really just 1/INPUT_DEFAULT_SCALE_FACTOR, but this makes it clearer why
+
+/**
+ * Contains the scaled PWM inputs received from the RC controller from MIN_PWM - MAX_PWM
+ */
+static int pwm_inputs[NUM_CHANNELS];
+
+/**
+ * Contains the pre-scaled PWM outputs that were last set from MIN_PWM - MAX_PWM
+ */
+static int pwm_outputs[NUM_CHANNELS]; //The output for status updates
+
+/**
+ * Scale factors and offsets for each of the 8 channels
+ */
+static float input_scale_factors[NUM_CHANNELS];
+static int input_offsets[NUM_CHANNELS];
+static float output_scale_factors[NUM_CHANNELS];
+static int output_offsets[NUM_CHANNELS];
+
+static void calculatePWM(void);
 
 void initPWM(char inputChannels, char outputChannels){
     initTimer2();
     initIC(inputChannels);
+    initOC(outputChannels);
+    
+     //Set the initial offsets and scaling factors
     int i = 0;
     for (i = 0; i < NUM_CHANNELS; i++){
-        // Use default scale factor values
-        scaleFactorIn[i] = MAX_PWM/(float)(UPPER_PWM - MIDDLE_PWM); // We know that MAX_PWM = (UPPER_PWM - MIDDLE_PWM)/2 for a factor of 1.
-        // Use default offset values
-        offsetIn[i] = MIDDLE_PWM;
-        // Use default scale factor values
-        scaleFactorOut[i] = (float)(UPPER_PWM - MIDDLE_PWM)/MAX_PWM; // We know that MAX_PWM = (UPPER_PWM - MIDDLE_PWM) for a factor of 1.
-        // Use default offset values
-        offsetOut[i] = MIDDLE_PWM;
-    }
-    initOC(outputChannels);
-    initialized = 1;
-}
-
-void PWMInputCalibration(unsigned int channel, float signalScaleFactor, unsigned int signalOffset){
-    if (channel > 0 && channel <= NUM_CHANNELS){ //Check if channel number is valid
-        scaleFactorIn[channel - 1] = signalScaleFactor;
-        offsetIn[channel - 1] = signalOffset;
-    }
-    else { //Invalid Channel
-        //Display Error Message
-#if DEBUG
-        error("Invalid PWM channel");
-#endif
+        input_scale_factors[i] = DEFAULT_INPUT_SCALE_FACTOR;
+        output_scale_factors[i] = DEFAULT_OUTPUT_SCALE_FACTOR;
+        output_offsets[i] = MIDDLE_PWM;
+        input_offsets[i] = MIDDLE_PWM;
     }
 }
 
-void PWMOutputCalibration(unsigned int channel, float signalScaleFactor, unsigned int signalOffset){
-    if (channel > 0 && channel <= NUM_CHANNELS){ //Check if channel number is valid
-        scaleFactorOut[channel - 1] = signalScaleFactor;
-        offsetOut[channel - 1] = signalOffset;
-    }
-    else { //Invalid Channel
-        //Display Error Message
-#if DEBUG
-        error("Invalid PWM channel");
-#endif
-    }
-}
-
-
-int getPWM(unsigned int channel){
-    if (initialized && channel > 0 && channel <= NUM_CHANNELS){ //Is the Input Initialized?
-        return (int)((getICValue(channel) - offsetIn[channel - 1]) * scaleFactorIn[channel - 1]);
-    }
-    else { //Not initialized or invalid channel
-        //Display Error Message
-#if DEBUG
-        error("PWM not initialized or invalid channel specified");
-#endif
-        //Return 0
-        return MIN_PWM;
-    }
-}
 int* getPWMArray(){
-    if (initialized){ //Is the Input Initialized?
-        unsigned int* icArray = getICValues();
-        int i = 0;
-        for (i = 0; i < NUM_CHANNELS; i++){
-            pwmArray[i] = (int)(((int)(icArray[i]) - offsetIn[i]) * scaleFactorIn[i]);
-        }
-        return pwmArray;
-    }
-    else { //Not initialized
-        //Display Error Message
-#if DEBUG
-        error("PWM not initialized");
-#endif
-        //Return 0
-        return 0;
-
-    }
-
+    calculatePWM();
+    return pwm_inputs;
 }
 
 void setPWM(unsigned int channel, int pwm){
-    if (initialized && channel > 0 && channel <= NUM_CHANNELS){ //Is the Input Initialized?
-        checkArray[channel - 1] = pwm;
-        setOCValue(channel - 1, (int)(pwm * scaleFactorOut[channel - 1] + offsetOut[channel - 1]));
-    }
-    else { //Not initialized or invalid channel
-        //Display Error Message
-#if DEBUG
-        error("PWM not initialized or invalid channel specified");
-#endif
-    }
-}
-void setPWMArray(int* ocArray){
-    if (initialized){ //Is the Input Initialized?
-        int i = 0;
-        for (i = 0; i < NUM_CHANNELS; i++){
-            checkArray[i] = ocArray[i];
-            setOCValue(i,(int)(ocArray[i]  * scaleFactorOut[i] + offsetOut[i]));
-        }
-    }
-    else { //Not initialized
-        //Display Error Message
-#if DEBUG
-        error("PWM not initialized.");
-#endif
+    if (channel > 0 && channel <= NUM_CHANNELS && pwm >= MIN_PWM && pwm <= MAX_PWM){
+        pwm_outputs[channel - 1] = pwm;
+        setOCValue(channel - 1, (int)(pwm * output_scale_factors[channel - 1] + output_offsets[channel - 1]));
     }
 }
 
-int checkPWM(unsigned int channel){
-    if (initialized && channel > 0 && channel <= NUM_CHANNELS){ //Is the Input Initialized?
-        return checkArray[channel - 1];
-    }
-    else { //Not initialized or invalid channel
-           //Display Error Message
-#if DEBUG
-        error("PWM not initialized or invalid channel specified");
-#endif
-        return -1;
+int* getPWMOutputs(){
+    return pwm_outputs;
+}
+
+void calibratePWMInputs(unsigned int channel, float signalScaleFactor, unsigned int signalOffset){
+    if (channel > 0 && channel <= NUM_CHANNELS){ //Check if channel number is valid
+        input_scale_factors[channel - 1] = signalScaleFactor;
+        input_offsets[channel - 1] = signalOffset;
     }
 }
 
-int* checkPWMArray(){
-    if (initialized){ //Is the Input Initialized?
-        return (int *)&checkArray;
+void calibratePWMOutputs(unsigned int channel, float signalScaleFactor, unsigned int signalOffset){
+    if (channel > 0 && channel <= NUM_CHANNELS){ //Check if channel number is valid
+        output_scale_factors[channel - 1] = signalScaleFactor;
+        output_offsets[channel - 1] = signalOffset;
     }
-    else { //Not initialized
-           //Display Error Message
-#if DEBUG
-        error("PWM not initialized.");
-#endif
-        return 0;
+}
+
+/**
+ * Calculates/scales the input capture value of every channel to the PWM range
+ */
+static void calculatePWM(void){
+    int channel = 0;
+    for (channel = 0; channel < NUM_CHANNELS; channel++){
+        pwm_inputs[channel] = (int)((getICValue(channel) - input_offsets[channel]) * input_scale_factors[channel]);
     }
 }
