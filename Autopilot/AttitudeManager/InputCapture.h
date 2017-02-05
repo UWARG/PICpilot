@@ -19,7 +19,7 @@
 void initIC(char initIC);
 
 /**
- * Gets the input capture value (aka PWM) of all the channels
+ * Gets the input capture value (in ticks) of all the channels
  * @return Array containing all the channel values
  */
 unsigned int* getICValues();
@@ -27,7 +27,8 @@ unsigned int* getICValues();
 /**
  * Gets the input capture value of a specific value
  * @param channel number from 0-7
- * @return PWM value of the channel in ms
+ * @return Value of the IC channel. This is in Timer2 ticks, not ms! 
+ * The timer module defines number of ticks in a ms
  */
 unsigned int getICValue(unsigned char channel);
 
