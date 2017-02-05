@@ -89,8 +89,9 @@ void calibratePWMOutputs(unsigned int channel, float signalScaleFactor, unsigned
  * Calculates/scales the input capture value of every channel to the PWM range
  */
 static void calculatePWM(void){
+    unsigned int* ic_values = getICValues();
     int channel = 0;
     for (channel = 0; channel < NUM_CHANNELS; channel++){
-        pwm_inputs[channel] = (int)((getICValue(channel) - input_offsets[channel]) * input_scale_factors[channel]);
+        pwm_inputs[channel] = (int)((ic_values[channel] - input_offsets[channel]) * input_scale_factors[channel]);
     }
 }
