@@ -4,8 +4,6 @@
  * Created on February 9, 2010, 10:53 AM
  */
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <p33Fxxxx.h>
 #include "OutputCompare.h"
 #include "InputCapture.h"
@@ -95,6 +93,10 @@ OC8CONbits.OCTSEL = 0; // Select Timer 2 as output compare time base
 OC8CONbits.OCM = 0b110; // Select the Output Compare mode (without fault protection)
 }
 
+/**
+ * Set the period value of Timer2
+ * @param time Time in ms
+ */
 void setPeriod(double time) 
 {
          T2CONbits.TCKPS = 0x02; //1:64 scaler
