@@ -9,18 +9,18 @@
 #include "timer.h"
 
 /**
- * Raw captures of timer1 and timer2 for all 8 channels
+ * Holds the capture start and end time so that we can compare them later
  */
 static unsigned int start_time[8];
 static unsigned int end_time[8];
 
 /**
- * Interrupt flag for if new data is available
+ * Interrupt flag for if new data is available and ready to read
  */
 static char new_data_available[8];
 
 /**
- * The actual time between interrupts (or pulses, in ms)
+ * The actual time between interrupts (in timer2 ticks, not ms)
  */
 static unsigned int capture_value[8];
 
@@ -32,6 +32,7 @@ void initIC(char initIC)
     initInputCapture(initIC);
     initTimer2();
 }
+
 unsigned int* getICValues()
 {
     //Calculate and Update the Input Values
@@ -58,8 +59,8 @@ static void calculateICValue(unsigned char channel)
             /*
              * We've reached roll over. Add the maximum time (PR2) to the original start time,
              * and add on the end time to find the total time. Note that the PR2 register stores
-             * the time period for Timer2, and is set at 20ms (in initialization function). 
-             * Since an average PWM width is 2-3ms max, this is more than sufficient.
+             * the time period for Timer2, and is set at 20ms. After 20ms, the timer will
+             * reset. Since an average PWM width is 2-3ms max, this is more than sufficient.
              */
             capture_value[channel] = ((PR2 - start_time[channel]) + end_time[channel]);
         }

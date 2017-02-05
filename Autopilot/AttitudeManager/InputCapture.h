@@ -3,8 +3,8 @@
  * @author Chris Hajduk
  * @created March 4, 2013, 10:31 PM
  * @description This file provides the methods necessary to access the input capture
- * capabilities of the chip. In essence, it lets you get the PWM values from the 8
- * PWM capable channels that the chip has.
+ * capabilities of the chip. In essence, it lets you get the raw, uncalibrated PWM values 
+ * from the 8 available input compare channels
  */
 
 #ifndef INPUTCAPTURE_H
