@@ -18,6 +18,7 @@ float scaleFactorOut[NUM_CHANNELS];
 int offsetOut[NUM_CHANNELS];
 
 void initPWM(char inputChannels, char outputChannels){
+    initTimer2();
     initIC(inputChannels);
     int i = 0;
     for (i = 0; i < NUM_CHANNELS; i++){
@@ -98,7 +99,7 @@ int* getPWMArray(){
 void setPWM(unsigned int channel, int pwm){
     if (initialized && channel > 0 && channel <= NUM_CHANNELS){ //Is the Input Initialized?
         checkArray[channel - 1] = pwm;
-        setOCValue(channel, (int)(pwm * scaleFactorOut[channel - 1] + offsetOut[channel - 1]));
+        setOCValue(channel - 1, (int)(pwm * scaleFactorOut[channel - 1] + offsetOut[channel - 1]));
     }
     else { //Not initialized or invalid channel
         //Display Error Message

@@ -20,6 +20,12 @@ extern "C" {
 #define MAX_PWM 1024
 #define MIN_PWM -1024
 
+//TODO: These were defined in OutputCompare.h    
+#define UPPER_PWM 1284//1320//1411//941
+#define LOWER_PWM 642//705//470
+#define MIDDLE_PWM 963//981//(int)((UPPER_PWM - LOWER_PWM)/2) + LOWER_PWM//706
+#define SP_RANGE MAX_PWM//(UPPER_PWM - MIDDLE_PWM)
+
 // Function Prototypes
 /*****************************************************************************
  * Function: void initPWM(char inputChannels, char outputChannels);

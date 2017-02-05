@@ -19,7 +19,8 @@ void initTimer2(void)
     T2CONbits.TCS = 0; // Select internal instruction cycle clock
     T2CONbits.TGATE = 0; // Disable Gated Timer mode
     TMR2 = 0x00; // Clear timer register
-    setPeriod(20); // Load the period value = 20ms. Required for proper output compare                
+    T2CONbits.TCKPS = 0x02; //1:64 scaler
+    PR2 = T2_PERIOD * T2_TICKS_TO_MSEC; //set the period
     IPC1bits.T2IP = 0x01; // Set Timer 2 Interrupt Priority Level - Lowest
     IFS0bits.T2IF = 0; // Clear Timer 2 Interrupt Flag
     IEC0bits.T2IE = 0; // Disable Timer 2 interrupt
