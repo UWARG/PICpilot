@@ -31,7 +31,7 @@
  * Maximum and minimum limits received from the controller. These should be calibrated,
  * and the scaling from these values to the MAX and MIN PWM values will depend on these.
  * Note that these will be used as the default/initial values, however the actual scaling values
- * can be set by the groundstation
+ * can be set by the ground station
  */
 #define UPPER_PWM 1284
 #define LOWER_PWM 642
@@ -46,7 +46,7 @@
 void initPWM(char inputChannels, char outputChannels);
 
 /**
- * Gets the scaled PWM values in the rnage of MIN_PWM and MAX_PWM from all the channels.
+ * Gets the scaled PWM values in the range of MIN_PWM and MAX_PWM from all the channels.
  * Make sure that initPWM is called before calling this, otherwise the results will be useless
  * @return An integer array of size 8 containing the PWM values for all the channels. Note that
  * this array is zero-indexed, so channel 1 is index 0 (unlike the getPWM function)
