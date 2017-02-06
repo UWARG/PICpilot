@@ -78,7 +78,7 @@ void VN_SPI_SetSS(unsigned char sensorID, VN_PinState state){
 *******************************************************************************/
 unsigned long VN_SPI_SendReceive(unsigned long data){
 
-char smAllowed = getProgramStatus() > ARMING;
+//char smAllowed = getProgramStatus() > ARMING;
 /* User code to send out 4 bytes over SPI goes here */
   unsigned long ret = 0;
     /* Wait for SPI1 Tx buffer empty */

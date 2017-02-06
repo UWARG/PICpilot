@@ -177,10 +177,10 @@ void lowLevelControl(){
     checkLimits(outputSignal);
     //Then Output
     unsigned int cameraCounter = 0; //TODO: TEMPORARY, STORE TIME NOT COUNTER (OR BOTH) IMPLEMENT THIS A BETTER WAY
-    unsigned int cameraPWM = cameraPollingRuntime(getLatitude(), getLongitude(), getTime(), &cameraCounter, getRoll(), getPitch());
-    unsigned int gimbalPWM = cameraGimbalStabilization(getRoll());
-    unsigned int goProGimbalPWM = goProGimbalStabilization(getRoll());
-    unsigned int verticalGoProPWM = goProVerticalstabilization(getPitch());
+    cameraPollingRuntime(getLatitude(), getLongitude(), getTime(), &cameraCounter, getRoll(), getPitch());
+    cameraGimbalStabilization(getRoll());
+    goProGimbalStabilization(getRoll());
+    goProVerticalstabilization(getPitch());
     //For fixed-wing aircraft: Typically 0 = Roll, 1 = Pitch, 2 = Throttle, 3 = Yaw
 
     if (!killingPlane){
