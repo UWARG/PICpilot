@@ -36,7 +36,7 @@
 #define UPPER_PWM 1284
 #define LOWER_PWM 642
 
-#define SP_RANGE MAX_PWM//(UPPER_PWM - MIDDLE_PWM)
+#define HALF_PWM_RANGE (MAX_PWM - MIN_PWM)/2
 
 /**
  * Initializes the PWM input and output channels. Also initializes Timer2

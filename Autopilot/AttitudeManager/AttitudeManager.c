@@ -399,7 +399,7 @@ void inputCapture(){
 
 int getPitchAngleInput(char source){
     if (source == PITCH_RC_SOURCE){
-        return (int)((input_RC_PitchRate / ((float)SP_RANGE / MAX_PITCH_ANGLE) ));
+        return (int)((input_RC_PitchRate / ((float)HALF_PWM_RANGE / MAX_PITCH_ANGLE) ));
     }
     else if (source == PITCH_GS_SOURCE){
         return input_GS_Pitch;
@@ -419,7 +419,7 @@ int getPitchRateInput(char source){
 }
 int getRollAngleInput(char source){
     if (source == ROLL_RC_SOURCE){
-        return (int)((input_RC_RollRate / ((float)SP_RANGE / MAX_ROLL_ANGLE) ));
+        return (int)((input_RC_RollRate / ((float)HALF_PWM_RANGE / MAX_ROLL_ANGLE) ));
     }
     else if (source == ROLL_GS_SOURCE){
         return input_GS_Roll;
@@ -440,7 +440,7 @@ int getRollRateInput(char source){
 }
 int getYawAngleInput(char source){
     if (source == YAW_RC_SOURCE){
-        return (int)((input_RC_YawRate / ((float)SP_RANGE / MAX_ROLL_ANGLE) ));
+        return (int)((input_RC_YawRate / ((float)HALF_PWM_RANGE / MAX_ROLL_ANGLE) ));
     }
     else if (source == YAW_GS_SOURCE){
         return input_GS_Yaw;
@@ -603,13 +603,13 @@ int headingControl(int setpoint, int sensor){
 
 int rollAngleControl(int setpoint, int sensor){
     //Roll Angle
-    sp_ComputedRollRate = controlSignalAngles(setpoint, sensor, ROLL, -(SP_RANGE) / (MAX_ROLL_ANGLE));
+    sp_ComputedRollRate = controlSignalAngles(setpoint, sensor, ROLL, -(HALF_PWM_RANGE) / (MAX_ROLL_ANGLE));
     return sp_ComputedRollRate;
 }
 
 int pitchAngleControl(int setpoint, int sensor){
     //Pitch Angle
-    sp_ComputedPitchRate = controlSignalAngles(setpoint, sensor, PITCH, -(SP_RANGE) / (MAX_PITCH_ANGLE)); //Removed negative
+    sp_ComputedPitchRate = controlSignalAngles(setpoint, sensor, PITCH, -(HALF_PWM_RANGE) / (MAX_PITCH_ANGLE)); //Removed negative
     return sp_ComputedPitchRate;
 }
 
