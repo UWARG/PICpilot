@@ -31,6 +31,17 @@ static unsigned int capture_value[8];
  */
 static unsigned long int last_capture_time;
 
+/**
+* Used to keep track of the pulse position when PPM is enabled
+*/
+static unsigned char ppm_index;
+
+/**
+* Number of ticks that indicate a sync pulse
+* -50 ticks for a little tolerance
+*/
+#define PPM_SYNC_TICKS (int)(PPM_SYNC_TIME*T2_TICKS_TO_MSEC/1000) - 50
+
 static void calculateICValue(unsigned char channel);
 
 unsigned int* getICValues()
@@ -61,15 +72,21 @@ unsigned long int getICLastCapturedTime(void){
  */
 void initIC(char initIC)
 {
+    //If using PPM, we want to unconditionaly turn on channel 1
+    #if USE_PPM
+      initIC = 1;
+      ppm_index = 0;
+    #endif
+
     if (initIC & 0b01) {
         IC1CONbits.ICM = 0b00; // Disable Input Capture 1 module (required to change it)
         IC1CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
-        
+
         /**
          * Generate capture event on every Rising and Falling edge
          * Note that the ICI register is ignored when ICM is in edge detection mode (001)
          */
-        IC1CONbits.ICM = 0b001; 
+        IC1CONbits.ICM = 0b001;
 
         // Enable Capture Interrupt And Timer2
         IPC0bits.IC1IP = 7; // Setup IC1 interrupt priority level - Highest
@@ -161,11 +178,56 @@ static void calculateICValue(unsigned char channel)
     }
 }
 
+#if USE_PPM
 /**
- * Below are the configured interrupt handler functions for when there is an edge
- * change on an enabled PWM channel. These functions will mark the new_data_available
+* PPM Interrupt Service routine for Channel 1 for when PPM is enabled. Will trigger
+* on any edge change on channel 1. Calculates the time between the last rise time
+* and last fall time to determine if a PPM sync occured, used to keep track
+* of the positions of the channels
+*/
+void __attribute__((__interrupt__, no_auto_psv)) _IC1Interrupt(void)
+{
+    if (PORTDbits.RD8 == 1) { // if IC signal is goes 0 --> 1
+        start_time[ppm_index] = IC1BUF;
+        new_data_available[ppm_index] = 0; //we should do this so that we don't parse partial values (with wrong start time)
+
+        //TODO: Switch to Timer3 with a period of 0xFFFF to avoid taking into account
+        //for overflow
+        if (start_time[ppm_index] > last_capture_time){
+          if (start_time[ppm_index] - last_capture_time >= PPM_SYNC_TICKS){
+            ppm_index = 0;
+          }
+        } else {
+          if (((PR2 - last_capture_time) + start_time[ppm_index]) >= PPM_SYNC_TICKS){
+            ppm_index = 0;
+          }
+        }
+    } else {
+        end_time[ppm_index] = IC1BUF;
+        new_data_available[ppm_index] = 1;
+
+        last_capture_time = end_time[ppm_index];
+        ppm_index = (ppm_index + 1) % PPM_CHANNELS; // modulo to prevent overflow
+    }
+
+    /**
+     * Clear the input compare buffer to avoid any issues when hot swapping PWM cables.
+     * Without this, when hot-swapping PWM connections, you may get weird values (in the 10000's range)
+     * when reading off of the connection. Note that in normal circumstances, the maximum size
+     * of the buffer at any time will be 1, so this while loop should never execute. Its only when
+     * you disconnect it and reconnect it that stuff gets weird.
+     */
+    while (IC1CONbits.ICBNE) { //while the ic buffer not empty flag is set
+        IC1BUF; //read a value from the 4-size FIFO buffer
+    }
+    IFS0bits.IC1IF = 0; //reset the interrupt flag
+}
+#else
+/**
+ * PWM Interrupt Service Routines for when PPM is disabled. These will trigger
+ * on an edge change on an enabled PWM channel.These functions will mark the new_data_available
  * bits, as well as set/save the appropriate timer values.
- * 
+ *
  * If a high value is detected on an interrupt, it means we went from 0->1, so we mark
  * the start time. Otherwise, we mark the end time. In the latter case, we'll also mark
  * the data available bit as either 1 or 0. If we went from 0->1, we'll mark the data as not
@@ -182,7 +244,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC1Interrupt(void)
         end_time[0] = IC1BUF;
         new_data_available[0] = 1;
     }
-    
+
     /**
      * Clear the input compare buffer to avoid any issues when hot swapping PWM cables.
      * Without this, when hot-swapping PWM connections, you may get weird values (in the 10000's range)
@@ -207,7 +269,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC2Interrupt(void)
         end_time[1] = IC2BUF;
         new_data_available[1] = 1;
     }
-    
+
     while (IC2CONbits.ICBNE) {
         IC2BUF;
     }
@@ -225,7 +287,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC3Interrupt(void)
         end_time[2] = IC3BUF;
         new_data_available[2] = 1;
     }
-    
+
     while (IC3CONbits.ICBNE) {
         IC3BUF;
     }
@@ -243,7 +305,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC4Interrupt(void)
         end_time[3] = IC4BUF;
         new_data_available[3] = 1;
     }
-    
+
     while (IC4CONbits.ICBNE) {
         IC4BUF;
     }
@@ -261,7 +323,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC5Interrupt(void)
         end_time[4] = IC5BUF;
         new_data_available[4] = 1;
     }
-    
+
     while (IC5CONbits.ICBNE) {
         IC5BUF;
     }
@@ -279,7 +341,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC6Interrupt(void)
         end_time[5] = IC6BUF;
         new_data_available[5] = 1;
     }
-    
+
     while (IC6CONbits.ICBNE) {
         IC6BUF;
     }
@@ -322,3 +384,4 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC8Interrupt(void)
     }
     IFS1bits.IC8IF = 0;
 }
+#endif
