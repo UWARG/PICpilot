@@ -5,6 +5,12 @@
  * @description This file provides the methods necessary to access the input capture
  * capabilities of the chip. In essence, it lets you get the raw, uncalibrated PWM values 
  * from the 8 available input compare channels
+ * 
+ * Channel 7 is specifically also configured as the UHF connection switch. An edge
+ * detected on channel 7 will signify that the UHF is still alive by saving a timestamp
+ * which can be compared later. This can be reconfigured to a different channel, however
+ * the position of the timestamp save must be placed in a different interrupt service
+ * routine.
  */
 
 #ifndef INPUTCAPTURE_H
@@ -31,5 +37,12 @@ unsigned int* getICValues();
  * The timer module defines number of ticks in a ms
  */
 unsigned int getICValue(unsigned char channel);
+
+/**
+ * Get the last system time an edge was detected on channel 7. Should be used
+ * for detecting a UHF disconnect
+ * @return System time in ms since the last detected edge/data on channel 7
+ */
+unsigned long int getICLastCapturedTime(void);
 
 #endif

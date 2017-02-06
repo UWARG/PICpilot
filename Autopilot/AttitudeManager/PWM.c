@@ -71,6 +71,13 @@ int* getPWMOutputs(){
     return pwm_outputs;
 }
 
+char isPWMAlive(unsigned long int sys_time){
+    if ((sys_time - getICLastCapturedTime()) <= PWM_ALIVE_THRESHOLD){
+        return 1;
+    }
+    return 0;
+}
+
 void calibratePWMInputs(unsigned int channel, float signalScaleFactor, unsigned int signalOffset){
     if (channel > 0 && channel <= NUM_CHANNELS){ //Check if channel number is valid
         input_scale_factors[channel - 1] = signalScaleFactor;

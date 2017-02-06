@@ -24,6 +24,13 @@ static char new_data_available[8];
  */
 static unsigned int capture_value[8];
 
+/**
+ * Used to detect a UHF disconnect. Keeps track of the last time a falling edge
+ * was detected. Currently on the Channel 7 ISR will change this variable, however
+ * this can be configured to be any one of the other channels
+ */
+static unsigned long int last_capture_time;
+
 static void calculateICValue(unsigned char channel);
 
 unsigned int* getICValues()
@@ -40,6 +47,10 @@ unsigned int getICValue(unsigned char channel)
 {
     calculateICValue(channel);
     return capture_value[channel];
+}
+
+unsigned long int getICLastCapturedTime(void){
+    return last_capture_time;
 }
 
 /**
@@ -285,6 +296,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC7Interrupt(void)
     } else {
         end_time[6] = IC7BUF;
         new_data_available[6] = 1;
+        last_capture_time = getTime(); //Capture the time. Used for detecting disconnects
     }
 
     while (IC7CONbits.ICBNE) {
