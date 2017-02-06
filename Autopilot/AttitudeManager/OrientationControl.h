@@ -27,8 +27,8 @@
 #define SERVO_SCALE_FACTOR (-MAX_PWM / 45.0)
 #define ALTITUDE_PITCH_SCALE_FACTOR 1 //0.1 degrees per meter in altitude change
 #define HEADING_ROLL_SCALE_FACTOR 0.5
-#define THROTTLE_SCALE_FACTOR SP_RANGE///Remove this * 2 if having problems
-#define FLAP_SCALE_FACTOR SP_RANGE
+#define THROTTLE_SCALE_FACTOR HALF_PWM_RANGE///Remove this * 2 if having problems
+#define FLAP_SCALE_FACTOR HALF_PWM_RANGE
 
 
 

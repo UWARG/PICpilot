@@ -24,14 +24,7 @@ static char new_data_available[8];
  */
 static unsigned int capture_value[8];
 
-static void initInputCapture(char initIC);
 static void calculateICValue(unsigned char channel);
-
-void initIC(char initIC)
-{
-    initInputCapture(initIC);
-    initTimer2();
-}
 
 unsigned int* getICValues()
 {
@@ -49,33 +42,13 @@ unsigned int getICValue(unsigned char channel)
     return capture_value[channel];
 }
 
-static void calculateICValue(unsigned char channel)
-{
-    if (new_data_available[channel] == 1) {
-        //If the second time is greater than the first time then we have not met roll over
-        if (end_time[channel] > start_time[channel]) {
-            capture_value[channel] = end_time[channel] - start_time[channel];
-        } else {
-            /*
-             * We've reached roll over. Add the maximum time (PR2) to the original start time,
-             * and add on the end time to find the total time. Note that the PR2 register stores
-             * the time period for Timer2, and is set at 20ms. After 20ms, the timer will
-             * reset. Since an average PWM width is 2-3ms max, this is more than sufficient.
-             */
-            capture_value[channel] = ((PR2 - start_time[channel]) + end_time[channel]);
-        }
-
-        new_data_available[channel] = 0;
-    }
-}
-
 /**
  * Initializes interrupts for the specified channels. Sets Timer2
  * as the time base, and configures it so that interrupts occur on every rising and
  * falling edge
  * @param initIC An 8-bit bit mask specifying which channels to enable interrupts on
  */
-static void initInputCapture(char initIC)
+void initIC(char initIC)
 {
     if (initIC & 0b01) {
         IC1CONbits.ICM = 0b00; // Disable Input Capture 1 module (required to change it)
@@ -154,6 +127,26 @@ static void initInputCapture(char initIC)
         IPC5bits.IC8IP = 7;
         IFS1bits.IC8IF = 0;
         IEC1bits.IC8IE = 1;
+    }
+}
+
+static void calculateICValue(unsigned char channel)
+{
+    if (new_data_available[channel] == 1) {
+        //If the second time is greater than the first time then we have not met roll over
+        if (end_time[channel] > start_time[channel]) {
+            capture_value[channel] = end_time[channel] - start_time[channel];
+        } else {
+            /*
+             * We've reached roll over. Add the maximum time (PR2) to the original start time,
+             * and add on the end time to find the total time. Note that the PR2 register stores
+             * the time period for Timer2, and is set at 20ms. After 20ms, the timer will
+             * reset. Since an average PWM width is 2-3ms max, this is more than sufficient.
+             */
+            capture_value[channel] = ((PR2 - start_time[channel]) + end_time[channel]);
+        }
+
+        new_data_available[channel] = 0;
     }
 }
 
