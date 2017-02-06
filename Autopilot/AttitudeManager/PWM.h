@@ -9,6 +9,9 @@
  * 
  * Note that this is the module that scales the PWM inputs from the RC controller
  * range to the -1024 to 1024 range, as well as scales the outputs in the opposite manner.
+ * 
+ * Also note that channel 7 input by default is set as the UHF keep alive channel,
+ * and is tracked to for detecting UHF loss
  */
 
 #ifndef PWM_H
