@@ -53,20 +53,6 @@ void initPWM(char inputChannels, char outputChannels);
  */
 int* getPWMArray();
 
-/*****************************************************************************
- * Function: void setPWM(unsigned int channel, int pwm);
- *
- * Preconditions: The PWM outputs must have been initialized for valid output.
- *
-  Overview: Sets the output through the output compare pins on the device.
- *
- * Input: unsigned int channel -> The channel that is being set.
- *        int pwm -> The value (usually between +-1024) that is to be set to the
- *                  output compare pins.
- *
- * Output: None.
- *
- *****************************************************************************/
 /**
  * Sets the PWM output of a particular output. Make sure initPWM is called before
  * this, otherwise unexpected behavior will occur
