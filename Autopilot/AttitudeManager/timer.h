@@ -40,6 +40,6 @@ void initTimer4(void);
  * Get current time in ms
  * @return ms
  */
-long int getTime();
+long unsigned int getTime();
 
 #endif

@@ -8,7 +8,7 @@
 #include "main.h"
 #include "timer.h"
 
-static long int time = 0;
+static unsigned long int time = 0;
 
 /**
  * Initializes Timer2. Its used as a 16-bit timer
@@ -51,6 +51,6 @@ void __attribute__((__interrupt__, no_auto_psv)) _T4Interrupt(void){
     IFS1bits.T4IF = 0;
 }
 
-long int getTime(){
+long unsigned int getTime(){
     return time;
 }
