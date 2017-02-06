@@ -36,6 +36,9 @@
 #define UPPER_PWM 1284
 #define LOWER_PWM 642
 
+/**
+ * Used in some of the calculations
+ */
 #define HALF_PWM_RANGE (MAX_PWM - MIN_PWM)/2
 
 /**
