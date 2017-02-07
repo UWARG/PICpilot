@@ -278,7 +278,7 @@ char checkDMA(){
         DMA0CONbits.CHEN = 0; //Disable DMA0 channel
         DMA1CONbits.CHEN = 0; //Disable DMA1 channel
         while(SPI1STATbits.SPIRBF) { //Clear SPI1
-            int dummy = SPI1BUF;
+            SPI1BUF;
         }
 //        INTERCOM_2 = 0;
 //        while(INTERCOM_4);
