@@ -19,7 +19,8 @@
 #include "main.h"
 
 /**
- * Initializes capture configuration of the PWM input channels.
+ * Initializes capture configuration of the PWM input channels. Make sure to initialize Timer2
+ * before calling this!
  * @param initIC An 8-bit bitmask specifying which channels to enable (will enable interrupts on these)
  */
 void initIC(char initIC);
