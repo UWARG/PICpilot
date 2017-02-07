@@ -1037,13 +1037,20 @@ int writeDatalink(p_priority packet){
 }
 
 void checkUHFStatus(){
-    if (input_RC_UHFSwitch > 429 && input_RC_UHFSwitch < 440){
-        setProgramStatus(KILL_MODE_WARNING);
-        if (getTime() - UHFTimer > UHF_KILL_TIMEOUT){
-            killPlane(TRUE);
+    unsigned long int time = getTime();
+    
+    if (!isPWMAlive(time)){
+        if (UHFTimer == 0){ //0 indicates that this is the first time we lost UHF
+            UHFTimer = time;
+            setProgramStatus(KILL_MODE_WARNING);
+        } else { //otherwise check if we're over the threshold
+            if (time - UHFTimer > UHF_KILL_TIMEOUT){
+                killPlane(TRUE);
+            }
         }
+    } else {
+        UHFTimer = 0; //set it back to 0 otherwise to reset state
     }
-
 }
 
 void checkHeartbeat(){

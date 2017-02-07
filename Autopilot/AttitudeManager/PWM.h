@@ -9,6 +9,9 @@
  * 
  * Note that this is the module that scales the PWM inputs from the RC controller
  * range to the -1024 to 1024 range, as well as scales the outputs in the opposite manner.
+ * 
+ * Also note that channel 7 input by default is set as the UHF keep alive channel,
+ * and is tracked to for detecting UHF loss
  */
 
 #ifndef PWM_H
@@ -42,6 +45,12 @@
 #define HALF_PWM_RANGE (MAX_PWM - MIN_PWM)/2
 
 /**
+ * Number of ms after the last detected edge on channel 7 that it can be assumed
+ * the UHF connection is lost/PWM dead
+ */
+#define PWM_ALIVE_THRESHOLD 100
+
+/**
  * Initializes the PWM input and output channels. Also initializes Timer2
  * @param inputChannels 8-bit bit mask indicating which inputs to initialize (probably want to send 0xFF for all)
  * @param outputChannels 8-bit bit mask indicating which outputs to initialize
@@ -72,6 +81,13 @@ void setPWM(unsigned int channel, int pwm);
  *      for all the channels. Note the array is 0-indexed, so channel 1 is array index 0
  */
 int* getPWMOutputs();
+
+/**
+ * Checks PWM based on last data received on channel 7
+ * @param sys_time The current system time in ms
+ * @return 1 if the UHF connection is still alive, otherwise returns 0
+ */
+char isPWMAlive(unsigned long int sys_time);
 
 /**
  * Calibrates the input range and trim of a PWM channel input
