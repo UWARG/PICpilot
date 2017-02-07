@@ -23,8 +23,6 @@
 #include "../Common/UART1.h"
 #endif
 
-#define BOR_RESET (1<<1)
-#define POR_RESET 1
 
 static void checkForFirstGPSLock(); // function prototype for static function at line 679
 
@@ -676,15 +674,18 @@ void copyGPSData(){
 
 static void checkForFirstGPSLock(){
 	static char gpsLockFlag = 1;
-	
-	if(((getErrorCodes() & BOR_RESET) || (getErrorCodes() & POR_RESET)) && gpsLockFlag){
+    
+    if (gpsLockFlag){
+        unsigned int error_codes = getErrorCodes();
+        
+        if((error_codes & STARTUP_ERROR_BROWN_OUT_RESET) || (error_codes & STARTUP_ERROR_POWER_ON_RESET)){
 		home.latitude = gpsData.latitude;
 		home.longitude = gpsData.longitude;
 		home.altitude = gpsData.altitude;
 			
 		gpsLockFlag = 0;
-	}
-	
+        }
+    }
 }
 
 //returns 1 if gps location makes sense, 0 if not
