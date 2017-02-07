@@ -976,7 +976,7 @@ int writeDatalink(p_priority packet){
             if (show_scaled_pwm){
                 input = getPWMArray();
             } else {
-                input = getICValues();
+                input = (int*)getICValues();
             }
             statusData->data.p2_block.ch1In = input[0];
             statusData->data.p2_block.ch2In = input[1];
