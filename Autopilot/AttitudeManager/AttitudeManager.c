@@ -148,6 +148,8 @@ char lastNumSatellites = 0;
 
 unsigned int cameraCounter = 0;
 
+char show_scaled_pwm = 1;
+
 void attitudeInit() {
     setProgramStatus(INITIALIZATION);
     //Initialize Timer
@@ -867,6 +869,13 @@ void readDatalink(void){
                 amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
+            case SHOW_SCALED_PWM:
+                if ((*(char*)(&cmd->data)) == 1){
+                    show_scaled_pwm = 1;
+                } else{
+                    show_scaled_pwm = 0;
+                }
+                break;
             case NEW_WAYPOINT:
                 amData.waypoint = *(WaypointWrapper*)(&cmd->data);
                 amData.command = PM_NEW_WAYPOINT;
@@ -964,7 +973,11 @@ int writeDatalink(p_priority packet){
             statusData->data.p2_block.batteryLevel1 = batteryLevel1;
             statusData->data.p2_block.batteryLevel2 = batteryLevel2;
 //            debug("SW3");
-            input = getPWMArray();
+            if (show_scaled_pwm){
+                input = getPWMArray();
+            } else {
+                input = getICValues();
+            }
             statusData->data.p2_block.ch1In = input[0];
             statusData->data.p2_block.ch2In = input[1];
             statusData->data.p2_block.ch3In = input[2];
