@@ -25,32 +25,44 @@ static char new_data_available[8];
 static unsigned int capture_value[8];
 
 /**
- * Used to detect a UHF disconnect. Keeps track of the last time a falling edge
- * was detected. Currently on the Channel 7 ISR will change this variable, however
- * this can be configured to be any one of the other channels
+ * Last capture time in ms for all the channels. Used for detecting a channel/pwm
+ * disconnect
  */
-static unsigned long int last_capture_time;
+static unsigned long int last_capture_time[8];
 
-static void calculateICValue(unsigned char channel);
-
-unsigned int* getICValues()
+/**
+ * Calculate and update the input values
+ */
+unsigned int* getICValues(unsigned int sys_time)
 {
-    //Calculate and Update the Input Values
     char channel;
     for (channel = 0; channel < 8; channel++) {
-        calculateICValue(channel);
+        /*
+         * Check if we received any data from the channel within the threshold.
+         * If not, set the channel input as 0 to indicate that its disconnected
+         */
+        if ((sys_time - last_capture_time[channel]) > PWM_ALIVE_THRESHOLD) {
+            capture_value[channel] = 0;
+        } else { //otherwise the channel is connected. Perform the same necessary calculations
+            if (new_data_available[channel] == 1) {
+                //If the second time is greater than the first time then we have not met roll over
+                if (end_time[channel] > start_time[channel]) {
+                    capture_value[channel] = end_time[channel] - start_time[channel];
+                } else {
+                    /*
+                     * We've reached roll over. Add the maximum time (PR2) to the original start time,
+                     * and add on the end time to find the total time. Note that the PR2 register stores
+                     * the time period for Timer2, and is set at 20ms. After 20ms, the timer will
+                     * reset. Since an average PWM width is 2-3ms max, this is more than sufficient.
+                     */
+                    capture_value[channel] = ((PR2 - start_time[channel]) + end_time[channel]);
+                }
+
+                new_data_available[channel] = 0;
+            }
+        }
     }
     return capture_value;
-}
-
-unsigned int getICValue(unsigned char channel)
-{
-    calculateICValue(channel);
-    return capture_value[channel];
-}
-
-unsigned long int getICLastCapturedTime(void){
-    return last_capture_time;
 }
 
 /**
@@ -59,8 +71,8 @@ unsigned long int getICLastCapturedTime(void){
  * falling edge
  * @param initIC An 8-bit bit mask specifying which channels to enable interrupts on
  */
-void initIC(char initIC)
-{
+void initIC(unsigned char initIC)
+{   
     if (initIC & 0b01) {
         IC1CONbits.ICM = 0b00; // Disable Input Capture 1 module (required to change it)
         IC1CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
@@ -141,26 +153,6 @@ void initIC(char initIC)
     }
 }
 
-static void calculateICValue(unsigned char channel)
-{
-    if (new_data_available[channel] == 1) {
-        //If the second time is greater than the first time then we have not met roll over
-        if (end_time[channel] > start_time[channel]) {
-            capture_value[channel] = end_time[channel] - start_time[channel];
-        } else {
-            /*
-             * We've reached roll over. Add the maximum time (PR2) to the original start time,
-             * and add on the end time to find the total time. Note that the PR2 register stores
-             * the time period for Timer2, and is set at 20ms. After 20ms, the timer will
-             * reset. Since an average PWM width is 2-3ms max, this is more than sufficient.
-             */
-            capture_value[channel] = ((PR2 - start_time[channel]) + end_time[channel]);
-        }
-
-        new_data_available[channel] = 0;
-    }
-}
-
 /**
  * Below are the configured interrupt handler functions for when there is an edge
  * change on an enabled PWM channel. These functions will mark the new_data_available
@@ -181,6 +173,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC1Interrupt(void)
     } else {
         end_time[0] = IC1BUF;
         new_data_available[0] = 1;
+        last_capture_time[0] = getTime();
     }
     
     /**
@@ -206,6 +199,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC2Interrupt(void)
     } else {
         end_time[1] = IC2BUF;
         new_data_available[1] = 1;
+        last_capture_time[1] = getTime();
     }
     
     while (IC2CONbits.ICBNE) {
@@ -224,6 +218,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC3Interrupt(void)
     } else {
         end_time[2] = IC3BUF;
         new_data_available[2] = 1;
+        last_capture_time[2] = getTime();
     }
     
     while (IC3CONbits.ICBNE) {
@@ -242,6 +237,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC4Interrupt(void)
     } else {
         end_time[3] = IC4BUF;
         new_data_available[3] = 1;
+        last_capture_time[3] = getTime();
     }
     
     while (IC4CONbits.ICBNE) {
@@ -260,6 +256,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC5Interrupt(void)
     } else {
         end_time[4] = IC5BUF;
         new_data_available[4] = 1;
+        last_capture_time[4] = getTime();
     }
     
     while (IC5CONbits.ICBNE) {
@@ -278,6 +275,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC6Interrupt(void)
     } else {
         end_time[5] = IC6BUF;
         new_data_available[5] = 1;
+        last_capture_time[5] = getTime();
     }
     
     while (IC6CONbits.ICBNE) {
@@ -296,7 +294,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC7Interrupt(void)
     } else {
         end_time[6] = IC7BUF;
         new_data_available[6] = 1;
-        last_capture_time = getTime(); //Capture the time. Used for detecting disconnects
+        last_capture_time[6] = getTime();
     }
 
     while (IC7CONbits.ICBNE) {
@@ -315,6 +313,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC8Interrupt(void)
     } else {
         end_time[7] = IC8BUF;
         new_data_available[7] = 1;
+        last_capture_time[7] = getTime();
     }
 
     while (IC8CONbits.ICBNE) {

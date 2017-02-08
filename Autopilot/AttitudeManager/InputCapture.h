@@ -16,34 +16,25 @@
 #ifndef INPUTCAPTURE_H
 #define	INPUTCAPTURE_H
 
-#include "main.h"
+/**
+ * Number of ms after the last detected edge on a channel before it can be assumed to be
+ * disconnected
+ */
+#define PWM_ALIVE_THRESHOLD 100
 
 /**
  * Initializes capture configuration of the PWM input channels. Make sure to initialize Timer2
  * before calling this!
- * @param initIC An 8-bit bitmask specifying which channels to enable (will enable interrupts on these)
+ * @param initIC An 8-bit bit mask specifying which channels to enable (will enable interrupts on these)
  */
 void initIC(char initIC);
 
 /**
  * Gets the input capture value (in ticks) of all the channels
+ * @param sys_time The system time in milliseconds. Used for detecting disconnected channels. A channel
+ * that is disconnected will have a value of 0.
  * @return Array containing all the channel values
  */
-unsigned int* getICValues();
-
-/**
- * Gets the input capture value of a specific value
- * @param channel number from 0-7
- * @return Value of the IC channel. This is in Timer2 ticks, not ms! 
- * The timer module defines number of ticks in a ms
- */
-unsigned int getICValue(unsigned char channel);
-
-/**
- * Get the last system time an edge was detected on channel 7. Should be used
- * for detecting a UHF disconnect
- * @return System time in ms since the last detected edge/data on channel 7
- */
-unsigned long int getICLastCapturedTime(void);
+unsigned int* getICValues(unsigned int sys_time);
 
 #endif
