@@ -35,7 +35,7 @@ static unsigned long int last_capture_time[8];
  */
 unsigned int* getICValues(unsigned int sys_time)
 {
-    char channel;
+    int channel;
     for (channel = 0; channel < 8; channel++) {
         /*
          * Check if we received any data from the channel within the threshold.

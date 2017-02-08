@@ -5,6 +5,7 @@
 #include "PWM.h"
 #include "OutputCompare.h"
 #include "InputCapture.h"
+#include "timer.h"
 
 /**
  * The middle of the PWM range of the RC controller. This is used as the initial
@@ -47,8 +48,6 @@ static float input_scale_factors[NUM_CHANNELS];
 static int input_offsets[NUM_CHANNELS];
 static float output_scale_factors[NUM_CHANNELS];
 static int output_offsets[NUM_CHANNELS];
-
-static void calculatePWM(void);
 
 void initPWM(unsigned char inputChannels, unsigned char outputChannels)
 {

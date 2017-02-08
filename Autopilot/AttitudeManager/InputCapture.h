@@ -27,7 +27,7 @@
  * before calling this!
  * @param initIC An 8-bit bit mask specifying which channels to enable (will enable interrupts on these)
  */
-void initIC(char initIC);
+void initIC(unsigned char initIC);
 
 /**
  * Gets the input capture value (in ticks) of all the channels
