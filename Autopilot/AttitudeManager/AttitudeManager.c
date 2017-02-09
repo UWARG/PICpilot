@@ -110,7 +110,6 @@ int input_RC_YawRate = 0;
 int input_RC_Aux1 = 0; //0=Roll, 1= Pitch, 2=Yaw
 int input_RC_Aux2 = 0; //0 = Saved Value, 1 = Edit Mode
 int input_RC_Switch1 = 0;
-int input_RC_UHFSwitch = 0;
 
 //Ground Station Input Signals
 int input_GS_Roll = 0;
@@ -385,11 +384,10 @@ void setHeadingSetpoint(int setpoint){
 
 void inputCapture(){
     int* channelIn;
-    channelIn = getPWMArray();
+    channelIn = getPWMArray(getTime());
     inputMixing(channelIn, &input_RC_RollRate, &input_RC_PitchRate, &input_RC_Throttle, &input_RC_YawRate, &input_RC_Flap);
 
     // Switches and Knobs
-    input_RC_UHFSwitch = channelIn[UHF_STATUS_IN_CHANNEL - 1];
 //        sp_Type = channelIn[5];
 //        sp_Value = channelIn[6];
     input_RC_Switch1 = channelIn[AUTOPILOT_ACTIVE_IN_CHANNEL - 1];
@@ -977,9 +975,9 @@ int writeDatalink(p_priority packet){
             statusData->data.p2_block.batteryLevel2 = batteryLevel2;
 //            debug("SW3");
             if (show_scaled_pwm){
-                input = getPWMArray();
+                input = getPWMArray(getTime());
             } else {
-                input = (int*)getICValues();
+                input = (int*)getICValues(getTime());
             }
             statusData->data.p2_block.ch1In = input[0];
             statusData->data.p2_block.ch2In = input[1];
@@ -1055,7 +1053,7 @@ int writeDatalink(p_priority packet){
 void checkUHFStatus(){
     unsigned long int time = getTime();
     
-    if (!isPWMAlive(time)){
+    if (getPWMInputStatus() == PWM_STATUS_UHF_LOST){
         if (UHFTimer == 0){ //0 indicates that this is the first time we lost UHF
             UHFTimer = time;
             setProgramStatus(KILL_MODE_WARNING);

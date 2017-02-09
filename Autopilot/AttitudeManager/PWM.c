@@ -5,6 +5,7 @@
 #include "PWM.h"
 #include "OutputCompare.h"
 #include "InputCapture.h"
+#include "timer.h"
 
 /**
  * The middle of the PWM range of the RC controller. This is used as the initial
@@ -31,6 +32,16 @@ static int pwm_inputs[NUM_CHANNELS];
 static int pwm_outputs[NUM_CHANNELS]; //The output for status updates
 
 /**
+ * Used to keep track of the connected/disconnected input channels
+ */
+static unsigned char disconnected_pwm_inputs;
+
+/**
+ * Used so that we dont mark disabled channels as disconnected
+ */
+static unsigned char enabled_input_channels;
+
+/**
  * Scale factors and offsets for each of the 8 channels
  */
 static float input_scale_factors[NUM_CHANNELS];
@@ -38,16 +49,18 @@ static int input_offsets[NUM_CHANNELS];
 static float output_scale_factors[NUM_CHANNELS];
 static int output_offsets[NUM_CHANNELS];
 
-static void calculatePWM(void);
-
-void initPWM(char inputChannels, char outputChannels){
+void initPWM(unsigned char inputChannels, unsigned char outputChannels)
+{
     initTimer2();
     initIC(inputChannels);
     initOC(outputChannels);
-    
-     //Set the initial offsets and scaling factors
+
+    enabled_input_channels = inputChannels;
+    disconnected_pwm_inputs = 0; //mark none of the inputs as disconnected
+
+    //Set the initial offsets and scaling factors
     int i = 0;
-    for (i = 0; i < NUM_CHANNELS; i++){
+    for (i = 0; i < NUM_CHANNELS; i++) {
         input_scale_factors[i] = DEFAULT_INPUT_SCALE_FACTOR;
         output_scale_factors[i] = DEFAULT_OUTPUT_SCALE_FACTOR;
         output_offsets[i] = MIDDLE_PWM;
@@ -55,50 +68,58 @@ void initPWM(char inputChannels, char outputChannels){
     }
 }
 
-int* getPWMArray(){
-    calculatePWM();
+int* getPWMArray(unsigned long int sys_time)
+{
+    unsigned char channel_enabled;
+    unsigned int* ic_values = getICValues(sys_time);
+    int channel = 0;
+    
+    for (channel = 0; channel < NUM_CHANNELS; channel++) {
+        channel_enabled = enabled_input_channels & (1 << channel);
+        
+        if(!channel_enabled){ //if the channel is disabled
+            pwm_inputs[channel] = DISCONNECTED_PWM_VALUE;
+        } else if (ic_values[channel] == 0 && channel_enabled) { //if the channel is enabled but disconnected
+            pwm_inputs[channel] = DISCONNECTED_PWM_VALUE;
+            disconnected_pwm_inputs = disconnected_pwm_inputs | (1 << channel); //set the bit as 1
+        } else { //otherwise if its a connected, enabled channel, calculate its value
+            pwm_inputs[channel] = (int) ((ic_values[channel] - input_offsets[channel]) * input_scale_factors[channel]);
+            disconnected_pwm_inputs = disconnected_pwm_inputs & (~(1 << channel)); //set the bit as 0
+        }
+    }
     return pwm_inputs;
 }
 
-void setPWM(unsigned int channel, int pwm){
-    if (channel > 0 && channel <= NUM_CHANNELS && pwm >= MIN_PWM && pwm <= MAX_PWM){
+void setPWM(unsigned int channel, int pwm)
+{
+    if (channel > 0 && channel <= NUM_CHANNELS && pwm >= MIN_PWM && pwm <= MAX_PWM) {
         pwm_outputs[channel - 1] = pwm;
-        setOCValue(channel - 1, (int)(pwm * output_scale_factors[channel - 1] + output_offsets[channel - 1]));
+        setOCValue(channel - 1, (int) (pwm * output_scale_factors[channel - 1] + output_offsets[channel - 1]));
     }
 }
 
-int* getPWMOutputs(){
+int* getPWMOutputs()
+{
     return pwm_outputs;
 }
 
-char isPWMAlive(unsigned long int sys_time){
-    if ((sys_time - getICLastCapturedTime()) <= PWM_ALIVE_THRESHOLD){
-        return 1;
-    }
-    return 0;
+unsigned char getPWMInputStatus(void)
+{
+    return disconnected_pwm_inputs;
 }
 
-void calibratePWMInputs(unsigned int channel, float signalScaleFactor, unsigned int signalOffset){
-    if (channel > 0 && channel <= NUM_CHANNELS){ //Check if channel number is valid
+void calibratePWMInputs(unsigned int channel, float signalScaleFactor, unsigned int signalOffset)
+{
+    if (channel > 0 && channel <= NUM_CHANNELS) { //Check if channel number is valid
         input_scale_factors[channel - 1] = signalScaleFactor;
         input_offsets[channel - 1] = signalOffset;
     }
 }
 
-void calibratePWMOutputs(unsigned int channel, float signalScaleFactor, unsigned int signalOffset){
-    if (channel > 0 && channel <= NUM_CHANNELS){ //Check if channel number is valid
+void calibratePWMOutputs(unsigned int channel, float signalScaleFactor, unsigned int signalOffset)
+{
+    if (channel > 0 && channel <= NUM_CHANNELS) { //Check if channel number is valid
         output_scale_factors[channel - 1] = signalScaleFactor;
         output_offsets[channel - 1] = signalOffset;
-    }
-}
-
-/**
- * Calculates/scales the input capture value of every channel to the PWM range
- */
-static void calculatePWM(void){
-    unsigned int* ic_values = getICValues();
-    int channel = 0;
-    for (channel = 0; channel < NUM_CHANNELS; channel++){
-        pwm_inputs[channel] = (int)((ic_values[channel] - input_offsets[channel]) * input_scale_factors[channel]);
     }
 }

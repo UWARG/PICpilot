@@ -45,25 +45,34 @@
 #define HALF_PWM_RANGE (MAX_PWM - MIN_PWM)/2
 
 /**
- * Number of ms after the last detected edge on channel 7 that it can be assumed
- * the UHF connection is lost/PWM dead
+ * Value to give to a channel thats disconnected. Used to easily let the
+ * ground station operator know that the input is disconnected, and so that you don't
+ * get random PWM input values if you have specific scaling
+ * factors and offsets set for a particular channel
  */
-#define PWM_ALIVE_THRESHOLD 100
+#define DISCONNECTED_PWM_VALUE -10000
+
+/**
+ * Shortcuts for the applicable PWM statuses
+ */
+#define PWM_STATUS_UHF_LOST 0xFF
+#define PWM_STATUS_OK 0
 
 /**
  * Initializes the PWM input and output channels. Also initializes Timer2
  * @param inputChannels 8-bit bit mask indicating which inputs to initialize (probably want to send 0xFF for all)
  * @param outputChannels 8-bit bit mask indicating which outputs to initialize
  */
-void initPWM(char inputChannels, char outputChannels);
+void initPWM(unsigned char inputChannels,unsigned char outputChannels);
 
 /**
  * Gets the scaled PWM values in the range of MIN_PWM and MAX_PWM from all the channels.
  * Make sure that initPWM is called before calling this, otherwise the results will be useless
+ * @param sys_time System time in ms used for detecting disconnects
  * @return An integer array of size 8 containing the PWM values for all the channels. Note that
  * this array is zero-indexed, so channel 1 is index 0 (unlike the getPWM function)
  */
-int* getPWMArray();
+int* getPWMArray(unsigned long int sys_time);
 
 /**
  * Sets the PWM output of a particular output. Make sure initPWM is called before
@@ -83,11 +92,14 @@ void setPWM(unsigned int channel, int pwm);
 int* getPWMOutputs();
 
 /**
- * Checks PWM based on last data received on channel 7
- * @param sys_time The current system time in ms
- * @return 1 if the UHF connection is still alive, otherwise returns 0
+ * Returns 8-bit bit mask indicating the status of each channel. A 0 means that the channel
+ * is functioning (connected or disabled), whilst a 1 means a channel is disconnected
+ * (only if its enabled). Therefore if the status is equal to 0, you can assume all
+ * the channels are working fine. If its greater than 0, some of the channels have disconnected.
+ * Most importantly, if the status equals 0xFF, all the channels have disconnected,
+ * which indicates that the UHF connection was lost.
  */
-char isPWMAlive(unsigned long int sys_time);
+unsigned char getPWMInputStatus(void);
 
 /**
  * Calibrates the input range and trim of a PWM channel input
