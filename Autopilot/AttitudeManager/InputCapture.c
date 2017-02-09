@@ -33,7 +33,7 @@ static unsigned long int last_capture_time[8];
 /**
  * Calculate and update the input values
  */
-unsigned int* getICValues(unsigned int sys_time)
+unsigned int* getICValues(unsigned long int sys_time)
 {
     int channel;
     for (channel = 0; channel < 8; channel++) {
@@ -57,7 +57,6 @@ unsigned int* getICValues(unsigned int sys_time)
                      */
                     capture_value[channel] = ((PR2 - start_time[channel]) + end_time[channel]);
                 }
-
                 new_data_available[channel] = 0;
             }
         }

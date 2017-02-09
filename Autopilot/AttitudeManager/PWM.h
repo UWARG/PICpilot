@@ -72,7 +72,7 @@ void initPWM(unsigned char inputChannels,unsigned char outputChannels);
  * @return An integer array of size 8 containing the PWM values for all the channels. Note that
  * this array is zero-indexed, so channel 1 is index 0 (unlike the getPWM function)
  */
-int* getPWMArray(unsigned int sys_time);
+int* getPWMArray(unsigned long int sys_time);
 
 /**
  * Sets the PWM output of a particular output. Make sure initPWM is called before

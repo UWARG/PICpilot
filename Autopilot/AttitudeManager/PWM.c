@@ -56,6 +56,7 @@ void initPWM(unsigned char inputChannels, unsigned char outputChannels)
     initOC(outputChannels);
 
     enabled_input_channels = inputChannels;
+    disconnected_pwm_inputs = 0; //mark none of the inputs as disconnected
 
     //Set the initial offsets and scaling factors
     int i = 0;
@@ -67,19 +68,21 @@ void initPWM(unsigned char inputChannels, unsigned char outputChannels)
     }
 }
 
-int* getPWMArray(unsigned int sys_time)
+int* getPWMArray(unsigned long int sys_time)
 {
-    char channel_enabled;
+    unsigned char channel_enabled;
     unsigned int* ic_values = getICValues(sys_time);
     int channel = 0;
+    
     for (channel = 0; channel < NUM_CHANNELS; channel++) {
         channel_enabled = enabled_input_channels & (1 << channel);
-
-        //if the channel disconnected
-        if (ic_values[channel] == 0 && !channel_enabled) {
+        
+        if(!channel_enabled){ //if the channel is disabled
             pwm_inputs[channel] = DISCONNECTED_PWM_VALUE;
-            disconnected_pwm_inputs = disconnected_pwm_inputs | (1 << channel);
-        } else { //otherwise calculate as usual
+        } else if (ic_values[channel] == 0 && channel_enabled) { //if the channel is enabled but disconnected
+            pwm_inputs[channel] = DISCONNECTED_PWM_VALUE;
+            disconnected_pwm_inputs = disconnected_pwm_inputs | (1 << channel); //set the bit as 1
+        } else { //otherwise if its a connected, enabled channel, calculate its value
             pwm_inputs[channel] = (int) ((ic_values[channel] - input_offsets[channel]) * input_scale_factors[channel]);
             disconnected_pwm_inputs = disconnected_pwm_inputs & (~(1 << channel)); //set the bit as 0
         }
