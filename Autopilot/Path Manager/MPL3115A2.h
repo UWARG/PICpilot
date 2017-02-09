@@ -4,7 +4,7 @@
  *
  * Created on April 5, 2014, 7:08 PM
  */
-#include "I2C.h"
+#include "../Common/I2C.h"
 
 #ifndef MPL3115A2_H
 #define	MPL3115A2_H

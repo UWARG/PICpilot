@@ -5,7 +5,6 @@
                    displayName="Header Files"
                    projectFiles="true">
       <itemPath>Dubins.h</itemPath>
-      <itemPath>I2C.h</itemPath>
       <itemPath>InterchipDMA.h</itemPath>
       <itemPath>main.h</itemPath>
       <itemPath>MPL3115A2.h</itemPath>
@@ -19,6 +18,7 @@
       <itemPath>StartupErrorCodes.h</itemPath>
       <itemPath>airspeedSensor.h</itemPath>
       <itemPath>ProbeDrop.h</itemPath>
+      <itemPath>../Common/I2C.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -28,7 +28,6 @@
                    displayName="Source Files"
                    projectFiles="true">
       <itemPath>Dubins.c</itemPath>
-      <itemPath>I2C.c</itemPath>
       <itemPath>InterchipDMA.c</itemPath>
       <itemPath>main.c</itemPath>
       <itemPath>MPL3115A2.c</itemPath>
@@ -42,6 +41,7 @@
       <itemPath>StartupErrorCodes.c</itemPath>
       <itemPath>airspeedSensor.c</itemPath>
       <itemPath>ProbeDrop.c</itemPath>
+      <itemPath>../Common/I2C.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -51,6 +51,7 @@
   </logicalFolder>
   <sourceRootList>
     <Elem>../AttitudeManager</Elem>
+    <Elem>../Common</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -62,7 +63,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>ICD3PlatformTool</platformTool>
         <languageToolchain>XC16</languageToolchain>
-        <languageToolchainVersion>1.10</languageToolchainVersion>
+        <languageToolchainVersion>1.26</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -70,8 +71,11 @@
           <linkerLibItems>
           </linkerLibItems>
         </linkerTool>
+        <archiverTool>
+        </archiverTool>
         <loading>
           <useAlternateLoadableFile>false</useAlternateLoadableFile>
+          <parseOnProdLoad>false</parseOnProdLoad>
           <alternateLoadableFile></alternateLoadableFile>
         </loading>
       </compileType>
@@ -123,6 +127,9 @@
         <property key="use-cci" value="false"/>
         <property key="use-iar" value="false"/>
       </C30>
+      <C30-AR>
+        <property key="additional-options-chop-files" value="false"/>
+      </C30-AR>
       <C30-AS>
         <property key="assembler-symbols" value=""/>
         <property key="expand-macros" value="false"/>

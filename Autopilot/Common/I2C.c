@@ -1,7 +1,7 @@
-#include "../Common/Common.h"
+#include "Common.h"
 #include "I2C.h"
-void initI2C()
-{
+
+void initI2C(){
     //Initializes all I2C communications registers
 
 
@@ -47,7 +47,7 @@ char checkDevicePresence(char devAddress, char reg){
     I2CIdle(); //Wait until acknowledge is sent from the slave
     I2C2TRN = (devAddress << 1) + 1; //Shift and add the read bit(1) - Prep for restart
     I2CIdle(); //Wait until acknowledge is sent from the slave
-    ///THE MESSAGE FROM THE SLAVE IS SENT HERE
+    ///THE MESSAGE FROM THE SLAVE IS SENT HRE
     I2C2CONbits.RCEN = 1; //Enable receive mode
     I2CIdle(); //Wait until all 8 bits have been acquired
     while (I2C2STATbits.RBF != 1 && count < 0x0FFF)count++;
@@ -71,8 +71,7 @@ char checkDevicePresence(char devAddress, char reg){
     return connected;
 }
 
-char sendMessage(char devAddress, char address, char* data, char length, char rw)
-{
+char sendMessage(char devAddress, char address, char* data, char length, char rw){
     char rData = 0;
     I2CIdle();
     I2C2CONbits.SEN = 1;  //Send Start condition
@@ -99,8 +98,7 @@ char sendMessage(char devAddress, char address, char* data, char length, char rw
 
 }
 
-char readMessage(char devAddress, char address)
-{
+char readMessage(char devAddress, char address){
     I2CIdle();
     I2C2TRN = address;  //Then after it is free, write the local address.
     I2CIdle(); //Wait until acknowledge is sent from the slave
@@ -122,8 +120,7 @@ char readMessage(char devAddress, char address)
 
 
 }
-void writeMessage(char address, char* data, char length)
-{
+void writeMessage(char address, char* data, char length){
     I2CIdle();
     I2C2TRN = address;  //Then after it is free, write the address.
 
