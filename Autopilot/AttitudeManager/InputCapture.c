@@ -41,6 +41,12 @@ static unsigned long int last_capture_time[8];
  */
 static unsigned char ppm_index;
 
+/**
+* Number of ticks that indicate a sync pulse
+* -50 ticks for a little tolerance
+*/
+#define PPM_SYNC_TICKS (int)(PPM_SYNC_TIME*T2_TICKS_TO_MSEC/1000) - 50
+
 unsigned int* getICValues(unsigned long int sys_time)
 {
     int channel;
@@ -80,7 +86,7 @@ unsigned int* getICValues(unsigned long int sys_time)
  */
 void initIC(unsigned char initIC)
 {
-    //If using PPM, we want to unconditionaly turn on channel 1
+    //If using PPM, we want to unconditionally turn on channel 1
     #if USE_PPM
       initIC = 1;
       ppm_index = 0;
@@ -175,7 +181,7 @@ void initIC(unsigned char initIC)
 */
 void __attribute__((__interrupt__, no_auto_psv)) _IC1Interrupt(void)
 {
-    unsigned char last_fall_ppm_index = ppm_index -1;
+    unsigned char last_fall_ppm_index = ppm_index - 1;
     if (last_fall_ppm_index > PPM_CHANNELS){ //handle potential overflow
         last_fall_ppm_index = PPM_CHANNELS - 1;
     }
@@ -212,8 +218,8 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC1Interrupt(void)
     }
     IFS0bits.IC1IF = 0; //reset the interrupt flag
 }
-#else
 
+#else
 /**
  * PWM Interrupt Service Routines for when PPM is disabled. These will trigger
  * on an edge change on an enabled PWM channel.These functions will mark the new_data_available

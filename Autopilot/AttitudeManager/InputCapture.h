@@ -24,6 +24,17 @@
 
 /**
 * If using PPM, this is the sync time between frames in ms. Required so that
+* the picpilot can tell frames apart
+*/
+#define PPM_SYNC_TIME 3000
+
+/**
+* How many channels are expected to be in a single PPM frame. Cant be more than 8
+*/
+#define PPM_CHANNELS 8
+
+/**
+* If using PPM, this is the sync time between frames in ms. Required so that
 * the pic pilot can tell frames apart
 */
 #define PPM_SYNC_TIME 3000
@@ -41,7 +52,11 @@
 
 /**
  * Initializes capture configuration of the PWM input channels. Make sure to initialize Timer2
- * before calling this! Disabled channels will not have interrupts called on them
+ * before calling this! Disabled channels will not have interrupts called on them, and
+ * disconnect detection will also be disabled
+ * @param channel number from 0-7
+ * @return Value of the IC channel. This is in Timer2 ticks, not ms!
+ * The timer module defines number of ticks in a ms
  */
 void initIC(unsigned char initIC);
 
