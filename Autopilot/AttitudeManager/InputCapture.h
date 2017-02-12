@@ -6,11 +6,7 @@
  * capabilities of the chip. In essence, it lets you get the raw, uncalibrated PWM values
  * from the 8 available input compare channels
  *
- * Channel 7 is specifically also configured as the UHF connection switch. An edge
- * detected on channel 7 will signify that the UHF is still alive by saving a timestamp
- * which can be compared later. This can be reconfigured to a different channel, however
- * the position of the timestamp save must be placed in a different interrupt service
- * routine.
+ * If using PPM, by default the input channel on the Picpilot will be channel 7.
  */
 
 #ifndef INPUTCAPTURE_H
