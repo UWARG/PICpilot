@@ -5,7 +5,6 @@
 
 #include <p33Fxxxx.h>
 #include "InputCapture.h"
-#include "OutputCompare.h"
 #include "timer.h"
 
 /**
