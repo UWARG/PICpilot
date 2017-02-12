@@ -114,9 +114,9 @@ unsigned int* getICValues(unsigned long int sys_time)
  */
 void initIC(unsigned char initIC)
 {
-    //If using PPM, we want to unconditionally turn on channel 1
+    //If using PPM, we want to unconditionally turn on channel 7
     #if USE_PPM
-      initIC = 1;
+      initIC = 0b01000000;
       ppm_index = 0;
     #endif
 
@@ -207,14 +207,14 @@ void initIC(unsigned char initIC)
 * and last fall time to determine if a PPM sync occured, used to keep track
 * of the positions of the channels
 */
-void __attribute__((__interrupt__, no_auto_psv)) _IC1Interrupt(void)
+void __attribute__((__interrupt__, no_auto_psv)) _IC7Interrupt(void)
 {
     static unsigned int time_diff;
     
-    if (PORTDbits.RD8 == !PPM_INVERTED) { //If PPM inverted, check for fall (0). Otherwise check for rise (1)
-        start_time[ppm_index] = IC1BUF;
+    if (PORTDbits.RD14 == !PPM_INVERTED) { //If PPM inverted, check for fall (0). Otherwise check for rise (1)
+        start_time[ppm_index] = IC7BUF;
     } else { //if PPM inverted, then if rise (1). Otherwise if fall
-        end_time[ppm_index] = IC1BUF;
+        end_time[ppm_index] = IC7BUF;
         
         //take into account for timer overflow
         if (end_time[ppm_index] > start_time[ppm_index]){
