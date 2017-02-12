@@ -15,6 +15,7 @@
 #include "net.h"
 #include "../Common/Common.h"
 
+
 //Bit masks for levels of control - DON'T CHANGE THESE FOR SHITS AND GIGGLES
 #define PITCH_CONTROL_TYPE 0b00000001 //Pitch Rate(0) or Pitch Angles(1)
 #define PITCH_CONTROL_SOURCE 0b00000010 //Controller(0) or Ground Station(1)

@@ -58,6 +58,8 @@ void copyGPSData(void);
 char gpsErrorCheck(double lat, double lon);
 void checkAMData(void);
 float getWaypointChecksum(void);
+void GPSLock();
+char checkForReset();
 
 
 #endif	/* PATHMANGER_H */

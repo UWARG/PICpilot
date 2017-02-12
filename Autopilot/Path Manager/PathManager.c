@@ -667,12 +667,37 @@ void copyGPSData(){
     pmData.checkbyteDMA2 = generatePMDataDMAChecksum2();
 }
 
+// check if power on reset, brown out reset, watchdog time out or software reset flags are set
+
+ char checkForReset(){
+     if (RCONbits.POR || RCONbits.BOR || RCONbits.WDTO || RCONbits.SWR || RCONbits.EXTR){
+         // clear RCON(Reset control) bits)
+         RCONbits.BOR = 0;
+         RCONbits.EXTR = 0;
+         RCONbits.POR = 0;
+         RCONbits.SWR = 0;
+         RCONbits.WDTO = 0;
+         return 1;
+     }
+     else 
+         return 0;
+ } 
+ void GPSLock(){
+     if(checkForReset()){
+      home.latitude = gpsData.latitude;
+      home.longitude = gpsData.longitude;
+      home.altitude = gpsData.altitude;
+     }
+  }
 //returns 1 if gps location makes sense, 0 if not
 char gpsErrorCheck(double lat, double lon){
     if(abs(lon - RELATIVE_LONGITUDE)<GPS_ERROR && abs(lat - RELATIVE_LATITUDE)<GPS_ERROR){
         return 1;
     }
+    else{
+        GPSLock();
         return 0;
+    }
 }
 
 
