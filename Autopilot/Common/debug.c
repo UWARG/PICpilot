@@ -29,7 +29,8 @@ void error(char* message){
     for (i = 0; i < mLength; i++){
         errorMessage[i + ERROR_TAG_STRING_LENGTH] = message[i];
     }
-    errorMessage[i + ERROR_TAG_STRING_LENGTH] = '\0';
+    errorMessage[i + ERROR_TAG_STRING_LENGTH] = '\r';
+    errorMessage[i + ERROR_TAG_STRING_LENGTH + 1] = '\0';
     UART1_SendString(errorMessage);
 }
 
@@ -53,7 +54,8 @@ void warning(char* message){
     for (i = 0; i < mLength; i++){
         warningMessage[i + WARNING_TAG_STRING_LENGTH] = message[i];
     }
-    warningMessage[i + ERROR_TAG_STRING_LENGTH] = '\0';
+    warningMessage[i + WARNING_TAG_STRING_LENGTH] = '\r';
+    warningMessage[i + WARNING_TAG_STRING_LENGTH + 1] = '\0';
     UART1_SendString(warningMessage);
 }
 
@@ -77,6 +79,7 @@ void debug(char* message){
     for (i = 0; i < mLength; i++){
         debugMessage[i + DEBUG_TAG_STRING_LENGTH] = message[i];
     }
-    debugMessage[i + ERROR_TAG_STRING_LENGTH] = '\0';
+    debugMessage[i + DEBUG_TAG_STRING_LENGTH] = '\r';
+    debugMessage[i + DEBUG_TAG_STRING_LENGTH + 1] = '\0';
     UART1_SendString(debugMessage);
 }
