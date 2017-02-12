@@ -23,10 +23,10 @@
 #define USE_PPM 1
 
 /**
-* If using PPM, this is the sync time between frames in ms. Required so that
-* the picpilot can tell frames apart
-*/
-#define PPM_SYNC_TIME 3000
+ * If the PPM signal is inverted. Some receivers, such as the ezUHF have an inverted
+ * PPM signal, so set this to 1. If using the OrangeRX, set this to 0
+ */
+#define PPM_INVERTED 0
 
 /**
 * How many channels are expected to be in a single PPM frame. Cant be more than 8
@@ -34,16 +34,13 @@
 #define PPM_CHANNELS 8
 
 /**
-* If using PPM, this is the sync time between frames in ms. Required so that
-* the pic pilot can tell frames apart
-*/
-#define PPM_SYNC_TIME 3000
+ * If using PPM, this is the sync time between frames in us. Required so that
+ * the pic pilot can tell frames apart. A value of 3000us is recommended. Note
+ * that this is the minimum sync time. It may/will be larger, especially if using
+ * less than 12 PPM channels
+ */
+#define PPM_MIN_SYNC_TIME 3000
 
-/**
-* How many channels are expected to be in a single PPM frame
-*/
-#define PPM_CHANNELS 8
-        
 /**
  * Number of ms after the last detected edge on a channel before it can be assumed to be
  * disconnected

@@ -9,10 +9,10 @@
 #include "timer.h"
 
 /**
-* Number of ticks that indicate a sync pulse
-* -50 ticks for a little tolerance
-*/
-#define PPM_SYNC_TICKS (int)(PPM_SYNC_TIME*T2_TICKS_TO_MSEC/1000) - 50
+ * Number of timer ticks that indicate a sync pulse
+ */
+#define PPM_SYNC_TICKS (int)((float)(PPM_MIN_SYNC_TIME/1000)*T2_TICKS_TO_MSEC)
+
 
 /**
  * Holds the capture start and end time so that we can compare them later
@@ -21,9 +21,12 @@ static unsigned int start_time[8];
 static unsigned int end_time[8];
 
 /**
- * Interrupt flag for if new data is available and ready to read
+ * Interrupt flag for if new data is available and ready to read. This variable
+ * is not used if using PPM
  */
+#if !USE_PPM
 static char new_data_available[8];
+#endif
 
 /**
  * The actual time between interrupts (in timer2 ticks, not ms)
@@ -32,23 +35,39 @@ static unsigned int capture_value[8];
 
 /**
  * Last capture time in ms for all the channels. Used for detecting a channel/pwm
- * disconnect
+ * disconnect. If using PPM, we only store it as one variable, since we've only got
+ * one physical connection
  */
+#if USE_PPM
+static unsigned long int ppm_last_capture_time;
+#else
 static unsigned long int last_capture_time[8];
+#endif
 
 /**
  * Used to keep track of the pulse position when PPM is enabled
  */
+#if USE_PPM
 static unsigned char ppm_index;
-
-/**
-* Number of ticks that indicate a sync pulse
-* -50 ticks for a little tolerance
-*/
-#define PPM_SYNC_TICKS (int)(PPM_SYNC_TIME*T2_TICKS_TO_MSEC/1000) - 50
+#endif
 
 unsigned int* getICValues(unsigned long int sys_time)
 {
+    
+#if USE_PPM
+    /**
+     * The actual calculation of comparison values is already done in the ISR
+     * as part of the sync pulse detection, so we just return the values, unless
+     * we detected a disconnect
+     */
+    if ((sys_time - ppm_last_capture_time) > PWM_ALIVE_THRESHOLD){
+        int i = 0;
+        for (i = 0; i < PPM_CHANNELS; i++){
+            capture_value[i] = 0;
+        }
+    }
+    return capture_value;
+#else
     int channel;
     for (channel = 0; channel < 8; channel++) {
         /*
@@ -76,6 +95,7 @@ unsigned int* getICValues(unsigned long int sys_time)
         }
     }
     return capture_value;
+#endif
 }
 
 /**
@@ -181,29 +201,27 @@ void initIC(unsigned char initIC)
 */
 void __attribute__((__interrupt__, no_auto_psv)) _IC1Interrupt(void)
 {
-    unsigned char last_fall_ppm_index = ppm_index - 1;
-    if (last_fall_ppm_index > PPM_CHANNELS){ //handle potential overflow
-        last_fall_ppm_index = PPM_CHANNELS - 1;
-    }
-    if (PORTDbits.RD8 == 1) { // if IC signal is goes 0 --> 1
+    static unsigned int time_diff;
+    
+    if (PORTDbits.RD8 == !PPM_INVERTED) { //If PPM inverted, check for fall (0). Otherwise check for rise (1)
         start_time[ppm_index] = IC1BUF;
-        new_data_available[ppm_index] = 0; //we should do this so that we don't parse partial values (with wrong start time)
-
-        if (start_time[ppm_index] > end_time[last_fall_ppm_index]){
-          if (start_time[ppm_index] - end_time[last_fall_ppm_index] >= PPM_SYNC_TICKS){
-            ppm_index = 0;
-          }
-        } else {
-          if (((PR2 - end_time[last_fall_ppm_index]) + start_time[ppm_index]) >= PPM_SYNC_TICKS){
-            ppm_index = 0;
-          }
-        }
-    } else {
+    } else { //if PPM inverted, then if rise (1). Otherwise if fall
         end_time[ppm_index] = IC1BUF;
-        new_data_available[ppm_index] = 1;
-
-        last_capture_time[ppm_index] = getTime();
-        ppm_index = (ppm_index + 1) % PPM_CHANNELS; // modulo to prevent overflow
+        
+        //take into account for timer overflow
+        if (end_time[ppm_index] > start_time[ppm_index]){
+            time_diff = end_time[ppm_index] - start_time[ppm_index];   
+        } else{
+            time_diff = (PR2 - start_time[ppm_index]) + end_time[ppm_index];
+        }
+        
+        if (time_diff >= PPM_SYNC_TICKS){ //if we just captured a sync pulse
+            ppm_index = 0; 
+        } else {
+            capture_value[ppm_index] = time_diff;
+            ppm_index = (ppm_index + 1) % PPM_CHANNELS; //make sure we don't overflow
+        }
+        ppm_last_capture_time = getTime(); //for detecting disconnect
     }
 
     /**
