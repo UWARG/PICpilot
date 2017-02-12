@@ -12,7 +12,6 @@
  */
 #define PPM_SYNC_TICKS (int)((float)(PPM_MIN_SYNC_TIME/1000)*T2_TICKS_TO_MSEC)
 
-
 /**
  * Holds the capture start and end time so that we can compare them later. We can
  * only do 8 with PWM enabled. Otherwise
