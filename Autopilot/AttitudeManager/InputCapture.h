@@ -29,7 +29,7 @@
 #define PPM_INVERTED 0
 
 /**
-* How many channels are expected to be in a single PPM frame. Cant be more than 8
+* How many channels are expected to be in a single PPM frame
 */
 #define PPM_CHANNELS 8
 

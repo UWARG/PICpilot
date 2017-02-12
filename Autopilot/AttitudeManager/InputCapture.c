@@ -15,10 +15,16 @@
 
 
 /**
- * Holds the capture start and end time so that we can compare them later
+ * Holds the capture start and end time so that we can compare them later. We can
+ * only do 8 with PWM enabled. Otherwise
  */
+#if USE_PPM
+static unsigned int start_time[PPM_CHANNELS];
+static unsigned int end_time[PPM_CHANNELS];
+#else
 static unsigned int start_time[8];
 static unsigned int end_time[8];
+#endif
 
 /**
  * Interrupt flag for if new data is available and ready to read. This variable
@@ -31,7 +37,11 @@ static char new_data_available[8];
 /**
  * The actual time between interrupts (in timer2 ticks, not ms)
  */
+#if USE_PPM
+static unsigned int capture_value[PPM_CHANNELS];
+#else
 static unsigned int capture_value[8];
+#endif
 
 /**
  * Last capture time in ms for all the channels. Used for detecting a channel/pwm
