@@ -4,6 +4,7 @@ dist/
 private/
 *.properties
 *.mk
+*.bash
 Makefile
 *.o
 
