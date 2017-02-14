@@ -39,6 +39,7 @@
         <itemPath>delay.h</itemPath>
         <itemPath>fmath.h</itemPath>
         <itemPath>StringUtils.h</itemPath>
+        <itemPath>timer.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f7" displayName="VectorNav" projectFiles="true">
         <itemPath>VN100.h</itemPath>
@@ -99,7 +100,6 @@
         <itemPath>delay.c</itemPath>
         <itemPath>StringUtils.c</itemPath>
         <itemPath>timer.c</itemPath>
-        <itemPath>timer.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f6" displayName="VectorNav" projectFiles="true">
         <itemPath>VN100.c</itemPath>

@@ -68,6 +68,7 @@
 #define RESET_PROBE 57
 #define FOLLOW_PATH 58
 #define EXIT_HOLD_ORBIT 59
+#define SHOW_SCALED_PWM 60
 
 //Multipart Commands
 #define NEW_WAYPOINT 128
@@ -82,11 +83,6 @@
 #define SET_GAINS 137
 
 //Multipart Command Structs
-typedef struct _newwaypointwrapper {
-    long double longitude;  //TODO: Longitude and Latitude is bulky. If problems arise, change the format.
-    long double latitude;
-    float altitude;
-    float radius; //Radius of turn
-} NewWaypointWrapper;
+
 #endif	/* COMMANDS_H */
 

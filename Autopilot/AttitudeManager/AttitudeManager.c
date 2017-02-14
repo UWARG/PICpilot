@@ -1,10 +1,10 @@
-/* 
+/*
  * File:   AttitudeManager.c
  * Author: Mitch
  *
  * Created on June 15, 2013, 3:40 PM
  */
- 
+
 //Include Header Files
 #include "delay.h"
 #include "VN100.h"
@@ -110,7 +110,6 @@ int input_RC_YawRate = 0;
 int input_RC_Aux1 = 0; //0=Roll, 1= Pitch, 2=Yaw
 int input_RC_Aux2 = 0; //0 = Saved Value, 1 = Edit Mode
 int input_RC_Switch1 = 0;
-int input_RC_UHFSwitch = 0;
 
 //Ground Station Input Signals
 int input_GS_Roll = 0;
@@ -148,6 +147,8 @@ char lastNumSatellites = 0;
 
 unsigned int cameraCounter = 0;
 
+char show_scaled_pwm = 1;
+
 void attitudeInit() {
     setProgramStatus(INITIALIZATION);
     //Initialize Timer
@@ -157,7 +158,10 @@ void attitudeInit() {
     TRISFbits.TRISF3 = 0;
     LATFbits.LATF3 = 1;
 
-    TRISDbits.TRISD14 = 0;
+    //the line below sets channel 7 IC to be an output. Used to be for DMA. Should
+    //investigate DMA code to see why this was used in the first place, and if it'll have
+    //any negative consequences. Commenting out for now. Serge Feb 7 2017
+    //TRISDbits.TRISD14 = 0;
     LATDbits.LATD14 = 0;
 
     amData.checkbyteDMA = generateAMDataDMACheckbyte();
@@ -233,7 +237,7 @@ char checkDMA(){
         gps_Time = pmData.time;
         input_AP_Altitude = pmData.sp_Altitude;
         gps_Satellites = pmData.satellites;
-        gps_PositionFix = pmData.positionFix;   
+        gps_PositionFix = pmData.positionFix;
         waypointIndex = pmData.targetWaypoint;
         batteryLevel1 = pmData.batteryLevel1;
         batteryLevel2 = pmData.batteryLevel2;
@@ -248,7 +252,7 @@ char checkDMA(){
         if (gps_Altitude == pmData.altitude && gps_Heading == pmData.heading && gps_GroundSpeed == pmData.speed && gps_Latitude == pmData.latitude && gps_Longitude == pmData.longitude){
             return FALSE;
         }
-        
+
         gps_Heading = pmData.heading;
         gps_GroundSpeed = pmData.speed * 1000.0/3600.0; //Convert from km/h to m/s
         gps_Longitude = pmData.longitude;
@@ -278,7 +282,7 @@ char checkDMA(){
         DMA0CONbits.CHEN = 0; //Disable DMA0 channel
         DMA1CONbits.CHEN = 0; //Disable DMA1 channel
         while(SPI1STATbits.SPIRBF) { //Clear SPI1
-            int dummy = SPI1BUF;
+            SPI1BUF;
         }
 //        INTERCOM_2 = 0;
 //        while(INTERCOM_4);
@@ -289,7 +293,7 @@ char checkDMA(){
         while (DMA1REQbits.FORCE == 1);
         return FALSE;
     }
-    
+
 }
 
 float getAltitude(){
@@ -380,16 +384,15 @@ void setHeadingSetpoint(int setpoint){
 
 void inputCapture(){
     int* channelIn;
-    channelIn = getPWMArray();
-    
+    channelIn = getPWMArray(getTime());
+
 #if FIXED_WING
     inputMixing(channelIn, &input_RC_RollRate, &input_RC_PitchRate, &input_RC_Throttle, &input_RC_YawRate, &input_RC_Flap);
 #elif COPTER
     inputMixing(channelIn, &input_RC_RollRate, &input_RC_PitchRate, &input_RC_Throttle, &input_RC_YawRate);
 #endif
-    
+
     // Switches and Knobs
-    input_RC_UHFSwitch = channelIn[UHF_STATUS_IN_CHANNEL - 1];
 //        sp_Type = channelIn[5];
 //        sp_Value = channelIn[6];
     input_RC_Switch1 = channelIn[AUTOPILOT_ACTIVE_IN_CHANNEL - 1];
@@ -404,7 +407,7 @@ void inputCapture(){
 
 int getPitchAngleInput(char source){
     if (source == PITCH_RC_SOURCE){
-        return (int)((input_RC_PitchRate / ((float)SP_RANGE / MAX_PITCH_ANGLE) ));
+        return (int)((input_RC_PitchRate / ((float)HALF_PWM_RANGE / MAX_PITCH_ANGLE) ));
     }
     else if (source == PITCH_GS_SOURCE){
         return input_GS_Pitch;
@@ -424,7 +427,7 @@ int getPitchRateInput(char source){
 }
 int getRollAngleInput(char source){
     if (source == ROLL_RC_SOURCE){
-        return (int)((input_RC_RollRate / ((float)SP_RANGE / MAX_ROLL_ANGLE) ));
+        return (int)((input_RC_RollRate / ((float)HALF_PWM_RANGE / MAX_ROLL_ANGLE) ));
     }
     else if (source == ROLL_GS_SOURCE){
         return input_GS_Roll;
@@ -445,7 +448,7 @@ int getRollRateInput(char source){
 }
 int getYawAngleInput(char source){
     if (source == YAW_RC_SOURCE){
-        return (int)((input_RC_YawRate / ((float)SP_RANGE / MAX_ROLL_ANGLE) ));
+        return (int)((input_RC_YawRate / ((float)HALF_PWM_RANGE / MAX_ROLL_ANGLE) ));
     }
     else if (source == YAW_GS_SOURCE){
         return input_GS_Yaw;
@@ -575,13 +578,13 @@ int altitudeControl(int setpoint, int sensorAltitude){
 
 int throttleControl(int setpoint, int sensor){
     //Throttle
-    throttlePID = sp_ThrottleRate + controlSignalThrottle(setpoint, sensor);      
+    throttlePID = sp_ThrottleRate + controlSignalThrottle(setpoint, sensor);
     return throttlePID;
 }
 
 int flapControl(int setpoint, int sensor){
     //Flaps
-    flapPID = sp_FlapRate + controlSignalFlap(setpoint, sensor);      
+    flapPID = sp_FlapRate + controlSignalFlap(setpoint, sensor);
     return flapPID;
 }
 
@@ -608,13 +611,13 @@ int headingControl(int setpoint, int sensor){
 
 int rollAngleControl(int setpoint, int sensor){
     //Roll Angle
-    sp_ComputedRollRate = controlSignalAngles(setpoint, sensor, ROLL, -(SP_RANGE) / (MAX_ROLL_ANGLE));
+    sp_ComputedRollRate = controlSignalAngles(setpoint, sensor, ROLL, -(HALF_PWM_RANGE) / (MAX_ROLL_ANGLE));
     return sp_ComputedRollRate;
 }
 
 int pitchAngleControl(int setpoint, int sensor){
     //Pitch Angle
-    sp_ComputedPitchRate = controlSignalAngles(setpoint, sensor, PITCH, -(SP_RANGE) / (MAX_PITCH_ANGLE)); //Removed negative
+    sp_ComputedPitchRate = controlSignalAngles(setpoint, sensor, PITCH, -(HALF_PWM_RANGE) / (MAX_PITCH_ANGLE)); //Removed negative
     return sp_ComputedPitchRate;
 }
 
@@ -643,7 +646,7 @@ char getControlPermission(unsigned int controlMask, unsigned int expectedValue, 
 }
 
 void readDatalink(void){
-  
+
     struct command* cmd = popCommand();
     //TODO: Add rudimentary input validation
     if ( cmd ) {
@@ -691,7 +694,7 @@ void readDatalink(void){
             case SET_HEADING_KD_GAIN:
                 setGain(HEADING, GAIN_KD, *(float*)(&cmd->data));
                 break;
-            case SET_HEADING_KP_GAIN:   
+            case SET_HEADING_KP_GAIN:
                 setGain(HEADING, GAIN_KP, *(float*)(&cmd->data));
                 break;
             case SET_HEADING_KI_GAIN:
@@ -715,7 +718,7 @@ void readDatalink(void){
             case SET_THROTTLE_KI_GAIN:
                 setGain(THROTTLE, GAIN_KI, *(float*)(&cmd->data));
                 break;
-                
+
             case SET_FLAP_KD_GAIN:
                 setGain(FLAP, GAIN_KD, *(float*)(&cmd->data));
                 break;
@@ -724,8 +727,8 @@ void readDatalink(void){
                 break;
             case SET_FLAP_KI_GAIN:
                 setGain(FLAP, GAIN_KI, *(float*)(&cmd->data));
-                break;    
-            
+                break;
+
             case SET_PATH_GAIN:
                 amData.pathGain = *(float*)(&cmd->data);
                 amData.command = PM_SET_PATH_GAIN;
@@ -872,44 +875,33 @@ void readDatalink(void){
                 amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
+            case SHOW_SCALED_PWM:
+                if ((*(char*)(&cmd->data)) == 1){
+                    show_scaled_pwm = 1;
+                } else{
+                    show_scaled_pwm = 0;
+                }
+                break;
             case NEW_WAYPOINT:
-                amData.waypoint.altitude = (*(WaypointWrapper*)(&cmd->data)).altitude;
-                amData.waypoint.id = (*(WaypointWrapper*)(&cmd->data)).id;
-                amData.waypoint.latitude = (*(WaypointWrapper*)(&cmd->data)).latitude;
-                amData.waypoint.longitude = (*(WaypointWrapper*)(&cmd->data)).longitude;
-                amData.waypoint.radius = (*(WaypointWrapper*)(&cmd->data)).radius;
-                amData.waypoint.type = (*(WaypointWrapper*)(&cmd->data)).type;
+                amData.waypoint = *(WaypointWrapper*)(&cmd->data);
                 amData.command = PM_NEW_WAYPOINT;
                 amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case INSERT_WAYPOINT:
-                amData.waypoint.altitude = (*(WaypointWrapper*)(&cmd->data)).altitude;
-                amData.waypoint.latitude = (*(WaypointWrapper*)(&cmd->data)).latitude;
-                amData.waypoint.longitude = (*(WaypointWrapper*)(&cmd->data)).longitude;
-                amData.waypoint.radius = (*(WaypointWrapper*)(&cmd->data)).radius;
-                amData.waypoint.nextId = (*(WaypointWrapper*)(&cmd->data)).nextId;
-                amData.waypoint.previousId = (*(WaypointWrapper*)(&cmd->data)).previousId;
-                amData.waypoint.type = (*(WaypointWrapper*)(&cmd->data)).type;
+                amData.waypoint = *(WaypointWrapper*)(&cmd->data);
                 amData.command = PM_INSERT_WAYPOINT;
                 amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case UPDATE_WAYPOINT:
-                amData.waypoint.altitude = (*(WaypointWrapper*)(&cmd->data)).altitude;
-                amData.waypoint.id = (*(WaypointWrapper*)(&cmd->data)).id;
-                amData.waypoint.latitude = (*(WaypointWrapper*)(&cmd->data)).latitude;
-                amData.waypoint.longitude = (*(WaypointWrapper*)(&cmd->data)).longitude;
-                amData.waypoint.radius = (*(WaypointWrapper*)(&cmd->data)).radius;
-                amData.waypoint.type = (*(WaypointWrapper*)(&cmd->data)).type;
+                amData.waypoint = *(WaypointWrapper*)(&cmd->data);
                 amData.command = PM_UPDATE_WAYPOINT;
                 amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case SET_RETURN_HOME_COORDINATES:
-                amData.waypoint.altitude = (*(WaypointWrapper*)(&cmd->data)).altitude;
-                amData.waypoint.latitude = (*(WaypointWrapper*)(&cmd->data)).latitude;
-                amData.waypoint.longitude = (*(WaypointWrapper*)(&cmd->data)).longitude;
+                amData.waypoint = *(WaypointWrapper*)(&cmd->data);
                 amData.command = PM_SET_RETURN_HOME_COORDINATES;
                 amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
@@ -940,14 +932,14 @@ void readDatalink(void){
         }
         destroyCommand( cmd );
     }
- 
+
 }
 int writeDatalink(p_priority packet){
     struct telem_block* statusData = createTelemetryBlock(packet);
 
     //If Malloc fails, then quit...wait until there is memory available
     if (!statusData){return 0;}
-    
+
     int* input;
     int* output; //Pointers used for RC channel inputs and outputs
 
@@ -987,7 +979,11 @@ int writeDatalink(p_priority packet){
             statusData->data.p2_block.batteryLevel1 = batteryLevel1;
             statusData->data.p2_block.batteryLevel2 = batteryLevel2;
 //            debug("SW3");
-            input = getPWMArray();
+            if (show_scaled_pwm){
+                input = getPWMArray(getTime());
+            } else {
+                input = (int*)getICValues(getTime());
+            }
             statusData->data.p2_block.ch1In = input[0];
             statusData->data.p2_block.ch2In = input[1];
             statusData->data.p2_block.ch3In = input[2];
@@ -996,7 +992,7 @@ int writeDatalink(p_priority packet){
             statusData->data.p2_block.ch6In = input[5];
             statusData->data.p2_block.ch7In = input[6];
             statusData->data.p2_block.ch8In = input[7];
-            output = checkPWMArray();
+            output = getPWMOutputs();
             statusData->data.p2_block.ch1Out = output[0];
             statusData->data.p2_block.ch2Out = output[1];
             statusData->data.p2_block.ch3Out = output[2];
@@ -1043,7 +1039,7 @@ int writeDatalink(p_priority packet){
             statusData->data.p3_block.startupSettings = DEBUG + (COPTER << 1); //TODO: put this in the startuperrorCode file
             statusData->data.p3_block.probeStatus = getProbeStatus();
             break;
-                
+
         default:
             break;
     }
@@ -1054,19 +1050,26 @@ int writeDatalink(p_priority packet){
     } else {
         return pushOutboundTelemetryQueue(statusData);
     }
-         
+
     return 0;
 
 }
 
 void checkUHFStatus(){
-    if (input_RC_UHFSwitch > 429 && input_RC_UHFSwitch < 440){
-        setProgramStatus(KILL_MODE_WARNING);
-        if (getTime() - UHFTimer > UHF_KILL_TIMEOUT){
-            killPlane(TRUE);
-        }
-    }
+    unsigned long int time = getTime();
 
+    if (getPWMInputStatus() == PWM_STATUS_UHF_LOST){
+        if (UHFTimer == 0){ //0 indicates that this is the first time we lost UHF
+            UHFTimer = time;
+            setProgramStatus(KILL_MODE_WARNING);
+        } else { //otherwise check if we're over the threshold
+            if (time - UHFTimer > UHF_KILL_TIMEOUT){
+                killPlane(TRUE);
+            }
+        }
+    } else {
+        UHFTimer = 0; //set it back to 0 otherwise to reset state
+    }
 }
 
 void checkHeartbeat(){
@@ -1102,7 +1105,7 @@ void adjustVNOrientationMatrix(float* adjustment){
 
     float matrix[9];
     VN100_SPI_GetRefFrameRot(0, (float*)&matrix);
-    
+
     float refRotationMatrix[9] = {cos(adjustment[1]) * cos(adjustment[2]), -cos(adjustment[1]) * sin(adjustment[2]), sin(adjustment[1]),
         sin(deg2rad(adjustment[0])) * sin(adjustment[1]) * cos(adjustment[2]) + sin(adjustment[2]) * cos(adjustment[0]), -sin(adjustment[0]) * sin(adjustment[1]) * sin(adjustment[2]) + cos(adjustment[2]) * cos(adjustment[0]), -sin(adjustment[0]) * cos(adjustment[1]),
         -cos(deg2rad(adjustment[0])) * sin(adjustment[1]) * cos(adjustment[2]) + sin(adjustment[2]) * sin(adjustment[0]), cos(adjustment[0]) * sin(adjustment[1]) * sin(adjustment[2]) + cos(adjustment[2]) * sin(adjustment[0]), cos(adjustment[0]) * cos(adjustment[1])};

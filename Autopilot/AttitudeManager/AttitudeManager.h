@@ -83,8 +83,11 @@
 #define IMU_PITCH_RATE   1
 #define IMU_ROLL_RATE    0
 
-
-//channels
+/**
+ * RC receiver channel configuration. Note that
+ * Note that only channel 8 will work hardware-wise as the
+ * autopilot channel, as it directly controls the relays
+ */
 #define THROTTLE_IN_CHANNEL 1
 #define THROTTLE_OUT_CHANNEL 1
 #define ROLL_IN_CHANNEL 2
@@ -96,7 +99,7 @@
 #define FLAP_IN_CHANNEL 5
 #define FLAP_OUT_CHANNEL 5
 #define UHF_STATUS_IN_CHANNEL 7
-#define PROBE1_OUT_CHANNEL 6
+#define PROBE1_OUT_CHANNEL 6 //TODO: Remove the probe drop channels as they are no longer used
 #define PROBE2_OUT_CHANNEL 7
 #define PROBE3_OUT_CHANNEL 8
 #define AUTOPILOT_ACTIVE_IN_CHANNEL 8 //Do not change this value, as only 8 will work hardware-wise
