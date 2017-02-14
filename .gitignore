@@ -3,9 +3,7 @@ dist/
 *.d
 private/
 *.properties
-*.xml
 *.mk
-*.bash
 Makefile
 *.o
 
