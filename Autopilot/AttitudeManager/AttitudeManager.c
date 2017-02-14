@@ -385,12 +385,8 @@ void setHeadingSetpoint(int setpoint){
 void inputCapture(){
     int* channelIn;
     channelIn = getPWMArray(getTime());
-
-#if FIXED_WING
+    
     inputMixing(channelIn, &input_RC_RollRate, &input_RC_PitchRate, &input_RC_Throttle, &input_RC_YawRate, &input_RC_Flap);
-#elif COPTER
-    inputMixing(channelIn, &input_RC_RollRate, &input_RC_PitchRate, &input_RC_Throttle, &input_RC_YawRate);
-#endif
 
     // Switches and Knobs
 //        sp_Type = channelIn[5];
@@ -1036,7 +1032,7 @@ int writeDatalink(p_priority packet){
             statusData->data.p3_block.orbitGain = pmOrbitGain;
             statusData->data.p3_block.autonomousLevel = controlLevel;
             statusData->data.p3_block.startupErrorCodes = getStartupErrorCodes();
-            statusData->data.p3_block.startupSettings = DEBUG + (COPTER << 1); //TODO: put this in the startuperrorCode file
+            statusData->data.p3_block.startupSettings = DEBUG + (MULTIROTOR << 1); //TODO: put this in the startuperrorCode file
             statusData->data.p3_block.probeStatus = getProbeStatus();
             break;
 

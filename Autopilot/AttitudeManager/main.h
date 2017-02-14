@@ -30,18 +30,18 @@
 //Define this for competition, includes higher restrictions for safety
 #define COMP_MODE 0
 
-/* CHANGE THIS HEADER FILE WHEN MODIFYING THIS FOR A NEW PLANE OR VEHICLE */
-#define ANACONDA_VEHICLE 0
-#define QUAD_VEHICLE 1
-
-#if ANACONDA_VEHICLE
-#include "Anaconda.h"
-#define FIXED_WING 1
-#define COPTER 0
-#elif QUAD_VEHICLE
-#include "DisplayQuad.h"
-#define COPTER 1
 #define FIXED_WING 0
+#define MULTIROTOR 1
+#define VTOL 2 // TODO
+
+/* CHANGE THIS HEADER FILE WHEN MODIFYING THIS FOR A NEW PLANE OR VEHICLE */
+/* Also update configurations in FixedWing.h or Multirotor.h */
+#define VEHICLE_TYPE MULTIROTOR
+
+#if VEHICLE_TYPE == FIXED_WING
+#include "FixedWing.h" 
+#elif VEHICLE_TYPE == MULTIROTOR
+#include "Multirotor.h"
 #endif
 
 #if DEBUG
