@@ -11,7 +11,8 @@
 #include "Multirotor.h"
 #include "ProgramStatus.h"
 
-char vehicleArmed = 0;
+int outputSignal[NUM_CHANNELS];
+int control_Roll, control_Pitch, control_Yaw, control_Throttle;
 
 void initialization(){
     setPWM(FRONT_LEFT_MOTOR, MIN_PWM);
@@ -19,20 +20,14 @@ void initialization(){
     setPWM(BACK_RIGHT_MOTOR, MIN_PWM);
     setPWM(BACK_LEFT_MOTOR, MIN_PWM);
     
-    p_priority numPacket = PRIORITY1;
+    int channel = 0;
+    for (; channel < NUM_CHANNELS; channel++) {
+        outputSignal[channel] = 0;
+    }
     setProgramStatus(UNARMED);
     
-    while (!vehicleArmed){
-        imuCommunication();
-        asm("CLRWDT");
-        writeDatalink(numPacket%3);
-        readDatalink();
-        inboundBufferMaintenance();
-        outboundBufferMaintenance();
-        asm("CLRWDT");
-        Delay(200);
-        asm("CLRWDT");
-        numPacket = (numPacket + 1) % 3;
+    while (getProgramStatus() == UNARMED){
+        StateMachine(STATEMACHINE_IDLE); 
     }
 }
 
@@ -57,25 +52,57 @@ void armVehicle(int delayTime){
 
 void dearmVehicle(){
     int i = 1;
-    for (i = 1; i <= NUM_CHANNELS; i++){
+    for (; i <= NUM_CHANNELS; i++){
         setPWM(i, MIN_PWM);
     }
     
     setProgramStatus(UNARMED);
-    p_priority numPacket = PRIORITY1;
     
-    while (!vehicleArmed){
-        imuCommunication();
-        asm("CLRWDT");
-        writeDatalink(numPacket%3); //TODO: Change this for multiple packets
-        readDatalink();
-        inboundBufferMaintenance();
-        outboundBufferMaintenance();
-        Delay(200);
-        asm("CLRWDT");
-        numPacket = (numPacket + 1) % 3;
+    while (getProgramStatus() == UNARMED){
+        StateMachine(STATEMACHINE_IDLE);
     }
     setProgramStatus(MAIN_EXECUTION);
+}
+
+void takeOff(){
+
+}
+void landing(){
+
+}
+
+void inputMixing(int* channelIn, int* rollRate, int* pitchRate, int* throttle, int* yawRate) { //no flaps on a quad
+        if (getControlPermission(ROLL_CONTROL_SOURCE, ROLL_RC_SOURCE, ROLL_CONTROL_SOURCE_SHIFT)){
+            (*rollRate) = channelIn[ROLL_IN_CHANNEL - 1];
+        }
+        if (getControlPermission(THROTTLE_CONTROL_SOURCE, THROTTLE_RC_SOURCE, THROTTLE_CONTROL_SOURCE_SHIFT)){
+            (*throttle) = (channelIn[THROTTLE_IN_CHANNEL - 1]);
+        }
+        
+        if (getControlPermission(PITCH_CONTROL_SOURCE, PITCH_RC_SOURCE, PITCH_CONTROL_SOURCE_SHIFT)){
+            (*pitchRate) = channelIn[PITCH_IN_CHANNEL - 1];
+        }
+        
+        (*yawRate) = channelIn[YAW_IN_CHANNEL - 1];
+}
+
+void outputMixing(int* channelOut, int* control_Roll, int* control_Pitch, int* control_Throttle, int* control_Yaw){
+    
+    channelOut[FRONT_LEFT_MOTOR - 1] = (*control_Throttle) + (*control_Pitch) - (*control_Roll) - (*control_Yaw);// + MIN_PWM;  
+    channelOut[FRONT_RIGHT_MOTOR - 1] = (*control_Throttle) + (*control_Pitch) + (*control_Roll) + (*control_Yaw);// + MIN_PWM;  
+    channelOut[BACK_RIGHT_MOTOR - 1] = (*control_Throttle) - (*control_Pitch) + (*control_Roll) - (*control_Yaw);// + MIN_PWM; 
+    channelOut[BACK_LEFT_MOTOR - 1] = (*control_Throttle) - (*control_Pitch) - (*control_Roll) + (*control_Yaw);// + MIN_PWM;  
+}
+
+void checkLimits(int* channelOut){
+    int i = 0;
+    for (i = 0; i < NUM_CHANNELS; i++) {
+        if (channelOut[i] > MAX_PWM) {
+            channelOut[i] = MAX_PWM;
+        } else if (channelOut[i] < MIN_PWM) {
+            channelOut[i] = MIN_PWM;
+        }
+    }
 }
 
 void highLevelControl(){
@@ -111,61 +138,6 @@ void lowLevelControl() {
 
     //Error Checking
     checkLimits(outputSignal);
-    //For fixed-wing aircraft: Typically 0 = Roll, 1 = Pitch, 2 = Throttle, 3 = Yaw
-    setPWM(FRONT_LEFT_MOTOR, outputSignal[0]);
-    setPWM(FRONT_RIGHT_MOTOR, outputSignal[1]);
-    setPWM(BACK_RIGHT_MOTOR, outputSignal[2]);
-    setPWM(BACK_LEFT_MOTOR, outputSignal[3]); 
-}
 
-void takeOff(){
-
-}
-void landing(){
-
-}
-
-void inputMixing(int* channels, int* rollRate, int* pitchRate, int* throttle, int* yawRate, int* flap) { //no flaps on a quad
-        if (getControlPermission(ROLL_CONTROL_SOURCE, ROLL_RC_SOURCE, ROLL_CONTROL_SOURCE_SHIFT)){
-            (*rollRate) = channels[0];
-        }
-        if (getControlPermission(THROTTLE_CONTROL_SOURCE, THROTTLE_RC_SOURCE, THROTTLE_CONTROL_SOURCE_SHIFT)){
-            (*throttle) = (channels[2]);
-        }
-        
-        if (getControlPermission(PITCH_CONTROL_SOURCE, PITCH_RC_SOURCE, PITCH_CONTROL_SOURCE_SHIFT)){
-            (*pitchRate) = channels[1];
-        }
-        
-        (*yawRate) = channels[3];
-}
-
-void outputMixing(int* channels, int* control_Roll, int* control_Pitch, int* control_Throttle, int* control_Yaw){
-    
-    channels[0] = (*control_Throttle) + (*control_Pitch) - (*control_Roll) - (*control_Yaw);// + MIN_PWM;  //Front
-    channels[1] = (*control_Throttle) + (*control_Pitch) + (*control_Roll) + (*control_Yaw);// + MIN_PWM;   //Left
-    channels[2] = (*control_Throttle) - (*control_Pitch) + (*control_Roll) - (*control_Yaw);// + MIN_PWM;  //Back
-    channels[3] = (*control_Throttle) - (*control_Pitch) - (*control_Roll) + (*control_Yaw);// + MIN_PWM;   //Right
-}
-
-void checkLimits(int* channels){
-    for (char i = 0; i < 4; i++) {
-        if (channels[i] > MAX_PWM) {
-            channels[i] = MAX_PWM;
-        } else if (channels[i] < MIN_PWM) {
-            channels[i] = MIN_PWM;
-        }
-    }
-}
-
-void startArm()
-{
-    vehicleArmed = 1;
-    armVehicle(2000);
-}
-
-void stopArm()
-{
-    vehicleArmed = 0;
-    dearmVehicle();
+    setAllPWM(outputSignal);
 }

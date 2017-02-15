@@ -52,20 +52,18 @@ void setProgramStatus(int status){
     programState = status;
 
 #if DEBUG
-    if (status == INITIALIZATION)
+    if (status == INITIALIZATION) {
         debug("Attitude Manager Initialization");
-    else if (status == UNARMED)
+    } else if (status == UNARMED) {
         debug("Vehicle is Unarmed. Waiting for arm.");
-    else if (status == ARMING)
+    } else if (status == ARMING) {
         debug("Arming: Motor Startup Procedure Started");
-    else if (status == MAIN_EXECUTION){
+    } else if (status == MAIN_EXECUTION) {
         debug("Motor Startup Procedure Complete");
         debug("Autopilot Running...");
-    }
-    else if (status == WAITING_TO_DIE_MODE){
+    } else if (status == KILL_MODE_WARNING) {
         debug("I am contemplating suicide.");
-    }
-    else if (status == KILL_MODE){
+    } else if (status == KILL_MODE) {
         debug("I am attempting to destroy myself now.");
     }
 

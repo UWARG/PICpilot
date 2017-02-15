@@ -23,13 +23,9 @@ int downlinkP1Timer = 0;
 int downlinkP2Timer = 0;
 int imuTimer = 0;
 char AMUpdate = 0;
+char flightUpdate = 0;
 long int stateMachineTimer = 0;
 int dTime = 0;
-
-//Important Autopilot Variables
-int outputSignal[5];
-int control_Roll, control_Pitch, control_Yaw, control_Throttle, control_Flap;
-char killingPlane = 0;
 
 void StateMachine(char entryLocation){
     //Timers
@@ -50,33 +46,37 @@ void StateMachine(char entryLocation){
     if(AMUpdate){
         AMUpdate = 0;
         //Run - Angle control, and angular rate control
-        //Input from Controller
-        inputCapture();
-        //Recalculate all data dependent on any DMA data
-        highLevelControl();
-        lowLevelControl();
+        flightUpdate = 1;
     }
     else if(IMU_UPDATE_FREQUENCY <= imuTimer && entryLocation != STATEMACHINE_IMU){
 //        debug("IMU");
         imuTimer = 0;
         //Poll Sensor
         imuCommunication();
-        //Input from Controller
-        inputCapture();
-        highLevelControl();
-        lowLevelControl();
-
+        
+        flightUpdate = 1;
     }
     else if(isDMADataAvailable() && checkDMA()){
         //Input from Controller
+        flightUpdate = 1;
+    }
+    else{
+       
+    }
+    
+    if (entryLocation == STATEMACHINE_IDLE) {
+        // If we're waiting to be armed, don't run the flight control
+        flightUpdate = 0;
+    }
+
+    if (flightUpdate) {
+        flightUpdate = 0;
+        //Input from Controller
         inputCapture();
-        //Recalculate all data dependent on any DMA data
         highLevelControl();
         lowLevelControl();
     }
-    else{
-    }
-
+    
     if(UPLINK_CHECK_FREQUENCY <= uplinkTimer){
         uplinkTimer = 0;
         readDatalink();
@@ -115,11 +115,9 @@ void forceStateMachineUpdate(){
 
 void killPlane(char action){
     if (action){
-        killingPlane = 1;
         setProgramStatus(KILL_MODE);
     }
     else{
-        killingPlane = 0;
         setProgramStatus(MAIN_EXECUTION);
     }
 }

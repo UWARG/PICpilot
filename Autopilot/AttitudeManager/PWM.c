@@ -8,20 +8,6 @@
 #include "timer.h"
 
 /**
- * The middle of the PWM range of the RC controller. This is used as the initial
- * offset in the output and input scaling calculations
- */
-#define MIDDLE_PWM (int)(((UPPER_PWM - LOWER_PWM)/2) + LOWER_PWM)
-
-/**
- * Initial scale factors used for scaling the RC inputs to the MIN_PWM - MAX_PWM range,
- * and scaling outputs in the same range to the RC input range suitable for servos.
- * These scale factors should be reconfigured by the ground station, hence they are just the DEFAULT
- */
-#define DEFAULT_INPUT_SCALE_FACTOR (MAX_PWM/(float)(UPPER_PWM - MIDDLE_PWM))
-#define DEFAULT_OUTPUT_SCALE_FACTOR ((float)(UPPER_PWM - MIDDLE_PWM)/MAX_PWM) //its really just 1/INPUT_DEFAULT_SCALE_FACTOR, but this makes it clearer why
-
-/**
  * Contains the scaled PWM inputs received from the RC controller from MIN_PWM - MAX_PWM
  */
 static int pwm_inputs[NUM_CHANNELS];
@@ -95,6 +81,13 @@ void setPWM(unsigned int channel, int pwm)
     if (channel > 0 && channel <= NUM_CHANNELS && pwm >= MIN_PWM && pwm <= MAX_PWM) {
         pwm_outputs[channel - 1] = pwm;
         setOCValue(channel - 1, (int) (pwm * output_scale_factors[channel - 1] + output_offsets[channel - 1]));
+    }
+}
+
+void setAllPWM(int* pwms) {
+    unsigned int channel = 1;
+    for (; channel <= NUM_CHANNELS; channel++) {
+        setPWM(channel, pwms[channel - 1]);
     }
 }
 

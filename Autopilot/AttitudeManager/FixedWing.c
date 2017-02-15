@@ -11,27 +11,23 @@
 #include "FixedWing.h"
 #include "ProgramStatus.h"
 
-char vehicleArmed = 0;
+int outputSignal[NUM_CHANNELS];
+int control_Roll, control_Pitch, control_Yaw, control_Throttle;
 
-void initialization(int* outputSignal){
+void initialization(){
     setPWM(THROTTLE_OUT_CHANNEL, MIN_PWM);
-    p_priority numPacket = PRIORITY1;
+    
+    int channel = 0;
+    for (; channel < NUM_CHANNELS; channel++) {
+        outputSignal[channel] = 0;
+    }
     setProgramStatus(UNARMED);
+
 //    char str[20];
 //    sprintf(str,"AM:%d, PM:%d",sizeof(AMData), sizeof(PMData));
 //    debug(str);
-    while (!vehicleArmed){
-        imuCommunication();
-        checkDMA();
-        asm("CLRWDT");
-        writeDatalink(numPacket%3);
-        readDatalink();
-        inboundBufferMaintenance();
-        outboundBufferMaintenance();
-        asm("CLRWDT");
-        Delay(200);
-        asm("CLRWDT");
-        numPacket = (numPacket + 1) % 3;
+    while (getProgramStatus() == UNARMED){
+        StateMachine(STATEMACHINE_IDLE);
     }
 }
 
@@ -52,23 +48,106 @@ void armVehicle(int delayTime){
 
 void dearmVehicle(){
     int i = 1;
-    for (i = 1; i <= NUM_CHANNELS; i++){
+    for (; i <= NUM_CHANNELS; i++){
         setPWM(i, MIN_PWM);
     }
     setProgramStatus(UNARMED);
-    p_priority numPacket = PRIORITY1;
-    while (!vehicleArmed){
-        imuCommunication();
-        asm("CLRWDT");
-        writeDatalink(numPacket%3); //TODO: Change this for multiple packets
-        readDatalink();
-        inboundBufferMaintenance();
-        outboundBufferMaintenance();
-        Delay(200);
-        asm("CLRWDT");
-        numPacket = (numPacket + 1) % 3;
+
+    while (getProgramStatus() == UNARMED){
+        StateMachine(STATEMACHINE_IDLE);
     }
     setProgramStatus(MAIN_EXECUTION);
+}
+
+void takeOff(){
+
+}
+void landing(){
+    
+}
+
+void inputMixing(int* channelIn, int* rollRate, int* pitchRate, int* throttle, int* yawRate){
+        if (getControlPermission(ROLL_CONTROL_SOURCE, ROLL_RC_SOURCE,ROLL_CONTROL_SOURCE_SHIFT)){
+            (*rollRate) = channelIn[ROLL_IN_CHANNEL - 1];
+        }
+        if (getControlPermission(THROTTLE_CONTROL_SOURCE, THROTTLE_RC_SOURCE,THROTTLE_CONTROL_SOURCE_SHIFT)) {
+            (*throttle) = (channelIn[THROTTLE_IN_CHANNEL - 1]);
+        }
+
+        #if TAIL_TYPE == STANDARD_TAIL
+        if (getControlPermission(PITCH_CONTROL_SOURCE, PITCH_RC_SOURCE,0)){
+            (*pitchRate) = channelIn[PITCH_IN_CHANNEL - 1];
+        }
+        (*yawRate) = channelIn[YAW_IN_CHANNEL - 1];
+        
+        #elif TAIL_TYPE == V_TAIL    //V-tail
+        // TODO
+
+        #elif TAIL_TYPE == INV_V_TAIL
+        if (getControlPermission(PITCH_CONTROL_SOURCE, PITCH_RC_SOURCE,0)){
+            (*pitchRate) = (channelIn[L_TAIL_IN_CHANNEL - 1] - channelIn[R_TAIL_IN_CHANNEL - 1]) / (2 * ELEVATOR_PROPORTION);
+        }
+        (*yawRate) = (channelIn[L_TAIL_IN_CHANNEL - 1] + channelIn[R_TAIL_IN_CHANNEL - 1] ) / (2 * RUDDER_PROPORTION);
+        
+        #endif
+}
+
+void outputMixing(int* channelOut, int* control_Roll, int* control_Pitch, int* control_Throttle, int* control_Yaw){
+    //code for different tail configurations
+    #if TAIL_TYPE == STANDARD_TAIL  //is a normal t-tail
+    channelsOut[PITCH_OUT_CHANNEL] = (*control_Pitch);
+    channelsOut[YAW_OUT_CHANNEL] = (*control_Yaw);
+
+    #elif TAIL_TYPE == V_TAIL    //V-tail
+    // TODO
+
+    #elif TAIL_TYPE == INV_V_TAIL   //Inverse V-Tail
+    channelOut[R_TAIL_IN_CHANNEL - 1] =  (*control_Yaw) * RUDDER_PROPORTION + (*control_Pitch) * ELEVATOR_PROPORTION ; //Tail Output Right
+    channelOut[L_TAIL_IN_CHANNEL - 1] =  (*control_Yaw) * RUDDER_PROPORTION - (*control_Pitch) * ELEVATOR_PROPORTION ; //Tail Output Left
+    
+    #endif
+    channelOut[ROLL_IN_CHANNEL - 1] = (*control_Roll);
+    channelOut[THROTTLE_IN_CHANNEL - 1] = (*control_Throttle);
+}
+
+void checkLimits(int* channelOut){
+    if (channelOut[ROLL_OUT_CHANNEL - 1] > MAX_ROLL_PWM) {
+        channelOut[ROLL_OUT_CHANNEL - 1] = MAX_ROLL_PWM;
+        // Limits the effects of the integrator, if the output signal is maxed out
+//        if (getIntegralSum(ROLL) * getGain(ROLL, GAIN_KI) > sp_RollRate - sp_ComputedRollRate) {
+//            setIntegralSum(ROLL, getIntegralSum(ROLL)/1.1);
+//        }
+    }
+    if (channelOut[ROLL_OUT_CHANNEL - 1] < MIN_ROLL_PWM) {
+        channelOut[ROLL_OUT_CHANNEL - 1] = MIN_ROLL_PWM;
+        // Limits the effects of the integrator, if the output signal is maxed out
+//        if (getIntegralSum(ROLL) * getGain(ROLL, GAIN_KI) < sp_RollAngle - sp_ComputedRollRate) {
+//            setIntegralSum(ROLL, getIntegralSum(ROLL)/1.1);
+//        }
+    }
+    if (channelOut[L_TAIL_OUT_CHANNEL - 1] > MAX_L_TAIL_PWM) {
+        channelOut[L_TAIL_OUT_CHANNEL - 1] = MAX_L_TAIL_PWM;
+    } else if (channelOut[L_TAIL_OUT_CHANNEL - 1] < MIN_L_TAIL_PWM) {
+        channelOut[L_TAIL_OUT_CHANNEL - 1] = MIN_L_TAIL_PWM;
+    }
+    
+    //Throttle = 1
+    if (channelOut[THROTTLE_OUT_CHANNEL - 1] > MAX_PWM) {
+        channelOut[THROTTLE_OUT_CHANNEL - 1] = MAX_PWM;
+    } else if (channelOut[THROTTLE_OUT_CHANNEL - 1] < MIN_PWM){
+        channelOut[THROTTLE_OUT_CHANNEL - 1] = MIN_PWM;
+    }
+
+    if (channelOut[R_TAIL_OUT_CHANNEL - 1] > MAX_R_TAIL_PWM) {
+        channelOut[R_TAIL_OUT_CHANNEL - 1] = MAX_R_TAIL_PWM;
+    } else if (channelOut[R_TAIL_OUT_CHANNEL - 1] < MIN_R_TAIL_PWM) {
+        channelOut[R_TAIL_OUT_CHANNEL - 1] = MIN_R_TAIL_PWM;
+    }
+    
+    //Flaps
+    if (channelOut[FLAP_OUT_CHANNEL - 1] > MAX_PWM){
+        channelOut[FLAP_OUT_CHANNEL - 1] = MAX_PWM;
+    }
 }
 
 void highLevelControl(){
@@ -129,9 +208,12 @@ void lowLevelControl(){
     control_Pitch = pitchRateControl((float)getPitchRateSetpoint(), -getPitchRate());
     control_Yaw = yawRateControl((float)getYawRateSetpoint(), -getYawRate());
     control_Throttle = getThrottleSetpoint();
-    control_Flap = getFlapSetpoint();
+    
+    outputSignal[FLAP_OUT_CHANNEL - 1] = getFlapSetpoint(); // don't need to mix the flaps
+
     //Mixing!
-    outputMixing(outputSignal, &control_Roll, &control_Pitch, &control_Throttle, &control_Yaw, &control_Flap);
+    outputMixing(outputSignal, &control_Roll, &control_Pitch, &control_Throttle, &control_Yaw);
+    
     //Error Checking
     checkLimits(outputSignal);
     //Then Output
@@ -142,11 +224,8 @@ void lowLevelControl(){
     goProVerticalstabilization(getPitch());
     //For fixed-wing aircraft: Typically 0 = Roll, 1 = Pitch, 2 = Throttle, 3 = Yaw
 
-    if (!killingPlane){
-        setPWM(ROLL_OUT_CHANNEL, outputSignal[0]);//Roll
-        setPWM(L_TAIL_OUT_CHANNEL, outputSignal[1]); //Pitch
-        setPWM(THROTTLE_OUT_CHANNEL, outputSignal[2]);//Throttle
-        setPWM(R_TAIL_OUT_CHANNEL, outputSignal[3]); //Yaw
+    if (getProgramStatus() != KILL_MODE) {
+        setAllPWM(outputSignal); //Yaw
     }
     else{
         setPWM(ROLL_OUT_CHANNEL, MIN_PWM);//Roll
@@ -154,7 +233,6 @@ void lowLevelControl(){
         setPWM(THROTTLE_OUT_CHANNEL, MIN_PWM);//Throttle
         setPWM(R_TAIL_OUT_CHANNEL, MIN_PWM); //Yaw
     }
-    setPWM(FLAP_OUT_CHANNEL, outputSignal[4]); //Flaps
 
     //Check for kill mode
 #if COMP_MODE
@@ -163,118 +241,4 @@ void lowLevelControl(){
     checkUHFStatus();
 #endif
 
-}
-
-void takeOff(){
-
-}
-void landing(){
-    
-}
-
-void inputMixing(int* channels, int* rollRate, int* pitchRate, int* throttle, int* yawRate, int* flap){
-        if (getControlPermission(ROLL_CONTROL_SOURCE, ROLL_RC_SOURCE,ROLL_CONTROL_SOURCE_SHIFT)){
-            (*rollRate) = channels[0];
-        }
-        if (getControlPermission(THROTTLE_CONTROL_SOURCE, THROTTLE_RC_SOURCE,THROTTLE_CONTROL_SOURCE_SHIFT))
-            (*throttle) = (channels[2]);
-        
-        if (getControlPermission(FLAP_CONTROL_SOURCE, FLAP_RC_SOURCE,FLAP_CONTROL_SOURCE_SHIFT))
-            (*flap) = channels[FLAP_IN_CHANNEL-1];
-
-        #if TAIL_TYPE == STANDARD_TAIL
-        if (getControlPermission(PITCH_CONTROL_SOURCE, PITCH_RC_SOURCE,0)){
-            (*pitchRate) = channels[1];
-        }
-        (*yawRate) = channels[3];
-        
-        #elif TAIL_TYPE == V_TAIL    //V-tail
-        // TODO
-
-        #elif TAIL_TYPE == INV_V_TAIL
-        if (getControlPermission(PITCH_CONTROL_SOURCE, PITCH_RC_SOURCE,0)){
-            (*pitchRate) = (channels[1] - channels[3]) / (2 * ELEVATOR_PROPORTION);
-        }
-        (*yawRate) = (channels[1] + channels[3] ) / (2 * RUDDER_PROPORTION);
-        
-        #endif
-}
-
-void outputMixing(int* channels, int* control_Roll, int* control_Pitch, int* control_Throttle, int* control_Yaw, int* control_Flap){
-    //code for different tail configurations
-    #if TAIL_TYPE == STANDARD_TAIL  //is a normal t-tail
-    channels[1] = (*control_Pitch);
-    channels[3] = (*control_Yaw);
-
-    #elif TAIL_TYPE == V_TAIL    //V-tail
-    // TODO
-
-    #elif TAIL_TYPE == INV_V_TAIL   //Inverse V-Tail
-    channels[1] =  (*control_Yaw) * RUDDER_PROPORTION + (*control_Pitch) * ELEVATOR_PROPORTION ; //Tail Output Right
-    channels[3] =  (*control_Yaw) * RUDDER_PROPORTION - (*control_Pitch) * ELEVATOR_PROPORTION ; //Tail Output Left
-    
-    #endif
-    channels[0] = (*control_Roll);
-    channels[2] = (*control_Throttle);
-    channels[4] = (*control_Flap);
-}
-
-void checkLimits(int* channels){
-    if (channels[0] > MAX_ROLL_PWM) {
-        channels[0] = MAX_ROLL_PWM;
-        // Limits the effects of the integrator, if the output signal is maxed out
-//        if (getIntegralSum(ROLL) * getGain(ROLL, GAIN_KI) > sp_RollRate - sp_ComputedRollRate) {
-//            setIntegralSum(ROLL, getIntegralSum(ROLL)/1.1);
-//        }
-    }
-    if (channels[0] < MIN_ROLL_PWM) {
-        channels[0] = MIN_ROLL_PWM;
-        // Limits the effects of the integrator, if the output signal is maxed out
-//        if (getIntegralSum(ROLL) * getGain(ROLL, GAIN_KI) < sp_RollAngle - sp_ComputedRollRate) {
-//            setIntegralSum(ROLL, getIntegralSum(ROLL)/1.1);
-//        }
-    }
-    if (channels[1] > MAX_L_TAIL_PWM) {
-        channels[1] = MAX_L_TAIL_PWM;
-        // Limits the effects of the integrator, if the output signal is maxed out
-//        if (getIntegralSum(PITCH) * getGain(PITCH, GAIN_KI) > sp_PitchAngle - sp_ComputedPitchRate) {
-//            setIntegralSum(PITCH, getIntegralSum(PITCH)/1.1);
-//        }
-    }
-    else if (channels[1] < MIN_L_TAIL_PWM) {
-        channels[1] = MIN_L_TAIL_PWM;
-        // Limits the effects of the integrator, if the output signal is maxed out
-//        if (getIntegralSum(PITCH) * getGain(PITCH, GAIN_KI) < sp_PitchAngle - sp_ComputedPitchRate) {
-//            setIntegralSum(PITCH, getIntegralSum(PITCH)/1.1);
-//        }
-    }
-    //Throttle = 2
-    if (channels[2] > MAX_PWM){
-        channels[2] = MAX_PWM;
-    }
-    else if (channels[2] < MIN_PWM){
-        channels[2] = MIN_PWM;
-    }
-
-    if (channels[3] > MAX_R_TAIL_PWM)
-        channels[3] = MAX_R_TAIL_PWM;
-    else if (channels[3] < MIN_R_TAIL_PWM)
-        channels[3] = MIN_R_TAIL_PWM;
-    
-    //Flaps
-    if (channels[4] > MAX_PWM){
-        channels[4] = MAX_PWM;
-    }
-}
-
-void startArm()
-{
-    vehicleArmed = 1;
-    armVehicle(500);
-}
-
-void stopArm()
-{
-    vehicleArmed = 0;
-    dearmVehicle();
 }

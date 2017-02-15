@@ -16,14 +16,11 @@
 void initialization();
 void armVehicle(int delayTime);
 void dearmVehicle();
+void inputMixing(int* channelIn, int* rollRate, int* pitchRate, int* throttle, int* yawRate);
+void outputMixing(int* channelOut, int* control_Roll, int* control_Pitch, int* control_Throttle, int* control_Yaw);
+void checkLimits(int* channelOut);
 void highLevelControl();
 void lowLevelControl();
-void inputMixing(int* channels, int* rollRate, int* pitchRate, int* throttle, int* yawRate);
-void outputMixing(int* channels, int* control_Roll, int* control_Pitch, int* control_Throttle, int* control_Yaw);
-void checkLimits(int* channels);
-void startArm();
-void stopArm();
-
 
 #define QUAD_X 0
 #define QUAD_P 1

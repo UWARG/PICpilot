@@ -50,8 +50,8 @@
         <itemPath>VN_user.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f11" displayName="Vehicles" projectFiles="true">
-        <itemPath>Anaconda.h</itemPath>
         <itemPath>Multirotor.h</itemPath>
+        <itemPath>FixedWing.h</itemPath>
       </logicalFolder>
       <itemPath>main.h</itemPath>
     </logicalFolder>
@@ -108,8 +108,8 @@
         <itemPath>VN_user.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f11" displayName="Vehicles" projectFiles="true">
-        <itemPath>Anaconda.c</itemPath>
         <itemPath>Multirotor.c</itemPath>
+        <itemPath>FixedWing.c</itemPath>
       </logicalFolder>
       <itemPath>main.c</itemPath>
     </logicalFolder>
@@ -121,6 +121,7 @@
   </logicalFolder>
   <sourceRootList>
     <Elem>../PathManager</Elem>
+    <Elem>.</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
