@@ -11,6 +11,8 @@
 #include "Multirotor.h"
 #include "ProgramStatus.h"
 
+#if VEHICLE_TYPE == MULTIROTOR
+
 int outputSignal[NUM_CHANNELS];
 int control_Roll, control_Pitch, control_Yaw, control_Throttle;
 
@@ -141,3 +143,5 @@ void lowLevelControl() {
 
     setAllPWM(outputSignal);
 }
+
+#endif

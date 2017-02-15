@@ -11,6 +11,8 @@
 #include "FixedWing.h"
 #include "ProgramStatus.h"
 
+#if VEHICLE_TYPE == FIXED_WING
+
 int outputSignal[NUM_CHANNELS];
 int control_Roll, control_Pitch, control_Yaw, control_Throttle;
 
@@ -242,3 +244,5 @@ void lowLevelControl(){
 #endif
 
 }
+
+#endif
