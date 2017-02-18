@@ -912,6 +912,10 @@ void readDatalink(void){
                 setGains(*channel,((float*)(&cmd->data)) + 1);
                 break;
             }
+            case DROP_PROBE_AND_TRIGGER_CAMERA:
+                triggerCamera(1024);
+                dropProbe(1);
+            break;
             default:
                 break;
         }
