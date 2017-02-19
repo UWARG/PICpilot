@@ -104,12 +104,12 @@ void outputMixing(int* channelOut, int* control_Roll, int* control_Pitch, int* c
     // TODO
 
     #elif TAIL_TYPE == INV_V_TAIL   //Inverse V-Tail
-    channelOut[R_TAIL_IN_CHANNEL - 1] =  (*control_Yaw) * RUDDER_PROPORTION + (*control_Pitch) * ELEVATOR_PROPORTION ; //Tail Output Right
-    channelOut[L_TAIL_IN_CHANNEL - 1] =  (*control_Yaw) * RUDDER_PROPORTION - (*control_Pitch) * ELEVATOR_PROPORTION ; //Tail Output Left
+    channelOut[R_TAIL_OUT_CHANNEL - 1] =  (*control_Yaw) * RUDDER_PROPORTION + (*control_Pitch) * ELEVATOR_PROPORTION ; //Tail Output Right
+    channelOut[L_TAIL_OUT_CHANNEL - 1] =  (*control_Yaw) * RUDDER_PROPORTION - (*control_Pitch) * ELEVATOR_PROPORTION ; //Tail Output Left
     
     #endif
-    channelOut[ROLL_IN_CHANNEL - 1] = (*control_Roll);
-    channelOut[THROTTLE_IN_CHANNEL - 1] = (*control_Throttle);
+    channelOut[ROLL_OUT_CHANNEL - 1] = (*control_Roll);
+    channelOut[THROTTLE_OUT_CHANNEL - 1] = (*control_Throttle);
 }
 
 void checkLimits(int* channelOut){

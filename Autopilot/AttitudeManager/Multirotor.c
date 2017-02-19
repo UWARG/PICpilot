@@ -29,11 +29,12 @@ void initialization(){
     setProgramStatus(UNARMED);
     
     while (getProgramStatus() == UNARMED){
-        StateMachine(STATEMACHINE_IDLE); 
+        StateMachine(STATEMACHINE_IDLE);
     }
 }
 
 void armVehicle(int delayTime){
+    setProgramStatus(ARMING);
 #if DEBUG
     debug("MOTOR STARTUP PROCEDURE STARTED");
 #endif
@@ -90,10 +91,10 @@ void inputMixing(int* channelIn, int* rollRate, int* pitchRate, int* throttle, i
 
 void outputMixing(int* channelOut, int* control_Roll, int* control_Pitch, int* control_Throttle, int* control_Yaw){
     
-    channelOut[FRONT_LEFT_MOTOR - 1] = (*control_Throttle) + (*control_Pitch) - (*control_Roll) - (*control_Yaw);// + MIN_PWM;  
-    channelOut[FRONT_RIGHT_MOTOR - 1] = (*control_Throttle) + (*control_Pitch) + (*control_Roll) + (*control_Yaw);// + MIN_PWM;  
-    channelOut[BACK_RIGHT_MOTOR - 1] = (*control_Throttle) - (*control_Pitch) + (*control_Roll) - (*control_Yaw);// + MIN_PWM; 
-    channelOut[BACK_LEFT_MOTOR - 1] = (*control_Throttle) - (*control_Pitch) - (*control_Roll) + (*control_Yaw);// + MIN_PWM;  
+    channelOut[FRONT_LEFT_MOTOR - 1] = (*control_Throttle) + (*control_Pitch) + (*control_Roll) - (*control_Yaw);// + MIN_PWM;  
+    channelOut[FRONT_RIGHT_MOTOR - 1] = (*control_Throttle) + (*control_Pitch) - (*control_Roll) + (*control_Yaw);// + MIN_PWM;  
+    channelOut[BACK_RIGHT_MOTOR - 1] = (*control_Throttle) - (*control_Pitch) - (*control_Roll) - (*control_Yaw);// + MIN_PWM; 
+    channelOut[BACK_LEFT_MOTOR - 1] = (*control_Throttle) - (*control_Pitch) + (*control_Roll) + (*control_Yaw);// + MIN_PWM;  
 }
 
 void checkLimits(int* channelOut){
@@ -128,13 +129,57 @@ void highLevelControl(){
 }
 
 void lowLevelControl() {
-    control_Throttle = throttleControl(getAltitudeInput(ALTITUDE_AP_SOURCE), getAltitude());       //Hold a steady throttle (more or less airspeed for fixed wings)
-    setRollRateSetpoint(rollAngleControl(getRollAngleSetpoint(), getRoll()));       //Keep a steady Roll Angle
-    setPitchRateSetpoint(pitchAngleControl(getPitchAngleSetpoint(), getPitch()));   //Keep a steady Pitch Angle
-    control_Roll = rollRateControl(getRollRateSetpoint(), getRollRate());
-    control_Pitch = pitchRateControl(getPitchRateSetpoint(), getPitchRate());
-    control_Yaw = yawRateControl(getYawRateSetpoint(), getYawRate());
+    //If commands come from the autopilot
+    if (getControlPermission(ROLL_CONTROL_TYPE, ANGLE_CONTROL,ROLL_CONTROL_TYPE_SHIFT) || getControlPermission(HEADING_CONTROL,HEADING_CONTROL_ON, HEADING_CONTROL_SHIFT)) {
+        setRollRateSetpoint(rollAngleControl(getRollAngleSetpoint(), -getRoll()));       //Keep a steady Roll Angle
+    }
+    //If commands come from the ground station
+    else if (getControlPermission(ROLL_CONTROL_SOURCE, ROLL_GS_SOURCE,ROLL_CONTROL_SOURCE_SHIFT) || getControlPermission(ALTITUDE_CONTROL,ALTITUDE_CONTROL_ON,0)) {
+        setRollRateSetpoint(getRollRateInput(ROLL_GS_SOURCE));
+    }
+    //If commands come from the RC Controller
+    else {
+        setRollRateSetpoint(getRollRateInput(ROLL_RC_SOURCE));
+    }
 
+    //If commands come from the autopilot
+    if (getControlPermission(PITCH_CONTROL_TYPE, ANGLE_CONTROL,PITCH_CONTROL_TYPE_SHIFT)){
+        setPitchRateSetpoint(pitchAngleControl(getPitchAngleSetpoint(), -getPitch()));   //Keep a steady Pitch Angle
+        setPitchRateSetpoint(coordinatedTurn(getPitchRateSetpoint(), getRoll()));       //Apply Coordinated Turn
+    }
+    //If commands come from the ground station
+    else if (getControlPermission(PITCH_CONTROL_SOURCE, PITCH_GS_SOURCE,PITCH_CONTROL_SOURCE_SHIFT)){
+        setPitchRateSetpoint(getPitchRateInput(PITCH_GS_SOURCE));                         //Keep a steady Pitch Angle
+        setPitchRateSetpoint(coordinatedTurn(getPitchRateSetpoint(), getRoll()));       //Apply Coordinated Turn
+    }
+    //If commands come from the RC Controller
+    else{
+        setPitchRateSetpoint(getPitchRateInput(PITCH_RC_SOURCE));                         //Keep a steady Pitch Angle
+        setPitchRateSetpoint(coordinatedTurn(getPitchRateSetpoint(), getRoll()));       //Apply Coordinated Turn
+    }
+    
+    //If commands come from the ground station
+    if (getControlPermission(THROTTLE_CONTROL_SOURCE, THROTTLE_GS_SOURCE ,THROTTLE_CONTROL_SOURCE_SHIFT)) {
+        setThrottleSetpoint(getThrottleInput(THROTTLE_GS_SOURCE));
+    }
+    //If commands come from the RC Controller
+    else if (getControlPermission(THROTTLE_CONTROL_SOURCE,THROTTLE_RC_SOURCE, THROTTLE_CONTROL_SOURCE_SHIFT)) {
+        setThrottleSetpoint(getThrottleInput(THROTTLE_RC_SOURCE));
+    }
+
+    control_Roll = rollRateControl((float)getRollRateSetpoint(), -getRollRate());
+    control_Pitch = pitchRateControl((float)getPitchRateSetpoint(), -getPitchRate());
+    control_Yaw = yawRateControl((float)getYawRateSetpoint(), -getYawRate());
+    control_Throttle = getThrottleSetpoint();
+    
+
+//    control_Throttle = throttleControl(getAltitudeInput(ALTITUDE_AP_SOURCE), getAltitude());       //Hold a steady throttle (more or less airspeed for fixed wings)
+//    setRollRateSetpoint(rollAngleControl(getRollAngleSetpoint(), getRoll()));       //Keep a steady Roll Angle
+//    setPitchRateSetpoint(pitchAngleControl(getPitchAngleSetpoint(), getPitch()));   //Keep a steady Pitch Angle
+//    control_Roll = rollRateControl(getRollRateSetpoint(), getRollRate());
+//    control_Pitch = pitchRateControl(getPitchRateSetpoint(), getPitchRate());
+//    control_Yaw = yawRateControl(getYawRateSetpoint(), getYawRate());
+//
     //Mixing!
     outputMixing(outputSignal, &control_Roll, &control_Pitch, &control_Throttle, &control_Yaw);
 
