@@ -35,3 +35,6 @@ private/
 
 # Vim swap files
 *.swp
+
+# Ceedling files
+coverage/
