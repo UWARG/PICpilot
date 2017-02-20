@@ -2,6 +2,8 @@
  * @file ByteQueue.c
  * @author Serge Babayan
  * @date Feb 19, 2017
+ * @copyright Waterloo Aerial Robotics Group 2017 \n
+ *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE 
  */
 
 #include "ByteQueue.h"
@@ -47,7 +49,7 @@ void pushBQueue(ByteQueue* queue, unsigned char byte){
         unsigned int old_size = queue->size;
         unsigned char* new_data = malloc(queue->_max_size*2);
         popAllBQueue(queue, new_data);
-        free(queue->_data); //free the old data
+        free((void*)queue->_data); //free the old data
         queue->_data = new_data;
         queue->size = old_size;
         queue->_max_size *= 2;
@@ -58,6 +60,6 @@ void pushBQueue(ByteQueue* queue, unsigned char byte){
 }
 
 void deleteBQueue(ByteQueue* queue){
-    free(queue->_data);
+    free((void*)queue->_data);
     queue->size = 0;
 }
