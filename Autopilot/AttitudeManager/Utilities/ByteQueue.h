@@ -9,17 +9,20 @@
  * will not shrink. Since this is an array based queue, there is little overhead
  * in terms of memory, and methods have been provided to copy the data over for
  * mass consumption to avoid the need for many function calls.
+ * @copyright Waterloo Aerial Robotics Group 2017 \n
+ *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE 
  */
 
 #ifndef BYTEQUEUE_H
-
 #define BYTEQUEUE_H
 
 /**
  * ByteQueue struct. Use the size property to get the size of the queue
+ * All of the fields are declared as volatile as it is expected this class
+ * is used within ISR's
  */
-typedef struct _ByteQueue{
-    unsigned char* _data;
+typedef volatile struct _ByteQueue{
+    unsigned char * _data;
     unsigned int size; //current size of the queue. Can be accessed directly for convenience
     unsigned int _max_size; //max size of the queue
     unsigned int _start_index;

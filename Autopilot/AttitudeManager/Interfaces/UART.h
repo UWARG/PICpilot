@@ -4,7 +4,7 @@
  * @date February 14, 2017, 9:05 PM
  * @brief Contains implementation for using the UART functionality of the chip (for both
  * interfaces)
- * @copyright Waterloo Aerial Robotics Group 2016 \n
+ * @copyright Waterloo Aerial Robotics Group 2017 \n
  *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE 
  */
 
@@ -19,6 +19,15 @@
 #define INTERFACE_UART2_ENABLED 1
 
 /**
+ * Initial sizes of the uart 1 and 2 tx and rx buffers in bytes. Note initial
+ * as the buffer will resize if necessary
+ */
+#define INITIAL_UART1_TX_BUFFER_SIZE 100
+#define INITIAL_UART1_RX_BUFFER_SIZE 100
+#define INITIAL_UART2_TX_BUFFER_SIZE 100
+#define INITIAL_UART2_RX_BUFFER_SIZE 100
+
+/**
  * Will initialize the specified UART interface for both RX and TX transmissions
  * at the specified baud rate.
  * @param interface Which interface to initialize (1 or 2?)
@@ -27,14 +36,10 @@
 void initUART(unsigned char interface, unsigned long int baudrate);
 
 /**
- * This functions returns an array of the thus far received data. Note that the
- * returned data must be deallocated after it is read/used
+ * Read a byte from the uart RX buffer
  * @param interface The interface to read from (1 or 2)
- * @param length This variable will be set with the length of the returned RX data.
- *          Consider it the second return type of this function 
- * @return A character array representing the data thus far received from the UART interface
  */
-unsigned char* getRXData(unsigned char interface, unsigned int* length);
+unsigned char readRXData(unsigned char interface);
 
 /**
  * Queues data to send through UART. This will not necessarily send the data
@@ -44,7 +49,7 @@ unsigned char* getRXData(unsigned char interface, unsigned int* length);
  * @param data An array of bytes/chars to send
  * @param length The length of the aforementioned array of bytes/chars to send
  */
-void quoueTXData(unsigned char interface, unsigned char* data, unsigned int length);
+void quoueTXData(unsigned char interface, unsigned char* data, unsigned int data_length);
 
 #endif
 

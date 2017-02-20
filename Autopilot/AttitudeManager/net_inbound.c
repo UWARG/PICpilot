@@ -105,45 +105,45 @@ void inboundBufferMaintenance(void) {
     }
 }
 
-#if !PATH_MANAGER
-void __attribute__((__interrupt__, no_auto_psv)) _U2RXInterrupt(void) {
-    unsigned char data = U2RXREG;
-    if ( rawPacketStatus[packetPos] != BUSY ) {    // no buffer available to write
-        packetPos = ( packetPos + 1  ) % RAW_PACKET_BUFFER_SIZE;
-        IFS1bits.U2RXIF = 0;
-        return;
-    }
-    switch ( payloadPos ) {
-        case 0:
-            if ( data != START_DELIMITER ) {
-//                if (U2STAbits.OERR == 1)
-//                    U2STAbits.OERR = 0;
-                IFS1bits.U2RXIF = 0;
-                return;
-            }
-            break;
-        case 1:
-            if ( data != 0 ) {
-                payloadPos = 0;
-                IFS1bits.U2RXIF = 0;
-                return;                 // packet length < 100 bytes, so msb == 0
-            }
-            break;
-        case 2:
-            payloadLength[packetPos] = data;
-            break;
-        default:        // Normally, don't do anything special
-            break;
-    }
-    rawPackets[packetPos][payloadPos++] = data;
-    if ( payloadPos && payloadPos == payloadLength[packetPos] + 3 + 1) {   // at end of packet
-        rawPacketStatus[packetPos] = READY;
-        payloadPos = 0;
-        packetPos = ( packetPos + 1  ) % RAW_PACKET_BUFFER_SIZE;
-        if ( rawPacketStatus[packetPos] == EMPTY ) {
-            rawPacketStatus[packetPos] = BUSY;
-        }
-    }
-    IFS1bits.U2RXIF = 0;
-}
-#endif
+//#if !PATH_MANAGER
+//void __attribute__((__interrupt__, no_auto_psv)) _U2RXInterrupt(void) {
+//    unsigned char data = U2RXREG;
+//    if ( rawPacketStatus[packetPos] != BUSY ) {    // no buffer available to write
+//        packetPos = ( packetPos + 1  ) % RAW_PACKET_BUFFER_SIZE;
+//        IFS1bits.U2RXIF = 0;
+//        return;
+//    }
+//    switch ( payloadPos ) {
+//        case 0:
+//            if ( data != START_DELIMITER ) {
+////                if (U2STAbits.OERR == 1)
+////                    U2STAbits.OERR = 0;
+//                IFS1bits.U2RXIF = 0;
+//                return;
+//            }
+//            break;
+//        case 1:
+//            if ( data != 0 ) {
+//                payloadPos = 0;
+//                IFS1bits.U2RXIF = 0;
+//                return;                 // packet length < 100 bytes, so msb == 0
+//            }
+//            break;
+//        case 2:
+//            payloadLength[packetPos] = data;
+//            break;
+//        default:        // Normally, don't do anything special
+//            break;
+//    }
+//    rawPackets[packetPos][payloadPos++] = data;
+//    if ( payloadPos && payloadPos == payloadLength[packetPos] + 3 + 1) {   // at end of packet
+//        rawPacketStatus[packetPos] = READY;
+//        payloadPos = 0;
+//        packetPos = ( packetPos + 1  ) % RAW_PACKET_BUFFER_SIZE;
+//        if ( rawPacketStatus[packetPos] == EMPTY ) {
+//            rawPacketStatus[packetPos] = BUSY;
+//        }
+//    }
+//    IFS1bits.U2RXIF = 0;
+//}
+//#endif
