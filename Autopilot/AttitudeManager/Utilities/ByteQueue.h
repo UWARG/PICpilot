@@ -21,7 +21,7 @@
  * All of the fields are declared as volatile as it is expected this class
  * is used within ISR's
  */
-typedef volatile struct _ByteQueue{
+typedef volatile struct _ByteQueue {
     unsigned char * _data;
     unsigned int size; //current size of the queue. Can be accessed directly for convenience
     unsigned int _max_size; //max size of the queue
