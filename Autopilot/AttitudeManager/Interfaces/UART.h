@@ -16,7 +16,7 @@
  * interrupt cant be initialized, thus interrupts for it will not execute
  */
 #define INTERFACE_UART1_ENABLED 0
-#define INTERFACE_UART2_ENABLED 1
+#define INTERFACE_UART2_ENABLED 0
 
 /**
  * Initial sizes of the uart 1 and 2 tx and rx buffers in bytes. Note initial
