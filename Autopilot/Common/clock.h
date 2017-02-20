@@ -11,6 +11,8 @@
 #ifdef	__cplusplus
 extern "C" {
 #endif
+    
+#define CLOCK_FREQUENCY 40000000
 
 void useFRCPLLClock();
 
