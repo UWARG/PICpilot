@@ -25,7 +25,6 @@ unsigned char popBQueue(ByteQueue* queue){
         
         //prevent any overflow
         queue->_start_index = (queue->_start_index + 1) % queue->_max_size;
-        
         return to_return;
     }
 }
@@ -45,15 +44,17 @@ void popAllBQueue(ByteQueue* queue,unsigned char* array){
 void pushBQueue(ByteQueue* queue, unsigned char byte){
     //if the queue is full, create a new one double the size to ensure we have enough storage
     if (queue->size == queue->_max_size){
+        unsigned int old_size = queue->size;
         unsigned char* new_data = malloc(queue->_max_size*2);
         popAllBQueue(queue, new_data);
         free(queue->_data); //free the old data
         queue->_data = new_data;
+        queue->size = old_size;
+        queue->_max_size *= 2;
     }
     
     queue->_data[(queue->_start_index + queue->size)%queue->_max_size] = byte;
     queue->size++;
-    queue->_start_index = (queue->_start_index + 1) % queue->_max_size;
 }
 
 void deleteBQueue(ByteQueue* queue){
