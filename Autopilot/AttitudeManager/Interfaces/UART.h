@@ -52,4 +52,3 @@ unsigned char readRXData(unsigned char interface);
 void quoueTXData(unsigned char interface, unsigned char* data, unsigned int data_length);
 
 #endif
-
