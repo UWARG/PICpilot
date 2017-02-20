@@ -914,7 +914,7 @@ void readDatalink(void){
             }
             case DROP_PROBE_AND_TRIGGER_CAMERA:
                 triggerCamera(1024);
-                dropProbe(1);
+                dropProbe(*(char*)(&cmd->data));
             break;
             default:
                 break;
