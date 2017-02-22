@@ -320,10 +320,10 @@
         <property key="memories.flashdata" value="true"/>
         <property key="memories.id" value="true"/>
         <property key="memories.instruction.ram" value="true"/>
-        <property key="memories.instruction.ram.ranges"
-                  value="${memories.instruction.ram.ranges}"/>
         <property key="memories.instruction.ram.end"
                   value="${memories.instruction.ram.end.value}"/>
+        <property key="memories.instruction.ram.ranges"
+                  value="${memories.instruction.ram.ranges}"/>
         <property key="memories.instruction.ram.start"
                   value="${memories.instruction.ram.start.value}"/>
         <property key="memories.programmemory" value="true"/>
