@@ -110,7 +110,6 @@ int input_RC_YawRate = 0;
 int input_RC_Aux1 = 0; //0=Roll, 1= Pitch, 2=Yaw
 int input_RC_Aux2 = 0; //0 = Saved Value, 1 = Edit Mode
 int input_RC_Switch1 = 0;
-int input_RC_UHFSwitch = 0;
 
 //Ground Station Input Signals
 int input_GS_Roll = 0;
@@ -148,6 +147,8 @@ char lastNumSatellites = 0;
 
 unsigned int cameraCounter = 0;
 
+char show_scaled_pwm = 1;
+
 void attitudeInit() {
     setProgramStatus(INITIALIZATION);
     //Initialize Timer
@@ -156,8 +157,11 @@ void attitudeInit() {
     //Initialize Interchip communication
     TRISFbits.TRISF3 = 0;
     LATFbits.LATF3 = 1;
-
-    TRISDbits.TRISD14 = 0;
+    
+    //the line below sets channel 7 IC to be an output. Used to be for DMA. Should
+    //investigate DMA code to see why this was used in the first place, and if it'll have
+    //any negative consequences. Commenting out for now. Serge Feb 7 2017
+    //TRISDbits.TRISD14 = 0;
     LATDbits.LATD14 = 0;
 
     amData.checkbyteDMA = generateAMDataDMACheckbyte();
@@ -278,7 +282,7 @@ char checkDMA(){
         DMA0CONbits.CHEN = 0; //Disable DMA0 channel
         DMA1CONbits.CHEN = 0; //Disable DMA1 channel
         while(SPI1STATbits.SPIRBF) { //Clear SPI1
-            int dummy = SPI1BUF;
+            SPI1BUF;
         }
 //        INTERCOM_2 = 0;
 //        while(INTERCOM_4);
@@ -380,11 +384,10 @@ void setHeadingSetpoint(int setpoint){
 
 void inputCapture(){
     int* channelIn;
-    channelIn = getPWMArray();
+    channelIn = getPWMArray(getTime());
     inputMixing(channelIn, &input_RC_RollRate, &input_RC_PitchRate, &input_RC_Throttle, &input_RC_YawRate, &input_RC_Flap);
 
     // Switches and Knobs
-    input_RC_UHFSwitch = channelIn[UHF_STATUS_IN_CHANNEL - 1];
 //        sp_Type = channelIn[5];
 //        sp_Value = channelIn[6];
     input_RC_Switch1 = channelIn[AUTOPILOT_ACTIVE_IN_CHANNEL - 1];
@@ -399,7 +402,7 @@ void inputCapture(){
 
 int getPitchAngleInput(char source){
     if (source == PITCH_RC_SOURCE){
-        return (int)((input_RC_PitchRate / ((float)SP_RANGE / MAX_PITCH_ANGLE) ));
+        return (int)((input_RC_PitchRate / ((float)HALF_PWM_RANGE / MAX_PITCH_ANGLE) ));
     }
     else if (source == PITCH_GS_SOURCE){
         return input_GS_Pitch;
@@ -419,7 +422,7 @@ int getPitchRateInput(char source){
 }
 int getRollAngleInput(char source){
     if (source == ROLL_RC_SOURCE){
-        return (int)((input_RC_RollRate / ((float)SP_RANGE / MAX_ROLL_ANGLE) ));
+        return (int)((input_RC_RollRate / ((float)HALF_PWM_RANGE / MAX_ROLL_ANGLE) ));
     }
     else if (source == ROLL_GS_SOURCE){
         return input_GS_Roll;
@@ -440,7 +443,7 @@ int getRollRateInput(char source){
 }
 int getYawAngleInput(char source){
     if (source == YAW_RC_SOURCE){
-        return (int)((input_RC_YawRate / ((float)SP_RANGE / MAX_ROLL_ANGLE) ));
+        return (int)((input_RC_YawRate / ((float)HALF_PWM_RANGE / MAX_ROLL_ANGLE) ));
     }
     else if (source == YAW_GS_SOURCE){
         return input_GS_Yaw;
@@ -603,13 +606,13 @@ int headingControl(int setpoint, int sensor){
 
 int rollAngleControl(int setpoint, int sensor){
     //Roll Angle
-    sp_ComputedRollRate = controlSignalAngles(setpoint, sensor, ROLL, -(SP_RANGE) / (MAX_ROLL_ANGLE));
+    sp_ComputedRollRate = controlSignalAngles(setpoint, sensor, ROLL, -(HALF_PWM_RANGE) / (MAX_ROLL_ANGLE));
     return sp_ComputedRollRate;
 }
 
 int pitchAngleControl(int setpoint, int sensor){
     //Pitch Angle
-    sp_ComputedPitchRate = controlSignalAngles(setpoint, sensor, PITCH, -(SP_RANGE) / (MAX_PITCH_ANGLE)); //Removed negative
+    sp_ComputedPitchRate = controlSignalAngles(setpoint, sensor, PITCH, -(HALF_PWM_RANGE) / (MAX_PITCH_ANGLE)); //Removed negative
     return sp_ComputedPitchRate;
 }
 
@@ -867,6 +870,13 @@ void readDatalink(void){
                 amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
+            case SHOW_SCALED_PWM:
+                if ((*(char*)(&cmd->data)) == 1){
+                    show_scaled_pwm = 1;
+                } else{
+                    show_scaled_pwm = 0;
+                }
+                break;
             case NEW_WAYPOINT:
                 amData.waypoint = *(WaypointWrapper*)(&cmd->data);
                 amData.command = PM_NEW_WAYPOINT;
@@ -964,7 +974,11 @@ int writeDatalink(p_priority packet){
             statusData->data.p2_block.batteryLevel1 = batteryLevel1;
             statusData->data.p2_block.batteryLevel2 = batteryLevel2;
 //            debug("SW3");
-            input = getPWMArray();
+            if (show_scaled_pwm){
+                input = getPWMArray(getTime());
+            } else {
+                input = (int*)getICValues(getTime());
+            }
             statusData->data.p2_block.ch1In = input[0];
             statusData->data.p2_block.ch2In = input[1];
             statusData->data.p2_block.ch3In = input[2];
@@ -973,7 +987,7 @@ int writeDatalink(p_priority packet){
             statusData->data.p2_block.ch6In = input[5];
             statusData->data.p2_block.ch7In = input[6];
             statusData->data.p2_block.ch8In = input[7];
-            output = checkPWMArray();
+            output = getPWMOutputs();
             statusData->data.p2_block.ch1Out = output[0];
             statusData->data.p2_block.ch2Out = output[1];
             statusData->data.p2_block.ch3Out = output[2];
@@ -1037,13 +1051,20 @@ int writeDatalink(p_priority packet){
 }
 
 void checkUHFStatus(){
-    if (input_RC_UHFSwitch > 429 && input_RC_UHFSwitch < 440){
-        setProgramStatus(KILL_MODE_WARNING);
-        if (getTime() - UHFTimer > UHF_KILL_TIMEOUT){
-            killPlane(TRUE);
+    unsigned long int time = getTime();
+    
+    if (getPWMInputStatus() == PWM_STATUS_UHF_LOST){
+        if (UHFTimer == 0){ //0 indicates that this is the first time we lost UHF
+            UHFTimer = time;
+            setProgramStatus(KILL_MODE_WARNING);
+        } else { //otherwise check if we're over the threshold
+            if (time - UHFTimer > UHF_KILL_TIMEOUT){
+                killPlane(TRUE);
+            }
         }
+    } else {
+        UHFTimer = 0; //set it back to 0 otherwise to reset state
     }
-
 }
 
 void checkHeartbeat(){

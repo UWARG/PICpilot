@@ -1,168 +1,92 @@
 /* 
- * File:   OutputCompare.c
- *
- * Created on February 9, 2010, 10:53 AM
+ * @file OutputCompare.c
+ * @created February 9, 2010, 10:53 AM
  */
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <p33Fxxxx.h>
 #include "OutputCompare.h"
 #include "InputCapture.h"
 
-char initializedOC;
-
-/*
- * 
- */
-
-void init_oc1(void)
+void setOCValue(unsigned int channel, unsigned int duty)
 {
-// Initialize Output Compare Module
-OC1CONbits.OCM = 0b000; // Disable Output Compare Module
-OC1R = MIDDLE_PWM; // Write the duty cycle for the first PWM pulse = 1.5ms/4688
-OC1RS = MIDDLE_PWM; // Write the duty cycle for the second PWM pulse] = 1.5ms/4688
-OC1CONbits.OCTSEL = 0; // Select Timer 2 as output compare time base
-OC1CONbits.OCM = 0b110; // Select the Output Compare mode (without fault protection)
-}
-
-void init_oc2(void)
-{
-// Initialize Output Compare Module
-OC2CONbits.OCM = 0b000; // Disable Output Compare Module
-OC2R = MIDDLE_PWM; // Write the duty cycle for the first PWM pulse = 1.5ms/4688
-OC2RS = MIDDLE_PWM; // Write the duty cycle for the second PWM pulse] = 1.5ms/4688
-OC2CONbits.OCTSEL = 0; // Select Timer 2 as output compare time base
-OC2CONbits.OCM = 0b110; // Select the Output Compare mode (without fault protection)
-}
-void init_oc3(void)
-{
-// Initialize Output Compare Module
-OC3CONbits.OCM = 0b000; // Disable Output Compare Module
-OC3R = MIDDLE_PWM; // Write the duty cycle for the first PWM pulse = 1.5ms/4688
-OC3RS = MIDDLE_PWM; // Write the duty cycle for the second PWM pulse] = 1.5ms/4688
-OC3CONbits.OCTSEL = 0; // Select Timer 2 as output compare time base
-OC3CONbits.OCM = 0b110; // Select the Output Compare mode (without fault protection)
-}
-
-void init_oc4(void)
-{
-// Initialize Output Compare Module
-OC4CONbits.OCM = 0b000; // Disable Output Compare Module
-OC4R = MIDDLE_PWM; // Write the duty cycle for the first PWM pulse = 1.5ms/4688
-OC4RS = MIDDLE_PWM; // Write the duty cycle for the second PWM pulse] = 1.5ms/4688
-OC4CONbits.OCTSEL = 0; // Select Timer 2 as output compare time base
-OC4CONbits.OCM = 0b110; // Select the Output Compare mode (without fault protection)
-}
-
-void init_oc5(void)
-{
-//Initialize Output Compare Module
-OC5CONbits.OCM = 0b000; // Disable Output Compare Module
-OC5R = MIDDLE_PWM; // Write the duty cycle for the first PWM pulse = 1.5ms/4688
-OC5RS = MIDDLE_PWM; // Write the duty cycle for the second PWM pulse] = 1.5ms/4688
-OC5CONbits.OCTSEL = 0; // Select Timer 2 as output compare time base
-OC5CONbits.OCM = 0b110; // Select the Output Compare mode (without fault protection)
-}
-
-void init_oc6(void)
-{
-// Initialize Output Compare Module
-OC6CONbits.OCM = 0b000; // Disable Output Compare Module
-OC6R = MIDDLE_PWM; // Write the duty cycle for the first PWM pulse = 1.5ms/4688
-OC6RS = MIDDLE_PWM; // Write the duty cycle for the second PWM pulse] = 1.5ms/4688
-OC6CONbits.OCTSEL = 0; // Select Timer 2 as output compare time base
-OC6CONbits.OCM = 0b110; // Select the Output Compare mode (without fault protection)
-}
-
-void init_oc7(void)
-{
-// Initialize Output Compare Module
-OC7CONbits.OCM = 0b000; // Disable Output Compare Module
-OC7R = MIDDLE_PWM; // Write the duty cycle for the first PWM pulse = 1.5ms/4688
-OC7RS = MIDDLE_PWM; // Write the duty cycle for the second PWM pulse] = 1.5ms/4688
-OC7CONbits.OCTSEL = 0; // Select Timer 2 as output compare time base
-OC7CONbits.OCM = 0b110; // Select the Output Compare mode (without fault protection)
-}
-
-void init_oc8(void)
-{
-// Initialize Output Compare Module
-OC8CONbits.OCM = 0b000; // Disable Output Compare Module
-OC8R = MIDDLE_PWM; // Write the duty cycle for the first PWM pulse = 1.5ms/4688
-OC8RS = MIDDLE_PWM; // Write the duty cycle for the second PWM pulse] = 1.5ms/4688
-OC8CONbits.OCTSEL = 0; // Select Timer 2 as output compare time base
-OC8CONbits.OCM = 0b110; // Select the Output Compare mode (without fault protection)
-}
-
-void setPeriod(double time) 
-{
-         T2CONbits.TCKPS = 0x02; //1:64 scaler
-         PR2 = (unsigned int)(time * MSEC);
-}
-
-void setOCValue(int ocPin, int time)
-{
-    //Sets the PWM for subsequent pulses
-    if (ocPin == 1)
-    {
-        OC1RS = time;
-    }
-    else if (ocPin == 2)
-    {
-        OC2RS = time;
-    }
-    else if (ocPin == 3)
-    {
-        OC3RS = time;
-    }
-    else if (ocPin == 4)
-    {
-        OC4RS = time;
-    }
-    else if (ocPin == 5)
-    {
-        OC5RS = time;
-    }
-    else if (ocPin == 6)
-    {
-        OC6RS = time;
-    }
-    else if (ocPin == 7)
-    {
-        OC7RS = time;
-    }
-    else if (ocPin == 8)
-    {
-        OC8RS = time;
+    switch(channel){
+    case 0:
+        OC1RS = duty;
+        break;
+    case 1:
+        OC2RS = duty;
+        break;
+    case 2:
+         OC3RS = duty;
+         break;
+    case 3:
+        OC4RS = duty;
+        break;
+    case 4:
+        OC5RS = duty;
+        break;
+    case 5:
+        OC6RS = duty;
+        break;
+    case 6:
+        OC7RS = duty;
+        break;
+    case 7:
+        OC8RS = duty;
+        break;
     }
 }
 
-void init_oc(char OC)
+void initOC(char OC)
 {
     //Initialize each of the 8 OCs
-    if (OC & 0b1)
-        init_oc1();
-    if (OC & 0b10)
-        init_oc2();
-    if (OC & 0b100)
-        init_oc3();
-    if (OC & 0b1000)
-        init_oc4();
-    if (OC & 0b10000)
-        init_oc5();
-    if (OC & 0b100000)
-        init_oc6();
-    if (OC & 0b1000000)
-        init_oc7();
-    if (OC & 0b10000000)
-        init_oc8();
-}
+    if (OC & 0b1) {
+        OC1CONbits.OCM = 0b000; // Disable Output Compare Module )required to set it as something else)
+        OC1RS = 0x00; // Write a duty cycle of 0 to start off with
+        OC1CONbits.OCTSEL = 0; // Select Timer 2 as output compare time base
+        OC1CONbits.OCM = 0b110; // Select the Output Compare mode (PWM without fault protection)
+    }
+    if (OC & 0b10) {
+        OC2CONbits.OCM = 0b000;
+        OC2RS = 0x00;
+        OC2CONbits.OCTSEL = 0;
+        OC2CONbits.OCM = 0b110;
 
-void initOC(char OC){ //int argc, char** argv) {
-    init_oc(OC);
-    //Initialize timer2
-    initializedOC = OC;
-    //init_t2();
-
+    }
+    if (OC & 0b100) {
+        OC3CONbits.OCM = 0b000;
+        OC3RS = 0x00;
+        OC3CONbits.OCTSEL = 0;
+        OC3CONbits.OCM = 0b110;
+    }
+    if (OC & 0b1000) {
+        OC4CONbits.OCM = 0b000;
+        OC4RS = 0x00;
+        OC4CONbits.OCTSEL = 0;
+        OC4CONbits.OCM = 0b110;
+    }
+    if (OC & 0b10000) {
+        OC5CONbits.OCM = 0b000;
+        OC5RS = 0x00;
+        OC5CONbits.OCTSEL = 0;
+        OC5CONbits.OCM = 0b110;
+    }
+    if (OC & 0b100000) {
+        OC6CONbits.OCM = 0b000;
+        OC6RS = 0x00;
+        OC6CONbits.OCTSEL = 0;
+        OC6CONbits.OCM = 0b110;
+    }
+    if (OC & 0b1000000) {
+        OC7CONbits.OCM = 0b000;
+        OC7RS = 0x00;
+        OC7CONbits.OCTSEL = 0;
+        OC7CONbits.OCM = 0b110;
+    }
+    if (OC & 0b10000000) {
+        OC8CONbits.OCM = 0b000;
+        OC8RS = 0x00;
+        OC8CONbits.OCTSEL = 0;
+        OC8CONbits.OCM = 0b110;
+    }
 }
