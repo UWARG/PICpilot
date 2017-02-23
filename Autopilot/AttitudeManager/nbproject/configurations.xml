@@ -22,7 +22,7 @@
         <itemPath>ProgramStatus.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f8" displayName="Interfaces" projectFiles="true">
-        <itemPath>Interfaces/UART.h</itemPath>
+        <itemPath>../Common/Interfaces/UART.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f3" displayName="Network" projectFiles="true">
         <itemPath>commands.h</itemPath>
@@ -43,7 +43,7 @@
         <itemPath>fmath.h</itemPath>
         <itemPath>StringUtils.h</itemPath>
         <itemPath>timer.h</itemPath>
-        <itemPath>Utilities/ByteQueue.h</itemPath>
+        <itemPath>../Common/Utilities/ByteQueue.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f7" displayName="VectorNav" projectFiles="true">
         <itemPath>VN100.h</itemPath>
@@ -85,7 +85,7 @@
         <itemPath>ProgramStatus.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f8" displayName="Interfaces" projectFiles="true">
-        <itemPath>Interfaces/UART.c</itemPath>
+        <itemPath>../Common/Interfaces/UART.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f3" displayName="Network" projectFiles="true">
         <itemPath>net_outbound.c</itemPath>
@@ -107,7 +107,7 @@
         <itemPath>delay.c</itemPath>
         <itemPath>StringUtils.c</itemPath>
         <itemPath>timer.c</itemPath>
-        <itemPath>Utilities/ByteQueue.c</itemPath>
+        <itemPath>../Common/Utilities/ByteQueue.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f6" displayName="VectorNav" projectFiles="true">
         <itemPath>VN100.c</itemPath>
@@ -131,6 +131,8 @@
     <Elem>../PathManager</Elem>
     <Elem>Interfaces</Elem>
     <Elem>Utilities</Elem>
+    <Elem>../Common/Utilities</Elem>
+    <Elem>../Common/Interfaces</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
