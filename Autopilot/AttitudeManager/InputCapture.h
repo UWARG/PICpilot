@@ -14,7 +14,7 @@
 
 /**
 * Use this setting to disable or enable PPM. PPM is currently only configured
-* for channel 1. If disabled, regular PWM via the 8 channel inputs is used
+* for channel 7. If disabled, regular PWM via the 8 channel inputs is used
 */
 #define USE_PPM 1
 
