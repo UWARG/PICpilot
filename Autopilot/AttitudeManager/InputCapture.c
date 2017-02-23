@@ -202,9 +202,9 @@ void initIC(unsigned char initIC)
 
 #if USE_PPM
 /**
-* PPM Interrupt Service routine for Channel 1 for when PPM is enabled. Will trigger
-* on any edge change on channel 1. Calculates the time between the last rise time
-* and last fall time to determine if a PPM sync occured, used to keep track
+* PPM Interrupt Service routine for Channel 7 for when PPM is enabled. Will trigger
+* on any edge change on channel 7. Calculates the time between the last rise time
+* and last fall time to determine if a PPM sync occurred, used to keep track
 * of the positions of the channels
 */
 void __attribute__((__interrupt__, no_auto_psv)) _IC7Interrupt(void)
@@ -239,10 +239,10 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC7Interrupt(void)
      * of the buffer at any time will be 1, so this while loop should never execute. Its only when
      * you disconnect it and reconnect it that stuff gets weird.
      */
-    while (IC1CONbits.ICBNE) { //while the ic buffer not empty flag is set
-        IC1BUF; //read a value from the 4-size FIFO buffer
+    while (IC7CONbits.ICBNE) { //while the ic buffer not empty flag is set
+        IC7BUF; //read a value from the 4-size FIFO buffer
     }
-    IFS0bits.IC1IF = 0; //reset the interrupt flag
+    IFS1bits.IC7IF = 0; //reset the interrupt flag
 }
 
 #else
