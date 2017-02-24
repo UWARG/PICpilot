@@ -73,17 +73,17 @@ int* getPWMArray(unsigned long int sys_time)
     unsigned char channel_enabled;
     int* ic_values = getICValues(sys_time);
     int channel = 0;
-    
+
     for (channel = 0; channel < NUM_CHANNELS; channel++) {
         channel_enabled = enabled_input_channels & (1 << channel);
-        
+
         if(!channel_enabled){ //if the channel is disabled
             pwm_inputs[channel] = DISCONNECTED_PWM_VALUE;
         } else if (ic_values[channel] == 0 && channel_enabled) { //if the channel is enabled but disconnected
             pwm_inputs[channel] = DISCONNECTED_PWM_VALUE;
             disconnected_pwm_inputs = disconnected_pwm_inputs | (1 << channel); //set the bit as 1
         } else { //otherwise if its a connected, enabled channel, calculate its value
-            pwm_inputs[channel] = (int) ((ic_values[channel] - input_offsets[channel]) * input_scale_factors[channel]);
+            pwm_inputs[channel] = ((int)(ic_values[channel]) - input_offsets[channel]) * input_scale_factors[channel];
             disconnected_pwm_inputs = disconnected_pwm_inputs & (~(1 << channel)); //set the bit as 0
         }
     }

@@ -59,9 +59,9 @@ static unsigned long int last_capture_time[8];
 static unsigned char ppm_index;
 #endif
 
-int* getICValues(unsigned long int sys_time)
+unsigned int* getICValues(unsigned long int sys_time)
 {
-    
+
 #if USE_PPM
     /**
      * The actual calculation of comparison values is already done in the ISR
@@ -210,21 +210,21 @@ void initIC(unsigned char initIC)
 void __attribute__((__interrupt__, no_auto_psv)) _IC7Interrupt(void)
 {
     static unsigned int time_diff;
-    
+
     if (PORTDbits.RD14 == !PPM_INVERTED) { //If PPM inverted, check for fall (0). Otherwise check for rise (1)
         start_time[ppm_index] = IC7BUF;
     } else { //if PPM inverted, then if rise (1). Otherwise if fall
         end_time[ppm_index] = IC7BUF;
-        
+
         //take into account for timer overflow
         if (end_time[ppm_index] > start_time[ppm_index]){
-            time_diff = end_time[ppm_index] - start_time[ppm_index];   
+            time_diff = end_time[ppm_index] - start_time[ppm_index];
         } else{
             time_diff = (PR2 - start_time[ppm_index]) + end_time[ppm_index];
         }
-        
+
         if (time_diff >= PPM_SYNC_TICKS){ //if we just captured a sync pulse
-            ppm_index = 0; 
+            ppm_index = 0;
         } else {
             capture_value[ppm_index] = time_diff;
             ppm_index = (ppm_index + 1) % PPM_CHANNELS; //make sure we don't overflow
