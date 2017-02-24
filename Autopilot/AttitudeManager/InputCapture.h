@@ -59,6 +59,6 @@ void initIC(unsigned char initIC);
  * that is disconnected will have a value of 0.
  * @return Array containing all the channel values
  */
-unsigned int* getICValues(unsigned long int sys_time);
+int* getICValues(unsigned long int sys_time);
 
 #endif
