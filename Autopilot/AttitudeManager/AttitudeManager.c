@@ -161,7 +161,7 @@ void attitudeInit() {
     //the line below sets channel 7 IC to be an output. Used to be for DMA. Should
     //investigate DMA code to see why this was used in the first place, and if it'll have
     //any negative consequences. Commenting out for now. Serge Feb 7 2017
-    //TRISDbits.TRISD14 = 0;
+    TRISDbits.TRISD14 = 0;
     LATDbits.LATD14 = 0;
 
     amData.checkbyteDMA = generateAMDataDMACheckbyte();
