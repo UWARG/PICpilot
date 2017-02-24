@@ -57,7 +57,7 @@ void initPWM(unsigned char inputChannels, unsigned char outputChannels)
 int* getPWMArray(unsigned long int sys_time)
 {
     unsigned char channel_enabled;
-    unsigned int* ic_values = getICValues(sys_time);
+    int* ic_values = getICValues(sys_time);
     int channel = 0;
     
     for (channel = 0; channel < NUM_CHANNELS; channel++) {

@@ -17,8 +17,8 @@ void setOCValue(unsigned int channel, unsigned int duty)
         OC2RS = duty;
         break;
     case 2:
-         OC3RS = duty;
-         break;
+        OC3RS = duty;
+        break;
     case 3:
         OC4RS = duty;
         break;
