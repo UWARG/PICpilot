@@ -20,7 +20,8 @@
 #include "AttitudeManager.h"
 #include "net.h"
 #include "../Common/clock.h"
-
+#include "cameraManager.h"
+#include "Probe_Drop.h"
 /*
  * 
  */
@@ -36,6 +37,8 @@ _FWDT(FWDTEN_ON & WDTPOST_PS4096 & WDTPRE_PR128);
  *
  */
 int main(int argc, char** argv) {
+    dropProbe(1);
+    triggerCamera(2);
 
     useFRCPLLClock();
 
