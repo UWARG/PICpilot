@@ -59,7 +59,7 @@ static unsigned long int last_capture_time[8];
 static unsigned char ppm_index;
 #endif
 
-unsigned int* getICValues(unsigned long int sys_time)
+int* getICValues(unsigned long int sys_time)
 {
     
 #if USE_PPM
