@@ -21,6 +21,7 @@
     - -:test/support
   :source:
     - ../*
+    - ../../**/*
   :support:
     - test/support
 
