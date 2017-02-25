@@ -12,13 +12,6 @@
 #define	UART_H
 
 /**
- * Defines which UART interfaces to enable/disable. Disabling means that the
- * interrupt cant be initialized, thus interrupts for it will not execute
- */
-#define INTERFACE_UART1_ENABLED 0
-#define INTERFACE_UART2_ENABLED 0
-
-/**
  * Initial sizes of the uart 1 and 2 tx and rx buffers in bytes. Note initial
  * as the buffer will resize if necessary
  */
@@ -32,8 +25,9 @@
  * at the specified baud rate.
  * @param interface Which interface to initialize (1 or 2?)
  * @param baudrate Baudrate to operate at for this interface
+ * @param initial_size Initial sizes of the RX and TX buffers
  */
-void initUART(unsigned char interface, unsigned long int baudrate);
+void initUART(unsigned char interface, unsigned long int baudrate, unsigned int initial_size);
 
 /**
  * Read a byte from the uart RX buffer

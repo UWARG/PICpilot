@@ -44,6 +44,7 @@
         <itemPath>StringUtils.h</itemPath>
         <itemPath>timer.h</itemPath>
         <itemPath>../Common/Utilities/ByteQueue.h</itemPath>
+        <itemPath>../Common/Utilities/Logger.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f7" displayName="VectorNav" projectFiles="true">
         <itemPath>VN100.h</itemPath>
@@ -57,6 +58,7 @@
         <itemPath>DisplayQuad.h</itemPath>
       </logicalFolder>
       <itemPath>main.h</itemPath>
+      <itemPath>Config.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -75,7 +77,6 @@
         <itemPath>../Common/Common.c</itemPath>
         <itemPath>../Common/clock.c</itemPath>
         <itemPath>../Common/UART1.c</itemPath>
-        <itemPath>../Common/debug.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="Data Transfer" projectFiles="true">
         <itemPath>InterchipDMA.c</itemPath>
@@ -108,6 +109,7 @@
         <itemPath>StringUtils.c</itemPath>
         <itemPath>timer.c</itemPath>
         <itemPath>../Common/Utilities/ByteQueue.c</itemPath>
+        <itemPath>../Common/Utilities/Logger.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f6" displayName="VectorNav" projectFiles="true">
         <itemPath>VN100.c</itemPath>
@@ -142,7 +144,7 @@
         <targetDevice>dsPIC33FJ256GP710A</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool>Simulator</platformTool>
+        <platformTool>ICD3PlatformTool</platformTool>
         <languageToolchain>XC16</languageToolchain>
         <languageToolchainVersion>1.26</languageToolchainVersion>
         <platform>2</platform>
