@@ -19,10 +19,10 @@
 #define USE_PPM 1
 
 /**
- * If the PPM signal is inverted. Some receivers, such as the ezUHF have an inverted
- * PPM signal, so set this to 1. If using the OrangeRX, set this to 0
+ * If the PPM signal is inverted. Some receivers, such as the OrangeRX have an inverted
+ * PPM signal, so set this to 1. If using the ezUHF, set this to 0
  */
-#define PPM_INVERTED 0
+#define PPM_INVERTED 1
 
 /**
 * How many channels are expected to be in a single PPM frame

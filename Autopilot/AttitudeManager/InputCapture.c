@@ -10,15 +10,14 @@
 /**
  * Number of timer ticks that indicate a sync pulse
  */
-#define PPM_SYNC_TICKS (int)((float)(PPM_MIN_SYNC_TIME/1000)*T2_TICKS_TO_MSEC)
+#define PPM_SYNC_TICKS (int)(((float)PPM_MIN_SYNC_TIME/1000)*T2_TICKS_TO_MSEC)
 
 /**
  * Holds the capture start and end time so that we can compare them later. We can
  * only do 8 with PWM enabled. Otherwise
  */
 #if USE_PPM
-static unsigned int start_time[PPM_CHANNELS];
-static unsigned int end_time[PPM_CHANNELS];
+static unsigned int edge_time[PPM_CHANNELS + 1];
 #else
 static unsigned int start_time[8];
 static unsigned int end_time[8];
@@ -115,10 +114,22 @@ unsigned int* getICValues(unsigned long int sys_time)
 void initIC(unsigned char initIC)
 {
     //If using PPM, we want to unconditionally turn on channel 7
-    #if USE_PPM
-      initIC = 0b01000000;
-      ppm_index = 0;
-    #endif
+#if USE_PPM
+    IC7CONbits.ICM = 0b00; // Disable Input Capture 1 module (required to change it)
+    IC7CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
+
+    // Generate capture event on every Rising (regular PPM) or Falling (inverted) edge
+    IC7CONbits.ICI = 0 // Interrupt on every capture
+    IC7CONbits.ICM = 0b010 + !PPM_INVERTED; // 0b010 = Falling, 0b011 = Rising
+
+    
+    // Enable Capture Interrupt And Timer2
+    IPC0bits.IC7IP = 7; // Setup IC1 interrupt priority level - Highest
+    IFS0bits.IC7IF = 0; // Clear IC1 Interrupt Status Flag
+    IEC0bits.IC7IE = 1; // Enable IC1 interrupt
+
+    ppm_index = 0;
+#else
 
     if (initIC & 0b01) {
         IC1CONbits.ICM = 0b00; // Disable Input Capture 1 module (required to change it)
@@ -198,6 +209,7 @@ void initIC(unsigned char initIC)
         IFS1bits.IC8IF = 0;
         IEC1bits.IC8IE = 1;
     }
+#endif
 }
 
 #if USE_PPM
@@ -213,8 +225,6 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC7Interrupt(void)
     
     if (PORTDbits.RD14 == !PPM_INVERTED) { //If PPM inverted, check for fall (0). Otherwise check for rise (1)
         start_time[ppm_index] = IC7BUF;
-    } else { //if PPM inverted, then if rise (1). Otherwise if fall
-        end_time[ppm_index] = IC7BUF;
         
         //take into account for timer overflow
         if (end_time[ppm_index] > start_time[ppm_index]){
@@ -227,7 +237,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC7Interrupt(void)
             ppm_index = 0; 
         } else {
             capture_value[ppm_index] = time_diff;
-            ppm_index = (ppm_index + 1) % PPM_CHANNELS; //make sure we don't overflow
+            ppm_index = (ppm_index + 1) % (PPM_CHANNELS + 1); //make sure we don't overflow
         }
         ppm_last_capture_time = getTime(); //for detecting disconnect
     }
