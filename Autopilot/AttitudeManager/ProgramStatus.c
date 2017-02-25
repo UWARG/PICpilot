@@ -6,7 +6,7 @@
  */
 #include "main.h"
 #include "ProgramStatus.h"
-#include "../Common/debug.h"
+#include "../Common/Utilities/Logger.h"
 
 char sensorState[NUM_SENSORS];
 int programState;

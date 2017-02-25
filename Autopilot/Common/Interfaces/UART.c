@@ -18,22 +18,18 @@
  */
 #define BRGVAL(bd) (((CLOCK_FREQUENCY/bd)/16)-1)
 
-#define INTERFACE_DISABLED 0
-#define INTERFACE_ENABLED 1
-#define INTERFACE_INITIALIZED 2
-
-static char uart1_status = INTERFACE_UART1_ENABLED;
-static char uart2_status = INTERFACE_UART2_ENABLED;
+static char uart1_initialized = 0;
+static char uart2_initialized = 0;
 
 static ByteQueue uart1_rx_queue;
 static ByteQueue uart1_tx_queue;
 static ByteQueue uart2_rx_queue;
 static ByteQueue uart2_tx_queue;
 
-void initUART(unsigned char interface, unsigned long int baudrate)
+void initUART(unsigned char interface, unsigned long int baudrate, unsigned int initial_size)
 {
     //we don't initialize twice or don't initialize if the interface is disabled
-    if (interface == 1 && uart1_status == INTERFACE_ENABLED) {
+    if (interface == 1) {
         U1MODEbits.UARTEN = 0; //Disable UART while we're configuring it
         U1MODEbits.USIDL = 0; //Keep interface on in idle mode
         U1MODEbits.IREN = 0; //No IR translation
@@ -80,10 +76,11 @@ void initUART(unsigned char interface, unsigned long int baudrate)
 
         U1MODEbits.UARTEN = 1; // And turn the peripheral on
         U1STAbits.UTXEN = 1; //enable transmit operations
-
-        initBQueue(&uart1_rx_queue, INITIAL_UART1_RX_BUFFER_SIZE);
-        initBQueue(&uart1_tx_queue, INITIAL_UART1_TX_BUFFER_SIZE);
-    } else if (interface == 2 && uart2_status == INTERFACE_ENABLED) {
+        
+        initBQueue(&uart1_rx_queue, initial_size);
+        initBQueue(&uart1_tx_queue, initial_size);
+        uart1_initialized = 1;
+    } else if (interface == 2) {
         U2MODEbits.UARTEN = 0; //Disable UART while we're configuring it
         U2MODEbits.USIDL = 0; //Keep interface on in idle mode
         U2MODEbits.IREN = 0; //No IR translation
@@ -130,36 +127,43 @@ void initUART(unsigned char interface, unsigned long int baudrate)
         U2MODEbits.UARTEN = 1; // And turn the peripheral on
         U2STAbits.UTXEN = 1; //enable transmit operations
 
-        initBQueue(&uart2_rx_queue, INITIAL_UART2_RX_BUFFER_SIZE);
-        initBQueue(&uart2_tx_queue, INITIAL_UART2_TX_BUFFER_SIZE);
+        initBQueue(&uart2_rx_queue, initial_size);
+        initBQueue(&uart2_tx_queue, initial_size);
+        uart2_initialized = 1;
     }
 }
 
 void quoueTXData(unsigned char interface, unsigned char* data, unsigned int data_length)
 {
     unsigned int i;
-    if (interface == 1 && uart1_status == INTERFACE_INITIALIZED) {
+    if (interface == 1 && uart1_initialized == 1) {
         for (i = 0; i < data_length; i++) {
             pushBQueue(&uart1_tx_queue, data[i]);
         }
-    } else if (interface == 2 && uart2_status == INTERFACE_INITIALIZED) {
+        
+        if (U2STAbits.TRMT){ //if the transmit buffer is empty and register (no sending)
+            U2TXREG = popBQueue(&uart1_tx_queue); //trigger a send
+        }  
+    } else if (interface == 2 && uart2_initialized == 1) {
         for (i = 0; i < data_length; i++) {
             pushBQueue(&uart2_tx_queue, data[i]);
         }
+        
+        if (U1STAbits.TRMT){ //if the transmit buffer is empty and register (no sending)
+            U1TXREG = popBQueue(&uart2_tx_queue); //trigger a send
+        } 
     }
 }
 
 unsigned char readRXData(unsigned char interface)
 {
-    if (interface == 1 && uart1_status == INTERFACE_INITIALIZED) {
+    if (interface == 1) {
         return popBQueue(&uart1_rx_queue);
-    } else if (interface == 2 && uart2_status == INTERFACE_INITIALIZED) {
+    } else if (interface == 2) {
         return popBQueue(&uart2_rx_queue);
     }
     return -1;
 }
-
-#if INTERFACE_UART2_ENABLED
 
 /**
  * Interrupt called whenever the TX buffer becomes empty
@@ -183,9 +187,6 @@ void __attribute__((__interrupt__, no_auto_psv)) _U2RXInterrupt(void)
         pushBQueue(&uart2_rx_queue, U2RXREG);
     }
 }
-#endif
-
-#if INTERFACE_UART1_ENABLED
 
 /**
  * Interrupt called whenever the TX buffer becomes empty
@@ -206,4 +207,3 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void)
         pushBQueue(&uart1_rx_queue, U1RXREG);
     }
 }
-#endif
