@@ -10,9 +10,9 @@ mkdir -p coverage
 #lcov --directory build/gcov/out --zerocounters
 
 # Capturing the current coverage state to a file
-lcov --directory ./build/gcov/out --capture --output-file coverage/app.info
+lcov --directory ./build/gcov/out --capture --output-file ./coverage/app.info
 
 # generate the html output
-genhtml coverage/app.info
+genhtml ./coverage/app.info -o ./coverage
 
 
