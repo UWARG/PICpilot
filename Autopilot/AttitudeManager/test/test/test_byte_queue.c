@@ -7,7 +7,7 @@
 #include <stdlib.h>
  
 //-- module being tested
-#include "../../Utilities/ByteQueue.h"
+#include "../../../Common/Utilities/ByteQueue.h"
  
 /*******************************************************************************
  *    DEFINITIONS
