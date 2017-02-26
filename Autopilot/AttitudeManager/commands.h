@@ -80,7 +80,8 @@
 #define SET_KPVALUES 134
 #define SET_KIVALUES 135
 #define UPDATE_WAYPOINT 136
-#define SET_GAINS 137
+#define SET_GAINS 137	
+#define TRIGGER_CAMERA_PROBE_DROP 138 
 
 //Multipart Command Structs
 

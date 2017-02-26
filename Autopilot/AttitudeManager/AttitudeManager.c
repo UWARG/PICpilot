@@ -922,6 +922,14 @@ void readDatalink(void){
                 setGains(*channel,((float*)(&cmd->data)) + 1);
                 break;
             }
+            case TRIGGER_CAMERA_PROBE_DROP:
+            {
+				dropProbe(*(char*)(&cmd->data));
+				triggerCamera ( 1 ); 
+				break;
+			}	
+}
+
             default:
                 break;
         }
@@ -1174,9 +1182,3 @@ void setAccelVariance(float variance){
     VN100_SPI_SetFiltMeasVar(0, (float*)&previousVariance);
     VN100_SPI_WriteSettings(0);
 }
-
-void pictureProbe ( command * cmd ){
-	dropProbe(*(char*)(&cmd->data));
-	triggerCamera ( cmd -> data ); 
-}
-
