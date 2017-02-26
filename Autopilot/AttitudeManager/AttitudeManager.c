@@ -1174,3 +1174,9 @@ void setAccelVariance(float variance){
     VN100_SPI_SetFiltMeasVar(0, (float*)&previousVariance);
     VN100_SPI_WriteSettings(0);
 }
+
+void pictureProbe ( command * cmd ){
+	dropProbe(*(char*)(&cmd->data));
+	triggerCamera ( cmd -> data ); 
+}
+
