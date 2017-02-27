@@ -41,8 +41,8 @@
  * Note that these will be used as the default/initial values, however the actual scaling values
  * can be set by the ground station
  */
-#define UPPER_PWM 1284
-#define LOWER_PWM 642
+#define UPPER_PWM 1250
+#define LOWER_PWM 625
 
 /**
  * The middle of the PWM range of the RC controller. This is used as the initial

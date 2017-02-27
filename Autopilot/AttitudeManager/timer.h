@@ -12,12 +12,12 @@
 /**
  * Number of Timer2 ticks in a millisecond. To calculate this, take:
  * 1/(frequencyCPU/Timer2PreScaler)*TICKS_TO_MSEC should equal close to 0.001 or 1 ms
- * In this case, (1/(41Mhz/64))*642 == ~1ms
+ * In this case, (1/(40 MHz/64))*625 == 1 ms
  * 
  * This value is used to accurately define the timer2 period (used for output pwm
  * frequency
  */
-#define T2_TICKS_TO_MSEC 642
+#define T2_TICKS_TO_MSEC 625
 
 /**
  * Timer2 Period in ms. When the period is reached, the timer is reset. 
