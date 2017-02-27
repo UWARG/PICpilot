@@ -17,7 +17,7 @@
  * only do 8 with PWM enabled. Otherwise
  */
 #if USE_PPM
-static unsigned int edge_time[PPM_CHANNELS + 1];
+static unsigned int last_edge;
 #else
 static unsigned int start_time[8];
 static unsigned int end_time[8];
@@ -119,14 +119,13 @@ void initIC(unsigned char initIC)
     IC7CONbits.ICTMR = 1; // Select Timer2 as the IC1 Time base
 
     // Generate capture event on every Rising (regular PPM) or Falling (inverted) edge
-    IC7CONbits.ICI = 0 // Interrupt on every capture
+    IC7CONbits.ICI = 0; // Interrupt on every capture
     IC7CONbits.ICM = 0b010 + !PPM_INVERTED; // 0b010 = Falling, 0b011 = Rising
 
-    
     // Enable Capture Interrupt And Timer2
-    IPC0bits.IC7IP = 7; // Setup IC1 interrupt priority level - Highest
-    IFS0bits.IC7IF = 0; // Clear IC1 Interrupt Status Flag
-    IEC0bits.IC7IE = 1; // Enable IC1 interrupt
+    IPC5bits.IC7IP = 7; // Setup IC1 interrupt priority level - Highest
+    IFS1bits.IC7IF = 0; // Clear IC1 Interrupt Status Flag
+    IEC1bits.IC7IE = 1; // Enable IC1 interrupt
 
     ppm_index = 0;
 #else
@@ -221,26 +220,28 @@ void initIC(unsigned char initIC)
 */
 void __attribute__((__interrupt__, no_auto_psv)) _IC7Interrupt(void)
 {
-    static unsigned int time_diff;
+    unsigned int this_edge = IC7BUF;
+    unsigned int time_diff;
     
-    if (PORTDbits.RD14 == !PPM_INVERTED) { //If PPM inverted, check for fall (0). Otherwise check for rise (1)
-        start_time[ppm_index] = IC7BUF;
-        
-        //take into account for timer overflow
-        if (end_time[ppm_index] > start_time[ppm_index]){
-            time_diff = end_time[ppm_index] - start_time[ppm_index];   
-        } else{
-            time_diff = (PR2 - start_time[ppm_index]) + end_time[ppm_index];
-        }
-        
-        if (time_diff >= PPM_SYNC_TICKS){ //if we just captured a sync pulse
-            ppm_index = 0; 
-        } else {
-            capture_value[ppm_index] = time_diff;
-            ppm_index = (ppm_index + 1) % (PPM_CHANNELS + 1); //make sure we don't overflow
-        }
-        ppm_last_capture_time = getTime(); //for detecting disconnect
+    // Check for timer overflow
+    if (this_edge > last_edge) {
+        time_diff = this_edge - last_edge;
+    } else {
+        time_diff = (PR2 - last_edge) + this_edge;
     }
+    
+    if (time_diff >= PPM_SYNC_TICKS){ //if we just captured a sync pulse
+        ppm_index = 0; 
+    } else {
+        if (ppm_index != 0) {
+            capture_value[ppm_index - 1] = time_diff;
+        }
+        ppm_index = (ppm_index + 1) % (PPM_CHANNELS + 1); //make sure we don't overflow
+    }
+    
+    last_edge = this_edge;
+    
+    ppm_last_capture_time = getTime(); //for detecting disconnect
 
     /**
      * Clear the input compare buffer to avoid any issues when hot swapping PWM cables.
