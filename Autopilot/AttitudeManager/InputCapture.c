@@ -229,13 +229,13 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC7Interrupt(void)
     } else {
         time_diff = (PR2 - last_edge) + this_edge;
     }
-    if (time_diff >= PPM_SYNC_TICKS){ //if we just captured a sync pulse
+    if (time_diff >= PPM_SYNC_TICKS){ //if we just captured the first edge of a new frame
         ppm_index = 0; 
     } else {
-        if (ppm_index != 0) { // the first edge doesn't give us any data
-            capture_value[ppm_index - 1] = time_diff;
-        }
         ppm_index = (ppm_index + 1) % (PPM_CHANNELS + 1); // index should reset, but just in case
+    }
+    if (ppm_index != 0) { // the first edge doesn't give us any data
+        capture_value[ppm_index - 1] = time_diff;
     }
     
     last_edge = this_edge;
