@@ -385,12 +385,6 @@ void setHeadingSetpoint(int setpoint){
 void inputCapture(){
     int* channelIn;
     channelIn = getPWMArray(getTime());
-
-#if DEBUG    
-    char debStr[32];
-    sprintf(debStr, "%d, %d, %d, %d", channelIn[0], channelIn[1], channelIn[2], channelIn[3]);
-    debug(debStr);
-#endif
     
     inputMixing(channelIn, &input_RC_RollRate, &input_RC_PitchRate, &input_RC_Throttle, &input_RC_YawRate);
     
