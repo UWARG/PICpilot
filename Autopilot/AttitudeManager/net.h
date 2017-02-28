@@ -15,16 +15,16 @@ extern "C" {
 #endif
 
 /** Time in miliseconds for how often a P0(high priority) packet gets sent down. Default=300 **/
-#define P0_SEND_FREQUENCY 300 
+#define P0_SEND_FREQUENCY 200 
 
 /** Time in miliseconds for how often a P1(medium priority) packet gets sent down. Default=1000 **/
-#define P1_SEND_FREQUENCY 1000
+#define P1_SEND_FREQUENCY 800
 
 /** Time in miliseconds for how often a P2(low priority) packet gets sent down. Default=20000 **/
-#define P2_SEND_FREQUENCY 20000
+#define P2_SEND_FREQUENCY 5000
 
 /** Time in miliseconds for how often to check for new messages from the uplink. Default=100 **/
-#define UPLINK_CHECK_FREQUENCY 100
+#define UPLINK_CHECK_FREQUENCY 75
 
 #define BLOCKING_MODE 0
 
