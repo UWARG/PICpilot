@@ -26,7 +26,7 @@ static ByteQueue uart1_tx_queue;
 static ByteQueue uart2_rx_queue;
 static ByteQueue uart2_tx_queue;
 
-void initUART(unsigned char interface, unsigned long int baudrate, unsigned int initial_size)
+void initUART(unsigned char interface, unsigned long int baudrate, unsigned int initial_buffer_size, unsigned int max_buffer_size)
 {
     //we don't initialize twice or don't initialize if the interface is disabled
     if (interface == 1) {
@@ -77,8 +77,8 @@ void initUART(unsigned char interface, unsigned long int baudrate, unsigned int 
         U1MODEbits.UARTEN = 1; // And turn the peripheral on
         U1STAbits.UTXEN = 1; //enable transmit operations
         
-        initBQueue(&uart1_rx_queue, initial_size);
-        initBQueue(&uart1_tx_queue, initial_size);
+        initBQueue(&uart1_rx_queue, initial_buffer_size, max_buffer_size);
+        initBQueue(&uart1_tx_queue, initial_buffer_size, max_buffer_size);
         uart1_initialized = 1;
     } else if (interface == 2) {
         U2MODEbits.UARTEN = 0; //Disable UART while we're configuring it
@@ -127,8 +127,8 @@ void initUART(unsigned char interface, unsigned long int baudrate, unsigned int 
         U2MODEbits.UARTEN = 1; // And turn the peripheral on
         U2STAbits.UTXEN = 1; //enable transmit operations
 
-        initBQueue(&uart2_rx_queue, initial_size);
-        initBQueue(&uart2_tx_queue, initial_size);
+        initBQueue(&uart2_rx_queue, initial_buffer_size, max_buffer_size);
+        initBQueue(&uart2_tx_queue, initial_buffer_size, max_buffer_size);
         uart2_initialized = 1;
     }
 }
@@ -141,16 +141,16 @@ void quoueTXData(unsigned char interface, unsigned char* data, unsigned int data
             pushBQueue(&uart1_tx_queue, data[i]);
         }
         
-        if (U2STAbits.TRMT){ //if the transmit buffer is empty and register (no sending)
-            U2TXREG = popBQueue(&uart1_tx_queue); //trigger a send
+        if (U1STAbits.TRMT){ //if the transmit buffer is empty and register (no sending)
+            U1TXREG = popBQueue(&uart1_tx_queue); //trigger a send
         }  
     } else if (interface == 2 && uart2_initialized == 1) {
         for (i = 0; i < data_length; i++) {
             pushBQueue(&uart2_tx_queue, data[i]);
         }
         
-        if (U1STAbits.TRMT){ //if the transmit buffer is empty and register (no sending)
-            U1TXREG = popBQueue(&uart2_tx_queue); //trigger a send
+        if (U2STAbits.TRMT){ //if the transmit buffer is empty and register (no sending)
+            U2TXREG = popBQueue(&uart2_tx_queue); //trigger a send
         } 
     }
 }
