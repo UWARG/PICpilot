@@ -25,7 +25,7 @@
  * How long to make the string buffer. This should be the maximum length of the string
  * that can be logged, in bytes
  */
-#define LOGGER_BUFFER_LENGTH 50
+#define LOGGER_BUFFER_LENGTH 100
 
 /**
  * Label prefixes to inject for each type of message

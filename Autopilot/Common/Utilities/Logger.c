@@ -12,7 +12,7 @@
 static char logger_initialized = 0;
 
 void initLogger(void){
-    initUART(LOGGER_UART_INTERFACE, LOGGER_UART_BAUD_RATE,LOGGER_BUFFER_LENGTH);
+    initUART(LOGGER_UART_INTERFACE,LOGGER_UART_BAUD_RATE,LOGGER_BUFFER_LENGTH, LOGGER_BUFFER_LENGTH*2);
     logger_initialized = 1;
 }
 
@@ -28,7 +28,7 @@ static void writeMessage(char* message, char* label, unsigned int label_length){
     
     //add the message
     quoueTXData(LOGGER_UART_INTERFACE, (unsigned char*)message, length);
-    quoueTXData(LOGGER_UART_INTERFACE, (unsigned char*)"\r\0", 2);
+    quoueTXData(LOGGER_UART_INTERFACE, (unsigned char*)"\r\n\0", 3);
 }
 
 void error(char* message){
