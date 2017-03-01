@@ -25,9 +25,10 @@
  * at the specified baud rate.
  * @param interface Which interface to initialize (1 or 2?)
  * @param baudrate Baudrate to operate at for this interface
- * @param initial_size Initial sizes of the RX and TX buffers
+ * @param initial_buffer_size Initial sizes of the RX and TX buffers
+ * @param max_buffer_size Max size of the RX and TX buffers
  */
-void initUART(unsigned char interface, unsigned long int baudrate, unsigned int initial_size);
+void initUART(unsigned char interface, unsigned long int baudrate, unsigned int initial_buffer_size, unsigned int max_buffer_size);
 
 /**
  * Read a byte from the uart RX buffer

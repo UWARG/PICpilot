@@ -14,6 +14,8 @@
  ******************************************************************************/
 #define QUEUE_SIZE 10
 
+#define QUEUE_MAX_SIZE 100
+
 /*******************************************************************************
  *    PRIVATE TYPES
  ******************************************************************************/
@@ -35,7 +37,7 @@
 
 void setUp(void)
 {
-    initBQueue(&bqueue, QUEUE_SIZE);
+    initBQueue(&bqueue, QUEUE_SIZE, QUEUE_MAX_SIZE);
 }
  
 void tearDown(void)
@@ -52,15 +54,22 @@ void test_bQueueInitialSizeZero(void)
     TEST_ASSERT_EQUAL_INT(0 ,bqueue.size);
 }
 
-void test_bQueueMaxSizeEqualToInitialSize(void)
+void test_bQueueMaxSizeAndTotalSizeShouldBeSetCorrectly(void)
 {
-    TEST_ASSERT_EQUAL_INT(QUEUE_SIZE ,bqueue._max_size);
+    TEST_ASSERT_EQUAL_INT(QUEUE_SIZE ,bqueue._total_size);
+    TEST_ASSERT_EQUAL_INT(QUEUE_MAX_SIZE ,bqueue._max_size);
 }
 
 void test_bQueuePushIncreasesSize(void)
 {
     pushBQueue(&bqueue, 'a');
     TEST_ASSERT_EQUAL_INT(1 ,bqueue.size);
+}
+
+void test_bQueueSuccessfulPushReturnsTrue(void)
+{
+    unsigned char status = pushBQueue(&bqueue, 'a');
+    TEST_ASSERT_EQUAL_INT(1 ,status);
 }
 
 void test_bQueuePushPop(void)
@@ -103,7 +112,7 @@ void test_bQueueEmptyPop(void){
 
 void test_bQueueEndQueuePushPop(void){
     deleteBQueue(&bqueue);
-    initBQueue(&bqueue, 4);
+    initBQueue(&bqueue, 4, QUEUE_MAX_SIZE);
     pushBQueue(&bqueue, 'a');
     pushBQueue(&bqueue, 'a');
     pushBQueue(&bqueue, 'a');
@@ -137,32 +146,22 @@ void test_bQueueSizeDouble(void){
         array[i] = i + 64;
     }
     TEST_ASSERT_EQUAL_INT(QUEUE_SIZE + 1 ,bqueue.size);
-    TEST_ASSERT_EQUAL_INT(QUEUE_SIZE*2 ,bqueue._max_size);
+    TEST_ASSERT_EQUAL_INT(QUEUE_SIZE*2 ,bqueue._total_size);
     TEST_ASSERT_EQUAL_UINT8_ARRAY(bqueue._data,array , QUEUE_SIZE + 1);
 }
 
-void test_bQueuePopAllQueue(void){
-    //do a few push pops so that the start index is non-zero
-    pushBQueue(&bqueue, 'a');
-    pushBQueue(&bqueue, 'a');
-    pushBQueue(&bqueue, 'a');
-    pushBQueue(&bqueue, 'a');
-    popBQueue(&bqueue);
-    popBQueue(&bqueue);
-    popBQueue(&bqueue);
-    popBQueue(&bqueue);
-    
+void test_bQueueShouldNotDoublePastMaxSize(void){
+    deleteBQueue(&bqueue);
+    initBQueue(&bqueue, 4, 5);
     int i;
-    unsigned char* to_copy = malloc(QUEUE_SIZE);
-    unsigned char* expected = malloc(QUEUE_SIZE);
-    //have the queue go full
-    for (i = 0; i< QUEUE_SIZE; i++){
-        pushBQueue(&bqueue, i + 64);
-        expected[i] = i + 64;
+    unsigned char* array = malloc(5);
+    unsigned char last_status_value = 1;
+    for (i = 0; i< 5; i++){
+        last_status_value = pushBQueue(&bqueue, i + 64);
+        array[i] = i + 64;
     }
-    
-    popAllBQueue(&bqueue, to_copy);
-    TEST_ASSERT_EQUAL_INT(0 ,bqueue.size); //size should be 0
-    TEST_ASSERT_EQUAL_UINT8_ARRAY(expected,to_copy , QUEUE_SIZE);
+    TEST_ASSERT_EQUAL_INT(4 ,bqueue.size);
+    TEST_ASSERT_EQUAL_INT(4 ,bqueue._total_size);
+    TEST_ASSERT_EQUAL_INT(0 ,last_status_value);
 }
 

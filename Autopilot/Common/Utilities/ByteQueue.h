@@ -24,7 +24,8 @@
 typedef volatile struct _ByteQueue {
     unsigned char * _data;
     unsigned int size; //current size of the queue. Can be accessed directly for convenience
-    unsigned int _max_size; //max size of the queue
+    unsigned int _total_size; //current total size of the queue
+    unsigned int _max_size; //max size of the queue. It cannot be resized to anything larger than this value
     unsigned int _start_index;
 } ByteQueue;
 
@@ -33,7 +34,7 @@ typedef volatile struct _ByteQueue {
  * exceeded, the queue will try to double in size. It will never shrink in size
  * @param queue
  */
-void initBQueue(ByteQueue* queue, unsigned int initial_size);
+void initBQueue(ByteQueue* queue, unsigned int initial_size, unsigned int max_size);
 
 /**
  * Pop an element from the queue. This will decrease the queue size by 1.Make sure
@@ -45,22 +46,13 @@ void initBQueue(ByteQueue* queue, unsigned int initial_size);
 unsigned char popBQueue(ByteQueue* queue);
 
 /**
- * Pops all the elements in the queue and copies them into a provided array. Make
- * sure this array is at least the size of the queue, otherwise you'll get data
- * corruption. This method is useful if you want to read the entire queue all at once,
- * which will avoid the overhead of a function call
- * @param queue
- * @param array Byte array that is at least the size of the queue
- */
-void popAllBQueue(ByteQueue* queue, unsigned char* array);
-
-/**
  * Push/add a byte onto the end of the queue. If the size of the queue is exceeded
  * by this operation, the size of the queue will double
  * @param queue
  * @param byte The byte to add to the queue
+ * @return 1 if successfully pushed to queue, 0 otherwise. Will fail if queue is full and can't be resized
  */
-void pushBQueue(ByteQueue* queue, unsigned char byte);
+unsigned char pushBQueue(ByteQueue* queue, unsigned char byte);
 
 /**
  * Cleans up the byte queue (deallocated its data correctly). If you want to reuse
