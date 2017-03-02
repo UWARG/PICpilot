@@ -60,7 +60,7 @@ static unsigned char ppm_index;
 
 unsigned int* getICValues(unsigned long int sys_time)
 {
-    
+
 #if USE_PPM
     /**
      * The actual calculation of comparison values is already done in the ISR
@@ -215,14 +215,14 @@ void initIC(unsigned char initIC)
 /**
 * PPM Interrupt Service routine for Channel 7 for when PPM is enabled. Will trigger
 * on rising or falling edge on channel 7 (depending on PPM_INVERTED). Calculates the time 
-* between the last edge time and the current edge to determine if a PPM sync occurred, 
+* between the last edge time and the current edge to determine if a PPM sync occurred,
 * used to keep track of the positions of the channels.
 */
 void __attribute__((__interrupt__, no_auto_psv)) _IC7Interrupt(void)
 {
     unsigned int this_edge = IC7BUF;
     unsigned int time_diff;
-    
+
     // Check for timer overflow
     if (this_edge > last_edge) {
         time_diff = this_edge - last_edge;
@@ -230,16 +230,16 @@ void __attribute__((__interrupt__, no_auto_psv)) _IC7Interrupt(void)
         time_diff = (PR2 - last_edge) + this_edge;
     }
     if (time_diff >= PPM_SYNC_TICKS){ //if we just captured the first edge of a new frame
-        ppm_index = 0; 
+        ppm_index = 0;
     } else {
         ppm_index = (ppm_index + 1) % (PPM_CHANNELS + 1); // index should reset, but just in case
     }
     if (ppm_index != 0) { // the first edge doesn't give us any data
         capture_value[ppm_index - 1] = time_diff;
     }
-    
+
     last_edge = this_edge;
-    
+
     ppm_last_capture_time = getTime(); //for detecting disconnect
 
     /**

@@ -59,10 +59,10 @@ int* getPWMArray(unsigned long int sys_time)
     unsigned char channel_enabled;
     unsigned int* ic_values = getICValues(sys_time);
     int channel = 0;
-    
+
     for (channel = 0; channel < NUM_CHANNELS; channel++) {
         channel_enabled = enabled_input_channels & (1 << channel);
-        
+
         if(!channel_enabled){ //if the channel is disabled
             pwm_inputs[channel] = DISCONNECTED_PWM_VALUE;
         } else if (ic_values[channel] == 0 && channel_enabled) { //if the channel is enabled but disconnected
