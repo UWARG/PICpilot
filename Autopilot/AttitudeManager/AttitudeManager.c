@@ -39,10 +39,6 @@ int sp_FlapRate = MIN_PWM;
 int sp_YawRate = 0;
 int sp_RollRate = 0;
 
-int tail_OutputR;   //what the rudder used to be
-int tail_OutputL;
-
-
 int sp_ComputedPitchRate = 0;
 //int sp_ComputedThrottleRate = 0;
 int sp_ComputedRollRate = 0;
@@ -393,6 +389,7 @@ void inputCapture(){
         input_RC_Flap = channelIn[FLAP_IN_CHANNEL - 1];
     }
 #endif
+    
     // Switches and Knobs
 //        sp_Type = channelIn[5];
 //        sp_Value = channelIn[6];
@@ -546,13 +543,13 @@ void imuCommunication(){
     //TODO: This is a reminder for me to figure out a more elegant way to fix improper derivative control (based on configuration of the sensor), adding this negative is a temporary fix. Some kind of calibration command or something.
     //DO NOT ADD NEGATIVES IN THE STATEMENTS BELOW. IT IS A GOOD WAY TO ROYALLY SCREW YOURSELF OVER LATER.
     //Outputs in order: Roll,Pitch,Yaw
-    imu_RollRate = (imuData[IMU_ROLL_RATE]);
+    imu_RollRate = imuData[IMU_ROLL_RATE];
     imu_PitchRate = imuData[IMU_PITCH_RATE];
     imu_YawRate = imuData[IMU_YAW_RATE];
     VN100_SPI_GetYPR(0, &imuData[YAW], &imuData[PITCH], &imuData[ROLL]);
     imu_YawAngle = imuData[YAW];
     imu_PitchAngle = imuData[PITCH];
-    imu_RollAngle = (imuData[ROLL]);
+    imu_RollAngle = imuData[ROLL];
 #if DEBUG
     // Rate - Radians, Angle - Degrees
 //    char x[30];
