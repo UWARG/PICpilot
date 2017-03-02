@@ -542,14 +542,13 @@ void imuCommunication(){
 
     //TODO: This is a reminder for me to figure out a more elegant way to fix improper derivative control (based on configuration of the sensor), adding this negative is a temporary fix. Some kind of calibration command or something.
     //DO NOT ADD NEGATIVES IN THE STATEMENTS BELOW. IT IS A GOOD WAY TO ROYALLY SCREW YOURSELF OVER LATER.
-    //Outputs in order: Roll,Pitch,Yaw
+    //Outputs in order: Roll,Pitch,Yaw      <--  TODO: not certain this is correct - investigate (Ian Frosst, March 2017)
     imu_RollRate = imuData[IMU_ROLL_RATE];
     imu_PitchRate = imuData[IMU_PITCH_RATE];
     imu_YawRate = imuData[IMU_YAW_RATE];
-    VN100_SPI_GetYPR(0, &imuData[YAW], &imuData[PITCH], &imuData[ROLL]);
-    imu_YawAngle = imuData[YAW];
-    imu_PitchAngle = imuData[PITCH];
-    imu_RollAngle = imuData[ROLL];
+    
+    VN100_SPI_GetYPR(0, &imu_YawAngle, &imu_PitchAngle, &imu_RollAngle);
+
 #if DEBUG
     // Rate - Radians, Angle - Degrees
 //    char x[30];
