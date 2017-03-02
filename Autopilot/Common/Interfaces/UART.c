@@ -70,9 +70,9 @@ void initUART(unsigned char interface, unsigned long int baudrate, unsigned int 
         IPC2 |= (0b100 << 12);
 
         IFS0bits.U1TXIF = 0; // Clear the Transmit Interrupt Flag
-        IEC0bits.U1TXIE = 0; // Enable Transmit Interrupts
+        IEC0bits.U1TXIE = 1; // Enable Transmit Interrupts
         IFS0bits.U1RXIF = 0; // Clear the receive Interrupt Flag
-        IEC0bits.U1RXIE = 0; // Enable receive Interrupts
+        IEC0bits.U1RXIE = 1; // Enable receive Interrupts
 
         U1MODEbits.UARTEN = 1; // And turn the peripheral on
         U1STAbits.UTXEN = 1; //enable transmit operations
@@ -120,9 +120,9 @@ void initUART(unsigned char interface, unsigned long int baudrate, unsigned int 
         IPC7 |= (0b100 << 8);
 
         IFS1bits.U2TXIF = 0; // Clear the Transmit Interrupt Flag
-        IEC1bits.U2TXIE = 0; // Enable Transmit Interrupts
+        IEC1bits.U2TXIE = 1; // Enable Transmit Interrupts
         IFS1bits.U2RXIF = 0; // Clear the receive Interrupt Flag
-        IEC1bits.U2RXIE = 0; // Enable receive Interrupts
+        IEC1bits.U2RXIE = 1; // Enable receive Interrupts
 
         U2MODEbits.UARTEN = 1; // And turn the peripheral on
         U2STAbits.UTXEN = 1; //enable transmit operations
@@ -161,6 +161,15 @@ unsigned char readRXData(unsigned char interface)
         return popBQueue(&uart1_rx_queue);
     } else if (interface == 2) {
         return popBQueue(&uart2_rx_queue);
+    }
+    return -1;
+}
+
+unsigned int getTXSpace(unsigned char interface){
+    if (interface == 1) {
+        return getBQueueSpace(&uart1_tx_queue);
+    } else if (interface == 2) {
+        return getBQueueSpace(&uart2_tx_queue);
     }
     return -1;
 }
