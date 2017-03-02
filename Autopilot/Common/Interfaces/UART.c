@@ -189,25 +189,25 @@ unsigned int getTXSpace(unsigned char interface){
 /**
  * Interrupt called whenever the TX buffer becomes empty
  */
-void __attribute__((__interrupt__, no_auto_psv)) _U2TXInterrupt(void)
-{
-    //while the TX buffer isn't full and we have data to send 
-    while (!U2STAbits.UTXBF && getBQueueSize(&uart2_tx_queue) != 0) {
-        U2TXREG = popBQueue(&uart2_tx_queue);
-    }
-    IFS1bits.U2TXIF = 0;
-}
+//void __attribute__((__interrupt__, no_auto_psv)) _U2TXInterrupt(void)
+//{
+//    //while the TX buffer isn't full and we have data to send 
+//    while (!U2STAbits.UTXBF && getBQueueSize(&uart2_tx_queue) != 0) {
+//        U2TXREG = popBQueue(&uart2_tx_queue);
+//    }
+//    IFS1bits.U2TXIF = 0;
+//}
 
 /**
  * Interrupt called when there is at least 1 character available to read from the rx buffer
  */
-void __attribute__((__interrupt__, no_auto_psv)) _U2RXInterrupt(void)
-{
-    //while the rx buffer has characters available to read
-    while (U2STAbits.URXDA) {
-        pushBQueue(&uart2_rx_queue, U2RXREG);
-    }
-}
+//void __attribute__((__interrupt__, no_auto_psv)) _U2RXInterrupt(void)
+//{
+//    //while the rx buffer has characters available to read
+//    while (U2STAbits.URXDA) {
+//        pushBQueue(&uart2_rx_queue, U2RXREG);
+//    }
+//}
 
 /**
  * Interrupt called whenever the TX buffer becomes empty
