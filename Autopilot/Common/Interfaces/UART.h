@@ -12,13 +12,11 @@
 #define	UART_H
 
 /**
- * Initial sizes of the uart 1 and 2 tx and rx buffers in bytes. Note initial
- * as the buffer will resize if necessary
+ * Status codes for whether to only enable TX, RX, or both on the specified interface
  */
-#define INITIAL_UART1_TX_BUFFER_SIZE 100
-#define INITIAL_UART1_RX_BUFFER_SIZE 100
-#define INITIAL_UART2_TX_BUFFER_SIZE 100
-#define INITIAL_UART2_RX_BUFFER_SIZE 100
+#define UART_TX_ENABLE 0b01
+#define UART_RX_ENABLE 0b10
+#define UART_TX_RX_ENABLE 0b11
 
 /**
  * Will initialize the specified UART interface for both RX and TX transmissions
@@ -27,8 +25,9 @@
  * @param baudrate Baudrate to operate at for this interface
  * @param initial_buffer_size Initial sizes of the RX and TX buffers
  * @param max_buffer_size Max size of the RX and TX buffers
+ * @param tx_rx specifies to turn on either TX only, RX only, or BOTH. See status codes above
  */
-void initUART(unsigned char interface, unsigned long int baudrate, unsigned int initial_buffer_size, unsigned int max_buffer_size);
+void initUART(unsigned char interface, unsigned long int baudrate, unsigned int initial_buffer_size, unsigned int max_buffer_size, unsigned char tx_rx);
 
 /**
  * Read a byte from the uart RX buffer
