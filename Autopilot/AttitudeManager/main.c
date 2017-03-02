@@ -52,12 +52,7 @@ int main(int argc, char** argv) {
 #if DEBUG
     initLogger();
 #endif
-     initLogger();
-     
-     while(1){
-         debug("hello");
-     }
-     
+    
     checkErrorCodes();
     attitudeInit();
     
