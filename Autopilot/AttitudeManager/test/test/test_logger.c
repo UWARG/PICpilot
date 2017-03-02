@@ -58,11 +58,12 @@ void tearDown(void)
 
 void test_initLoggerShouldCallInitUART(void)
 {
-    initUART_Expect(LOGGER_UART_INTERFACE, LOGGER_UART_BAUD_RATE, LOGGER_BUFFER_LENGTH);
+    initUART_Expect(LOGGER_UART_INTERFACE, LOGGER_UART_BAUD_RATE, LOGGER_BUFFER_LENGTH, LOGGER_BUFFER_LENGTH*2);
     initLogger();
 }
 
 void test_debugShouldCallQueueUartWithCorrectMessage(void){
+    getTXSpace_ExpectAndReturn(LOGGER_UART_INTERFACE,100);
     quoueTXData_ExpectWithArray(LOGGER_UART_INTERFACE, (unsigned char*)DEBUG_TAG_STRING, DEBUG_TAG_STRING_LENGTH, DEBUG_TAG_STRING_LENGTH);
     quoueTXData_ExpectWithArray(LOGGER_UART_INTERFACE, (unsigned char*)"hello", 5, 5);
     quoueTXData_ExpectWithArray(LOGGER_UART_INTERFACE, (unsigned char*)"\r\n\0", 3, 3);
@@ -71,6 +72,7 @@ void test_debugShouldCallQueueUartWithCorrectMessage(void){
 }
 
 void test_warningShouldCallQueueUartWithCorrectMessage(void){
+    getTXSpace_ExpectAndReturn(LOGGER_UART_INTERFACE,100);
     quoueTXData_ExpectWithArray(LOGGER_UART_INTERFACE, (unsigned char*)WARNING_TAG_STRING, WARNING_TAG_STRING_LENGTH, WARNING_TAG_STRING_LENGTH);
     quoueTXData_ExpectWithArray(LOGGER_UART_INTERFACE, (unsigned char*)"hello", 5, 5);
     quoueTXData_ExpectWithArray(LOGGER_UART_INTERFACE, (unsigned char*)"\r\n\0", 3, 3);
@@ -79,6 +81,7 @@ void test_warningShouldCallQueueUartWithCorrectMessage(void){
 }
 
 void test_errorShouldCallQueueUartWithCorrectMessage(void){
+    getTXSpace_ExpectAndReturn(LOGGER_UART_INTERFACE,100);
     quoueTXData_ExpectWithArray(LOGGER_UART_INTERFACE, (unsigned char*)ERROR_TAG_STRING, ERROR_TAG_STRING_LENGTH,ERROR_TAG_STRING_LENGTH);
     quoueTXData_ExpectWithArray(LOGGER_UART_INTERFACE, (unsigned char*)"hello", 5, 5);
     quoueTXData_ExpectWithArray(LOGGER_UART_INTERFACE, (unsigned char*)"\r\n\0", 3, 3);
@@ -87,9 +90,16 @@ void test_errorShouldCallQueueUartWithCorrectMessage(void){
 }
 
 void test_writeMessageWithOneCharacterShouldCallQueueWithCorrectMessage(void){
+    getTXSpace_ExpectAndReturn(LOGGER_UART_INTERFACE,100);
     quoueTXData_ExpectWithArray(LOGGER_UART_INTERFACE, (unsigned char*)ERROR_TAG_STRING, ERROR_TAG_STRING_LENGTH,ERROR_TAG_STRING_LENGTH);
     quoueTXData_ExpectWithArray(LOGGER_UART_INTERFACE, (unsigned char*)"r", 1, 1);
-    quoueTXData_ExpectWithArray(LOGGER_UART_INTERFACE, (unsigned char*)"\r\n\0", 3, 3);
+    quoueTXData_ExpectWithArray(LOGGER_UART_INTERFACE, (unsigned char*)"\r\n\0", 3, 3); 
 
     error("r");
+}
+
+void test_writeMessageThatIsTooLongShouldNotQueueUART(void){
+    getTXSpace_ExpectAndReturn(LOGGER_UART_INTERFACE,1);
+
+    error("thishsouldnotprint");
 }

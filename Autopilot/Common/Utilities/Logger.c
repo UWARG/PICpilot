@@ -17,18 +17,19 @@ void initLogger(void){
 }
 
 static void writeMessage(char* message, char* label, unsigned int label_length){
-    //add the label
-    quoueTXData(LOGGER_UART_INTERFACE, (unsigned char*)label, label_length);
-    
     //find length of the message
     unsigned int length = 0;
     while (message[length] != '\0'){
         length++;
     }
     
-    //add the message
-    quoueTXData(LOGGER_UART_INTERFACE, (unsigned char*)message, length);
-    quoueTXData(LOGGER_UART_INTERFACE, (unsigned char*)"\r\n\0", 3);
+    //only send the uart data if theres enough space since we dont want to send over partial messages
+    if (getTXSpace(LOGGER_UART_INTERFACE) >= label_length + 3 + length){
+        //add the message
+        quoueTXData(LOGGER_UART_INTERFACE, (unsigned char*)label, label_length);
+        quoueTXData(LOGGER_UART_INTERFACE, (unsigned char*)message, length);
+        quoueTXData(LOGGER_UART_INTERFACE, (unsigned char*)"\r\n\0", 3);
+    }
 }
 
 void error(char* message){
