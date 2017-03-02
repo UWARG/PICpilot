@@ -25,6 +25,7 @@ typedef volatile struct _ByteQueue {
     unsigned char * _data;
     unsigned int size; //current size of the queue. Can be accessed directly for convenience
     unsigned int _total_size; //current total size of the queue
+    unsigned int _initial_size; //Used to make sure that shrink resizing doesn't go below this value
     unsigned int _max_size; //max size of the queue. It cannot be resized to anything larger than this value
     unsigned int _start_index;
 } ByteQueue;
@@ -53,6 +54,25 @@ unsigned char popBQueue(ByteQueue* queue);
  * @return 1 if successfully pushed to queue, 0 otherwise. Will fail if queue is full and can't be resized
  */
 unsigned char pushBQueue(ByteQueue* queue, unsigned char byte);
+
+/**
+ * This function returns the number of bytes that is guaranteed to be pushed to the queue.
+ * This is different from size, as it takes into account what the max size and current
+ * size of the queue is.
+ * 
+ * This is useful for functions where partial data sent isnt useful at all, such
+ * as loggers.  You can use this to check if all the data you want to enqueue can fit
+ * @param queue
+ * @return Bytes that can be guaranteed to be pushed to the queue
+ */
+unsigned int getBQueueSpace(ByteQueue* queue);
+
+/**
+ * Returns the current size of the byte queue (amount of data currently stored on there)
+ * @param queue
+ * @return size 
+ */
+unsigned int getBQueueSize(ByteQueue* queue);
 
 /**
  * Cleans up the byte queue (deallocated its data correctly). If you want to reuse
