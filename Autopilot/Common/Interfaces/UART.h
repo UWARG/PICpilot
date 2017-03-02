@@ -46,4 +46,14 @@ unsigned char readRXData(unsigned char interface);
  */
 void quoueTXData(unsigned char interface, unsigned char* data, unsigned int data_length);
 
+/**
+ * Get the number of bytes that are guaranteed to be succesfully queued to the TX buffer.
+ * This is useful if sending partial amounts of data is unacceptable. You can use
+ * this to cancel a UART send command if there's no pointing in sending the data (or poll
+ * until this is full enough)
+ * @param interface
+ * @return number of bytes that can be written
+ */
+unsigned int getTXSpace(unsigned char interface);
+
 #endif
