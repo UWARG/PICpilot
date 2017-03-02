@@ -18,14 +18,13 @@
 float kd_gain[7] = {3.5, 3.5, 3, 5, 0, 0, 0};
 float kp_gain[7] = {1, 1.6, 4.8, 2, 1.5, 1, 1};//{1, 0.5, 2.5, 1.5, 1.25, 0.05};
 float ki_gain[7]= {0, 0, 0, 0, 0, 0,0};
-//Interal Values
+//Internal Values
 float sum_gain[6] = {0, 0, 0, 0, 0, 0};
 long int lastControlTime[6] = {0, 0, 0, 0, 0, 0};
 //Derivative Values
 int lastError[6] = {0, 0, 0, 0, 0, 0}; //[0],[1],[2] are currently unused
 
 char integralFreeze = 0;
-char gainsUpdated = 0;
 
 int controlSignalThrottle(int setpoint, int output){
     int error = setpoint - output;
@@ -109,45 +108,4 @@ void setIntegralSum(unsigned char YPRH, float value) {
 }
 float getIntegralSum(unsigned char YPRH){
     return sum_gain[YPRH];
-}
-
-float getGain(unsigned char YPRH, unsigned char type){
-    if (type == GAIN_KD){
-        return kd_gain[YPRH];
-    }
-    else if (type == GAIN_KP){
-        return kp_gain[YPRH];
-    }
-    else if (type == GAIN_KI){
-        return ki_gain[YPRH];
-    }
-    else
-        return -1;
-}
-void setGain(unsigned char channel, unsigned char type, float value){
-    gainsUpdated = 1;
-    if (channel < GAIN_CHANNELS)
-    {
-        if (type == GAIN_KD){
-            kd_gain[channel] = value;
-        }
-        else if (type == GAIN_KP){
-            kp_gain[channel] = value;
-        }
-        else if (type == GAIN_KI){
-            ki_gain[channel] = value;
-        }
-    }
-}
-
-char areGainsUpdated(){
-    if (gainsUpdated){
-        gainsUpdated = 0;
-        return 1;
-    }
-    return 0;
-}
-
-void forceGainUpdate(){
-    gainsUpdated = 1;
 }

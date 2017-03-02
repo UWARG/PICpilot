@@ -21,6 +21,8 @@
 #include "ProgramStatus.h"
 #include <string.h>
 
+#include "newOrientationControl.h"
+
 extern PMData pmData;
 extern AMData amData;
 extern char DMADataAvailable;
@@ -44,7 +46,6 @@ int sp_ComputedPitchRate = 0;
 int sp_ComputedRollRate = 0;
 int sp_ComputedYawRate = 0;
 
-char currentGain = 0;
 
 int sp_PitchAngle = 0;
 int ctrl_PitchAngle = 0;

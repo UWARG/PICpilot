@@ -7,12 +7,7 @@
 #include "PWM.h"
 
 //Global Variables
-#define SAMPLE_TIME 0.02
 
-#define GAIN_KD 0
-#define GAIN_KP 1
-#define GAIN_KI 2
-#define GAIN_CHANNELS 7
 
 //Maximum rates for PID loop outputs
 #define MAX_ROLL_ANGLE 35 // max allowed roll angle in degrees
@@ -29,7 +24,6 @@
 #define HEADING_ROLL_SCALE_FACTOR 0.5
 #define THROTTLE_SCALE_FACTOR HALF_PWM_RANGE///Remove this * 2 if having problems
 #define FLAP_SCALE_FACTOR HALF_PWM_RANGE
-
 
 
 //Function Prototypes
