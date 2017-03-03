@@ -20,7 +20,7 @@
 #define PITCH_CONTROL_SOURCE            0b00000010 //Controller(0) or Ground Station(1)
 #define ROLL_CONTROL_TYPE               0b00000100 //Roll Rates(0) or Roll Angles(1)
 #define ROLL_CONTROL_SOURCE             0b00001000 //Controller(0) or Ground Station(1)
-#define THROTTLE_CONTROL_SOURCE         0b00110000 //Controller(0) or Ground Station(1) or Autopilot(2)(Controlled by the GroundSpeed).
+#define THROTTLE_CONTROL_SOURCE         0b00110000 //Controller(0) or Ground Station(1) or Autopilot(2)(Controlled by the GroundSpeed/Altitude).
 #define ALTITUDE_CONTROL_SOURCE         0b01000000 //Ground Station(0) or Autopilot(1)
 #define ALTITUDE_CONTROL                0b10000000 //Off(0) or On(1)
 #define HEADING_CONTROL_SOURCE  0b0000000100000000 // Ground Station(0) or Autopilot(1)
@@ -28,16 +28,16 @@
 #define FLAP_CONTROL_SOURCE     0b0000110000000000 //Controller(0) or Ground Station(1) or Autopilot(2)
 
 //Bit Mask Bit Shifts
-#define PITCH_CONTROL_TYPE_SHIFT 0
-#define PITCH_CONTROL_SOURCE_SHIFT 1
-#define ROLL_CONTROL_TYPE_SHIFT 2
-#define ROLL_CONTROL_SOURCE_SHIFT 3
-#define THROTTLE_CONTROL_SOURCE_SHIFT 4
-#define ALTITUDE_CONTROL_SOURCE_SHIFT 6
-#define ALTITUDE_CONTROL_SHIFT 7
-#define HEADING_CONTROL_SOURCE_SHIFT 8
-#define HEADING_CONTROL_SHIFT 9
-#define FLAP_CONTROL_SOURCE_SHIFT 10
+#define PITCH_CONTROL_TYPE_SHIFT        0
+#define PITCH_CONTROL_SOURCE_SHIFT      1
+#define ROLL_CONTROL_TYPE_SHIFT         2
+#define ROLL_CONTROL_SOURCE_SHIFT       3
+#define THROTTLE_CONTROL_SOURCE_SHIFT   4
+#define ALTITUDE_CONTROL_SOURCE_SHIFT   6
+#define ALTITUDE_CONTROL_SHIFT          7
+#define HEADING_CONTROL_SOURCE_SHIFT    8
+#define HEADING_CONTROL_SHIFT           9
+#define FLAP_CONTROL_SOURCE_SHIFT       10
 
 //Bit Mask Resultant Values
 #define RATE_CONTROL 0
@@ -46,6 +46,11 @@
 #define RC_SOURCE 0
 #define GS_SOURCE 1
 #define AP_SOURCE 2
+
+#define HEADING_GS_SOURCE 0
+#define HEADING_AP_SOURCE 1
+#define ALTITUDE_GS_SOURCE 0
+#define ALTITUDE_AP_SOURCE 1
 
 #define CONTROL_ON 1
 #define CONTROL_OFF 0
@@ -146,6 +151,7 @@ int rollRateControl(float setpoint, float sensor);
 int pitchRateControl(float setpoint, float sensor);
 int yawRateControl(float setpoint, float sensor);
 char getControlPermission(unsigned int controlMask, unsigned int expectedValue, char bitshift);
+uint8_t getControlValue(uint16_t controlMask, uint8_t bitshift);
 
 
 

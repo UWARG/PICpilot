@@ -1,96 +1,129 @@
-/*
+/* 
  * File:   OrientationControl.c
- * Author: Chris Hajduk
+ * Author: Ian Frosst
  *
- * Created on October 29, 2013, 9:41 PM
+ * Created on March 2, 2017, 3:29 PM
  */
-#include "OutputCompare.h"
+
 #include "OrientationControl.h"
 #include "main.h"
-#include "AttitudeManager.h"
-#include "VN100.h"
-
-//float constmax = 2.7188;
 
 
-//TODO: Change these variable names to more generic names for inclusion of heading
-//25.2125988006591
-float kd_gain[7] = {3.5, 3.5, 3, 5, 0, 0, 0};
-float kp_gain[7] = {1, 1.6, 4.8, 2, 1.5, 1, 1};//{1, 0.5, 2.5, 1.5, 1.25, 0.05};
-float ki_gain[7]= {0, 0, 0, 0, 0, 0,0};
-//Internal Values
-float sum_gain[6] = {0, 0, 0, 0, 0, 0};
-long int lastControlTime[6] = {0, 0, 0, 0, 0, 0};
-//Derivative Values
-int lastError[6] = {0, 0, 0, 0, 0, 0}; //[0],[1],[2] are currently unused
+/* 
+ * Floating-point PID loops for attitude control. 
+ * Inspired by ArduPilot control code.
+ * TODO: convert to fixed-point (integers) for increased speed 
+ * (could probably do with tenth- or hundredth-degree integers)
+ * 
+ */
 
-char integralFreeze = 0;
+// PID control values for the basic loops
+static PID_val pids[PID_CHANNELS];
 
-int controlSignalThrottle(int setpoint, int output){
-    int error = setpoint - output;
-    if (integralFreeze == 0){
-        sum_gain[THROTTLE] += (float)error;
-    }
-    int controlSignal = (int)(THROTTLE_SCALE_FACTOR * (error * kp_gain[THROTTLE] + sum_gain[THROTTLE] * ki_gain[THROTTLE]));
-    return controlSignal;
+static uint8_t gainsUpdated = 0; // updated gain flag
+
+
+// Initial PID gains. These are only used to keep sane values on startup.
+const static float init_kp[PID_CHANNELS] = {1.0, 1.0, 2.0, 4.0, 4.0, 1.0, 1.0, 1.0};
+const static float init_ki[PID_CHANNELS] = {0};
+const static float init_kd[PID_CHANNELS] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
+
+// To be called to initialize a new PID channel
+void initPID(PID_val* pid, float Kp, float Ki, float Kd, uint32_t imax) {
+    pid->Kp = Kp;
+    pid->Ki = Ki;
+    pid->Kd = Kd;
+    pid->imax = imax;
+    pid->integral = 0;
+    pid->lastTime = 0;
+    pid->lastErr = 0;
 }
 
-int controlSignalFlap(int setpoint, int output){
-    int error = setpoint - output;
-    if (integralFreeze == 0){
-        sum_gain[FLAP] += (float)error;
+void orientationInit() {
+    uint8_t i = 0;
+    for (; i < PID_CHANNELS; i++) {
+        initPID(&pids[i], init_kp[i], init_ki[i], init_kd[i], 500);
     }
-    int controlSignal = (int)(FLAP_SCALE_FACTOR * (error * kp_gain[FLAP] + sum_gain[FLAP] * ki_gain[FLAP]));
-    return controlSignal;
 }
 
-int controlSignalAltitude(int setpoint, int output){
-    int error = setpoint - output;
-    if (integralFreeze == 0){
-        sum_gain[ALTITUDE] += (float)error;
-    }
-
-    //Derivative Calculations ---Not necessarily needed for altitude
-    int dValue = error - lastError[ALTITUDE];
-    lastError[ALTITUDE] = error;
-
-
-    int controlSignal = (int)(ALTITUDE_PITCH_SCALE_FACTOR * ((dValue * kd_gain[ALTITUDE]) + (error * kp_gain[ALTITUDE]) + (sum_gain[ALTITUDE] * ki_gain[ALTITUDE])));
-    return controlSignal;
-}
-
-int controlSignalHeading(int setpoint, int output) { // function to find output based on gyro acceleration and PWM input
-    //Take into account Heading overflow (330 degrees and 30 degrees is a 60 degree difference)
-    if (setpoint - output > 180){
-        output += 360;
-    }
-    else if (setpoint - output < -180){
-        output -= 360;
+// PID loop function. error is (setpointValue - currentValue)
+float PIDcontrol(uint8_t channel, float error) {
+    float output = 0;
+    
+    PID_val* pid = &pids[channel];
+    
+    uint32_t now = getTime();
+    uint16_t delta_msec = (now - pid->lastTime);
+    
+    // check if we've gone too long without updating (keeps the I and D from freaking out)
+    if (delta_msec > PID_RESET_TIME || pid->lastTime == 0) {
+        delta_msec = 0;
+        pid->integral = 0;
+        pid->lastErr = error;
     }
     
-    int error = setpoint - output;
-    if (integralFreeze == 0){
-        sum_gain[HEADING] += (float)error;
+    pid->lastTime = now;
+
+    output += pid->Kp * error; // Proportional control
+    
+    if (delta_msec > 0) { // only compute time-sensitive control if time has elapsed
+        float dTime = delta_msec / 1000.0f; // elapsed time in seconds
+        
+        if (fabsf(pid->Ki) > 0) { // Integral control
+            pid->integral += (pid->Ki * error) * dTime;
+            
+            if (pid->integral < -pid->imax) { // ensure integral stays manageable
+                pid->integral = -pid->imax;
+            } else if (pid->integral > pid->imax) {
+                pid->integral = pid->imax;
+            }
+            output += pid->integral;
+        }
+
+        if (fabsf(pid->Kd) > 0) { // Derivative control
+            float derivative = (error - pid->lastErr) / dTime;
+            pid->lastErr = error;
+            output += pid->Kd * derivative;
+        }
     }
     
-    //Derivative Calculations
-    int dValue = error - lastError[HEADING];
-    lastError[HEADING] = error;
-
-    int controlSignal = (int)(HEADING_ROLL_SCALE_FACTOR * ((dValue * kd_gain[HEADING]) + (error * kp_gain[HEADING]) + (sum_gain[HEADING] * ki_gain[HEADING])));
-    return controlSignal;
+    return output;
 }
-int controlSignalAngles(float setpoint, float output, unsigned char type, float SERVO_SCALE_FACTOR_ANGLES) { // function to find output based on gyro acceleration and PWM input
 
-    float error = setpoint - output;
-    if (integralFreeze == 0){
-        sum_gain[type] += error;
+float getGain(uint8_t channel, uint8_t type){
+    if (channel < PID_CHANNELS) {
+        if (type == GAIN_KP){
+            return pids[channel].Kp;
+        } else if (type == GAIN_KI){
+            return pids[channel].Ki;
+        } else if (type == GAIN_KD){
+            return pids[channel].Kd;
+        }
     }
-
-    int controlSignal = (int)(SERVO_SCALE_FACTOR_ANGLES * (error * kp_gain[type] + (sum_gain[type] * ki_gain[type])));
-    return controlSignal;
+    return -10000; // TODO: return something better than an obviously wrong value
 }
-int controlSignal(float setpoint, float output, unsigned char type) { // function to find output based on gyro acceleration and PWM input
-    int controlSignal = (int)(SERVO_SCALE_FACTOR * (setpoint - output * kd_gain[type]));
-    return controlSignal;
+
+void setGain(uint8_t channel, uint8_t type, float value){
+    gainsUpdated = 1;
+    if (channel < PID_CHANNELS) {
+        if (type == GAIN_KP){
+            pids[channel].Kp = value;
+        } else if (type == GAIN_KI){
+            pids[channel].Ki = value;
+        } else if (type == GAIN_KD){
+            pids[channel].Kd = value;
+        }
+    }
+}
+
+uint8_t areGainsUpdated(){
+    if (gainsUpdated){
+        gainsUpdated = 0;
+        return 1;
+    }
+    return 0;
+}
+
+void forceGainUpdate(){
+    gainsUpdated = 1;
 }

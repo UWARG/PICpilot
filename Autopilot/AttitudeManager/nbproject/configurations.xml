@@ -6,9 +6,8 @@
                    projectFiles="true">
       <logicalFolder name="f9" displayName="Attitude Management" projectFiles="true">
         <itemPath>AttitudeManager.h</itemPath>
-        <itemPath>OrientationControl.h</itemPath>
         <itemPath>StateMachine.h</itemPath>
-        <itemPath>newOrientationControl.h</itemPath>
+        <itemPath>OrientationControl.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f6" displayName="Common" projectFiles="true">
         <itemPath>../Common/Common.h</itemPath>
@@ -69,9 +68,8 @@
                    projectFiles="true">
       <logicalFolder name="f10" displayName="Attitude Management" projectFiles="true">
         <itemPath>AttitudeManager.c</itemPath>
-        <itemPath>OrientationControl.c</itemPath>
         <itemPath>StateMachine.c</itemPath>
-        <itemPath>newOrientationControl.c</itemPath>
+        <itemPath>OrientationControl.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f7" displayName="Common" projectFiles="true">
         <itemPath>../Common/Common.c</itemPath>

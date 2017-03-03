@@ -6,12 +6,12 @@
  */
 
 //Include Header Files
+#include "AttitudeManager.h"
 #include "delay.h"
 #include "VN100.h"
 #include "InputCapture.h"
 #include "OutputCompare.h"
 #include "PWM.h"
-#include "AttitudeManager.h"
 #include "commands.h"
 #include "cameraManager.h"
 #include "Probe_Drop.h"
@@ -21,7 +21,6 @@
 #include "ProgramStatus.h"
 #include <string.h>
 
-#include "newOrientationControl.h"
 
 extern PMData pmData;
 extern AMData amData;
@@ -339,16 +338,36 @@ int getHeadingSetpoint(){
 }
 
 void setPitchAngleSetpoint(int setpoint){
-    sp_PitchAngle = setpoint;
+    if (setpoint > MAX_PITCH_ANGLE)
+        sp_PitchAngle = MAX_PITCH_ANGLE;
+    else if (setpoint < -MAX_PITCH_ANGLE)
+        sp_PitchAngle = -MAX_PITCH_ANGLE;
+    else
+        sp_PitchAngle = setpoint;
 }
 void setRollAngleSetpoint(int setpoint){
-    sp_RollAngle = setpoint;
+    if (setpoint > MAX_ROLL_ANGLE)
+        sp_RollAngle = MAX_ROLL_ANGLE;
+    else if (setpoint < -MAX_ROLL_ANGLE)
+        sp_RollAngle = -MAX_ROLL_ANGLE;
+    else
+        sp_RollAngle = setpoint;
 }
 void setPitchRateSetpoint(int setpoint){
-    sp_PitchRate = setpoint;
+    if (setpoint > MAX_PITCH_RATE)
+        sp_PitchRate = MAX_PITCH_RATE;
+    else if (setpoint < -MAX_PITCH_RATE)
+        sp_PitchRate = -MAX_PITCH_RATE;
+    else
+        sp_PitchRate = setpoint;
 }
 void setRollRateSetpoint(int setpoint){
-    sp_RollRate = setpoint;
+    if (setpoint > MAX_ROLL_RATE)
+        sp_RollRate = MAX_ROLL_RATE;
+    else if (setpoint < -MAX_ROLL_RATE)
+        sp_RollRate = -MAX_ROLL_RATE;
+    else
+        sp_RollRate = setpoint;
 }
 void setYawRateSetpoint(int setpoint){
     sp_YawRate = setpoint;
@@ -477,10 +496,10 @@ int getFlapInput(char source){
 }
 
 int getAltitudeInput(char source){
-    if (source == GS_SOURCE - 1){
+    if (source == ALTITUDE_GS_SOURCE - 1){
         return input_GS_Altitude;
     }
-    else if (source == AP_SOURCE - 1){
+    else if (source == ALTITUDE_AP_SOURCE - 1){
         return input_AP_Altitude;
     }
     else
@@ -488,10 +507,10 @@ int getAltitudeInput(char source){
 }
 
 int getHeadingInput(char source){
-    if (source == GS_SOURCE - 1){
+    if (source == HEADING_GS_SOURCE){
         return input_GS_Heading;
     }
-    else if (source == AP_SOURCE - 1){
+    else if (source == HEADING_AP_SOURCE - 1){
         return input_AP_Heading;
     }
     else
@@ -544,26 +563,7 @@ void imuCommunication(){
 #endif
 }
 
-int altitudeControl(int setpoint, int sensorAltitude){
-    //Altitude
-    ctrl_PitchAngle = controlSignalAltitude(setpoint, sensorAltitude) * ALTITUDE_TO_PITCH_DIRECTION; //TODO: Add -1 as a variable to flip directions
-    if (ctrl_PitchAngle > MAX_PITCH_ANGLE)
-        ctrl_PitchAngle = MAX_PITCH_ANGLE;
-    if (ctrl_PitchAngle < -MAX_PITCH_ANGLE)
-        ctrl_PitchAngle = -MAX_PITCH_ANGLE;
-    return ctrl_PitchAngle;
-}
-
-int throttleControl(int setpoint, int sensor){
-    //Throttle
-    return sp_Throttle + controlSignalThrottle(setpoint, sensor);
-}
-
-int flapControl(int setpoint, int sensor){
-    //Flaps
-    return sp_FlapRate + controlSignalFlap(setpoint, sensor);
-}
-
+#if 0 // will fix thse later
 //Equivalent to "Yaw Angle Control"
 int headingControl(int setpoint, int sensor){
     //Heading
@@ -584,36 +584,20 @@ int headingControl(int setpoint, int sensor){
     return sp_RollAngle;
 }
 
-
-int rollAngleControl(int setpoint, int sensor){
-    //Roll Angle
-    return controlSignalAngles(setpoint, sensor, ROLL, -(HALF_PWM_RANGE) / (MAX_ROLL_ANGLE));
-}
-
-int pitchAngleControl(int setpoint, int sensor){
-    //Pitch Angle
-    return controlSignalAngles(setpoint, sensor, PITCH, -(HALF_PWM_RANGE) / (MAX_PITCH_ANGLE)); //Removed negative
-}
-
 int coordinatedTurn(float pitchRate, int rollAngle){
     //Feed forward Term when turning
     pitchRate += (int)(scaleFactor * abs(rollAngle)); //Linear Function
     return pitchRate;
 }
-
-int rollRateControl(float setpoint, float sensor){
-    return controlSignal(setpoint/SERVO_SCALE_FACTOR, sensor, ROLL);
-}
-int pitchRateControl(float setpoint, float sensor){
-    return controlSignal(setpoint/SERVO_SCALE_FACTOR, sensor, PITCH);
-}
-int yawRateControl(float setpoint, float sensor){
-    return controlSignal(setpoint/SERVO_SCALE_FACTOR, sensor, YAW);
-}
+#endif
 
 char getControlPermission(unsigned int controlMask, unsigned int expectedValue, char bitshift){
     int maskResult = (controlMask & controlLevel);
     return (maskResult >> bitshift) == expectedValue;
+}
+
+uint8_t getControlValue(uint16_t controlMask, uint8_t bitshift) {
+    return (controlMask & controlLevel) >> bitshift;
 }
 
 void readDatalink(void){
@@ -635,68 +619,68 @@ void readDatalink(void){
 #endif
                 break;
             case SET_PITCH_KD_GAIN:
-                setGain(PITCH, GAIN_KD, *(float*)(&cmd->data));
+                setGain(PID_PITCH_RATE, GAIN_KD, *(float*)(&cmd->data));
                 break;
             case SET_ROLL_KD_GAIN:
-                setGain(ROLL, GAIN_KD, *(float*)(&cmd->data));
+                setGain(PID_ROLL_RATE, GAIN_KD, *(float*)(&cmd->data));
                 break;
             case SET_YAW_KD_GAIN:
-                setGain(YAW, GAIN_KD, *(float*)(&cmd->data));
+                setGain(PID_YAW_RATE, GAIN_KD, *(float*)(&cmd->data));
                 break;
             case SET_PITCH_KP_GAIN:
-                setGain(PITCH, GAIN_KP, *(float*)(&cmd->data));
+                setGain(PID_PITCH_RATE, GAIN_KP, *(float*)(&cmd->data));
                 break;
             case SET_ROLL_KP_GAIN:
-                setGain(ROLL, GAIN_KP, *(float*)(&cmd->data));
+                setGain(PID_ROLL_RATE, GAIN_KP, *(float*)(&cmd->data));
                 break;
             case SET_YAW_KP_GAIN:
-                setGain(YAW, GAIN_KP, *(float*)(&cmd->data));
+                setGain(PID_YAW_RATE, GAIN_KP, *(float*)(&cmd->data));
                 break;
             case SET_PITCH_KI_GAIN:
-                setGain(PITCH, GAIN_KI, *(float*)(&cmd->data));
+                setGain(PID_PITCH_RATE, GAIN_KI, *(float*)(&cmd->data));
                 break;
             case SET_ROLL_KI_GAIN:
-                setGain(ROLL, GAIN_KI, *(float*)(&cmd->data));
+                setGain(PID_ROLL_RATE, GAIN_KI, *(float*)(&cmd->data));
                 break;
             case SET_YAW_KI_GAIN:
-                setGain(YAW, GAIN_KI, *(float*)(&cmd->data));
+                setGain(PID_YAW_RATE, GAIN_KI, *(float*)(&cmd->data));
                 break;
             case SET_HEADING_KD_GAIN:
-                setGain(HEADING, GAIN_KD, *(float*)(&cmd->data));
+                setGain(PID_HEADING, GAIN_KD, *(float*)(&cmd->data));
                 break;
             case SET_HEADING_KP_GAIN:
-                setGain(HEADING, GAIN_KP, *(float*)(&cmd->data));
+                setGain(PID_HEADING, GAIN_KP, *(float*)(&cmd->data));
                 break;
             case SET_HEADING_KI_GAIN:
-                setGain(HEADING, GAIN_KI, *(float*)(&cmd->data));
+                setGain(PID_HEADING, GAIN_KI, *(float*)(&cmd->data));
                 break;
             case SET_ALTITUDE_KD_GAIN:
-                setGain(ALTITUDE, GAIN_KD, *(float*)(&cmd->data));
+                setGain(PID_ALTITUDE, GAIN_KD, *(float*)(&cmd->data));
                 break;
             case SET_ALTITUDE_KP_GAIN:
-                setGain(ALTITUDE, GAIN_KP, *(float*)(&cmd->data));
+                setGain(PID_ALTITUDE, GAIN_KP, *(float*)(&cmd->data));
                 break;
             case SET_ALTITUDE_KI_GAIN:
-                setGain(ALTITUDE, GAIN_KI, *(float*)(&cmd->data));
+                setGain(PID_ALTITUDE, GAIN_KI, *(float*)(&cmd->data));
                 break;
             case SET_THROTTLE_KD_GAIN:
-                setGain(PID_THROTTLE, GAIN_KD, *(float*)(&cmd->data));
+                //setGain(PID_THROTTLE, GAIN_KD, *(float*)(&cmd->data));
                 break;
             case SET_THROTTLE_KP_GAIN:
-                setGain(THROTTLE, GAIN_KP, *(float*)(&cmd->data));
+                //setGain(PID_THROTTLE, GAIN_KP, *(float*)(&cmd->data));
                 break;
             case SET_THROTTLE_KI_GAIN:
-                setGain(THROTTLE, GAIN_KI, *(float*)(&cmd->data));
+                //setGain(PID_THROTTLE, GAIN_KI, *(float*)(&cmd->data));
                 break;
 
             case SET_FLAP_KD_GAIN:
-                setGain(FLAP, GAIN_KD, *(float*)(&cmd->data));
+                //setGain(FLAP, GAIN_KD, *(float*)(&cmd->data));
                 break;
             case SET_FLAP_KP_GAIN:
-                setGain(FLAP, GAIN_KP, *(float*)(&cmd->data));
+                //setGain(FLAP, GAIN_KP, *(float*)(&cmd->data));
                 break;
             case SET_FLAP_KI_GAIN:
-                setGain(FLAP, GAIN_KI, *(float*)(&cmd->data));
+                //setGain(FLAP, GAIN_KI, *(float*)(&cmd->data));
                 break;
 
             case SET_PATH_GAIN:

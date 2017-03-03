@@ -4,14 +4,11 @@
  *
  * Created on February 13, 2017, 8:58 PM
  */
-
-#include "PWM.h"
-#include "AttitudeManager.h"
-#include "delay.h"
 #include "Multirotor.h"
+#include "AttitudeManager.h"
+#include "PWM.h"
+#include "delay.h"
 #include "ProgramStatus.h"
-
-#include "newOrientationControl.h"
 
 #if VEHICLE_TYPE == MULTIROTOR
 
@@ -111,40 +108,45 @@ void checkLimits(int* channelOut){
 }
 
 void highLevelControl(){
-    uint8_t type = ANGLE_CONTROL;
-    
-    setRollAngleSetpoint(getRollAngleInput(RC_SOURCE));
-    setPitchAngleSetpoint(getPitchAngleInput(RC_SOURCE));
-    
-    if (type == ANGLE_CONTROL) {
+   
+    uint8_t rollControlType = getControlValue(ROLL_CONTROL_TYPE, ROLL_CONTROL_TYPE_SHIFT);
+    uint8_t rollControlSource = getControlValue(ROLL_CONTROL_SOURCE, ROLL_CONTROL_SOURCE_SHIFT);
+    if (rollControlType == ANGLE_CONTROL) {
+        setRollAngleSetpoint(getRollAngleInput(rollControlSource));
         setRollRateSetpoint(PIDcontrol(PID_ROLL_ANGLE, getRollAngleSetpoint() - getRoll()));
-
-        setPitchRateSetpoint(PIDcontrol(PID_PITCH_ANGLE, getPitchAngleSetpoint() - getPitch()));
-
-        setYawRateSetpoint(getYawRateInput(RC_SOURCE));//PIDcontrol(PID_HEADING, getHeadingSetpoint() - getHeading()));
     } 
-    else if (type == RATE_CONTROL) {
-        setRollRateSetpoint(getRollRateInput(RC_SOURCE));
-        
-        setPitchRateSetpoint(getPitchRateInput(RC_SOURCE));
-        
+    else if (rollControlType == RATE_CONTROL) {
+        setRollRateSetpoint(getRollRateInput(rollControlSource));
+    }
+
+    uint8_t pitchControlType = getControlValue(PITCH_CONTROL_TYPE, PITCH_CONTROL_TYPE_SHIFT);
+    uint8_t pitchControlSource = getControlValue(PITCH_CONTROL_SOURCE, PITCH_CONTROL_SOURCE_SHIFT);
+    if (pitchControlType == ANGLE_CONTROL) {
+        setPitchAngleSetpoint(getPitchAngleInput(pitchControlSource));
+        setPitchRateSetpoint(PIDcontrol(PID_PITCH_ANGLE, getPitchAngleSetpoint() - getPitch()));
+    } 
+    else if (pitchControlType == RATE_CONTROL) {
+        setPitchRateSetpoint(getPitchRateInput(pitchControlSource));
+    }
+    
+    if (getControlValue(HEADING_CONTROL, HEADING_CONTROL_SHIFT) == CONTROL_ON) { // if heading control is enabled
+        setHeadingSetpoint(getHeadingInput(getControlValue(HEADING_CONTROL_SOURCE, HEADING_CONTROL_SOURCE_SHIFT))); // get heading value (GS or AP)
+        setYawRateSetpoint(PIDcontrol(PID_HEADING, getHeadingSetpoint() - getHeading()));
+    } 
+    else {
         setYawRateSetpoint(getYawRateInput(RC_SOURCE));
+    }
+        
+    if (getControlValue(ALTITUDE_CONTROL, ALTITUDE_CONTROL_SHIFT) == CONTROL_ON) { // if altitude control is enabled
+        setAltitudeSetpoint(getAltitudeInput(getControlValue(ALTITUDE_CONTROL_SOURCE, ALTITUDE_CONTROL_SOURCE_SHIFT))); // get altitude value (GS or AP)
+        setThrottleSetpoint(PIDcontrol(PID_ALTITUDE, getAltitudeSetpoint() - getAltitude()));
+    } 
+    else { // if no altitude control, get raw throttle input (RC or GS)
+        setThrottleSetpoint(getThrottleInput(getControlValue(THROTTLE_CONTROL_SOURCE, THROTTLE_CONTROL_SOURCE_SHIFT)));
     }
 }
 
 void lowLevelControl() {  
-    //If commands come from the ground station
-    if (getControlPermission(THROTTLE_CONTROL_SOURCE, GS_SOURCE ,THROTTLE_CONTROL_SOURCE_SHIFT)) {
-        setThrottleSetpoint(getThrottleInput(GS_SOURCE));
-    }
-    //If commands come from the RC Controller
-    else if (getControlPermission(THROTTLE_CONTROL_SOURCE, RC_SOURCE, THROTTLE_CONTROL_SOURCE_SHIFT)) {
-        setThrottleSetpoint(getThrottleInput(RC_SOURCE));
-    } 
-    // Autopilot throttle
-    else if (0) { //
-        setThrottleSetpoint(PIDcontrol(PID_ALTITUDE, getAltitudeSetpoint() - getAltitude())); 
-    }
 
     control_Roll = PIDcontrol(PID_ROLL_RATE, getRollRateSetpoint() - getRollRate());
     control_Pitch = PIDcontrol(PID_PITCH_RATE, getPitchRateSetpoint() - getPitchRate());
