@@ -1,8 +1,9 @@
-/*
- * File:   Multirotor.c
- * Author: Ian Frosst
- *
- * Created on February 13, 2017, 8:58 PM
+/**
+ * @file   Multirotor.c
+ * @author Ian Frosst
+ * @date February 13, 2017
+ * @copyright Waterloo Aerial Robotics Group 2017 \n
+ *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE 
  */
 
 #include "PWM.h"
@@ -13,8 +14,8 @@
 
 #if VEHICLE_TYPE == MULTIROTOR
 
-int outputSignal[NUM_CHANNELS];
-int control_Roll, control_Pitch, control_Yaw, control_Throttle;
+static int outputSignal[NUM_CHANNELS];
+static int control_Roll, control_Pitch, control_Yaw, control_Throttle;
 
 void initialization(){
     setPWM(FRONT_LEFT_MOTOR, MIN_PWM);
@@ -65,13 +66,6 @@ void dearmVehicle(){
         StateMachine(STATEMACHINE_IDLE);
     }
     setProgramStatus(MAIN_EXECUTION);
-}
-
-void takeOff(){
-
-}
-void landing(){
-
 }
 
 void inputMixing(int* channelIn, int* rollRate, int* pitchRate, int* throttle, int* yawRate) { //no flaps on a quad

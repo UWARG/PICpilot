@@ -1,8 +1,9 @@
-/* 
- * File:   Multirotor.h
- * Author: Chris Hajduk
- *
- * Created on September 6, 2015, 1:02 PM
+/**
+ * @file   Multirotor.h
+ * @author Ian Frosst
+ * @date February 13, 2017
+ * @copyright Waterloo Aerial Robotics Group 2017 \n
+ *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE 
  */
 
 #ifndef MULTIROTOR_H

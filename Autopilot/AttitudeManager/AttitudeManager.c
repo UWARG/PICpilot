@@ -383,13 +383,7 @@ void inputCapture(){
     channelIn = getPWMArray(getTime());
     
     inputMixing(channelIn, &input_RC_RollRate, &input_RC_PitchRate, &input_RC_Throttle, &input_RC_YawRate);
-    
-#if VEHICLE_TYPE == FIXED_WING
-    if (getControlPermission(FLAP_CONTROL_SOURCE, FLAP_RC_SOURCE,FLAP_CONTROL_SOURCE_SHIFT)) {
-        input_RC_Flap = channelIn[FLAP_IN_CHANNEL - 1];
-    }
-#endif
-    
+
     // Switches and Knobs
 //        sp_Type = channelIn[5];
 //        sp_Value = channelIn[6];

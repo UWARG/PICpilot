@@ -68,8 +68,8 @@ unsigned int* getICValues(unsigned long int sys_time)
      * we detected a disconnect
      */
     if ((sys_time - ppm_last_capture_time) > PWM_ALIVE_THRESHOLD){
-        int i = 0;
-        for (; i < PPM_CHANNELS; i++){
+        int i;
+        for (i = 0; i < PPM_CHANNELS; i++){
             capture_value[i] = 0;
         }
     }

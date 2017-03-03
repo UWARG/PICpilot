@@ -98,7 +98,12 @@ int* getPWMArray(unsigned long int sys_time);
  */
 void setPWM(unsigned int channel, int pwm);
 
-// TODO: doc
+/**
+ * Sets the PWM outputs on all available channels. Make sure initPWM is called before
+ * this, otherwise unexpected behavior will occur.
+ * @param pwms C-style array of values from MIN_PWM to MAX_PWM (or -1024 to 1024), ordered
+ *      by channel number, zero-indexed. Values outside of this range will be ignored
+ */
 void setAllPWM(int* pwms);
 
 /**

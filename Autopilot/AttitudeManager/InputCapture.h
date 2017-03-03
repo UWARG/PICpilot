@@ -23,7 +23,7 @@
  * as the OrangeRX have an inverted PPM signal, so set this to 1. If using the 
  * ezUHF, set this to 0
  */
-#define PPM_INVERTED 1 // Might not be necessary? Single edge mode will catch either pulse
+#define PPM_INVERTED 1
 
 /**
 * How many channels are expected to be in a single PPM frame
