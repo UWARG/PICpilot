@@ -35,16 +35,20 @@ long int gpsTimer = 0;
 float* velocityComponents;
 
 // Setpoints (From radio transmitter or autopilot)
-int sp_PitchRate = 0;
 int sp_Throttle = MIN_PWM;
-int sp_FlapRate = MIN_PWM;
-int sp_YawRate = 0;
-int sp_RollRate = 0;
 
-int sp_PitchAngle = 0;
+// Degrees per second
+float sp_RollRate = 0;
+float sp_PitchRate = 0;
+float sp_YawRate = 0;
+
+int sp_FlapRate = MIN_PWM;
+
+
+float sp_PitchAngle = 0;
 int ctrl_PitchAngle = 0;
-//float sp_YawAngle = 0;
-int sp_RollAngle = 0;
+
+float sp_RollAngle = 0;
 int ctrl_RollAngle = 0;
 
 //Heading Variables
@@ -75,7 +79,6 @@ char waypointCount = 0;
 int batteryLevel1 = 0;
 int batteryLevel2 = 0;
 char lastProbeDrop = 0;
-
 
 // System outputs (get from IMU)
 float imuData[3];
@@ -370,7 +373,7 @@ void inputCapture(){
     inputMixing(channelIn, &input_RC_RollRate, &input_RC_PitchRate, &input_RC_Throttle, &input_RC_YawRate);
     
 #if VEHICLE_TYPE == FIXED_WING
-    if (getControlPermission(FLAP_CONTROL_SOURCE, FLAP_RC_SOURCE,FLAP_CONTROL_SOURCE_SHIFT)) {
+    if (getControlPermission(FLAP_CONTROL_SOURCE, RC_SOURCE, FLAP_CONTROL_SOURCE_SHIFT)) {
         input_RC_Flap = channelIn[FLAP_IN_CHANNEL - 1];
     }
 #endif
@@ -382,30 +385,30 @@ void inputCapture(){
 }
 
 int getPitchAngleInput(char source){
-    if (source == PITCH_RC_SOURCE){
+    if (source == RC_SOURCE){
         return (int)((input_RC_PitchRate / ((float)HALF_PWM_RANGE / MAX_PITCH_ANGLE) ));
     }
-    else if (source == PITCH_GS_SOURCE){
+    else if (source == GS_SOURCE){
         return input_GS_Pitch;
     }
     else
         return 0;
 }
 int getPitchRateInput(char source){
-    if (source == PITCH_RC_SOURCE){
+    if (source == RC_SOURCE){
         return input_RC_PitchRate;
     }
-    else if (source == PITCH_GS_SOURCE){
+    else if (source == GS_SOURCE){
         return input_GS_PitchRate;
     }
     else
         return 0;
 }
 int getRollAngleInput(char source){
-    if (source == ROLL_RC_SOURCE){
+    if (source == RC_SOURCE){
         return (int)((input_RC_RollRate / ((float)HALF_PWM_RANGE / MAX_ROLL_ANGLE) ));
     }
-    else if (source == ROLL_GS_SOURCE){
+    else if (source == GS_SOURCE){
         return input_GS_Roll;
     }
     else{
@@ -413,20 +416,20 @@ int getRollAngleInput(char source){
     }
 }
 int getRollRateInput(char source){
-    if (source == ROLL_RC_SOURCE){
+    if (source == RC_SOURCE){
         return input_RC_RollRate;
     }
-    else if (source == ROLL_GS_SOURCE){
+    else if (source == GS_SOURCE){
         return input_GS_RollRate;
     }
     else
         return 0;
 }
 int getYawAngleInput(char source){
-    if (source == YAW_RC_SOURCE){
+    if (source == RC_SOURCE){
         return (int)((input_RC_YawRate / ((float)HALF_PWM_RANGE / MAX_ROLL_ANGLE) ));
     }
-    else if (source == YAW_GS_SOURCE){
+    else if (source == GS_SOURCE){
         return input_GS_Yaw;
     }
     else{
@@ -434,38 +437,38 @@ int getYawAngleInput(char source){
     }
 }
 int getYawRateInput(char source){
-    if (source == YAW_RC_SOURCE){
+    if (source == RC_SOURCE){
         return input_RC_YawRate;
     }
-    else if (source == YAW_GS_SOURCE){
+    else if (source == GS_SOURCE){
         return input_GS_YawRate;
     }
     else
         return 0;
 }
 int getThrottleInput(char source){
-    if (source == THROTTLE_RC_SOURCE){
+    if (source == RC_SOURCE){
         return input_RC_Throttle;
     }
-    else if (source == THROTTLE_GS_SOURCE){
+    else if (source == GS_SOURCE){
         return input_GS_Throttle;
     }
-    else if (source == THROTTLE_AP_SOURCE){
+    else if (source == AP_SOURCE){
 //        return input_AP_Throttle;
-        return 0;
+        return MIN_PWM;
     }
     else
         return 0;
 }
 
 int getFlapInput(char source){
-    if (source == FLAP_RC_SOURCE){
+    if (source == RC_SOURCE){
         return input_RC_Flap;
     }
-    else if (source == FLAP_GS_SOURCE){
+    else if (source == GS_SOURCE){
         return input_GS_Flap;
     }
-    else if (source == FLAP_AP_SOURCE){
+    else if (source == AP_SOURCE){
 //        return input_AP_Flap;
         return 0;
     }
@@ -474,10 +477,10 @@ int getFlapInput(char source){
 }
 
 int getAltitudeInput(char source){
-    if (source == ALTITUDE_GS_SOURCE){
+    if (source == GS_SOURCE - 1){
         return input_GS_Altitude;
     }
-    else if (source == ALTITUDE_AP_SOURCE){
+    else if (source == AP_SOURCE - 1){
         return input_AP_Altitude;
     }
     else
@@ -485,10 +488,10 @@ int getAltitudeInput(char source){
 }
 
 int getHeadingInput(char source){
-    if (source == HEADING_GS_SOURCE){
+    if (source == GS_SOURCE - 1){
         return input_GS_Heading;
     }
-    else if (source == HEADING_AP_SOURCE){
+    else if (source == AP_SOURCE - 1){
         return input_AP_Heading;
     }
     else
@@ -521,9 +524,9 @@ void imuCommunication(){
     //TODO: This is a reminder for me to figure out a more elegant way to fix improper derivative control (based on configuration of the sensor), adding this negative is a temporary fix. Some kind of calibration command or something.
     //DO NOT ADD NEGATIVES IN THE STATEMENTS BELOW. IT IS A GOOD WAY TO ROYALLY SCREW YOURSELF OVER LATER.
     //Outputs in order: Roll,Pitch,Yaw      <--  TODO: not certain this is correct - investigate (Ian Frosst, March 2017)
-    imu_RollRate = imuData[IMU_ROLL_RATE];
-    imu_PitchRate = imuData[IMU_PITCH_RATE];
-    imu_YawRate = imuData[IMU_YAW_RATE];
+    imu_RollRate = rad2deg(imuData[IMU_ROLL_RATE]);
+    imu_PitchRate = rad2deg(imuData[IMU_PITCH_RATE]);
+    imu_YawRate = rad2deg(imuData[IMU_YAW_RATE]);
     
     VN100_SPI_GetYPR(0, &imu_YawAngle, &imu_PitchAngle, &imu_RollAngle);
 
@@ -736,7 +739,7 @@ void readDatalink(void){
                 input_GS_Heading = *(int*)(&cmd->data);
                 break;
             case SET_THROTTLE:
-                input_GS_Throttle = *(int*)(&cmd->data);//(int)(((long int)(*(int*)(&cmd->data))) * MAX_PWM * 2 / 100) - MAX_PWM;
+                input_GS_Throttle = *(int*)(&cmd->data);
                 break;
             case SET_FLAP:
                 input_GS_Flap = *(int*)(&cmd->data);//(int)(((long int)(*(int*)(&cmd->data))) * MAX_PWM * 2 / 100) - MAX_PWM;

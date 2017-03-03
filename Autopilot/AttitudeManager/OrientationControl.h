@@ -12,7 +12,7 @@
 //Maximum rates for PID loop outputs
 #define MAX_ROLL_ANGLE 35 // max allowed roll angle in degrees
 #define MAX_PITCH_ANGLE 20
-#define MAX_SPEED 17.0 // ???m/s
+#define MAX_SPEED 17.0 // ???m/s //do we care though?
 
 //Define directionality of heading to roll and altitude to pitch
 #define HEADING_TO_ROLL_DIRECTION -1

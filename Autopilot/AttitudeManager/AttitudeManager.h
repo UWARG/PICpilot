@@ -16,13 +16,13 @@
 #include "../Common/Common.h"
 
 //Bit masks for levels of control - DON'T CHANGE THESE FOR SHITS AND GIGGLES
-#define PITCH_CONTROL_TYPE      0b00000001 //Pitch Rate(0) or Pitch Angles(1)
-#define PITCH_CONTROL_SOURCE    0b00000010 //Controller(0) or Ground Station(1)
-#define ROLL_CONTROL_TYPE       0b00000100 //Roll Rates(0) or Roll Angles(1)
-#define ROLL_CONTROL_SOURCE     0b00001000 //Controller(0) or Ground Station(1)
-#define THROTTLE_CONTROL_SOURCE 0b00110000 //Controller(0) or Ground Station(1) or Autopilot(2)(Controlled by the GroundSpeed).
-#define ALTITUDE_CONTROL_SOURCE 0b01000000 //Ground Station(0) or Autopilot(1)
-#define ALTITUDE_CONTROL        0b10000000 //Off(0) or On(1)
+#define PITCH_CONTROL_TYPE              0b00000001 //Pitch Rate(0) or Pitch Angles(1)
+#define PITCH_CONTROL_SOURCE            0b00000010 //Controller(0) or Ground Station(1)
+#define ROLL_CONTROL_TYPE               0b00000100 //Roll Rates(0) or Roll Angles(1)
+#define ROLL_CONTROL_SOURCE             0b00001000 //Controller(0) or Ground Station(1)
+#define THROTTLE_CONTROL_SOURCE         0b00110000 //Controller(0) or Ground Station(1) or Autopilot(2)(Controlled by the GroundSpeed).
+#define ALTITUDE_CONTROL_SOURCE         0b01000000 //Ground Station(0) or Autopilot(1)
+#define ALTITUDE_CONTROL                0b10000000 //Off(0) or On(1)
 #define HEADING_CONTROL_SOURCE  0b0000000100000000 // Ground Station(0) or Autopilot(1)
 #define HEADING_CONTROL         0b0000001000000000 //Off(0) or On(1)
 #define FLAP_CONTROL_SOURCE     0b0000110000000000 //Controller(0) or Ground Station(1) or Autopilot(2)
@@ -43,30 +43,12 @@
 #define RATE_CONTROL 0
 #define ANGLE_CONTROL 1
 
-#define PITCH_RC_SOURCE 0
-#define ROLL_RC_SOURCE 0
-#define YAW_RC_SOURCE 0
-#define THROTTLE_RC_SOURCE 0
-#define FLAP_RC_SOURCE 0
+#define RC_SOURCE 0
+#define GS_SOURCE 1
+#define AP_SOURCE 2
 
-#define PITCH_GS_SOURCE 1
-#define ROLL_GS_SOURCE 1
-#define YAW_GS_SOURCE 1
-#define THROTTLE_GS_SOURCE 1
-#define FLAP_GS_SOURCE 1
-#define ALTITUDE_GS_SOURCE 0
-#define HEADING_GS_SOURCE 0
-
-#define THROTTLE_AP_SOURCE 2
-#define FLAP_AP_SOURCE 2
-#define ALTITUDE_AP_SOURCE 1
-#define HEADING_AP_SOURCE 1
-
-#define ALTITUDE_CONTROL_OFF 0
-#define ALTITUDE_CONTROL_ON 1
-#define HEADING_CONTROL_OFF 0
-#define HEADING_CONTROL_ON 1
-
+#define CONTROL_ON 1
+#define CONTROL_OFF 0
 
 //Defined Orientation Parameter constants
 #define YAW 0

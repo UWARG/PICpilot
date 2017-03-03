@@ -14,16 +14,16 @@
 
 #define PID_CHANNELS 8 // to start
 
-#define PID_THROTTLE    0
-#define PID_ROLL_RATE   1
-#define PID_PITCH_RATE  2
-#define PID_YAW_RATE    3
+#define PID_ROLL_RATE   0
+#define PID_PITCH_RATE  1
+#define PID_YAW_RATE    2
 
-#define PID_ROLL_ANGLE  4
-#define PID_PITCH_ANGLE 5
+#define PID_ROLL_ANGLE  3
+#define PID_PITCH_ANGLE 4
 
+#define PID_HEADING     5
 #define PID_ALTITUDE    6
-#define PID_HEADING     7
+#define PID_SPEED       7 //Airspeed or groundspeed? discuss.
 
 #define PID_RESET_TIME 1000 // timeout to reset I and D terms (ms)
 

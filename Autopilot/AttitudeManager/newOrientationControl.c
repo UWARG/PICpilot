@@ -36,22 +36,11 @@ static PID_val pids[PID_CHANNELS];
 
 static uint8_t gainsUpdated = 0; // updated gain flag
 
-// Initial Values
-#define YAW 0
-#define PITCH   1
-#define ROLL    2
-#define HEADING 3
-#define ALTITUDE 4
-#define THROTTLE 5
-#define FLAP 6
 
-float kp_gain[7] = {1, 1.6, 4.8, 2, 1.5, 1, 1};//{1, 0.5, 2.5, 1.5, 1.25, 0.05};
-float ki_gain[7]= {0, 0, 0, 0, 0, 0,0};
-float kd_gain[7] = {3.5, 3.5, 3, 5, 0, 0, 0};
-
-const static float init_kp[PID_CHANNELS] = {1};
+// Initial PID gains. These are only used to keep sane values on startup.
+const static float init_kp[PID_CHANNELS] = {1.0, 1.0, 2.0, 4.0, 4.0, 1.0, 1.0, 1.0};
 const static float init_ki[PID_CHANNELS] = {0};
-const static float init_kd[PID_CHANNELS] = {0};
+const static float init_kd[PID_CHANNELS] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
 
 // To be called to initialize a new PID channel
 void initPID(PID_val* pid, float Kp, float Ki, float Kd, uint32_t imax) {
@@ -67,7 +56,7 @@ void initPID(PID_val* pid, float Kp, float Ki, float Kd, uint32_t imax) {
 void orientationInit() {
     uint8_t i = 0;
     for (; i < PID_CHANNELS; i++) {
-        initPID(&pids[i], init_kp[i], init_ki[i], init_kd[i], 0); // imax is 0 until we decide to use integral control
+        initPID(&pids[i], init_kp[i], init_ki[i], init_kd[i], 500);
     }
 }
 
