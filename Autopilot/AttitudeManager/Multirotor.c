@@ -70,17 +70,17 @@ void dearmVehicle(){
 
 void inputMixing(int* channelIn, int* rollRate, int* pitchRate, int* throttle, int* yawRate) { //no flaps on a quad
         if (getControlPermission(ROLL_CONTROL_SOURCE, ROLL_RC_SOURCE, ROLL_CONTROL_SOURCE_SHIFT)){
-            (*rollRate) = channelIn[ROLL_IN_CHANNEL - 1];
+            *rollRate = channelIn[ROLL_IN_CHANNEL - 1];
         }
         if (getControlPermission(THROTTLE_CONTROL_SOURCE, THROTTLE_RC_SOURCE, THROTTLE_CONTROL_SOURCE_SHIFT)){
-            (*throttle) = (channelIn[THROTTLE_IN_CHANNEL - 1]);
+            *throttle = channelIn[THROTTLE_IN_CHANNEL - 1];
         }
         
         if (getControlPermission(PITCH_CONTROL_SOURCE, PITCH_RC_SOURCE, PITCH_CONTROL_SOURCE_SHIFT)){
-            (*pitchRate) = channelIn[PITCH_IN_CHANNEL - 1];
+            *pitchRate = channelIn[PITCH_IN_CHANNEL - 1];
         }
         
-        (*yawRate) = channelIn[YAW_IN_CHANNEL - 1];
+        *yawRate = channelIn[YAW_IN_CHANNEL - 1];
 }
 
 void outputMixing(int* channelOut, int* control_Roll, int* control_Pitch, int* control_Throttle, int* control_Yaw){

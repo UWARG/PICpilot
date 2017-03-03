@@ -36,7 +36,7 @@ void initTimer4(){
     T4CONbits.TGATE = 0; // Disable Gated Timer mode
     T4CONbits.TCKPS = 0b10; // Select 1:64 Prescaler
     TMR4 = 0x00; // Clear timer register
-    PR4 = 625; // Load the period value
+    PR4 = T4_PERIOD_TICKS; // Load the period value
     IPC6bits.T4IP = 0x01; // Set Timer 4 Interrupt Priority Level
     IFS1bits.T4IF = 0; // Clear Timer 4 Interrupt Flag
     IEC1bits.T4IE = 1; // Enable Timer 4 interrupt

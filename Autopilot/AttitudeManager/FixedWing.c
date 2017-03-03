@@ -64,10 +64,10 @@ void dearmVehicle(){
 
 void inputMixing(int* channelIn, int* rollRate, int* pitchRate, int* throttle, int* yawRate){
         if (getControlPermission(ROLL_CONTROL_SOURCE, ROLL_RC_SOURCE,ROLL_CONTROL_SOURCE_SHIFT)){
-            (*rollRate) = channelIn[ROLL_IN_CHANNEL - 1];
+            *rollRate = channelIn[ROLL_IN_CHANNEL - 1];
         }
         if (getControlPermission(THROTTLE_CONTROL_SOURCE, THROTTLE_RC_SOURCE,THROTTLE_CONTROL_SOURCE_SHIFT)) {
-            (*throttle) = (channelIn[THROTTLE_IN_CHANNEL - 1]);
+            *throttle = channelIn[THROTTLE_IN_CHANNEL - 1];
         }
 
         if (getControlPermission(FLAP_CONTROL_SOURCE, FLAP_RC_SOURCE,FLAP_CONTROL_SOURCE_SHIFT)) {
@@ -76,18 +76,18 @@ void inputMixing(int* channelIn, int* rollRate, int* pitchRate, int* throttle, i
         
         #if TAIL_TYPE == STANDARD_TAIL
         if (getControlPermission(PITCH_CONTROL_SOURCE, PITCH_RC_SOURCE,0)){
-            (*pitchRate) = channelIn[PITCH_IN_CHANNEL - 1];
+            *pitchRate = channelIn[PITCH_IN_CHANNEL - 1];
         }
-        (*yawRate) = channelIn[YAW_IN_CHANNEL - 1];
+        *yawRate = channelIn[YAW_IN_CHANNEL - 1];
         
         #elif TAIL_TYPE == V_TAIL    //V-tail
         // TODO
 
         #elif TAIL_TYPE == INV_V_TAIL
         if (getControlPermission(PITCH_CONTROL_SOURCE, PITCH_RC_SOURCE,0)){
-            (*pitchRate) = (channelIn[L_TAIL_IN_CHANNEL - 1] - channelIn[R_TAIL_IN_CHANNEL - 1]) / (2 * ELEVATOR_PROPORTION);
+            *pitchRate = (channelIn[L_TAIL_IN_CHANNEL - 1] - channelIn[R_TAIL_IN_CHANNEL - 1]) / (2 * ELEVATOR_PROPORTION);
         }
-        (*yawRate) = (channelIn[L_TAIL_IN_CHANNEL - 1] + channelIn[R_TAIL_IN_CHANNEL - 1] ) / (2 * RUDDER_PROPORTION);
+        *yawRate = (channelIn[L_TAIL_IN_CHANNEL - 1] + channelIn[R_TAIL_IN_CHANNEL - 1] ) / (2 * RUDDER_PROPORTION);
         
         #endif
 }
