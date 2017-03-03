@@ -8,6 +8,14 @@
 #include "timer.h"
 
 /**
+ * Initial scale factors used for scaling the RC inputs to the MIN_PWM - MAX_PWM range,
+ * and scaling outputs in the same range to the RC input range suitable for servos.
+ * These scale factors should be reconfigured by the ground station, hence they are just the DEFAULT.
+ */
+#define DEFAULT_INPUT_SCALE_FACTOR (MAX_PWM/(float)(UPPER_PWM - MIDDLE_PWM))
+#define DEFAULT_OUTPUT_SCALE_FACTOR ((float)(UPPER_PWM - MIDDLE_PWM)/MAX_PWM) //its really just 1/INPUT_DEFAULT_SCALE_FACTOR, but this makes it clearer why
+
+/**
  * Contains the scaled PWM inputs received from the RC controller from MIN_PWM - MAX_PWM
  */
 static int pwm_inputs[NUM_CHANNELS];

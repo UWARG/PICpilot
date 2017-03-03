@@ -51,14 +51,6 @@
 #define MIDDLE_PWM (int)(((UPPER_PWM - LOWER_PWM)/2) + LOWER_PWM)
 
 /**
- * Initial scale factors used for scaling the RC inputs to the MIN_PWM - MAX_PWM range,
- * and scaling outputs in the same range to the RC input range suitable for servos.
- * These scale factors should be reconfigured by the ground station, hence they are just the DEFAULT
- */
-#define DEFAULT_INPUT_SCALE_FACTOR (MAX_PWM/(float)(UPPER_PWM - MIDDLE_PWM))
-#define DEFAULT_OUTPUT_SCALE_FACTOR ((float)(UPPER_PWM - MIDDLE_PWM)/MAX_PWM) //its really just 1/INPUT_DEFAULT_SCALE_FACTOR, but this makes it clearer why
-
-/**
  * Value to give to a channel thats disconnected. Used to easily let the
  * ground station operator know that the input is disconnected, and so that you don't
  * get random PWM input values if you have specific scaling
