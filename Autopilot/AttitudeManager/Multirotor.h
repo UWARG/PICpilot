@@ -1,8 +1,8 @@
 /* 
  * File:   Multirotor.h
- * Author: Chris Hajduk
+ * Author: Ian Frosst
  *
- * Created on September 6, 2015, 1:02 PM
+ * Created on February 13, 2017, 8:58 PM
  */
 
 #ifndef MULTIROTOR_H

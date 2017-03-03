@@ -11,10 +11,6 @@
 #include "main.h"
 #include "ProgramStatus.h"
 
-/*
- * 
- */
-
 //State Machine Triggers (Mostly Timers)
 int dmaTimer = 0;
 int uplinkTimer = 0;
@@ -30,7 +26,7 @@ int dTime = 0;
 void StateMachine(char entryLocation){
     //Timers
     dTime = (int)(getTime() - stateMachineTimer);
-    stateMachineTimer = getTime();
+    stateMachineTimer += dTime;
     uplinkTimer += dTime;
     downlinkP0Timer += dTime;
     downlinkP1Timer += dTime;
@@ -38,6 +34,9 @@ void StateMachine(char entryLocation){
     imuTimer += dTime;
     dmaTimer += dTime;
     
+    char debStr[32];
+    sprintf(debStr, "dTime was: %d", dTime);
+    debug(debStr);
     
     //Clear Watchdog timer
     asm("CLRWDT");

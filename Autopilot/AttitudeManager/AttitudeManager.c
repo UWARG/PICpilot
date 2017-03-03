@@ -496,10 +496,10 @@ int getFlapInput(char source){
 }
 
 int getAltitudeInput(char source){
-    if (source == ALTITUDE_GS_SOURCE - 1){
+    if (source == ALTITUDE_GS_SOURCE){
         return input_GS_Altitude;
     }
-    else if (source == ALTITUDE_AP_SOURCE - 1){
+    else if (source == ALTITUDE_AP_SOURCE){
         return input_AP_Altitude;
     }
     else
@@ -510,7 +510,7 @@ int getHeadingInput(char source){
     if (source == HEADING_GS_SOURCE){
         return input_GS_Heading;
     }
-    else if (source == HEADING_AP_SOURCE - 1){
+    else if (source == HEADING_AP_SOURCE){
         return input_AP_Heading;
     }
     else
@@ -518,10 +518,9 @@ int getHeadingInput(char source){
 }
 
 void setKValues(int type,float* values){
-    int Kchannel[7] = {YAW, PITCH, ROLL, HEADING, ALTITUDE, THROTTLE, FLAP};
     int i = 0;
     for(; i<PID_CHANNELS; i++){
-       setGain(Kchannel[i],type,values[i]);
+       setGain(i, type, values[i]);
     }
 }
 
