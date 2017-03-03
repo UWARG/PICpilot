@@ -36,16 +36,10 @@ float* velocityComponents;
 
 // Setpoints (From radio transmitter or autopilot)
 int sp_PitchRate = 0;
-int sp_ThrottleRate = MIN_PWM;
+int sp_Throttle = MIN_PWM;
 int sp_FlapRate = MIN_PWM;
 int sp_YawRate = 0;
 int sp_RollRate = 0;
-
-int sp_ComputedPitchRate = 0;
-//int sp_ComputedThrottleRate = 0;
-int sp_ComputedRollRate = 0;
-int sp_ComputedYawRate = 0;
-
 
 int sp_PitchAngle = 0;
 int ctrl_PitchAngle = 0;
@@ -94,10 +88,6 @@ float imu_RollAngle = 0;
 float imu_PitchAngle = 0;
 float imu_YawAngle = 0;
 
-int rollTrim = 0;
-int pitchTrim = 0;
-int yawTrim = 0;
-
 //RC Input Signals (Input Capture Values)
 int input_RC_RollRate = 0;
 int input_RC_PitchRate = 0;
@@ -123,9 +113,6 @@ int input_GS_Heading = 0;
 int input_AP_Altitude = 0;
 int input_AP_Heading = 0;
 
-//PID Global Variable Storage Values
-int rollPID, pitchPID, throttlePID, yawPID, flapPID;
-
 float scaleFactor = 20; //Change this
 
 char displayGain = 0;
@@ -133,12 +120,7 @@ int controlLevel = 0;
 int lastCommandSentCode[COMMAND_HISTORY_SIZE];
 int lastCommandCounter = 0;
 
-int headingCounter = 0;
-char altitudeTrigger = 0;
-
 float refRotationMatrix[9];
-float lastAltitude = 0;
-long int lastAltitudeTime = 0;
 
 char lastNumSatellites = 0;
 
@@ -192,7 +174,7 @@ void attitudeInit() {
      *  *****************************************************************
      */
     //In order: Angular Walk, Angular Rate x 3, Magnetometer x 3, Acceleration x 3
-    float filterVariance[10] = {1e-9, 1e-9, 1e-9, 1e-9, 1, 1, 1, 1e-4, 1e-4, 1e-4}; //  float filterVariance[10] = {1e-10, 1e-6, 1e-6, 1e-6, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2};
+    float filterVariance[10] = {1e-9, 1e-9, 1e-9, 1e-9, 1, 1, 1, 1e-4, 1e-4, 1e-4}; //  {1e-10, 1e-6, 1e-6, 1e-6, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2};
     VN100_initSPI();
 
     char model[12];
@@ -221,6 +203,9 @@ void attitudeInit() {
     if (checkDataLinkConnection()){
         setSensorStatus(XBEE, SENSOR_INITIALIZED & TRUE);
     }
+    
+    orientationInit();
+    
     initialization();
     setProgramStatus(MAIN_EXECUTION);
 }
@@ -246,12 +231,12 @@ char checkDMA(){
         pmPathGain = pmData.pmPathGain;
 
         //Check if this data is new and requires action or if it is old and redundant
-        if (gps_Altitude == pmData.altitude && gps_Heading == pmData.heading && gps_GroundSpeed == pmData.speed && gps_Latitude == pmData.latitude && gps_Longitude == pmData.longitude){
+        if (gps_Altitude == pmData.altitude && gps_Heading == pmData.heading && gps_GroundSpeed == pmData.speed / 3.6f && gps_Latitude == pmData.latitude && gps_Longitude == pmData.longitude){
             return FALSE;
         }
 
         gps_Heading = pmData.heading;
-        gps_GroundSpeed = pmData.speed * 1000.0/3600.0; //Convert from km/h to m/s
+        gps_GroundSpeed = pmData.speed / 3.6f; //Convert from km/h to m/s
         gps_Longitude = pmData.longitude;
         gps_Latitude = pmData.latitude;
         gps_Altitude = pmData.altitude;
@@ -290,7 +275,6 @@ char checkDMA(){
         while (DMA1REQbits.FORCE == 1);
         return FALSE;
     }
-
 }
 
 float getAltitude(){
@@ -339,7 +323,7 @@ int getYawRateSetpoint(){
     return sp_YawRate;
 }
 int getThrottleSetpoint(){
-    return sp_ThrottleRate;
+    return sp_Throttle;
 }
 int getFlapSetpoint(){
     return sp_FlapRate;
@@ -367,7 +351,7 @@ void setYawRateSetpoint(int setpoint){
     sp_YawRate = setpoint;
 }
 void setThrottleSetpoint(int setpoint){
-    sp_ThrottleRate = setpoint;
+    sp_Throttle = setpoint;
 }
 void setFlapSetpoint(int setpoint){
     sp_FlapRate = setpoint;
@@ -395,13 +379,6 @@ void inputCapture(){
 //        sp_Type = channelIn[5];
 //        sp_Value = channelIn[6];
     input_RC_Switch1 = channelIn[AUTOPILOT_ACTIVE_IN_CHANNEL - 1];
-
-    //Controller Input Interpretation Code
-    if (input_RC_Switch1 > MIN_PWM && input_RC_Switch1 < MIN_PWM + 50) {
-        unfreezeIntegral();
-    } else {
-        freezeIntegral();
-    }
 }
 
 int getPitchAngleInput(char source){
@@ -520,8 +497,8 @@ int getHeadingInput(char source){
 
 void setKValues(int type,float* values){
     int Kchannel[7] = {YAW, PITCH, ROLL, HEADING, ALTITUDE, THROTTLE, FLAP};
-    int i;
-    for(i=0; i<7; i++){
+    int i = 0;
+    for(; i<PID_CHANNELS; i++){
        setGain(Kchannel[i],type,values[i]);
     }
 }
@@ -576,14 +553,12 @@ int altitudeControl(int setpoint, int sensorAltitude){
 
 int throttleControl(int setpoint, int sensor){
     //Throttle
-    throttlePID = sp_ThrottleRate + controlSignalThrottle(setpoint, sensor);
-    return throttlePID;
+    return sp_Throttle + controlSignalThrottle(setpoint, sensor);
 }
 
 int flapControl(int setpoint, int sensor){
     //Flaps
-    flapPID = sp_FlapRate + controlSignalFlap(setpoint, sensor);
-    return flapPID;
+    return sp_FlapRate + controlSignalFlap(setpoint, sensor);
 }
 
 //Equivalent to "Yaw Angle Control"
@@ -609,14 +584,12 @@ int headingControl(int setpoint, int sensor){
 
 int rollAngleControl(int setpoint, int sensor){
     //Roll Angle
-    sp_ComputedRollRate = controlSignalAngles(setpoint, sensor, ROLL, -(HALF_PWM_RANGE) / (MAX_ROLL_ANGLE));
-    return sp_ComputedRollRate;
+    return controlSignalAngles(setpoint, sensor, ROLL, -(HALF_PWM_RANGE) / (MAX_ROLL_ANGLE));
 }
 
 int pitchAngleControl(int setpoint, int sensor){
     //Pitch Angle
-    sp_ComputedPitchRate = controlSignalAngles(setpoint, sensor, PITCH, -(HALF_PWM_RANGE) / (MAX_PITCH_ANGLE)); //Removed negative
-    return sp_ComputedPitchRate;
+    return controlSignalAngles(setpoint, sensor, PITCH, -(HALF_PWM_RANGE) / (MAX_PITCH_ANGLE)); //Removed negative
 }
 
 int coordinatedTurn(float pitchRate, int rollAngle){
@@ -626,16 +599,13 @@ int coordinatedTurn(float pitchRate, int rollAngle){
 }
 
 int rollRateControl(float setpoint, float sensor){
-    rollPID = controlSignal(setpoint/SERVO_SCALE_FACTOR, sensor, ROLL);
-    return rollPID;
+    return controlSignal(setpoint/SERVO_SCALE_FACTOR, sensor, ROLL);
 }
 int pitchRateControl(float setpoint, float sensor){
-    pitchPID = controlSignal(setpoint/SERVO_SCALE_FACTOR, sensor, PITCH);
-    return pitchPID;
+    return controlSignal(setpoint/SERVO_SCALE_FACTOR, sensor, PITCH);
 }
 int yawRateControl(float setpoint, float sensor){
-    yawPID = controlSignal(setpoint/SERVO_SCALE_FACTOR, sensor, YAW);
-    return yawPID;
+    return controlSignal(setpoint/SERVO_SCALE_FACTOR, sensor, YAW);
 }
 
 char getControlPermission(unsigned int controlMask, unsigned int expectedValue, char bitshift){
@@ -644,7 +614,6 @@ char getControlPermission(unsigned int controlMask, unsigned int expectedValue, 
 }
 
 void readDatalink(void){
-
     struct command* cmd = popCommand();
     //TODO: Add rudimentary input validation
     if ( cmd ) {
@@ -708,7 +677,7 @@ void readDatalink(void){
                 setGain(ALTITUDE, GAIN_KI, *(float*)(&cmd->data));
                 break;
             case SET_THROTTLE_KD_GAIN:
-                setGain(THROTTLE, GAIN_KD, *(float*)(&cmd->data));
+                setGain(PID_THROTTLE, GAIN_KD, *(float*)(&cmd->data));
                 break;
             case SET_THROTTLE_KP_GAIN:
                 setGain(THROTTLE, GAIN_KP, *(float*)(&cmd->data));

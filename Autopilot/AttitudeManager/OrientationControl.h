@@ -110,42 +110,6 @@ int controlSignalAngles(float setpoint, float output, unsigned char type, float 
 int controlSignal(float setpoint, float output, unsigned char type);
 
 /*****************************************************************************
- * Function: void freezeIntegral()
- *
- * Preconditions: None.
- *
- * Overview: This function is used to prevent the integrator from building up in
- * the PID loop. If the integrator is left running, a tragic control overshoot
- * could result. This is often used if the calculations are still being processed,
- * when the plane is in manual mode (not conforming to the control signals).
- *
- * Input:   None.
- *
- * Output:  None.
- *
- *****************************************************************************/
-
-void freezeIntegral();
-
-/*****************************************************************************
- * Function: void unfreezeIntegral()
- *
- * Preconditions: None.
- *
- * Overview: This function is used to renable the integrator after it was turned
- * off by the function above. If the integrator is left left frozen, the integral
- * control signal code will have no effect. This is often used if control is
- * switched back to the autopilot from manual control.
- *
- * Input:   None.
- *
- * Output:  None.
- *
- *****************************************************************************/
-
-void unfreezeIntegral();
-
-/*****************************************************************************
  * Function: void setIntegralSum(unsigned char YPR, float value)
  *
  * Preconditions: None.
@@ -222,6 +186,5 @@ float getGain(unsigned char YPR, unsigned char type);
  *****************************************************************************/
 
 void setGain(unsigned char YPR, unsigned char type, float value);
-char areGainsUpdated();
-void forceGainUpdate();
+
 

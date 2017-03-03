@@ -12,6 +12,7 @@
 #include <p33FJ256GP710A.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <math.h>
 
 //Constants
@@ -27,7 +28,6 @@
 //used for error checking to see if GPS coordinates make sense
 #define GPS_ERROR 3 
 
-
 //Define constants for global use in the code
 #define TRUE	0xFF
 #define FALSE	0x00
@@ -39,7 +39,7 @@
 #define deg2rad(DEG) ((DEG) * PI/180.0)
 #define rad2deg(RAD) ((RAD) * 180.0/PI)
 
-//Waypoint Management Commands
+// Datalink --> Path Manager commands
 #define PM_DEBUG_TEST 0
 #define PM_NEW_WAYPOINT 1
 #define PM_CLEAR_WAYPOINTS 2
@@ -79,7 +79,7 @@ typedef struct _waypointWrapper{ // 28 bytes
     char previousId; //For use with insertNode() or operations that require reference to another node
     char nextId; //For use with insertNode() or operations that require reference to another node
     char id;    //Array ID
-}WaypointWrapper;
+} WaypointWrapper;
 
 typedef struct _PathData{
     struct _PathData* next;

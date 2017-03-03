@@ -94,18 +94,3 @@ int controlSignal(float setpoint, float output, unsigned char type) { // functio
     int controlSignal = (int)(SERVO_SCALE_FACTOR * (setpoint - output * kd_gain[type]));
     return controlSignal;
 }
-
-void freezeIntegral() {
-    integralFreeze = 1;
-}
-
-void unfreezeIntegral() {
-    integralFreeze = 0;
-}
-
-void setIntegralSum(unsigned char YPRH, float value) {
-    sum_gain[YPRH] = value;
-}
-float getIntegralSum(unsigned char YPRH){
-    return sum_gain[YPRH];
-}
