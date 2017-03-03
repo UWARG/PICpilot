@@ -34,6 +34,8 @@
 #define MAX_ROLL_RATE 180 // degrees/second
 #define MAX_PITCH_RATE 180
 
+#define wrap_180(x) (x < -180 ? x+360 : (x > 180 ? x - 360: x))
+
 typedef struct PID_val { //holds values for a generic PID loop
     // Gains
     float Kp;

@@ -135,6 +135,7 @@ int getPitchAngleInput(char source);
 int getRollAngleInput(char source);
 int getPitchRateInput(char source);
 int getRollRateInput(char source);
+int getYawAngleInput(char source);
 int getThrottleInput(char source);
 int getFlapInput(char source);
 int getAltitudeInput(char source);
