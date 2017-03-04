@@ -1,8 +1,9 @@
-/*
- * File:   FixedWing.c
- * Author: Chris Hajduk
- *
- * Created on July 2, 2015, 8:04 PM
+/**
+ * @file   FixedWing.c
+ * @author Chris Hajduk
+ * @date July 2, 2015
+ * @copyright Waterloo Aerial Robotics Group 2017 \n
+ *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE 
  */
 
 #include "PWM.h"
@@ -13,14 +14,14 @@
 
 #if VEHICLE_TYPE == FIXED_WING
 
-int outputSignal[NUM_CHANNELS];
-int control_Roll, control_Pitch, control_Yaw, control_Throttle;
+static int outputSignal[NUM_CHANNELS];
+static int control_Roll, control_Pitch, control_Yaw, control_Throttle;
 
 void initialization(){
     setPWM(THROTTLE_OUT_CHANNEL, MIN_PWM);
     
-    int channel = 0;
-    for (; channel < NUM_CHANNELS; channel++) {
+    int channel;
+    for (channel = 0; channel < NUM_CHANNELS; channel++) {
         outputSignal[channel] = 0;
     }
     setProgramStatus(UNARMED);
@@ -49,8 +50,8 @@ void armVehicle(int delayTime){
 }
 
 void dearmVehicle(){
-    int i = 1;
-    for (; i <= NUM_CHANNELS; i++){
+    int i;
+    for (i = 1; i <= NUM_CHANNELS; i++){
         setPWM(i, MIN_PWM);
     }
     setProgramStatus(UNARMED);
@@ -61,35 +62,32 @@ void dearmVehicle(){
     setProgramStatus(MAIN_EXECUTION);
 }
 
-void takeOff(){
-
-}
-void landing(){
-    
-}
-
 void inputMixing(int* channelIn, int* rollRate, int* pitchRate, int* throttle, int* yawRate){
         if (getControlPermission(ROLL_CONTROL_SOURCE, ROLL_RC_SOURCE,ROLL_CONTROL_SOURCE_SHIFT)){
-            (*rollRate) = channelIn[ROLL_IN_CHANNEL - 1];
+            *rollRate = channelIn[ROLL_IN_CHANNEL - 1];
         }
         if (getControlPermission(THROTTLE_CONTROL_SOURCE, THROTTLE_RC_SOURCE,THROTTLE_CONTROL_SOURCE_SHIFT)) {
-            (*throttle) = (channelIn[THROTTLE_IN_CHANNEL - 1]);
+            *throttle = channelIn[THROTTLE_IN_CHANNEL - 1];
         }
 
+        if (getControlPermission(FLAP_CONTROL_SOURCE, FLAP_RC_SOURCE,FLAP_CONTROL_SOURCE_SHIFT)) {
+            setFlapSetpoint(channelIn[FLAP_IN_CHANNEL - 1]);
+        }
+        
         #if TAIL_TYPE == STANDARD_TAIL
         if (getControlPermission(PITCH_CONTROL_SOURCE, PITCH_RC_SOURCE,0)){
-            (*pitchRate) = channelIn[PITCH_IN_CHANNEL - 1];
+            *pitchRate = channelIn[PITCH_IN_CHANNEL - 1];
         }
-        (*yawRate) = channelIn[YAW_IN_CHANNEL - 1];
+        *yawRate = channelIn[YAW_IN_CHANNEL - 1];
         
         #elif TAIL_TYPE == V_TAIL    //V-tail
         // TODO
 
         #elif TAIL_TYPE == INV_V_TAIL
         if (getControlPermission(PITCH_CONTROL_SOURCE, PITCH_RC_SOURCE,0)){
-            (*pitchRate) = (channelIn[L_TAIL_IN_CHANNEL - 1] - channelIn[R_TAIL_IN_CHANNEL - 1]) / (2 * ELEVATOR_PROPORTION);
+            *pitchRate = (channelIn[L_TAIL_IN_CHANNEL - 1] - channelIn[R_TAIL_IN_CHANNEL - 1]) / (2 * ELEVATOR_PROPORTION);
         }
-        (*yawRate) = (channelIn[L_TAIL_IN_CHANNEL - 1] + channelIn[R_TAIL_IN_CHANNEL - 1] ) / (2 * RUDDER_PROPORTION);
+        *yawRate = (channelIn[L_TAIL_IN_CHANNEL - 1] + channelIn[R_TAIL_IN_CHANNEL - 1] ) / (2 * RUDDER_PROPORTION);
         
         #endif
 }
@@ -223,6 +221,11 @@ void lowLevelControl(){
     }
     
     //If commands come from the ground station
+    if (getControlPermission(FLAP_CONTROL_SOURCE, FLAP_GS_SOURCE ,FLAP_CONTROL_SOURCE_SHIFT)) {
+        setFlapSetpoint(getFlapInput(FLAP_GS_SOURCE));
+    }
+
+    //If commands come from the ground station
     if (getControlPermission(THROTTLE_CONTROL_SOURCE, THROTTLE_GS_SOURCE ,THROTTLE_CONTROL_SOURCE_SHIFT)) {
         setThrottleSetpoint(getThrottleInput(THROTTLE_GS_SOURCE));
     }
@@ -230,7 +233,7 @@ void lowLevelControl(){
     else if (getControlPermission(THROTTLE_CONTROL_SOURCE,THROTTLE_RC_SOURCE, THROTTLE_CONTROL_SOURCE_SHIFT)) {
         setThrottleSetpoint(getThrottleInput(THROTTLE_RC_SOURCE));
     }
-    
+
     control_Roll = rollRateControl((float)getRollRateSetpoint(), -getRollRate());
     control_Pitch = pitchRateControl((float)getPitchRateSetpoint(), -getPitchRate());
     control_Yaw = yawRateControl((float)getYawRateSetpoint(), -getYawRate());
@@ -244,9 +247,7 @@ void lowLevelControl(){
     //Error Checking
     checkLimits(outputSignal);
     //Then Output
-    unsigned int cameraCounter = 0; //TODO: TEMPORARY, STORE TIME NOT COUNTER (OR BOTH) IMPLEMENT THIS A BETTER WAY
-    cameraPollingRuntime(getLatitude(), getLongitude(), getTime(), &cameraCounter, getRoll(), getPitch());
-    cameraGimbalStabilization(getRoll());
+
     goProGimbalStabilization(getRoll());
     goProVerticalstabilization(getPitch());
     //For fixed-wing aircraft: Typically 0 = Roll, 1 = Pitch, 2 = Throttle, 3 = Yaw

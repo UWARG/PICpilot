@@ -12,16 +12,17 @@
 #include "ProgramStatus.h"
 
 //State Machine Triggers (Mostly Timers)
-int dmaTimer = 0;
-int uplinkTimer = 0;
-int downlinkP0Timer = 0;
-int downlinkP1Timer = 0;
-int downlinkP2Timer = 0;
-int imuTimer = 0;
-char AMUpdate = 0;
-char flightUpdate = 0;
-long int stateMachineTimer = 0;
-int dTime = 0;
+static int dmaTimer = 0;
+static int uplinkTimer = 0;
+static int downlinkP0Timer = 0;
+static int downlinkP1Timer = 0;
+static int downlinkP2Timer = 0;
+static int imuTimer = 0;
+static long int stateMachineTimer = 0;
+static int dTime = 0;
+
+static char AMUpdate = 0;
+static char flightUpdate = 0;
 
 void StateMachine(char entryLocation){
     //Timers

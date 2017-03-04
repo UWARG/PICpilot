@@ -27,6 +27,12 @@
 #define T2_PERIOD 20
 
 /**
+ * Timer4 Period in ticks. This value depends of the pre-scaler used.
+ * Length of one tick is 1/(frequencyCPU/Timer4PreScaler)
+ */
+#define T4_PERIOD_TICKS 625
+
+/**
  * Initializes Timer2. Its used as a 16-bit timer. Used for PWM input and output management
  */
 void initTimer2(void);

@@ -1,8 +1,9 @@
-/* 
- * File:   FixedWing.h
- * Author: Chris Hajduk / Ian Frosst
- *
- * Created on July 2, 2015, 8:03 PM
+/**
+ * @file   FixedWing.h
+ * @author Chris Hajduk
+ * @date July 2, 2015
+ * @copyright Waterloo Aerial Robotics Group 2017 \n
+ *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE 
  */
 
 #ifndef FIXEDWING_H
