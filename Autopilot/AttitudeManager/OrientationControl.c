@@ -24,9 +24,9 @@ static uint8_t gainsUpdated = 0; // updated gain flag
 
 
 // Initial PID gains. These are only used to keep sane values on startup.
-const static float init_kp[PID_CHANNELS] = {1.0, 1.0, 1.0, 10.0, 10.0, 1.0, 1.0, 1.0};
-const static float init_ki[PID_CHANNELS] = {0.2, 0.2, 0.2, 0, 0, 0, 0, 0};
-const static float init_kd[PID_CHANNELS] = {0.5, 0.5, 0.5, 0, 0, 0, 0, 0};
+const static float init_kp[PID_CHANNELS] = {0.5, 0.5, 0, 10.0, 10.0, 1.0, 1.0, 1.0};
+const static float init_ki[PID_CHANNELS] = {0, 0, 0, 0, 0, 0, 0, 0};
+const static float init_kd[PID_CHANNELS] = {0.1, 0.1, 0, 0, 0, 0, 0, 0};
 
 // To be called to initialize a new PID channel
 void initPID(PID_val* pid, float Kp, float Ki, float Kd, uint32_t imax) {
@@ -40,9 +40,9 @@ void initPID(PID_val* pid, float Kp, float Ki, float Kd, uint32_t imax) {
 }
 
 void orientationInit() {
-    uint8_t i = 0;
-    for (; i < PID_CHANNELS; i++) {
-        initPID(&pids[i], init_kp[i], init_ki[i], init_kd[i], 500);
+    uint8_t i;
+    for (i = 0; i < PID_CHANNELS; i++) {
+        initPID(&pids[i], init_kp[i], init_ki[i], init_kd[i], 1000);
     }
 }
 

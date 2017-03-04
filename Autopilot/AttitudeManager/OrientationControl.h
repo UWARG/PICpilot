@@ -29,12 +29,12 @@
 
 #define PID_RESET_TIME 1000 // timeout to reset I and D terms (ms)
 
-#define MAX_ROLL_ANGLE 35 // degrees
-#define MAX_PITCH_ANGLE 35
+#define MAX_ROLL_ANGLE 35.f // degrees
+#define MAX_PITCH_ANGLE 35.f
 
-#define MAX_ROLL_RATE 180 // degrees/second
-#define MAX_PITCH_RATE 180
-#define MAX_YAW_RATE 240
+#define MAX_ROLL_RATE 180.f // degrees/second
+#define MAX_PITCH_RATE 180.f
+#define MAX_YAW_RATE 240.f
 
 #define wrap_180(x) (x < -180 ? x+360 : (x > 180 ? x - 360: x))
 

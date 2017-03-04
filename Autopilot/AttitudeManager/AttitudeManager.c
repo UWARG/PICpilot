@@ -399,7 +399,7 @@ void inputCapture(){
 
 int getPitchAngleInput(char source){
     if (source == RC_SOURCE){
-        return (int)((input_RC_PitchRate / ((float)HALF_PWM_RANGE / MAX_PITCH_ANGLE) ));
+        return (int)(input_RC_PitchRate  / (HALF_PWM_RANGE / MAX_PITCH_ANGLE));
     }
     else if (source == GS_SOURCE){
         return input_GS_Pitch;
@@ -409,7 +409,7 @@ int getPitchAngleInput(char source){
 }
 int getPitchRateInput(char source){
     if (source == RC_SOURCE){
-        return input_RC_PitchRate * MAX_PITCH_RATE / HALF_PWM_RANGE;
+        return (int)(input_RC_PitchRate  / (HALF_PWM_RANGE / MAX_PITCH_RATE));
     }
     else if (source == GS_SOURCE){
         return input_GS_PitchRate;
@@ -419,7 +419,7 @@ int getPitchRateInput(char source){
 }
 int getRollAngleInput(char source){
     if (source == RC_SOURCE){
-        return (int)((input_RC_RollRate / ((float)HALF_PWM_RANGE / MAX_ROLL_ANGLE) ));
+        return (int)(input_RC_RollRate / (HALF_PWM_RANGE / MAX_ROLL_ANGLE));
     }
     else if (source == GS_SOURCE){
         return input_GS_Roll;
@@ -430,7 +430,7 @@ int getRollAngleInput(char source){
 }
 int getRollRateInput(char source){
     if (source == RC_SOURCE){
-        return input_RC_RollRate * MAX_ROLL_RATE / HALF_PWM_RANGE;
+        return (int)(input_RC_RollRate / (HALF_PWM_RANGE / MAX_ROLL_RATE));
     }
     else if (source == GS_SOURCE){
         return input_GS_RollRate;
@@ -441,7 +441,7 @@ int getRollRateInput(char source){
 
 int getYawRateInput(char source){
     if (source == RC_SOURCE){
-        return input_RC_YawRate * MAX_YAW_RATE / HALF_PWM_RANGE;
+        return (int)(input_RC_YawRate / (HALF_PWM_RANGE / MAX_YAW_RATE));
     }
     else if (source == GS_SOURCE){
         return input_GS_YawRate;
