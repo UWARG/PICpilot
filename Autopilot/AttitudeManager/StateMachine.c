@@ -34,10 +34,6 @@ void StateMachine(char entryLocation){
     imuTimer += dTime;
     dmaTimer += dTime;
     
-    char debStr[32];
-    sprintf(debStr, "dTime was: %d", dTime);
-    debug(debStr);
-    
     //Clear Watchdog timer
     asm("CLRWDT");
     //Feedback systems such as this autopilot are very sensitive to timing. In order to keep it consistent we should try to keep the timing between the calculation of error corrections and the output the same.

@@ -24,9 +24,9 @@ static uint8_t gainsUpdated = 0; // updated gain flag
 
 
 // Initial PID gains. These are only used to keep sane values on startup.
-const static float init_kp[PID_CHANNELS] = {1.0, 1.0, 2.0, 4.0, 4.0, 1.0, 1.0, 1.0};
-const static float init_ki[PID_CHANNELS] = {0};
-const static float init_kd[PID_CHANNELS] = {0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5};
+const static float init_kp[PID_CHANNELS] = {1.0, 1.0, 1.0, 10.0, 10.0, 1.0, 1.0, 1.0};
+const static float init_ki[PID_CHANNELS] = {0.2, 0.2, 0.2, 0, 0, 0, 0, 0};
+const static float init_kd[PID_CHANNELS] = {0.5, 0.5, 0.5, 0, 0, 0, 0, 0};
 
 // To be called to initialize a new PID channel
 void initPID(PID_val* pid, float Kp, float Ki, float Kd, uint32_t imax) {
@@ -100,7 +100,7 @@ float getGain(uint8_t channel, uint8_t type){
             return pids[channel].Kd;
         }
     }
-    return -10000; // TODO: return something better than an obviously wrong value
+    return -1; // TODO: return something better than an obviously wrong value
 }
 
 void setGain(uint8_t channel, uint8_t type, float value){

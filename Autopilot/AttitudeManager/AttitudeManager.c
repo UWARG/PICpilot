@@ -415,7 +415,7 @@ int getPitchAngleInput(char source){
 }
 int getPitchRateInput(char source){
     if (source == RC_SOURCE){
-        return input_RC_PitchRate;
+        return input_RC_PitchRate * MAX_PITCH_RATE / HALF_PWM_RANGE;
     }
     else if (source == GS_SOURCE){
         return input_GS_PitchRate;
@@ -436,7 +436,7 @@ int getRollAngleInput(char source){
 }
 int getRollRateInput(char source){
     if (source == RC_SOURCE){
-        return input_RC_RollRate;
+        return input_RC_RollRate * MAX_ROLL_RATE / HALF_PWM_RANGE;
     }
     else if (source == GS_SOURCE){
         return input_GS_RollRate;
@@ -444,20 +444,10 @@ int getRollRateInput(char source){
     else
         return 0;
 }
-int getYawAngleInput(char source){
-    if (source == RC_SOURCE){
-        return (int)((input_RC_YawRate / ((float)HALF_PWM_RANGE / MAX_ROLL_ANGLE) ));
-    }
-    else if (source == GS_SOURCE){
-        return input_GS_Yaw;
-    }
-    else{
-        return 0;
-    }
-}
+
 int getYawRateInput(char source){
     if (source == RC_SOURCE){
-        return input_RC_YawRate;
+        return input_RC_YawRate * MAX_YAW_RATE / HALF_PWM_RANGE;
     }
     else if (source == GS_SOURCE){
         return input_GS_YawRate;
@@ -551,14 +541,14 @@ void imuCommunication(){
 #if DEBUG
     // Rate - Radians, Angle - Degrees
 //    char x[30];
-//    sprintf(&x, "IMU Roll Rate: %f", imu_RollRate);
-//    debug(&x);
-//    sprintf(&x, "IMU Pitch Rate: %f", imu_PitchRate);
-//    debug(&x);
-//    sprintf(&x, "IMU Pitch Angle: %f", imu_PitchAngle);
-//    debug(&x);
-//    sprintf(&x, "IMU Roll Angle: %f", imu_RollAngle);
-//    debug(&x);
+//    sprintf(x, "IMU Roll Rate: %f", imu_RollRate);
+//    debug(x);
+//    sprintf(x, "IMU Pitch Rate: %f", imu_PitchRate);
+//    debug(x);
+//    sprintf(x, "IMU Pitch Angle: %f", imu_PitchAngle);
+//    debug(x);
+//    sprintf(x, "IMU Roll Angle: %f", imu_RollAngle);
+//    debug(x);
 #endif
 }
 
@@ -908,7 +898,7 @@ int writeDatalink(p_priority packet){
             statusData->data.p1_block.pitchRate = getPitchRate();
             statusData->data.p1_block.rollRate = getRollRate();
             statusData->data.p1_block.yawRate = getYawRate();
-            statusData->data.p1_block.airspeed = airspeed;
+            statusData->data.p1_block.airspeed = 0;//airspeed;
             statusData->data.p1_block.alt = getAltitude();
             statusData->data.p1_block.gSpeed = gps_GroundSpeed;
             statusData->data.p1_block.heading = getHeading();
@@ -919,18 +909,18 @@ int writeDatalink(p_priority packet){
             statusData->data.p1_block.throttleSetpoint = getThrottleSetpoint();
             break;
         case PRIORITY1:
-            statusData->data.p2_block.rollKD = getGain(ROLL,GAIN_KD);
-            statusData->data.p2_block.rollKP = getGain(ROLL,GAIN_KP);
-            statusData->data.p2_block.pitchKD = getGain(PITCH,GAIN_KD);
-            statusData->data.p2_block.pitchKP = getGain(PITCH,GAIN_KP);
-            statusData->data.p2_block.yawKD = getGain(YAW,GAIN_KD);
-            statusData->data.p2_block.yawKP = getGain(YAW,GAIN_KP);
+            statusData->data.p2_block.rollKD = getGain(PID_ROLL_RATE,GAIN_KD);
+            statusData->data.p2_block.rollKP = getGain(PID_ROLL_RATE,GAIN_KP);
+            statusData->data.p2_block.pitchKD = getGain(PID_PITCH_RATE,GAIN_KD);
+            statusData->data.p2_block.pitchKP = getGain(PID_PITCH_RATE,GAIN_KP);
+            statusData->data.p2_block.yawKD = getGain(PID_YAW_RATE,GAIN_KD);
+            statusData->data.p2_block.yawKP = getGain(PID_YAW_RATE,GAIN_KP);
             statusData->data.p2_block.lastCommandsSent[0] = lastCommandSentCode[lastCommandCounter];
             statusData->data.p2_block.lastCommandsSent[1] = lastCommandSentCode[(lastCommandCounter + (COMMAND_HISTORY_SIZE - 1))%COMMAND_HISTORY_SIZE];
             statusData->data.p2_block.lastCommandsSent[2] = lastCommandSentCode[(lastCommandCounter + (COMMAND_HISTORY_SIZE - 2))%COMMAND_HISTORY_SIZE];
             statusData->data.p2_block.lastCommandsSent[3] = lastCommandSentCode[(lastCommandCounter + (COMMAND_HISTORY_SIZE - 3))%COMMAND_HISTORY_SIZE];
-            statusData->data.p2_block.batteryLevel1 = batteryLevel1;
-            statusData->data.p2_block.batteryLevel2 = batteryLevel2;
+            statusData->data.p2_block.batteryLevel1 = 50;//batteryLevel1;
+            statusData->data.p2_block.batteryLevel2 = 50;//batteryLevel2;
 //            debug("SW3");
             if (show_scaled_pwm){
                 input = getPWMArray(getTime());
@@ -960,7 +950,7 @@ int writeDatalink(p_priority packet){
             statusData->data.p2_block.altitudeSetpoint = getAltitudeSetpoint();
             statusData->data.p2_block.flapSetpoint = getFlapSetpoint();
             statusData->data.p2_block.cameraStatus = cameraCounter;
-            statusData->data.p2_block.wirelessConnection = ((input[5] < 180) << 1) + (input[7] > 0);//+ RSSI;
+            statusData->data.p2_block.wirelessConnection = 0;//((input[5] < 180) << 1) + (input[7] > 0);//+ RSSI;
             statusData->data.p2_block.autopilotActive = getProgramStatus();
             //statusData->data.p2_block.sensorStat = getSensorStatus(0) + (getSensorStatus(1) << 2);
             statusData->data.p2_block.gpsStatus = gps_Satellites + (gps_PositionFix << 4);
@@ -989,7 +979,7 @@ int writeDatalink(p_priority packet){
             statusData->data.p3_block.orbitGain = pmOrbitGain;
             statusData->data.p3_block.autonomousLevel = controlLevel;
             statusData->data.p3_block.startupErrorCodes = getStartupErrorCodes();
-            statusData->data.p3_block.startupSettings = DEBUG + (MULTIROTOR << 1); //TODO: put this in the startuperrorCode file
+            statusData->data.p3_block.startupSettings = DEBUG;
             statusData->data.p3_block.probeStatus = getProbeStatus();
             break;
 

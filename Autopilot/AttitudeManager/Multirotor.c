@@ -74,18 +74,17 @@ void landing(){
 }
 
 void inputMixing(int* channelIn, int* rollRate, int* pitchRate, int* throttle, int* yawRate) { //no flaps on a quad
-        if (getControlPermission(ROLL_CONTROL_SOURCE, RC_SOURCE, ROLL_CONTROL_SOURCE_SHIFT)){
-            (*rollRate) = channelIn[ROLL_IN_CHANNEL - 1];
-        }
-        if (getControlPermission(THROTTLE_CONTROL_SOURCE, RC_SOURCE, THROTTLE_CONTROL_SOURCE_SHIFT)){
-            (*throttle) = (channelIn[THROTTLE_IN_CHANNEL - 1]);
-        }
-        
-        if (getControlPermission(PITCH_CONTROL_SOURCE, RC_SOURCE, PITCH_CONTROL_SOURCE_SHIFT)){
-            (*pitchRate) = channelIn[PITCH_IN_CHANNEL - 1];
-        }
-        
-        (*yawRate) = channelIn[YAW_IN_CHANNEL - 1];
+    if (getControlPermission(ROLL_CONTROL_SOURCE, RC_SOURCE, ROLL_CONTROL_SOURCE_SHIFT)){
+        (*rollRate) = channelIn[ROLL_IN_CHANNEL - 1];
+    }
+    if (getControlPermission(THROTTLE_CONTROL_SOURCE, RC_SOURCE, THROTTLE_CONTROL_SOURCE_SHIFT)){
+        (*throttle) = channelIn[THROTTLE_IN_CHANNEL - 1];
+    }
+    if (getControlPermission(PITCH_CONTROL_SOURCE, RC_SOURCE, PITCH_CONTROL_SOURCE_SHIFT)){
+        (*pitchRate) = channelIn[PITCH_IN_CHANNEL - 1];
+    }
+
+    (*yawRate) = channelIn[YAW_IN_CHANNEL - 1];
 }
 
 void outputMixing(int* channelOut, int* control_Roll, int* control_Pitch, int* control_Throttle, int* control_Yaw){
@@ -144,6 +143,11 @@ void highLevelControl(){
     else { // if no altitude control, get raw throttle input (RC or GS)
         setThrottleSetpoint(getThrottleInput(getControlValue(THROTTLE_CONTROL_SOURCE, THROTTLE_CONTROL_SOURCE_SHIFT)));
     }
+//    setPitchAngleSetpoint(0);
+//    setPitchRateSetpoint(PIDcontrol(PID_PITCH_ANGLE, getPitchAngleSetpoint() - getPitch()));
+//    setRollAngleSetpoint(0);
+//    setRollRateSetpoint(PIDcontrol(PID_ROLL_ANGLE, getRollAngleSetpoint() - getRoll()));
+//    setYawRateSetpoint(0);
 }
 
 void lowLevelControl() {  
@@ -159,7 +163,14 @@ void lowLevelControl() {
     //Error Checking
     checkLimits(outputSignal);
 
-    setAllPWM(outputSignal);
+    if (control_Throttle > -850) {
+        setAllPWM(outputSignal);
+    } else {
+        setPWM(FRONT_LEFT_MOTOR, MIN_PWM);
+        setPWM(FRONT_RIGHT_MOTOR, MIN_PWM);
+        setPWM(BACK_RIGHT_MOTOR, MIN_PWM);
+        setPWM(BACK_LEFT_MOTOR, MIN_PWM);
+    }
 }
 
 #endif
