@@ -6,6 +6,7 @@
  */
 #include "main.h"
 #include "StartupErrorCodes.h"
+#include "../Common/Utilities/Logger.h"
 
 unsigned int lastStartupErrors = 0;
 
