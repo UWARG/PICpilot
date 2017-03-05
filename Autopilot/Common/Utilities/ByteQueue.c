@@ -35,7 +35,7 @@ unsigned char popBQueue(ByteQueue* queue)
         
         //if the queue size is a quarter of the total size, half the size of the queue for space efficiency
         if (queue->size <= queue->_total_size/4 && queue->_total_size/2 >= queue->_initial_size){
-            resizeBQueue(queue, queue->_total_size/2); //resize the queue by a half
+           resizeBQueue(queue, queue->_total_size/2); //resize the queue by a half
         }
         
         return to_return;
@@ -46,7 +46,6 @@ unsigned char pushBQueue(ByteQueue* queue, unsigned char byte)
 {
     //if the queue is full
     if (queue->size == queue->_total_size) {
-        return 0;
         unsigned int expand_size = queue->_total_size * 2;
         
         //if we've already reached the max size of the queue
@@ -96,7 +95,7 @@ static void popAllBQueue(ByteQueue* queue, unsigned char* array)
         unsigned int i;
         for (i = 0; i < queue->size; i++) {
             array[i] = queue->_data[queue->_start_index];
-            queue->_start_index = (queue->_start_index + 1) % queue->_max_size;
+            queue->_start_index = (queue->_start_index + 1) % queue->_total_size;
         }
         queue->size = 0;
         queue->_start_index = 0;
