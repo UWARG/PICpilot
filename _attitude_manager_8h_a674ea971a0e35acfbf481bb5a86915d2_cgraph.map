@@ -1,0 +1,51 @@
+<map id="readDatalink" name="readDatalink">
+<area shape="rect" id="node2" href="$net_8h.html#a60b796bdd1ee18d2f7155fbc47e3b1f6" title="popCommand" alt="" coords="706,144,809,171"/>
+<area shape="rect" id="node3" href="$_logger_8c.html#a41a264f07d7a57c334e29818d03c8ecd" title="Output a debug level message. " alt="" coords="1435,423,1493,449"/>
+<area shape="rect" id="node8" href="$_orientation_control_8c.html#a33d3e4b7aaccd7bb893f9d3dc4a1493d" title="setGain" alt="" coords="979,701,1045,728"/>
+<area shape="rect" id="node9" href="$_common_8c.html#ab1037f62067bc851a93f4689549145a2" title="generateAMDataDMACheckbyte" alt="" coords="651,701,864,728"/>
+<area shape="rect" id="node10" href="$_common_8c.html#ae72f47fbe78ed858a1a9074c93210ea8" title="generateAMDataChecksum" alt="" coords="666,803,849,829"/>
+<area shape="rect" id="node11" href="$_orientation_control_8c.html#a45e9f3f10fa9de01178032779c524535" title="forceGainUpdate" alt="" coords="697,853,817,880"/>
+<area shape="rect" id="node12" href="$_attitude_manager_8c.html#ae1c99acc45eb515ccff31b7ee8a7db33" title="setAngularWalkVariance" alt="" coords="675,1259,840,1285"/>
+<area shape="rect" id="node20" href="$_attitude_manager_8c.html#a872afc41be32c8296745efcfb897466f" title="setGyroVariance" alt="" coords="698,1107,817,1133"/>
+<area shape="rect" id="node21" href="$_attitude_manager_8c.html#a73dfbc38c88a616007d80ad654c1b367" title="setMagneticVariance" alt="" coords="685,1157,829,1184"/>
+<area shape="rect" id="node22" href="$_attitude_manager_8c.html#ab47c523ee1db1633c8bf9f991f4ec38c" title="setAccelVariance" alt="" coords="695,1208,819,1235"/>
+<area shape="rect" id="node23" href="$timer_8c.html#a3c6380ce48cf6ff104824c3f8f5ca815" title="Get current time in ms. " alt="" coords="723,195,792,221"/>
+<area shape="rect" id="node24" href="$camera_manager_8c.html#a987d8595cf608dc0155d0836e788b59f" title="triggerCamera" alt="" coords="705,1309,809,1336"/>
+<area shape="rect" id="node25" href="$camera_manager_8c.html#a3cd84e8f0f2d0ad1e0927adb08cf0a92" title="setTriggerDistance" alt="" coords="691,1360,823,1387"/>
+<area shape="rect" id="node26" href="$camera_manager_8c.html#a0d34dd79c3c34cb28600f3517bb9b67f" title="setGimbalOffset" alt="" coords="699,1411,816,1437"/>
+<area shape="rect" id="node27" href="$_state_machine_8c.html#aefe52cc9c0c6609c97693e029a4ff68a" title="killPlane" alt="" coords="722,423,793,449"/>
+<area shape="rect" id="node29" href="$camera_manager_8c.html#ae4ef8c467052d5a14a3a562aa394905d" title="lockGoPro" alt="" coords="716,1461,799,1488"/>
+<area shape="rect" id="node30" href="$_anaconda_8c.html#ac8c5a21f2f1171f29f8dc186595561e4" title="startArm" alt="" coords="721,245,793,272"/>
+<area shape="rect" id="node34" href="$_anaconda_8c.html#a83af6c52b37ed394b8dde0ef68148861" title="stopArm" alt="" coords="150,701,221,728"/>
+<area shape="rect" id="node39" href="$_probe___drop_8c.html#a1dc4dc3239bdfd88df4382d61d8bd48b" title="dropProbe" alt="" coords="717,1512,798,1539"/>
+<area shape="rect" id="node40" href="$_probe___drop_8c.html#a45ac4ac536463a64e1a35114ef2d157d" title="resetProbe" alt="" coords="715,1563,800,1589"/>
+<area shape="rect" id="node41" href="$_attitude_manager_8c.html#a78d5084afe79bca68d86489deacf6ff6" title="adjustVNOrientationMatrix" alt="" coords="670,1056,845,1083"/>
+<area shape="rect" id="node45" href="$_attitude_manager_8c.html#aecd1366a8a89aa515e6dc8479fa33c03" title="setVNOrientationMatrix" alt="" coords="678,1005,837,1032"/>
+<area shape="rect" id="node46" href="$_attitude_manager_8c.html#af0109658d5c6bbbaa3ed73e160bbca59" title="setKValues" alt="" coords="713,651,802,677"/>
+<area shape="rect" id="node47" href="$_attitude_manager_8c.html#aae909ec95f237af5c845564a11c2267b" title="setGains" alt="" coords="720,752,795,779"/>
+<area shape="rect" id="node48" href="$net_8h.html#a671c69373bf1478d9d3f5f6f24c870cc" title="destroyCommand" alt="" coords="695,1613,820,1640"/>
+<area shape="rect" id="node4" href="$_logger_8c.html#ae277f439b43c863775ac78a01924f301" title="writeMessage" alt="" coords="1590,423,1693,449"/>
+<area shape="rect" id="node5" href="$_u_a_r_t_8c.html#a51715fb2bc17a7e041ff4c5709ae8387" title="Get the number of bytes that are guaranteed to be succesfully queued to the TX buffer. " alt="" coords="1746,397,1841,424"/>
+<area shape="rect" id="node7" href="$_u_a_r_t_8c.html#a6e29417886ed510f95ae8b8dcfa8d95f" title="Queues data to send through UART. " alt="" coords="1742,448,1845,475"/>
+<area shape="rect" id="node6" href="$_byte_queue_8c.html#a348f4bb5087027200338786bc0a71982" title="This function returns the number of bytes that is guaranteed to be pushed to the queue. " alt="" coords="1894,397,2018,424"/>
+<area shape="rect" id="node13" href="$_v_n100_8c.html#a0a166f18e4b81757f9b6b91c3402d7b1" title="VN100_SPI_GetFiltMeasVar" alt="" coords="917,1259,1107,1285"/>
+<area shape="rect" id="node17" href="$_v_n100_8c.html#a133a666555c0af8fb3c15b3e3c39d2fb" title="VN100_SPI_SetFiltMeasVar" alt="" coords="918,1208,1106,1235"/>
+<area shape="rect" id="node19" href="$_v_n100_8c.html#af7f8b17e2c25a85bed3cd96e1bc8179f" title="VN100_SPI_WriteSettings" alt="" coords="923,1157,1101,1184"/>
+<area shape="rect" id="node14" href="$_v_n100_8c.html#adc02ae8fa4744d3a9efc8c88d5ef037b" title="VN100_SPI_ReadRegister" alt="" coords="1160,1132,1339,1159"/>
+<area shape="rect" id="node15" href="$_v_n__user_8c.html#a56ed96c3ccde9fc844442ceeebd7601f" title="VN_SPI_SetSS" alt="" coords="1407,1120,1521,1147"/>
+<area shape="rect" id="node16" href="$_v_n__user_8c.html#af312ced001b9f1cb9d85240f85c7d5b8" title="VN_SPI_SendReceive" alt="" coords="1387,1056,1541,1083"/>
+<area shape="rect" id="node18" href="$_v_n100_8c.html#ada119f969c1f7090e1745b2ae79262d6" title="VN100_SPI_WriteRegister" alt="" coords="1160,1081,1339,1108"/>
+<area shape="rect" id="node28" href="$_program_status_8c.html#a4518e29044a00f9dbad0aaf7db866c37" title="setProgramStatus" alt="" coords="1186,423,1313,449"/>
+<area shape="rect" id="node31" href="$_anaconda_8c.html#ad29ea68a65d325fd3124f44f09ad8008" title="armVehicle" alt="" coords="969,245,1055,272"/>
+<area shape="rect" id="node32" href="$delay_8c.html#ae3cda81b95b7cfb84da863b65054a857" title="Delay" alt="" coords="1221,169,1277,196"/>
+<area shape="rect" id="node33" href="$_p_w_m_8c.html#a12e1f21b6d004965b6e2389bce4b1386" title="Sets the PWM output of a particular output. " alt="" coords="1213,271,1286,297"/>
+<area shape="rect" id="node35" href="$_anaconda_8c.html#ac4a010716439d5ac858ae21a9c2f0f6d" title="dearmVehicle" alt="" coords="269,448,371,475"/>
+<area shape="rect" id="node36" href="$_attitude_manager_8c.html#a7c7c1389acd44e0c2e29a31f35a902ff" title="imuCommunication" alt="" coords="443,397,578,424"/>
+<area shape="rect" id="node37" href="$_attitude_manager_8c.html#a7a4dd2b79820f51766dac5b31ebc24bd" title="writeDatalink" alt="" coords="461,245,560,272"/>
+<area shape="rect" id="node38" href="$_attitude_manager_8c.html#a674ea971a0e35acfbf481bb5a86915d2" title="readDatalink" alt="" coords="463,955,558,981"/>
+<area shape="rect" id="node49" href="$net_8h.html#a93aa06bf9bf3fe5f0b4a0fd060aa80f0" title="inboundBufferMaintenance" alt="" coords="423,448,599,475"/>
+<area shape="rect" id="node50" href="$net_8h.html#a514c9b1839914eb50dda54a413cb3ae4" title="outboundBufferMaintenance" alt="" coords="419,499,603,525"/>
+<area shape="rect" id="node42" href="$_v_n100_8c.html#aff12d8893339282ab78fcae3aa6035c1" title="VN100_SPI_GetRefFrameRot" alt="" coords="913,1107,1111,1133"/>
+<area shape="rect" id="node43" href="$_v_n100_8c.html#aaa0082a5d378d0f0347fd264f318bb57" title="VN100_SPI_SetRefFrameRot" alt="" coords="913,1056,1111,1083"/>
+<area shape="rect" id="node44" href="$_v_n100_8c.html#a5f5e071fe823cd8491678ceb7e498473" title="VN100_SPI_Reset" alt="" coords="1183,980,1316,1007"/>
+</map>

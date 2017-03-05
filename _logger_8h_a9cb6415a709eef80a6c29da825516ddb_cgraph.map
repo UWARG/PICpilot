@@ -1,0 +1,4 @@
+<map id="initLogger" name="initLogger">
+<area shape="rect" id="node2" href="$_u_a_r_t_8c.html#a78356919c36d46d379c888ea97ea05ac" title="Will initialize the specified UART interface for both RX and TX transmissions at the specified baud r..." alt="" coords="134,5,210,32"/>
+<area shape="rect" id="node3" href="$_byte_queue_8c.html#a80321756123239694aaf79a871cfdf7c" title="Initializes the byte queue given the initial data size. " alt="" coords="259,5,346,32"/>
+</map>

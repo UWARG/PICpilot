@@ -1,0 +1,6 @@
+<map id="followOrbit" name="followOrbit">
+<area shape="rect" id="node2" href="$_path_manager_8h.html#aa3063dfc83d357cc1fa369dcbf0680b9" title="followWaypoints" alt="" coords="139,5,258,32"/>
+<area shape="rect" id="node5" href="$_path_manager_8c.html#a6dca47edd26b81472814063a231f76a1" title="OrbitWaypoint" alt="" coords="146,56,251,83"/>
+<area shape="rect" id="node3" href="$_path_manager_8h.html#a89485e3b088d7104d609a00ac8f635b4" title="pathManagerRuntime" alt="" coords="307,5,453,32"/>
+<area shape="rect" id="node4" href="$_path_01_manager_2main_8c.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="501,5,552,32"/>
+</map>

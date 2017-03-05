@@ -1,0 +1,6 @@
+<map id="warning" name="warning">
+<area shape="rect" id="node2" href="$_program_status_8h.html#acf089ad6e9e70e377f5fa9a9361f41f3" title="setSensorStatus" alt="" coords="121,5,239,32"/>
+<area shape="rect" id="node5" href="$_program_status_8h.html#a54891dec403c3ab3b2ded12cfff0fb19" title="getSensorStatus" alt="" coords="121,56,239,83"/>
+<area shape="rect" id="node3" href="$_attitude_manager_8h.html#aca8d3a2d782422496e6d7adfa3ea2294" title="attitudeInit" alt="" coords="288,5,371,32"/>
+<area shape="rect" id="node4" href="$_attitude_manager_2main_8c.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="419,5,469,32"/>
+</map>

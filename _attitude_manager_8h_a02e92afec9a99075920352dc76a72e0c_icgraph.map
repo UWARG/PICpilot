@@ -1,0 +1,5 @@
+<map id="getAltitudeInput" name="getAltitudeInput">
+<area shape="rect" id="node2" href="$_state_machine_8h.html#a0ec275de1c3f187c834985ddbc1d067f" title="highLevelControl" alt="" coords="169,5,287,32"/>
+<area shape="rect" id="node3" href="$_state_machine_8h.html#a0557d935ed927de974186932309946e6" title="StateMachine" alt="" coords="337,5,439,32"/>
+<area shape="rect" id="node4" href="$_attitude_manager_2main_8c.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="488,5,539,32"/>
+</map>

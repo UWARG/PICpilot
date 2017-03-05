@@ -1,0 +1,5 @@
+<map id="initPWM" name="initPWM">
+<area shape="rect" id="node2" href="$timer_8c.html#a589ad1fb039ef71aaa5b50980ca050a5" title="Initializes Timer2. " alt="" coords="126,5,205,32"/>
+<area shape="rect" id="node3" href="$_input_capture_8c.html#a7bd7f130fa043755f8c6c8303e337197" title="Initializes interrupts for the specified channels. " alt="" coords="139,56,192,83"/>
+<area shape="rect" id="node4" href="$_output_compare_8c.html#aede8cdf4f3e1815b0baabbb9ca3fc6de" title="Initializes the output compare registers and pins for PWM output. " alt="" coords="136,107,195,133"/>
+</map>

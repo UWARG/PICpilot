@@ -1,0 +1,4 @@
+<map id="initUART" name="initUART">
+<area shape="rect" id="node2" href="$_logger_8h.html#a9cb6415a709eef80a6c29da825516ddb" title="Initializes the logger module by initializing the specified UART channel. " alt="" coords="131,5,210,32"/>
+<area shape="rect" id="node3" href="$_attitude_manager_2main_8c.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="259,5,309,32"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="initMainBatteryADC" name="initMainBatteryADC">
+<area shape="rect" id="node2" href="$_main_battery_sensor_8h.html#a1248b91c344443974c62d8e7aab83970" title="initMainBatterySensor" alt="" coords="193,5,343,32"/>
+<area shape="rect" id="node3" href="$_path_manager_8h.html#aa7281128f2a9d58f14f70bccf9a28f0c" title="pathManagerInit" alt="" coords="392,5,507,32"/>
+<area shape="rect" id="node4" href="$_path_01_manager_2main_8c.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="555,5,605,32"/>
+</map>

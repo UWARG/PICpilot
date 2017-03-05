@@ -1,0 +1,5 @@
+<map id="coordinatedTurn" name="coordinatedTurn">
+<area shape="rect" id="node2" href="$_state_machine_8h.html#a882881ab0b9a6decabc3b91745d42054" title="lowLevelControl" alt="" coords="168,5,283,32"/>
+<area shape="rect" id="node3" href="$_state_machine_8h.html#a0557d935ed927de974186932309946e6" title="StateMachine" alt="" coords="331,5,434,32"/>
+<area shape="rect" id="node4" href="$_attitude_manager_2main_8c.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="483,5,533,32"/>
+</map>

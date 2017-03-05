@@ -1,0 +1,10 @@
+<map id="VN100_SPI_GetRates" name="VN100_SPI_GetRates">
+<area shape="rect" id="node2" href="$_attitude_manager_8h.html#a7c7c1389acd44e0c2e29a31f35a902ff" title="imuCommunication" alt="" coords="209,45,343,72"/>
+<area shape="rect" id="node3" href="$_anaconda_8c.html#a9a955bd8d80ffc2c4382278f85fcde08" title="initialization" alt="" coords="812,45,903,72"/>
+<area shape="rect" id="node6" href="$_anaconda_8c.html#ac4a010716439d5ac858ae21a9c2f0f6d" title="dearmVehicle" alt="" coords="392,45,493,72"/>
+<area shape="rect" id="node9" href="$_state_machine_8h.html#a0557d935ed927de974186932309946e6" title="StateMachine" alt="" coords="806,96,909,123"/>
+<area shape="rect" id="node4" href="$_attitude_manager_8h.html#aca8d3a2d782422496e6d7adfa3ea2294" title="attitudeInit" alt="" coords="957,45,1040,72"/>
+<area shape="rect" id="node5" href="$_attitude_manager_2main_8c.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1088,71,1139,97"/>
+<area shape="rect" id="node7" href="$_anaconda_8c.html#a83af6c52b37ed394b8dde0ef68148861" title="stopArm" alt="" coords="542,20,613,47"/>
+<area shape="rect" id="node8" href="$_attitude_manager_8h.html#a674ea971a0e35acfbf481bb5a86915d2" title="readDatalink" alt="" coords="662,45,757,72"/>
+</map>

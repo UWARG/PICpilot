@@ -1,0 +1,5 @@
+<map id="getAltitude" name="getAltitude">
+<area shape="rect" id="node2" href="$_i2_c_8c.html#ab1ad4b796737050ab8d4b980af2da99a" title="sendMessage" alt="" coords="139,31,242,57"/>
+<area shape="rect" id="node3" href="$_i2_c_8c.html#a02cb9a223486b30a97a1ccfcd201547e" title="readMessage" alt="" coords="293,5,393,32"/>
+<area shape="rect" id="node4" href="$_i2_c_8c.html#a89ab7d924ea58b1b5820d188a871a11a" title="writeMessage" alt="" coords="291,56,394,83"/>
+</map>

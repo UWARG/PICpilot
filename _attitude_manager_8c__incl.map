@@ -1,0 +1,25 @@
+<map id="Autopilot/AttitudeManager/AttitudeManager.c" name="Autopilot/AttitudeManager/AttitudeManager.c">
+<area shape="rect" id="node2" href="$delay_8h.html" title="delay.h" alt="" coords="28,395,92,421"/>
+<area shape="rect" id="node3" href="$_v_n100_8h.html" title="VN100.h" alt="" coords="562,245,635,272"/>
+<area shape="rect" id="node8" href="$_input_capture_8h.html" title="InputCapture.h" alt="" coords="801,96,908,123"/>
+<area shape="rect" id="node9" href="$_output_compare_8h.html" title="OutputCompare.h" alt="" coords="739,320,864,347"/>
+<area shape="rect" id="node10" href="$_p_w_m_8h.html" title="PWM.h" alt="" coords="131,245,197,272"/>
+<area shape="rect" id="node11" href="$_attitude_manager_8h.html" title="AttitudeManager.h" alt="" coords="452,96,580,123"/>
+<area shape="rect" id="node14" href="$_attitude_manager_2main_8h.html" title="main.h" alt="" coords="273,320,335,347"/>
+<area shape="rect" id="node22" href="$_attitude_manager_2_interchip_d_m_a_8h.html" title="InterchipDMA.h" alt="" coords="247,245,360,272"/>
+<area shape="rect" id="node24" href="$camera_manager_8h.html" title="cameraManager.h" alt="" coords="659,245,785,272"/>
+<area shape="rect" id="node25" href="$commands_8h.html" title="commands.h" alt="" coords="933,96,1029,123"/>
+<area shape="rect" id="node26" href="$_probe___drop_8h.html" title="Probe_Drop.h" alt="" coords="1054,96,1156,123"/>
+<area shape="rect" id="node27" href="$_attitude_manager_2_startup_error_codes_8h.html" title="StartupErrorCodes.h" alt="" coords="1181,96,1321,123"/>
+<area shape="rect" id="node28" href="$_program_status_8h.html" title="ProgramStatus.h" alt="" coords="1347,96,1467,123"/>
+<area shape="rect" id="node4" href="$_v_n__type_8h.html" title="VN_type.h" alt="" coords="702,469,785,496"/>
+<area shape="rect" id="node5" href="$_v_n__lib_8h.html" title="VN_lib.h" alt="" coords="620,320,692,347"/>
+<area shape="rect" id="node6" href="$_v_n__math_8h.html" title="VN_math.h" alt="" coords="612,395,700,421"/>
+<area shape="rect" id="node7" href="$_v_n__user_8h.html" title="VN_user.h" alt="" coords="725,395,808,421"/>
+<area shape="rect" id="node12" href="$_orientation_control_8h.html" title="OrientationControl.h" alt="" coords="195,171,333,197"/>
+<area shape="rect" id="node13" href="$_state_machine_8h.html" title="StateMachine.h" alt="" coords="459,171,572,197"/>
+<area shape="rect" id="node15" href="$_common_8h.html" title="../Common/Common.h" alt="" coords="377,395,531,421"/>
+<area shape="rect" id="node23" href="$net_8h.html" title="List of defines required for XBEE communication and telemetry. " alt="" coords="385,245,436,272"/>
+<area shape="rect" id="node20" href="$timer_8h.html" title="timer.h" alt="" coords="171,395,233,421"/>
+<area shape="rect" id="node21" href="$_anaconda_8h.html" title="Anaconda.h" alt="" coords="259,395,349,421"/>
+</map>

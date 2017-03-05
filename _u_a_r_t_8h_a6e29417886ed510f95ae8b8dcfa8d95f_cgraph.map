@@ -1,0 +1,6 @@
+<map id="queueTXData" name="queueTXData">
+<area shape="rect" id="node2" href="$_byte_queue_8c.html#a89f39e062c4ce869fc720daf9397d206" title="Push/add a byte onto the end of the queue. " alt="" coords="158,5,255,32"/>
+<area shape="rect" id="node5" href="$_byte_queue_8c.html#ad9b04340117667a9845f10fc03cf38af" title="Pop an element from the queue. " alt="" coords="161,56,252,83"/>
+<area shape="rect" id="node3" href="$_byte_queue_8c.html#afc58b8f58298bab29a1e401157c08732" title="Resizes a queue (either shrinks or grows) to the specified new size. " alt="" coords="304,31,408,57"/>
+<area shape="rect" id="node4" href="$_byte_queue_8c.html#acaac1365b16ce78bc3992581cc0e7638" title="Pops all the elements in the queue and copies them into a provided array. " alt="" coords="457,31,562,57"/>
+</map>

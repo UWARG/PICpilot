@@ -1,0 +1,9 @@
+<map id="init_DMA0" name="init_DMA0">
+<area shape="rect" id="node2" href="$_attitude_manager_8h.html#aca8d3a2d782422496e6d7adfa3ea2294" title="attitudeInit" alt="" coords="448,25,531,52"/>
+<area shape="rect" id="node4" href="$_attitude_manager_8h.html#ac12b7c7a4f89508e2069606daf291118" title="checkDMA" alt="" coords="150,37,237,64"/>
+<area shape="rect" id="node7" href="$_path_manager_8h.html#aa7281128f2a9d58f14f70bccf9a28f0c" title="pathManagerInit" alt="" coords="136,113,251,140"/>
+<area shape="rect" id="node3" href="$_attitude_manager_2main_8c.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="589,51,640,77"/>
+<area shape="rect" id="node5" href="$_anaconda_8c.html#a9a955bd8d80ffc2c4382278f85fcde08" title="initialization" alt="" coords="299,25,389,52"/>
+<area shape="rect" id="node6" href="$_state_machine_8h.html#a0557d935ed927de974186932309946e6" title="StateMachine" alt="" coords="438,76,541,103"/>
+<area shape="rect" id="node8" href="$_path_01_manager_2main_8c.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="319,127,369,153"/>
+</map>

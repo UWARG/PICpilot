@@ -1,0 +1,6 @@
+<map id="Autopilot/Common/clock.h" name="Autopilot/Common/clock.h">
+<area shape="rect" id="node2" href="$_attitude_manager_2main_8c.html" title="Autopilot/AttitudeManager\l/main.c" alt="" coords="5,81,176,122"/>
+<area shape="rect" id="node3" href="$clock_8c.html" title="Autopilot/Common/clock.c" alt="" coords="201,88,377,115"/>
+<area shape="rect" id="node4" href="$_u_a_r_t_8c.html" title="Autopilot/Common/Interfaces\l/UART.c" alt="" coords="401,81,593,122"/>
+<area shape="rect" id="node5" href="$_path_01_manager_2main_8c.html" title="Autopilot/Path Manager\l/main.c" alt="" coords="618,81,776,122"/>
+</map>

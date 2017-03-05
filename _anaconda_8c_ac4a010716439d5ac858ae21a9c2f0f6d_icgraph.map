@@ -1,0 +1,8 @@
+<map id="dearmVehicle" name="dearmVehicle">
+<area shape="rect" id="node2" href="$_anaconda_8c.html#a83af6c52b37ed394b8dde0ef68148861" title="stopArm" alt="" coords="155,5,226,32"/>
+<area shape="rect" id="node3" href="$_attitude_manager_8h.html#a674ea971a0e35acfbf481bb5a86915d2" title="readDatalink" alt="" coords="275,31,370,57"/>
+<area shape="rect" id="node4" href="$_anaconda_8c.html#a9a955bd8d80ffc2c4382278f85fcde08" title="initialization" alt="" coords="419,5,509,32"/>
+<area shape="rect" id="node7" href="$_state_machine_8h.html#a0557d935ed927de974186932309946e6" title="StateMachine" alt="" coords="558,56,661,83"/>
+<area shape="rect" id="node5" href="$_attitude_manager_8h.html#aca8d3a2d782422496e6d7adfa3ea2294" title="attitudeInit" alt="" coords="568,5,651,32"/>
+<area shape="rect" id="node6" href="$_attitude_manager_2main_8c.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="709,31,760,57"/>
+</map>

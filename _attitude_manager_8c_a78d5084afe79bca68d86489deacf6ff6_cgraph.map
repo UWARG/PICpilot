@@ -1,0 +1,12 @@
+<map id="adjustVNOrientationMatrix" name="adjustVNOrientationMatrix">
+<area shape="rect" id="node2" href="$_v_n100_8c.html#aff12d8893339282ab78fcae3aa6035c1" title="VN100_SPI_GetRefFrameRot" alt="" coords="230,107,429,133"/>
+<area shape="rect" id="node8" href="$_v_n100_8c.html#aaa0082a5d378d0f0347fd264f318bb57" title="VN100_SPI_SetRefFrameRot" alt="" coords="231,157,428,184"/>
+<area shape="rect" id="node10" href="$_v_n100_8c.html#af7f8b17e2c25a85bed3cd96e1bc8179f" title="VN100_SPI_WriteSettings" alt="" coords="478,5,655,32"/>
+<area shape="rect" id="node11" href="$_v_n100_8c.html#a5f5e071fe823cd8491678ceb7e498473" title="VN100_SPI_Reset" alt="" coords="500,56,633,83"/>
+<area shape="rect" id="node3" href="$_v_n100_8c.html#adc02ae8fa4744d3a9efc8c88d5ef037b" title="VN100_SPI_ReadRegister" alt="" coords="477,107,656,133"/>
+<area shape="rect" id="node4" href="$_v_n__user_8c.html#a56ed96c3ccde9fc844442ceeebd7601f" title="VN_SPI_SetSS" alt="" coords="724,107,839,133"/>
+<area shape="rect" id="node5" href="$_v_n__user_8c.html#af312ced001b9f1cb9d85240f85c7d5b8" title="VN_SPI_SendReceive" alt="" coords="704,56,859,83"/>
+<area shape="rect" id="node6" href="$_v_n__user_8c.html#a192a3693096366fa0697ae6efd2944bc" title="VN_Delay" alt="" coords="740,157,823,184"/>
+<area shape="rect" id="node7" href="$delay_8c.html#a24a7e72f43ce2b760bf6f7405a7b5448" title="Delay_Us" alt="" coords="907,157,987,184"/>
+<area shape="rect" id="node9" href="$_v_n100_8c.html#ada119f969c1f7090e1745b2ae79262d6" title="VN100_SPI_WriteRegister" alt="" coords="477,157,656,184"/>
+</map>

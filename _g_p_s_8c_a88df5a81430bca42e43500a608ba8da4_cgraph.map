@@ -1,0 +1,5 @@
+<map id="readGPSData" name="readGPSData">
+<area shape="rect" id="node2" href="$_g_p_s_8c.html#aee0f7bff029c06e547a6353e04a784b2" title="ParseGGA" alt="" coords="157,5,243,32"/>
+<area shape="rect" id="node4" href="$_g_p_s_8c.html#af76b3b1ce4557720103dcb6e1a4661da" title="ParseVTG" alt="" coords="159,56,241,83"/>
+<area shape="rect" id="node3" href="$_g_p_s_8c.html#a0c6e8171e473c4846ae4db9e2fd6db09" title="HexConvert" alt="" coords="291,31,383,57"/>
+</map>

@@ -1,0 +1,12 @@
+<map id="setPWM" name="setPWM">
+<area shape="rect" id="node2" href="$_anaconda_8c.html#a9a955bd8d80ffc2c4382278f85fcde08" title="initialization" alt="" coords="577,157,668,184"/>
+<area shape="rect" id="node5" href="$_anaconda_8c.html#ad29ea68a65d325fd3124f44f09ad8008" title="armVehicle" alt="" coords="129,107,215,133"/>
+<area shape="rect" id="node8" href="$_anaconda_8c.html#ac4a010716439d5ac858ae21a9c2f0f6d" title="dearmVehicle" alt="" coords="572,56,673,83"/>
+<area shape="rect" id="node11" href="$_state_machine_8h.html#a882881ab0b9a6decabc3b91745d42054" title="lowLevelControl" alt="" coords="264,5,379,32"/>
+<area shape="rect" id="node3" href="$_attitude_manager_8h.html#aca8d3a2d782422496e6d7adfa3ea2294" title="attitudeInit" alt="" coords="723,151,805,177"/>
+<area shape="rect" id="node4" href="$_attitude_manager_2main_8c.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="853,81,904,108"/>
+<area shape="rect" id="node6" href="$_anaconda_8c.html#ac8c5a21f2f1171f29f8dc186595561e4" title="startArm" alt="" coords="285,107,357,133"/>
+<area shape="rect" id="node7" href="$_attitude_manager_8h.html#a674ea971a0e35acfbf481bb5a86915d2" title="readDatalink" alt="" coords="427,107,522,133"/>
+<area shape="rect" id="node10" href="$_state_machine_8h.html#a0557d935ed927de974186932309946e6" title="StateMachine" alt="" coords="571,5,674,32"/>
+<area shape="rect" id="node9" href="$_anaconda_8c.html#a83af6c52b37ed394b8dde0ef68148861" title="stopArm" alt="" coords="729,88,799,115"/>
+</map>

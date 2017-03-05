@@ -1,0 +1,26 @@
+<map id="VN100_SPI_WriteRegister" name="VN100_SPI_WriteRegister">
+<area shape="rect" id="node2" href="$_v_n100_8h.html#abcfe22f94debebdb6deaf2b0a2bea016" title="VN100_SPI_SetBaudRate" alt="" coords="259,5,435,32"/>
+<area shape="rect" id="node3" href="$_v_n100_8h.html#ab4b49c049dfc9a855581f9a6f5d69a5c" title="VN100_SPI_SetADOR" alt="" coords="268,56,425,83"/>
+<area shape="rect" id="node4" href="$_v_n100_8h.html#a0d8db665cef32fbe1ec0988d33c1bc0e" title="VN100_SPI_SetADOF" alt="" coords="269,107,424,133"/>
+<area shape="rect" id="node5" href="$_v_n100_8h.html#aac68c383c0bbc57a7e9ab6b89fc7e866" title="VN100_SPI_SetMagAccRef" alt="" coords="253,157,440,184"/>
+<area shape="rect" id="node6" href="$_v_n100_8h.html#a133a666555c0af8fb3c15b3e3c39d2fb" title="VN100_SPI_SetFiltMeasVar" alt="" coords="253,259,441,285"/>
+<area shape="rect" id="node18" href="$_v_n100_8h.html#a02cfaa31d1c0949438dd919f759107ab" title="VN100_SPI_SetHardSoftIronComp" alt="" coords="233,309,460,336"/>
+<area shape="rect" id="node19" href="$_v_n100_8h.html#af6bbeeae4468f7f73825674e4f261668" title="VN100_SPI_SetFiltActTuning" alt="" coords="249,360,444,387"/>
+<area shape="rect" id="node20" href="$_v_n100_8h.html#a26a1c07ed00466a17743b7e288896c6c" title="VN100_SPI_SetAccComp" alt="" coords="259,411,435,437"/>
+<area shape="rect" id="node21" href="$_v_n100_8h.html#aaa0082a5d378d0f0347fd264f318bb57" title="VN100_SPI_SetRefFrameRot" alt="" coords="248,208,445,235"/>
+<area shape="rect" id="node24" href="$_v_n100_8h.html#a662f2d24a8d87714d08fdaeb317a1589" title="VN100_SPI_SetAccGain" alt="" coords="263,461,431,488"/>
+<area shape="rect" id="node25" href="$_v_n100_8h.html#ab66866a4d51173dc212ffe6bcec8ddf7" title="VN100_SPI_VelocityCompensation\lMeasurement" alt="" coords="232,513,461,554"/>
+<area shape="rect" id="node7" href="$_attitude_manager_8h.html#aca8d3a2d782422496e6d7adfa3ea2294" title="attitudeInit" alt="" coords="1037,183,1120,209"/>
+<area shape="rect" id="node9" href="$_attitude_manager_8h.html#ae1c99acc45eb515ccff31b7ee8a7db33" title="setAngularWalkVariance" alt="" coords="515,360,680,387"/>
+<area shape="rect" id="node15" href="$_attitude_manager_8h.html#a872afc41be32c8296745efcfb897466f" title="setGyroVariance" alt="" coords="538,411,657,437"/>
+<area shape="rect" id="node16" href="$_attitude_manager_8h.html#a73dfbc38c88a616007d80ad654c1b367" title="setMagneticVariance" alt="" coords="525,259,669,285"/>
+<area shape="rect" id="node17" href="$_attitude_manager_8h.html#ab47c523ee1db1633c8bf9f991f4ec38c" title="setAccelVariance" alt="" coords="535,309,659,336"/>
+<area shape="rect" id="node8" href="$_attitude_manager_2main_8c.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1179,233,1229,260"/>
+<area shape="rect" id="node10" href="$_attitude_manager_8h.html#a674ea971a0e35acfbf481bb5a86915d2" title="readDatalink" alt="" coords="734,284,829,311"/>
+<area shape="rect" id="node11" href="$_anaconda_8c.html#a9a955bd8d80ffc2c4382278f85fcde08" title="initialization" alt="" coords="883,208,973,235"/>
+<area shape="rect" id="node12" href="$_anaconda_8c.html#ac4a010716439d5ac858ae21a9c2f0f6d" title="dearmVehicle" alt="" coords="877,309,979,336"/>
+<area shape="rect" id="node14" href="$_state_machine_8h.html#a0557d935ed927de974186932309946e6" title="StateMachine" alt="" coords="1027,259,1130,285"/>
+<area shape="rect" id="node13" href="$_anaconda_8c.html#a83af6c52b37ed394b8dde0ef68148861" title="stopArm" alt="" coords="1043,335,1114,361"/>
+<area shape="rect" id="node22" href="$_attitude_manager_8h.html#a78d5084afe79bca68d86489deacf6ff6" title="adjustVNOrientationMatrix" alt="" coords="510,208,685,235"/>
+<area shape="rect" id="node23" href="$_attitude_manager_8h.html#aecd1366a8a89aa515e6dc8479fa33c03" title="setVNOrientationMatrix" alt="" coords="518,107,677,133"/>
+</map>

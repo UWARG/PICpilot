@@ -1,0 +1,6 @@
+<map id="checkDMA" name="checkDMA">
+<area shape="rect" id="node2" href="$_anaconda_8c.html#a9a955bd8d80ffc2c4382278f85fcde08" title="initialization" alt="" coords="141,5,232,32"/>
+<area shape="rect" id="node5" href="$_state_machine_8h.html#a0557d935ed927de974186932309946e6" title="StateMachine" alt="" coords="281,56,383,83"/>
+<area shape="rect" id="node3" href="$_attitude_manager_8h.html#aca8d3a2d782422496e6d7adfa3ea2294" title="attitudeInit" alt="" coords="291,5,373,32"/>
+<area shape="rect" id="node4" href="$_attitude_manager_2main_8c.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="432,31,483,57"/>
+</map>

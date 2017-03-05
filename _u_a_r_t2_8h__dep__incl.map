@@ -1,0 +1,5 @@
+<map id="Autopilot/AttitudeManager/UART2.h" name="Autopilot/AttitudeManager/UART2.h">
+<area shape="rect" id="node2" href="$net__common_8c.html" title="Autopilot/AttitudeManager\l/net_common.c" alt="" coords="5,97,176,138"/>
+<area shape="rect" id="node3" href="$net__inbound_8c.html" title="Autopilot/AttitudeManager\l/net_inbound.c" alt="" coords="201,97,372,138"/>
+<area shape="rect" id="node4" href="$_u_a_r_t2_8c.html" title="Contains implementation for initializing UART2. " alt="" coords="397,97,568,138"/>
+</map>

@@ -1,0 +1,7 @@
+<map id="followStraightPath" name="followStraightPath">
+<area shape="rect" id="node2" href="$_path_manager_8h.html#aa3063dfc83d357cc1fa369dcbf0680b9" title="followWaypoints" alt="" coords="201,5,319,32"/>
+<area shape="rect" id="node5" href="$_path_manager_8h.html#a4663a4b9d0c42fce8e864aba3fce8ad1" title="followLineSegment" alt="" coords="194,56,326,83"/>
+<area shape="rect" id="node6" href="$_path_manager_8h.html#af594b836559d8731246723abf4ba609e" title="followLastLineSegment" alt="" coords="181,107,339,133"/>
+<area shape="rect" id="node3" href="$_path_manager_8h.html#a89485e3b088d7104d609a00ac8f635b4" title="pathManagerRuntime" alt="" coords="387,5,533,32"/>
+<area shape="rect" id="node4" href="$_path_01_manager_2main_8c.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="581,5,632,32"/>
+</map>

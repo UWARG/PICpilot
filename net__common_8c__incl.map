@@ -1,0 +1,9 @@
+<map id="Autopilot/AttitudeManager/net_common.c" name="Autopilot/AttitudeManager/net_common.c">
+<area shape="rect" id="node2" href="$net_8h.html" title="List of defines required for XBEE communication and telemetry. " alt="" coords="337,96,388,123"/>
+<area shape="rect" id="node3" href="$_attitude_manager_2main_8h.html" title="main.h" alt="" coords="432,171,493,197"/>
+<area shape="rect" id="node12" href="$_u_a_r_t2_8h.html" title="Settings for UART2 communication used for telemetry link. " alt="" coords="463,96,539,123"/>
+<area shape="rect" id="node4" href="$_common_8h.html" title="../Common/Common.h" alt="" coords="164,245,317,272"/>
+<area shape="rect" id="node9" href="$timer_8h.html" title="timer.h" alt="" coords="343,245,405,272"/>
+<area shape="rect" id="node10" href="$delay_8h.html" title="delay.h" alt="" coords="431,245,495,272"/>
+<area shape="rect" id="node11" href="$_anaconda_8h.html" title="Anaconda.h" alt="" coords="519,245,609,272"/>
+</map>

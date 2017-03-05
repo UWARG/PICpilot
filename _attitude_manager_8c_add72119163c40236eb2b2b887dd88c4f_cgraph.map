@@ -1,0 +1,9 @@
+<map id="inputCapture" name="inputCapture">
+<area shape="rect" id="node2" href="$_p_w_m_8c.html#a128a365482379fe6f82f8d3e1e526e61" title="Gets the scaled PWM values in the range of MIN_PWM and MAX_PWM from all the channels. " alt="" coords="155,5,259,32"/>
+<area shape="rect" id="node4" href="$timer_8c.html#a3c6380ce48cf6ff104824c3f8f5ca815" title="Get current time in ms. " alt="" coords="172,56,241,83"/>
+<area shape="rect" id="node5" href="$_anaconda_8c.html#a3d0b6882313892dc79b5283043a82776" title="inputMixing" alt="" coords="163,107,251,133"/>
+<area shape="rect" id="node7" href="$_orientation_control_8c.html#a5fb10663ee66852f8bced91d0f442113" title="unfreezeIntegral" alt="" coords="149,157,264,184"/>
+<area shape="rect" id="node8" href="$_orientation_control_8c.html#a469a73afcab5133c45bf5238b90e30fa" title="freezeIntegral" alt="" coords="156,208,257,235"/>
+<area shape="rect" id="node3" href="$_input_capture_8c.html#a5cd4e528b1db22c0fca38b0e3e8efed9" title="Gets the input capture value (in Timer2 ticks) of all the channels. " alt="" coords="338,5,433,32"/>
+<area shape="rect" id="node6" href="$_attitude_manager_8c.html#a796c611d87e2014c86bc71223434674c" title="getControlPermission" alt="" coords="312,107,459,133"/>
+</map>

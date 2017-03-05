@@ -1,0 +1,35 @@
+<map id="writeDatalink" name="writeDatalink">
+<area shape="rect" id="node2" href="$net_8h.html#a58f055e4c52b6db5adb0649a99f06ee0" title="createTelemetryBlock" alt="" coords="179,5,328,32"/>
+<area shape="rect" id="node3" href="$_attitude_manager_8c.html#a48ec016cb9bf89dbe84a1b6cc9b72a3e" title="getLatitude" alt="" coords="210,56,297,83"/>
+<area shape="rect" id="node4" href="$_attitude_manager_8c.html#a42b9306339a98cb3dddcd3be3da72319" title="getLongitude" alt="" coords="205,107,301,133"/>
+<area shape="rect" id="node5" href="$timer_8c.html#a3c6380ce48cf6ff104824c3f8f5ca815" title="Get current time in ms. " alt="" coords="219,157,288,184"/>
+<area shape="rect" id="node6" href="$_attitude_manager_8c.html#a550128a969585b8a64a53ecc384ec361" title="getPitch" alt="" coords="218,208,289,235"/>
+<area shape="rect" id="node7" href="$_attitude_manager_8c.html#a80829684c889d9492db5f72006a8afbb" title="getRoll" alt="" coords="222,259,285,285"/>
+<area shape="rect" id="node8" href="$_attitude_manager_8c.html#a4829acab810a443dd7001a73a20b83e5" title="getYaw" alt="" coords="220,309,287,336"/>
+<area shape="rect" id="node9" href="$_attitude_manager_8c.html#a37f7c18c2bb88f28d53070ba17caf49f" title="getPitchRate" alt="" coords="204,360,303,387"/>
+<area shape="rect" id="node10" href="$_attitude_manager_8c.html#a5481c94780a89a1b7139c3f1d6ee04f4" title="getRollRate" alt="" coords="208,411,299,437"/>
+<area shape="rect" id="node11" href="$_attitude_manager_8c.html#ae1c9964ba17a79c0aa6644135c393b0c" title="getYawRate" alt="" coords="206,461,301,488"/>
+<area shape="rect" id="node12" href="$_attitude_manager_8c.html#a2905c4304becd6289e8da67b88224bc0" title="getAltitude" alt="" coords="211,512,295,539"/>
+<area shape="rect" id="node13" href="$_attitude_manager_8c.html#a212248a8daaf89076cc2459dcf916b02" title="getHeading" alt="" coords="209,563,297,589"/>
+<area shape="rect" id="node14" href="$_attitude_manager_8c.html#a23ee2ad0581cd45e6aa4fb91c1049d80" title="getRollRateSetpoint" alt="" coords="184,613,323,640"/>
+<area shape="rect" id="node15" href="$_attitude_manager_8c.html#a978db2e3eac92c5530053144145f1a4d" title="getRollAngleSetpoint" alt="" coords="181,664,325,691"/>
+<area shape="rect" id="node16" href="$_attitude_manager_8c.html#abe405cf3dba803591fa8a82df0244c9c" title="getPitchRateSetpoint" alt="" coords="180,715,327,741"/>
+<area shape="rect" id="node17" href="$_attitude_manager_8c.html#aec63e82eb3304753f25a91020a4ee3da" title="getPitchAngleSetpoint" alt="" coords="178,765,329,792"/>
+<area shape="rect" id="node18" href="$_attitude_manager_8c.html#a68df95d9cdae36ce4a2dee36f37bff22" title="getThrottleSetpoint" alt="" coords="187,816,319,843"/>
+<area shape="rect" id="node19" href="$_orientation_control_8c.html#a47f31b68caa087f0ae80e19aea428a0b" title="getGain" alt="" coords="220,867,287,893"/>
+<area shape="rect" id="node20" href="$_p_w_m_8c.html#a128a365482379fe6f82f8d3e1e526e61" title="Gets the scaled PWM values in the range of MIN_PWM and MAX_PWM from all the channels. " alt="" coords="201,917,305,944"/>
+<area shape="rect" id="node21" href="$_input_capture_8c.html#a5cd4e528b1db22c0fca38b0e3e8efed9" title="Gets the input capture value (in Timer2 ticks) of all the channels. " alt="" coords="442,943,537,969"/>
+<area shape="rect" id="node22" href="$_p_w_m_8c.html#a949aab7da20c389392c1381d79de0382" title="Gets an array of all the set PWM values for all the 8 channel outputs. " alt="" coords="194,1019,313,1045"/>
+<area shape="rect" id="node23" href="$_attitude_manager_8c.html#a76f514f0f570f10f03b177e70923e053" title="getYawRateSetpoint" alt="" coords="182,1069,325,1096"/>
+<area shape="rect" id="node24" href="$_attitude_manager_8c.html#ab2f18c8721fd6b8c09236fe414e13c6e" title="getHeadingSetpoint" alt="" coords="185,1120,321,1147"/>
+<area shape="rect" id="node25" href="$_attitude_manager_8c.html#ad0a9b143cad46abe14fa7194d0032978" title="getAltitudeSetpoint" alt="" coords="187,1171,319,1197"/>
+<area shape="rect" id="node26" href="$_attitude_manager_8c.html#af3a20011032515fc1134f1922b8c4d6d" title="getFlapSetpoint" alt="" coords="197,1221,310,1248"/>
+<area shape="rect" id="node27" href="$_program_status_8c.html#a35e415d009315e86f3ad4f5aff3c65a8" title="getProgramStatus" alt="" coords="190,1272,317,1299"/>
+<area shape="rect" id="node28" href="$_attitude_manager_2_startup_error_codes_8c.html#ab75705601aff74f64cb61a3585cb7ff2" title="getStartupErrorCodes" alt="" coords="179,1323,327,1349"/>
+<area shape="rect" id="node29" href="$_probe___drop_8c.html#a45ff523749ff88d6991e488a797d6b10" title="getProbeStatus" alt="" coords="197,1373,309,1400"/>
+<area shape="rect" id="node30" href="$net_8h.html#a7fedacf7709dff79fc59f9d5922900cb" title="sendTelemetryBlock" alt="" coords="183,1424,324,1451"/>
+<area shape="rect" id="node32" href="$net_8h.html#af59f3c1c4bd3a18a91a6fcaab1296749" title="destroyTelemetryBlock" alt="" coords="175,1475,331,1501"/>
+<area shape="rect" id="node33" href="$net_8h.html#a41f5b0d341b511bc1652a3a2bc0bb875" title="pushOutboundTelemetryQueue" alt="" coords="152,1525,355,1552"/>
+<area shape="rect" id="node31" href="$net__outbound_8c.html#af3ea0b626d115dfd050917e11e6092e8" title="generateApiHeader" alt="" coords="423,1424,556,1451"/>
+<area shape="rect" id="node34" href="$net__outbound_8c.html#af4e3494180005c16c46fc751be9133f8" title="getOutboundQueueLength" alt="" coords="403,1525,576,1552"/>
+</map>

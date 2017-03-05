@@ -1,0 +1,12 @@
+<map id="Autopilot/AttitudeManager/AttitudeManager.h" name="Autopilot/AttitudeManager/AttitudeManager.h">
+<area shape="rect" id="node2" href="$_anaconda_8c.html" title="Autopilot/AttitudeManager\l/Anaconda.c" alt="" coords="5,97,176,138"/>
+<area shape="rect" id="node3" href="$_state_machine_8h.html" title="Autopilot/AttitudeManager\l/StateMachine.h" alt="" coords="201,97,372,138"/>
+<area shape="rect" id="node7" href="$_attitude_manager_8c.html" title="Autopilot/AttitudeManager\l/AttitudeManager.c" alt="" coords="397,97,568,138"/>
+<area shape="rect" id="node8" href="$_display_quad_8c.html" title="Autopilot/AttitudeManager\l/DisplayQuad.c" alt="" coords="593,97,764,138"/>
+<area shape="rect" id="node9" href="$_attitude_manager_2_interchip_d_m_a_8c.html" title="Autopilot/AttitudeManager\l/InterchipDMA.c" alt="" coords="789,97,960,138"/>
+<area shape="rect" id="node10" href="$_attitude_manager_2main_8c.html" title="Autopilot/AttitudeManager\l/main.c" alt="" coords="985,97,1156,138"/>
+<area shape="rect" id="node11" href="$_orientation_control_8c.html" title="Autopilot/AttitudeManager\l/OrientationControl.c" alt="" coords="1181,97,1352,138"/>
+<area shape="rect" id="node4" href="$_probe___drop_8c.html" title="Autopilot/AttitudeManager\l/Probe_Drop.c" alt="" coords="5,187,176,229"/>
+<area shape="rect" id="node5" href="$_state_machine_8c.html" title="Autopilot/AttitudeManager\l/StateMachine.c" alt="" coords="201,187,372,229"/>
+<area shape="rect" id="node6" href="$_v_n__user_8c.html" title="Autopilot/AttitudeManager\l/VN_user.c" alt="" coords="397,187,568,229"/>
+</map>

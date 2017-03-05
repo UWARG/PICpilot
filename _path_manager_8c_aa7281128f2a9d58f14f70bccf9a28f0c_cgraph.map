@@ -1,0 +1,28 @@
+<map id="pathManagerInit" name="pathManagerInit">
+<area shape="rect" id="node2" href="$_path_01_manager_2_interchip_d_m_a_8c.html#a58ebb6a685040807fbf4e6c594add6d1" title="init_SPI2" alt="" coords="207,5,281,32"/>
+<area shape="rect" id="node3" href="$_path_01_manager_2_interchip_d_m_a_8c.html#a00e53675bbd17d0c8bbbc2c359215416" title="init_DMA2" alt="" coords="203,56,285,83"/>
+<area shape="rect" id="node4" href="$_main_battery_sensor_8c.html#a1248b91c344443974c62d8e7aab83970" title="initMainBatterySensor" alt="" coords="169,107,319,133"/>
+<area shape="rect" id="node6" href="$airspeed_sensor_8c.html#a1b91bca2a017464cb15195a00f9639bd" title="initAirspeedSensor" alt="" coords="179,157,309,184"/>
+<area shape="rect" id="node8" href="$_attitude_manager_2_interchip_d_m_a_8c.html#a5477a52108df8d54bc7edd07ad9c48b6" title="init_SPI1" alt="" coords="207,208,281,235"/>
+<area shape="rect" id="node9" href="$_attitude_manager_2_interchip_d_m_a_8c.html#a8410b17254423d80de96645f3d63803d" title="init_DMA0" alt="" coords="203,259,285,285"/>
+<area shape="rect" id="node10" href="$_attitude_manager_2_interchip_d_m_a_8c.html#aabc3aece73f61a879bd322eea3382ebe" title="init_DMA1" alt="" coords="203,309,285,336"/>
+<area shape="rect" id="node11" href="$_m_p_l3115_a2_8c.html#a400812dcf6aed65883ad2c64f1d6b341" title="initAltimeter" alt="" coords="199,360,289,387"/>
+<area shape="rect" id="node17" href="$_logger_8c.html#a41a264f07d7a57c334e29818d03c8ecd" title="Output a debug level message. " alt="" coords="417,411,474,437"/>
+<area shape="rect" id="node26" href="$_attitude_manager_8c.html#a2905c4304becd6289e8da67b88224bc0" title="getAltitude" alt="" coords="202,461,286,488"/>
+<area shape="rect" id="node27" href="$_m_p_l3115_a2_8c.html#ae20e022dc9aff7af4c7b303ceb855125" title="calibrateAltimeter" alt="" coords="183,512,305,539"/>
+<area shape="rect" id="node5" href="$_main_battery_sensor_8c.html#ad4b0a5286c2c469e78ddfaf36278c0c3" title="initMainBatteryADC" alt="" coords="376,107,515,133"/>
+<area shape="rect" id="node7" href="$airspeed_sensor_8c.html#a0b3eab91577d23cfbc5b5f8f8c4151b2" title="initAirspeedADC" alt="" coords="386,157,505,184"/>
+<area shape="rect" id="node12" href="$_i2_c_8c.html#abe298a3c1d98035cebe8b0535db549fa" title="initI2C" alt="" coords="415,259,475,285"/>
+<area shape="rect" id="node13" href="$_i2_c_8c.html#a78fccc3f7455e9bb8728e56e9ae81486" title="checkDevicePresence" alt="" coords="369,309,522,336"/>
+<area shape="rect" id="node14" href="$_i2_c_8c.html#ab1ad4b796737050ab8d4b980af2da99a" title="sendMessage" alt="" coords="394,360,497,387"/>
+<area shape="rect" id="node15" href="$_i2_c_8c.html#a02cb9a223486b30a97a1ccfcd201547e" title="readMessage" alt="" coords="573,309,673,336"/>
+<area shape="rect" id="node16" href="$_i2_c_8c.html#a89ab7d924ea58b1b5820d188a871a11a" title="writeMessage" alt="" coords="571,360,674,387"/>
+<area shape="rect" id="node18" href="$_logger_8c.html#ae277f439b43c863775ac78a01924f301" title="writeMessage" alt="" coords="571,411,674,437"/>
+<area shape="rect" id="node19" href="$_u_a_r_t_8c.html#a51715fb2bc17a7e041ff4c5709ae8387" title="Get the number of bytes that are guaranteed to be succesfully queued to the TX buffer. " alt="" coords="727,385,822,412"/>
+<area shape="rect" id="node21" href="$_u_a_r_t_8c.html#a6e29417886ed510f95ae8b8dcfa8d95f" title="Queues data to send through UART. " alt="" coords="723,436,826,463"/>
+<area shape="rect" id="node20" href="$_byte_queue_8c.html#a348f4bb5087027200338786bc0a71982" title="This function returns the number of bytes that is guaranteed to be pushed to the queue. " alt="" coords="875,385,999,412"/>
+<area shape="rect" id="node22" href="$_byte_queue_8c.html#a89f39e062c4ce869fc720daf9397d206" title="Push/add a byte onto the end of the queue. " alt="" coords="889,436,986,463"/>
+<area shape="rect" id="node25" href="$_byte_queue_8c.html#ad9b04340117667a9845f10fc03cf38af" title="Pop an element from the queue. " alt="" coords="892,487,983,513"/>
+<area shape="rect" id="node23" href="$_byte_queue_8c.html#afc58b8f58298bab29a1e401157c08732" title="Resizes a queue (either shrinks or grows) to the specified new size. " alt="" coords="1048,461,1152,488"/>
+<area shape="rect" id="node24" href="$_byte_queue_8c.html#acaac1365b16ce78bc3992581cc0e7638" title="Pops all the elements in the queue and copies them into a provided array. " alt="" coords="1201,461,1306,488"/>
+</map>

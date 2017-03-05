@@ -1,0 +1,30 @@
+<map id="highLevelControl" name="highLevelControl">
+<area shape="rect" id="node2" href="$_attitude_manager_8c.html#a796c611d87e2014c86bc71223434674c" title="getControlPermission" alt="" coords="176,5,323,32"/>
+<area shape="rect" id="node3" href="$_attitude_manager_8c.html#a0728ef69b246731b7575bffd4b79d5f5" title="setPitchAngleSetpoint" alt="" coords="174,56,325,83"/>
+<area shape="rect" id="node4" href="$_attitude_manager_8c.html#a649078b62960adf7d20a06a0ac8aee9e" title="altitudeControl" alt="" coords="196,107,303,133"/>
+<area shape="rect" id="node16" href="$_attitude_manager_8c.html#a02e92afec9a99075920352dc76a72e0c" title="getAltitudeInput" alt="" coords="193,309,306,336"/>
+<area shape="rect" id="node17" href="$_attitude_manager_8c.html#a2905c4304becd6289e8da67b88224bc0" title="getAltitude" alt="" coords="207,360,291,387"/>
+<area shape="rect" id="node18" href="$_attitude_manager_8c.html#a341ea14bee479e387c3c5c189abc743f" title="setAltitudeSetpoint" alt="" coords="183,411,315,437"/>
+<area shape="rect" id="node19" href="$_attitude_manager_8c.html#a276f4c1200812d9422b2aac769de37b4" title="setThrottleSetpoint" alt="" coords="183,461,315,488"/>
+<area shape="rect" id="node20" href="$_attitude_manager_8c.html#a796c7cf32f787351df873cff0a713c1c" title="throttleControl" alt="" coords="197,157,301,184"/>
+<area shape="rect" id="node22" href="$_attitude_manager_8c.html#a50cb103988e3be03177c5ea6355f66b9" title="getPitchAngleInput" alt="" coords="183,512,315,539"/>
+<area shape="rect" id="node23" href="$_attitude_manager_8c.html#a825c229275850f83790606a12774bb1b" title="setRollAngleSetpoint" alt="" coords="177,563,321,589"/>
+<area shape="rect" id="node24" href="$_attitude_manager_8c.html#ab232a34a6387425a4ce2f917f80dc823" title="headingControl" alt="" coords="195,208,304,235"/>
+<area shape="rect" id="node25" href="$_attitude_manager_8c.html#a4c9bb1bb19fbf9382335c659e1aceff5" title="setHeadingSetpoint" alt="" coords="379,259,515,285"/>
+<area shape="rect" id="node27" href="$_attitude_manager_8c.html#a249eeebf31fb1bdd86dbb764e6cb1190" title="getHeadingInput" alt="" coords="191,613,308,640"/>
+<area shape="rect" id="node28" href="$_attitude_manager_8c.html#a212248a8daaf89076cc2459dcf916b02" title="getHeading" alt="" coords="205,664,293,691"/>
+<area shape="rect" id="node29" href="$_attitude_manager_8c.html#a64883c0a1789a4d85897cb305ce44e25" title="getRollAngleInput" alt="" coords="187,715,312,741"/>
+<area shape="rect" id="node5" href="$_orientation_control_8c.html#a24f2b62c2b4618a77920c00a0d46f414" title="controlSignalAltitude" alt="" coords="376,107,517,133"/>
+<area shape="rect" id="node6" href="$_logger_8c.html#a8e1bf3d5ea0a885f81e71d2023a55777" title="Output an error level message. " alt="" coords="593,183,641,209"/>
+<area shape="rect" id="node15" href="$_orientation_control_8c.html#ad3848892094dd89e76bab46257f0c9b6" title="controlSignal" alt="" coords="569,132,666,159"/>
+<area shape="rect" id="node7" href="$_logger_8c.html#ae277f439b43c863775ac78a01924f301" title="writeMessage" alt="" coords="715,183,818,209"/>
+<area shape="rect" id="node8" href="$_u_a_r_t_8c.html#a51715fb2bc17a7e041ff4c5709ae8387" title="Get the number of bytes that are guaranteed to be succesfully queued to the TX buffer. " alt="" coords="871,157,966,184"/>
+<area shape="rect" id="node10" href="$_u_a_r_t_8c.html#a6e29417886ed510f95ae8b8dcfa8d95f" title="Queues data to send through UART. " alt="" coords="867,208,970,235"/>
+<area shape="rect" id="node9" href="$_byte_queue_8c.html#a348f4bb5087027200338786bc0a71982" title="This function returns the number of bytes that is guaranteed to be pushed to the queue. " alt="" coords="1019,157,1143,184"/>
+<area shape="rect" id="node11" href="$_byte_queue_8c.html#a89f39e062c4ce869fc720daf9397d206" title="Push/add a byte onto the end of the queue. " alt="" coords="1033,208,1130,235"/>
+<area shape="rect" id="node14" href="$_byte_queue_8c.html#ad9b04340117667a9845f10fc03cf38af" title="Pop an element from the queue. " alt="" coords="1036,259,1127,285"/>
+<area shape="rect" id="node12" href="$_byte_queue_8c.html#afc58b8f58298bab29a1e401157c08732" title="Resizes a queue (either shrinks or grows) to the specified new size. " alt="" coords="1192,233,1296,260"/>
+<area shape="rect" id="node13" href="$_byte_queue_8c.html#acaac1365b16ce78bc3992581cc0e7638" title="Pops all the elements in the queue and copies them into a provided array. " alt="" coords="1345,233,1450,260"/>
+<area shape="rect" id="node21" href="$_orientation_control_8c.html#ad5a0882d1c59ae96d55ce3d989a3ac8a" title="controlSignalThrottle" alt="" coords="376,157,517,184"/>
+<area shape="rect" id="node26" href="$_orientation_control_8c.html#ab4f25c7417de7b20e4306df9dcf6c9b2" title="controlSignalHeading" alt="" coords="374,208,519,235"/>
+</map>

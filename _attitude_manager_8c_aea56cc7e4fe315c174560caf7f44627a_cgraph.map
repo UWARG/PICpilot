@@ -1,0 +1,51 @@
+<map id="attitudeInit" name="attitudeInit">
+<area shape="rect" id="node2" href="$_program_status_8c.html#a4518e29044a00f9dbad0aaf7db866c37" title="setProgramStatus" alt="" coords="389,116,515,142"/>
+<area shape="rect" id="node3" href="$_logger_8c.html#a41a264f07d7a57c334e29818d03c8ecd" title="Output a debug level message. " alt="" coords="674,65,731,92"/>
+<area shape="rect" id="node7" href="$timer_8c.html#a358c766ac655f361eec4c8f37c613871" title="Initializes Timer4 as a 1ms, 16&#45;bit timer. " alt="" coords="185,964,263,990"/>
+<area shape="rect" id="node8" href="$_common_8c.html#ab1037f62067bc851a93f4689549145a2" title="generateAMDataDMACheckbyte" alt="" coords="596,178,809,205"/>
+<area shape="rect" id="node9" href="$_attitude_manager_2_interchip_d_m_a_8c.html#a5477a52108df8d54bc7edd07ad9c48b6" title="init_SPI1" alt="" coords="665,710,740,737"/>
+<area shape="rect" id="node10" href="$_attitude_manager_2_interchip_d_m_a_8c.html#a8410b17254423d80de96645f3d63803d" title="init_DMA0" alt="" coords="661,761,744,788"/>
+<area shape="rect" id="node11" href="$_attitude_manager_2_interchip_d_m_a_8c.html#aabc3aece73f61a879bd322eea3382ebe" title="init_DMA1" alt="" coords="661,812,744,838"/>
+<area shape="rect" id="node12" href="$_p_w_m_8c.html#a3fcfc770e06477c06625029550e51e90" title="Initializes the PWM input and output channels. " alt="" coords="188,1014,260,1041"/>
+<area shape="rect" id="node16" href="$_v_n100_8c.html#afbebf2c0bbd6e7bdde44b63386b105be" title="VN100_initSPI" alt="" coords="170,1065,278,1092"/>
+<area shape="rect" id="node17" href="$_v_n100_8c.html#ac9af3ebdf281857819ef562d292902bf" title="VN100_SPI_GetModel" alt="" coords="883,609,1037,636"/>
+<area shape="rect" id="node22" href="$_program_status_8c.html#acf089ad6e9e70e377f5fa9a9361f41f3" title="setSensorStatus" alt="" coords="393,14,511,41"/>
+<area shape="rect" id="node24" href="$_attitude_manager_8c.html#aecd1366a8a89aa515e6dc8479fa33c03" title="setVNOrientationMatrix" alt="" coords="623,558,782,585"/>
+<area shape="rect" id="node29" href="$_v_n100_8c.html#a133a666555c0af8fb3c15b3e3c39d2fb" title="VN100_SPI_SetFiltMeasVar" alt="" coords="866,660,1054,686"/>
+<area shape="rect" id="node30" href="$net_8h.html#af9699ef16633469729d62fda5412046a" title="net_outbound.c " alt="" coords="179,1116,269,1142"/>
+<area shape="rect" id="node32" href="$net_8h.html#aeff15ad2d4405adc658ba11c2525a2b6" title="checkDataLinkConnection" alt="" coords="137,1166,311,1193"/>
+<area shape="rect" id="node33" href="$_anaconda_8c.html#a9a955bd8d80ffc2c4382278f85fcde08" title="initialization" alt="" coords="179,394,269,421"/>
+<area shape="rect" id="node4" href="$_logger_8c.html#ae277f439b43c863775ac78a01924f301" title="writeMessage" alt="" coords="909,40,1011,66"/>
+<area shape="rect" id="node5" href="$_u_a_r_t_8c.html#a51715fb2bc17a7e041ff4c5709ae8387" title="Get the number of bytes that are guaranteed to be succesfully queued to the TX buffer. " alt="" coords="1149,14,1243,41"/>
+<area shape="rect" id="node6" href="$_u_a_r_t_8c.html#a6e29417886ed510f95ae8b8dcfa8d95f" title="Queues data to send through UART. " alt="" coords="1145,65,1247,92"/>
+<area shape="rect" id="node13" href="$timer_8c.html#a589ad1fb039ef71aaa5b50980ca050a5" title="Initializes Timer2. " alt="" coords="413,1014,491,1041"/>
+<area shape="rect" id="node14" href="$_input_capture_8c.html#a7bd7f130fa043755f8c6c8303e337197" title="Initializes interrupts for the specified channels. " alt="" coords="425,1065,479,1092"/>
+<area shape="rect" id="node15" href="$_output_compare_8c.html#aede8cdf4f3e1815b0baabbb9ca3fc6de" title="Initializes the output compare registers and pins for PWM output. " alt="" coords="423,964,481,990"/>
+<area shape="rect" id="node18" href="$_v_n100_8c.html#adc02ae8fa4744d3a9efc8c88d5ef037b" title="VN100_SPI_ReadRegister" alt="" coords="1107,609,1285,636"/>
+<area shape="rect" id="node19" href="$_v_n__user_8c.html#a56ed96c3ccde9fc844442ceeebd7601f" title="VN_SPI_SetSS" alt="" coords="1353,710,1468,737"/>
+<area shape="rect" id="node20" href="$_v_n__user_8c.html#af312ced001b9f1cb9d85240f85c7d5b8" title="VN_SPI_SendReceive" alt="" coords="1333,660,1488,686"/>
+<area shape="rect" id="node21" href="$_v_n__user_8c.html#a192a3693096366fa0697ae6efd2944bc" title="VN_Delay" alt="" coords="1369,609,1452,636"/>
+<area shape="rect" id="node23" href="$_logger_8c.html#a005f7c042e3bfa278fcb1b22f2df0dbe" title="Output a warning level message. " alt="" coords="669,14,736,41"/>
+<area shape="rect" id="node25" href="$_v_n100_8c.html#aaa0082a5d378d0f0347fd264f318bb57" title="VN100_SPI_SetRefFrameRot" alt="" coords="861,558,1059,585"/>
+<area shape="rect" id="node27" href="$_v_n100_8c.html#af7f8b17e2c25a85bed3cd96e1bc8179f" title="VN100_SPI_WriteSettings" alt="" coords="1107,761,1285,788"/>
+<area shape="rect" id="node28" href="$_v_n100_8c.html#a5f5e071fe823cd8491678ceb7e498473" title="VN100_SPI_Reset" alt="" coords="1129,710,1263,737"/>
+<area shape="rect" id="node26" href="$_v_n100_8c.html#ada119f969c1f7090e1745b2ae79262d6" title="VN100_SPI_WriteRegister" alt="" coords="1107,660,1285,686"/>
+<area shape="rect" id="node31" href="$_u_a_r_t2_8c.html#a899679900b8a250cd46d9bffaefd8e70" title="Initializes the UART2 connection. " alt="" coords="410,1116,494,1142"/>
+<area shape="rect" id="node34" href="$_p_w_m_8c.html#a12e1f21b6d004965b6e2389bce4b1386" title="Sets the PWM output of a particular output. " alt="" coords="415,470,489,497"/>
+<area shape="rect" id="node36" href="$_attitude_manager_8c.html#a7c7c1389acd44e0c2e29a31f35a902ff" title="imuCommunication" alt="" coords="635,508,770,534"/>
+<area shape="rect" id="node39" href="$_attitude_manager_8c.html#ac12b7c7a4f89508e2069606daf291118" title="checkDMA" alt="" coords="409,660,495,686"/>
+<area shape="rect" id="node42" href="$_attitude_manager_8c.html#a7a4dd2b79820f51766dac5b31ebc24bd" title="writeDatalink" alt="" coords="403,420,501,446"/>
+<area shape="rect" id="node47" href="$_attitude_manager_8c.html#a674ea971a0e35acfbf481bb5a86915d2" title="readDatalink" alt="" coords="405,268,499,294"/>
+<area shape="rect" id="node48" href="$net_8h.html#a93aa06bf9bf3fe5f0b4a0fd060aa80f0" title="inboundBufferMaintenance" alt="" coords="364,318,540,345"/>
+<area shape="rect" id="node49" href="$net_8h.html#a514c9b1839914eb50dda54a413cb3ae4" title="outboundBufferMaintenance" alt="" coords="360,369,544,396"/>
+<area shape="rect" id="node50" href="$delay_8c.html#ae3cda81b95b7cfb84da863b65054a857" title="Delay" alt="" coords="424,217,480,244"/>
+<area shape="rect" id="node35" href="$_output_compare_8c.html#a0562b7506bfb6054a106d173ecd50eb7" title="Sets the PWM of a given output pin. " alt="" coords="656,457,749,484"/>
+<area shape="rect" id="node37" href="$_v_n100_8c.html#a2c9de2ff05db6cef0113696208b920b8" title="VN100_SPI_GetRates" alt="" coords="883,508,1037,534"/>
+<area shape="rect" id="node38" href="$_v_n100_8c.html#a0a865be437b61271edf7c07ecbe8bce4" title="VN100_SPI_GetYPR" alt="" coords="887,457,1033,484"/>
+<area shape="rect" id="node40" href="$_common_8c.html#a6f0077298323f5bdb0ca32aee88de817" title="generatePMDataDMAChecksum1" alt="" coords="593,660,813,686"/>
+<area shape="rect" id="node41" href="$_common_8c.html#a389f817a8b0c6ef78d9887d11099f444" title="generatePMDataDMAChecksum2" alt="" coords="593,609,813,636"/>
+<area shape="rect" id="node43" href="$net_8h.html#a58f055e4c52b6db5adb0649a99f06ee0" title="createTelemetryBlock" alt="" coords="628,305,777,332"/>
+<area shape="rect" id="node44" href="$_attitude_manager_8c.html#a48ec016cb9bf89dbe84a1b6cc9b72a3e" title="getLatitude" alt="" coords="659,356,746,382"/>
+<area shape="rect" id="node45" href="$_attitude_manager_8c.html#a42b9306339a98cb3dddcd3be3da72319" title="getLongitude" alt="" coords="655,406,751,433"/>
+<area shape="rect" id="node46" href="$timer_8c.html#a3c6380ce48cf6ff104824c3f8f5ca815" title="Get current time in ms. " alt="" coords="668,254,737,281"/>
+</map>

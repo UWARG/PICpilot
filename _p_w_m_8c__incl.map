@@ -1,0 +1,6 @@
+<map id="Autopilot/AttitudeManager/PWM.c" name="Autopilot/AttitudeManager/PWM.c">
+<area shape="rect" id="node2" href="$_p_w_m_8h.html" title="PWM.h" alt="" coords="5,96,72,123"/>
+<area shape="rect" id="node3" href="$_output_compare_8h.html" title="OutputCompare.h" alt="" coords="96,96,221,123"/>
+<area shape="rect" id="node4" href="$_input_capture_8h.html" title="InputCapture.h" alt="" coords="246,96,353,123"/>
+<area shape="rect" id="node5" href="$timer_8h.html" title="timer.h" alt="" coords="378,96,440,123"/>
+</map>

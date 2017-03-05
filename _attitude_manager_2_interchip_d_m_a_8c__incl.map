@@ -1,0 +1,20 @@
+<map id="Autopilot/AttitudeManager/InterchipDMA.c" name="Autopilot/AttitudeManager/InterchipDMA.c">
+<area shape="rect" id="node2" href="$_attitude_manager_2_interchip_d_m_a_8h.html" title="InterchipDMA.h" alt="" coords="295,245,408,272"/>
+<area shape="rect" id="node12" href="$_attitude_manager_8h.html" title="AttitudeManager.h" alt="" coords="377,96,505,123"/>
+<area shape="rect" id="node3" href="$_attitude_manager_2main_8h.html" title="main.h" alt="" coords="371,320,432,347"/>
+<area shape="rect" id="node4" href="$_common_8h.html" title="../Common/Common.h" alt="" coords="89,395,243,421"/>
+<area shape="rect" id="node9" href="$timer_8h.html" title="timer.h" alt="" coords="471,395,533,421"/>
+<area shape="rect" id="node10" href="$delay_8h.html" title="delay.h" alt="" coords="268,395,332,421"/>
+<area shape="rect" id="node11" href="$_anaconda_8h.html" title="Anaconda.h" alt="" coords="356,395,447,421"/>
+<area shape="rect" id="node13" href="$_orientation_control_8h.html" title="OrientationControl.h" alt="" coords="265,171,404,197"/>
+<area shape="rect" id="node15" href="$_state_machine_8h.html" title="StateMachine.h" alt="" coords="479,171,592,197"/>
+<area shape="rect" id="node16" href="$net_8h.html" title="List of defines required for XBEE communication and telemetry. " alt="" coords="733,245,784,272"/>
+<area shape="rect" id="node14" href="$_p_w_m_8h.html" title="PWM.h" alt="" coords="204,245,271,272"/>
+<area shape="rect" id="node17" href="$_v_n100_8h.html" title="VN100.h" alt="" coords="635,245,708,272"/>
+<area shape="rect" id="node22" href="$camera_manager_8h.html" title="cameraManager.h" alt="" coords="485,245,611,272"/>
+<area shape="rect" id="node18" href="$_v_n__type_8h.html" title="VN_type.h" alt="" coords="711,469,795,496"/>
+<area shape="rect" id="node19" href="$_v_n__lib_8h.html" title="VN_lib.h" alt="" coords="677,320,749,347"/>
+<area shape="rect" id="node20" href="$_v_n__math_8h.html" title="VN_math.h" alt="" coords="831,395,919,421"/>
+<area shape="rect" id="node21" href="$_v_n__user_8h.html" title="VN_user.h" alt="" coords="671,395,755,421"/>
+<area shape="rect" id="node23" href="$_output_compare_8h.html" title="OutputCompare.h" alt="" coords="471,320,596,347"/>
+</map>

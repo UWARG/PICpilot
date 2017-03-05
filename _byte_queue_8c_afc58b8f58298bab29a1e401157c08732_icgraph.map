@@ -1,0 +1,43 @@
+<map id="resizeBQueue" name="resizeBQueue">
+<area shape="rect" id="node2" href="$_byte_queue_8h.html#ad9b04340117667a9845f10fc03cf38af" title="Pop an element from the queue. " alt="" coords="161,385,252,412"/>
+<area shape="rect" id="node42" href="$_byte_queue_8h.html#a89f39e062c4ce869fc720daf9397d206" title="Push/add a byte onto the end of the queue. " alt="" coords="158,335,255,361"/>
+<area shape="rect" id="node3" href="$_u_a_r_t_8h.html#a6e29417886ed510f95ae8b8dcfa8d95f" title="Queues data to send through UART. " alt="" coords="305,335,407,361"/>
+<area shape="rect" id="node40" href="$_u_a_r_t_8h.html#afe4816383690490cb0877808594d9485" title="Read a byte from the uart RX buffer. " alt="" coords="309,385,403,412"/>
+<area shape="rect" id="node41" href="$_u_a_r_t_8c.html#a64653c452ab199760e9cdd6bdbbeeb76" title="Interrupt called whenever the TX buffer becomes empty. " alt="" coords="307,436,405,463"/>
+<area shape="rect" id="node4" href="$_logger_8c.html#ae277f439b43c863775ac78a01924f301" title="writeMessage" alt="" coords="457,335,559,361"/>
+<area shape="rect" id="node5" href="$_logger_8h.html#a8e1bf3d5ea0a885f81e71d2023a55777" title="Output an error level message. " alt="" coords="763,719,811,745"/>
+<area shape="rect" id="node22" href="$_logger_8h.html#a005f7c042e3bfa278fcb1b22f2df0dbe" title="Output a warning level message. " alt="" coords="608,56,675,83"/>
+<area shape="rect" id="node26" href="$_logger_8h.html#a41a264f07d7a57c334e29818d03c8ecd" title="Output a debug level message. " alt="" coords="613,335,670,361"/>
+<area shape="rect" id="node6" href="$_orientation_control_8h.html#ad5a0882d1c59ae96d55ce3d989a3ac8a" title="controlSignalThrottle" alt="" coords="901,776,1043,803"/>
+<area shape="rect" id="node11" href="$_orientation_control_8h.html#a77565a170d464bb6f5e5b5f2ba22a90e" title="controlSignalFlap" alt="" coords="911,665,1033,692"/>
+<area shape="rect" id="node13" href="$_orientation_control_8h.html#a0ace1a25de5ca755b5e00b97f26c634d" title="controlSignalAltitude" alt="" coords="901,915,1043,941"/>
+<area shape="rect" id="node15" href="$_orientation_control_8h.html#ab4f25c7417de7b20e4306df9dcf6c9b2" title="controlSignalHeading" alt="" coords="899,839,1045,865"/>
+<area shape="rect" id="node17" href="$_orientation_control_8h.html#a6ab14e30e34df58de7f7a2f2e2252676" title="controlSignalAngles" alt="" coords="903,719,1041,745"/>
+<area shape="rect" id="node21" href="$_path_01_manager_2_startup_error_codes_8h.html#a2e56c89f9ae2697471c3a747f9663252" title="checkErrorCodes" alt="" coords="1587,613,1709,640"/>
+<area shape="rect" id="node7" href="$_attitude_manager_8h.html#a796c7cf32f787351df873cff0a713c1c" title="throttleControl" alt="" coords="1104,816,1208,843"/>
+<area shape="rect" id="node8" href="$_state_machine_8h.html#a0ec275de1c3f187c834985ddbc1d067f" title="highLevelControl" alt="" coords="1267,841,1386,868"/>
+<area shape="rect" id="node9" href="$_state_machine_8h.html#a0557d935ed927de974186932309946e6" title="StateMachine" alt="" coords="1435,664,1538,691"/>
+<area shape="rect" id="node10" href="$_attitude_manager_2main_8c.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1757,613,1808,640"/>
+<area shape="rect" id="node12" href="$_attitude_manager_8h.html#a29633c48bebfbf85e3b882b34ae22078" title="flapControl" alt="" coords="1113,664,1199,691"/>
+<area shape="rect" id="node14" href="$_attitude_manager_8h.html#a649078b62960adf7d20a06a0ac8aee9e" title="altitudeControl" alt="" coords="1103,917,1209,944"/>
+<area shape="rect" id="node16" href="$_attitude_manager_8h.html#ab232a34a6387425a4ce2f917f80dc823" title="headingControl" alt="" coords="1101,867,1211,893"/>
+<area shape="rect" id="node18" href="$_attitude_manager_8h.html#a44ca20c152ed0e29a85518b6bc47c2ff" title="rollAngleControl" alt="" coords="1099,765,1213,792"/>
+<area shape="rect" id="node20" href="$_attitude_manager_8h.html#a78e8a476e3995730098c0f3470fe6109" title="pitchAngleControl" alt="" coords="1093,715,1219,741"/>
+<area shape="rect" id="node19" href="$_state_machine_8h.html#a882881ab0b9a6decabc3b91745d42054" title="lowLevelControl" alt="" coords="1269,664,1384,691"/>
+<area shape="rect" id="node23" href="$_program_status_8h.html#acf089ad6e9e70e377f5fa9a9361f41f3" title="setSensorStatus" alt="" coords="727,56,846,83"/>
+<area shape="rect" id="node25" href="$_program_status_8h.html#a54891dec403c3ab3b2ded12cfff0fb19" title="getSensorStatus" alt="" coords="727,5,846,32"/>
+<area shape="rect" id="node24" href="$_attitude_manager_8h.html#aca8d3a2d782422496e6d7adfa3ea2294" title="attitudeInit" alt="" coords="1607,157,1689,184"/>
+<area shape="rect" id="node27" href="$_attitude_manager_8h.html#a674ea971a0e35acfbf481bb5a86915d2" title="readDatalink" alt="" coords="1279,335,1374,361"/>
+<area shape="rect" id="node31" href="$_program_status_8h.html#a4518e29044a00f9dbad0aaf7db866c37" title="setProgramStatus" alt="" coords="723,360,850,387"/>
+<area shape="rect" id="node37" href="$_m_p_l3115_a2_8h.html#a400812dcf6aed65883ad2c64f1d6b341" title="initAltimeter" alt="" coords="741,537,832,564"/>
+<area shape="rect" id="node38" href="$_path_manager_8h.html#aa7281128f2a9d58f14f70bccf9a28f0c" title="pathManagerInit" alt="" coords="915,563,1029,589"/>
+<area shape="rect" id="node28" href="$_anaconda_8c.html#a9a955bd8d80ffc2c4382278f85fcde08" title="initialization" alt="" coords="1441,208,1532,235"/>
+<area shape="rect" id="node29" href="$_anaconda_8c.html#ac4a010716439d5ac858ae21a9c2f0f6d" title="dearmVehicle" alt="" coords="1436,284,1537,311"/>
+<area shape="rect" id="node30" href="$_anaconda_8c.html#a83af6c52b37ed394b8dde0ef68148861" title="stopArm" alt="" coords="1613,309,1683,336"/>
+<area shape="rect" id="node32" href="$_anaconda_8c.html#ad29ea68a65d325fd3124f44f09ad8008" title="armVehicle" alt="" coords="929,360,1015,387"/>
+<area shape="rect" id="node34" href="$_attitude_manager_8c.html#ab1ca093571dfdd6215f85d6ae661cf35" title="checkUHFStatus" alt="" coords="1095,411,1217,437"/>
+<area shape="rect" id="node35" href="$_attitude_manager_8h.html#a19af8226080150240624632b7af696ef" title="checkHeartbeat" alt="" coords="1099,512,1213,539"/>
+<area shape="rect" id="node36" href="$_state_machine_8h.html#aefe52cc9c0c6609c97693e029a4ff68a" title="killPlane" alt="" coords="937,461,1007,488"/>
+<area shape="rect" id="node33" href="$_anaconda_8c.html#ac8c5a21f2f1171f29f8dc186595561e4" title="startArm" alt="" coords="1120,360,1192,387"/>
+<area shape="rect" id="node39" href="$_path_01_manager_2main_8c.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1131,563,1181,589"/>
+</map>

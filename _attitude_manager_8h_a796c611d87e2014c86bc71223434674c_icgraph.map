@@ -1,0 +1,8 @@
+<map id="getControlPermission" name="getControlPermission">
+<area shape="rect" id="node2" href="$_anaconda_8c.html#a3d0b6882313892dc79b5283043a82776" title="inputMixing" alt="" coords="213,5,301,32"/>
+<area shape="rect" id="node6" href="$_state_machine_8h.html#a0ec275de1c3f187c834985ddbc1d067f" title="highLevelControl" alt="" coords="363,56,482,83"/>
+<area shape="rect" id="node7" href="$_state_machine_8h.html#a882881ab0b9a6decabc3b91745d42054" title="lowLevelControl" alt="" coords="200,107,315,133"/>
+<area shape="rect" id="node3" href="$_attitude_manager_8h.html#add72119163c40236eb2b2b887dd88c4f" title="inputCapture" alt="" coords="375,5,471,32"/>
+<area shape="rect" id="node4" href="$_state_machine_8h.html#a0557d935ed927de974186932309946e6" title="StateMachine" alt="" coords="531,56,634,83"/>
+<area shape="rect" id="node5" href="$_attitude_manager_2main_8c.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="683,56,733,83"/>
+</map>

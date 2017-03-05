@@ -1,0 +1,15 @@
+<map id="getAltitude" name="getAltitude">
+<area shape="rect" id="node2" href="$_attitude_manager_8h.html#a7a4dd2b79820f51766dac5b31ebc24bd" title="writeDatalink" alt="" coords="143,96,241,123"/>
+<area shape="rect" id="node10" href="$_state_machine_8h.html#a0ec275de1c3f187c834985ddbc1d067f" title="highLevelControl" alt="" coords="609,172,727,199"/>
+<area shape="rect" id="node11" href="$_path_manager_8h.html#aa7281128f2a9d58f14f70bccf9a28f0c" title="pathManagerInit" alt="" coords="309,223,424,249"/>
+<area shape="rect" id="node13" href="$_path_manager_8h.html#a19649d49737c43f50330090c5942f62f" title="copyGPSData" alt="" coords="139,273,245,300"/>
+<area shape="rect" id="node3" href="$_anaconda_8c.html#a9a955bd8d80ffc2c4382278f85fcde08" title="initialization" alt="" coords="783,71,873,97"/>
+<area shape="rect" id="node6" href="$_anaconda_8c.html#ac4a010716439d5ac858ae21a9c2f0f6d" title="dearmVehicle" alt="" coords="316,71,417,97"/>
+<area shape="rect" id="node9" href="$_state_machine_8h.html#a0557d935ed927de974186932309946e6" title="StateMachine" alt="" coords="777,121,879,148"/>
+<area shape="rect" id="node4" href="$_attitude_manager_8h.html#aca8d3a2d782422496e6d7adfa3ea2294" title="attitudeInit" alt="" coords="928,71,1011,97"/>
+<area shape="rect" id="node5" href="$_attitude_manager_2main_8c.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1059,96,1109,123"/>
+<area shape="rect" id="node7" href="$_anaconda_8c.html#a83af6c52b37ed394b8dde0ef68148861" title="stopArm" alt="" coords="489,20,559,47"/>
+<area shape="rect" id="node8" href="$_attitude_manager_8h.html#a674ea971a0e35acfbf481bb5a86915d2" title="readDatalink" alt="" coords="621,71,715,97"/>
+<area shape="rect" id="node12" href="$_path_01_manager_2main_8c.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="499,248,549,275"/>
+<area shape="rect" id="node14" href="$_path_manager_8h.html#a89485e3b088d7104d609a00ac8f635b4" title="pathManagerRuntime" alt="" coords="293,273,440,300"/>
+</map>

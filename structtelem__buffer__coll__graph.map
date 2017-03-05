@@ -1,0 +1,7 @@
+<map id="telem_buffer" name="telem_buffer">
+<area shape="rect" id="node2" href="$structtelem__block.html" title="telem_block" alt="" coords="143,187,235,213"/>
+<area shape="rect" id="node3" href="$unionpacket_payload.html" title="packetPayload" alt="" coords="135,96,243,123"/>
+<area shape="rect" id="node4" href="$structpriority1__block.html" title="priority1_block" alt="" coords="5,5,112,32"/>
+<area shape="rect" id="node5" href="$structpriority2__block.html" title="priority2_block" alt="" coords="136,5,243,32"/>
+<area shape="rect" id="node6" href="$structpriority3__block.html" title="priority3_block" alt="" coords="267,5,373,32"/>
+</map>

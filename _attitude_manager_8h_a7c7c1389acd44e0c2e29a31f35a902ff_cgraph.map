@@ -1,0 +1,9 @@
+<map id="imuCommunication" name="imuCommunication">
+<area shape="rect" id="node2" href="$_v_n100_8c.html#a2c9de2ff05db6cef0113696208b920b8" title="VN100_SPI_GetRates" alt="" coords="189,31,344,57"/>
+<area shape="rect" id="node8" href="$_v_n100_8c.html#a0a865be437b61271edf7c07ecbe8bce4" title="VN100_SPI_GetYPR" alt="" coords="193,81,340,108"/>
+<area shape="rect" id="node3" href="$_v_n100_8c.html#adc02ae8fa4744d3a9efc8c88d5ef037b" title="VN100_SPI_ReadRegister" alt="" coords="392,56,571,83"/>
+<area shape="rect" id="node4" href="$_v_n__user_8c.html#a56ed96c3ccde9fc844442ceeebd7601f" title="VN_SPI_SetSS" alt="" coords="639,5,753,32"/>
+<area shape="rect" id="node5" href="$_v_n__user_8c.html#af312ced001b9f1cb9d85240f85c7d5b8" title="VN_SPI_SendReceive" alt="" coords="619,56,773,83"/>
+<area shape="rect" id="node6" href="$_v_n__user_8c.html#a192a3693096366fa0697ae6efd2944bc" title="VN_Delay" alt="" coords="655,107,737,133"/>
+<area shape="rect" id="node7" href="$delay_8c.html#a24a7e72f43ce2b760bf6f7405a7b5448" title="Delay_Us" alt="" coords="821,107,901,133"/>
+</map>

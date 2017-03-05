@@ -1,0 +1,5 @@
+<map id="inboundBufferMaintenance" name="inboundBufferMaintenance">
+<area shape="rect" id="node2" href="$net__inbound_8c.html#abf8f3afa38d67499203feabb40c3f4c4" title="checkPacket" alt="" coords="240,5,339,32"/>
+<area shape="rect" id="node3" href="$net__inbound_8c.html#a0f19a22e58bcd52b57df5e35bc7abe17" title="createCommand" alt="" coords="230,56,349,83"/>
+<area shape="rect" id="node4" href="$net__inbound_8c.html#a4fbad66f9ccd0d016cfaabb3bb100ae2" title="pushCommand" alt="" coords="234,107,345,133"/>
+</map>

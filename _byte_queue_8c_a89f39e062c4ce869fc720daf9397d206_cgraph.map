@@ -1,0 +1,4 @@
+<map id="pushBQueue" name="pushBQueue">
+<area shape="rect" id="node2" href="$_byte_queue_8c.html#afc58b8f58298bab29a1e401157c08732" title="Resizes a queue (either shrinks or grows) to the specified new size. " alt="" coords="152,5,256,32"/>
+<area shape="rect" id="node3" href="$_byte_queue_8c.html#acaac1365b16ce78bc3992581cc0e7638" title="Pops all the elements in the queue and copies them into a provided array. " alt="" coords="305,5,410,32"/>
+</map>

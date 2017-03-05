@@ -1,0 +1,10 @@
+<map id="Autopilot/AttitudeManager/cameraManager.c" name="Autopilot/AttitudeManager/cameraManager.c">
+<area shape="rect" id="node2" href="$camera_manager_8h.html" title="cameraManager.h" alt="" coords="63,96,189,123"/>
+<area shape="rect" id="node4" href="$_attitude_manager_2main_8h.html" title="main.h" alt="" coords="345,96,407,123"/>
+<area shape="rect" id="node5" href="$_common_8h.html" title="../Common/Common.h" alt="" coords="165,171,319,197"/>
+<area shape="rect" id="node13" href="$_p_w_m_8h.html" title="PWM.h" alt="" coords="431,96,497,123"/>
+<area shape="rect" id="node3" href="$_output_compare_8h.html" title="OutputCompare.h" alt="" coords="16,171,141,197"/>
+<area shape="rect" id="node10" href="$timer_8h.html" title="timer.h" alt="" coords="345,171,407,197"/>
+<area shape="rect" id="node11" href="$delay_8h.html" title="delay.h" alt="" coords="432,171,496,197"/>
+<area shape="rect" id="node12" href="$_anaconda_8h.html" title="Anaconda.h" alt="" coords="520,171,611,197"/>
+</map>

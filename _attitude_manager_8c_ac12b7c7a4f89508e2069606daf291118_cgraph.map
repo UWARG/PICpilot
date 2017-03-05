@@ -1,0 +1,7 @@
+<map id="checkDMA" name="checkDMA">
+<area shape="rect" id="node2" href="$_common_8c.html#a6f0077298323f5bdb0ca32aee88de817" title="generatePMDataDMAChecksum1" alt="" coords="142,5,362,32"/>
+<area shape="rect" id="node3" href="$_common_8c.html#a389f817a8b0c6ef78d9887d11099f444" title="generatePMDataDMAChecksum2" alt="" coords="142,56,362,83"/>
+<area shape="rect" id="node4" href="$_attitude_manager_2_interchip_d_m_a_8c.html#a5477a52108df8d54bc7edd07ad9c48b6" title="init_SPI1" alt="" coords="215,107,289,133"/>
+<area shape="rect" id="node5" href="$_attitude_manager_2_interchip_d_m_a_8c.html#a8410b17254423d80de96645f3d63803d" title="init_DMA0" alt="" coords="211,157,293,184"/>
+<area shape="rect" id="node6" href="$_attitude_manager_2_interchip_d_m_a_8c.html#aabc3aece73f61a879bd322eea3382ebe" title="init_DMA1" alt="" coords="211,208,293,235"/>
+</map>

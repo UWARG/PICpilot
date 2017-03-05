@@ -1,0 +1,11 @@
+<map id="copyGPSData" name="copyGPSData">
+<area shape="rect" id="node2" href="$_path_manager_8c.html#a4ab0ec078ab2cbc57d05747ade333aff" title="gpsErrorCheck" alt="" coords="216,5,325,32"/>
+<area shape="rect" id="node3" href="$_path_manager_8c.html#a1fb43e44244f3cc6a2f03f8b9a180ff6" title="checkForFirstGPSLock" alt="" coords="191,56,350,83"/>
+<area shape="rect" id="node5" href="$_main_battery_sensor_8c.html#a7d530d7b1d5bef6501de9397ecedf065" title="getMainBatteryLevel" alt="" coords="200,107,341,133"/>
+<area shape="rect" id="node6" href="$airspeed_sensor_8c.html#acd012eea57a82bb6858a56fe26493356" title="getCurrentAirspeed" alt="" coords="203,157,338,184"/>
+<area shape="rect" id="node7" href="$_attitude_manager_8c.html#a2905c4304becd6289e8da67b88224bc0" title="getAltitude" alt="" coords="229,208,313,235"/>
+<area shape="rect" id="node8" href="$_path_manager_8c.html#a69c61de376a86e2e74bc66a2ae9d1e36" title="getWaypointChecksum" alt="" coords="191,259,350,285"/>
+<area shape="rect" id="node9" href="$_common_8c.html#a6f0077298323f5bdb0ca32aee88de817" title="generatePMDataDMAChecksum1" alt="" coords="161,309,381,336"/>
+<area shape="rect" id="node10" href="$_common_8c.html#a389f817a8b0c6ef78d9887d11099f444" title="generatePMDataDMAChecksum2" alt="" coords="161,360,381,387"/>
+<area shape="rect" id="node4" href="$_path_01_manager_2_startup_error_codes_8c.html#adfc296d6a6d33dd2715721baede95d95" title="getErrorCodes" alt="" coords="429,56,536,83"/>
+</map>

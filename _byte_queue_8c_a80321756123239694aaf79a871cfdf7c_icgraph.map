@@ -1,0 +1,5 @@
+<map id="initBQueue" name="initBQueue">
+<area shape="rect" id="node2" href="$_u_a_r_t_8h.html#a78356919c36d46d379c888ea97ea05ac" title="Will initialize the specified UART interface for both RX and TX transmissions at the specified baud r..." alt="" coords="142,5,218,32"/>
+<area shape="rect" id="node3" href="$_logger_8h.html#a9cb6415a709eef80a6c29da825516ddb" title="Initializes the logger module by initializing the specified UART channel. " alt="" coords="267,5,346,32"/>
+<area shape="rect" id="node4" href="$_attitude_manager_2main_8c.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="395,5,445,32"/>
+</map>

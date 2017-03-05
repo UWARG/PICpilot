@@ -1,0 +1,15 @@
+<map id="Autopilot/Path Manager/main.h" name="Autopilot/Path Manager/main.h">
+<area shape="rect" id="node2" href="$airspeed_sensor_8c.html" title="Autopilot/Path Manager\l/airspeedSensor.c" alt="" coords="5,97,163,138"/>
+<area shape="rect" id="node3" href="$_i2_c_8h.html" title="Autopilot/Path Manager\l/I2C.h" alt="" coords="422,97,580,138"/>
+<area shape="rect" id="node6" href="$_m_p_l3115_a2_8c.html" title="Autopilot/Path Manager\l/MPL3115A2.c" alt="" coords="239,278,397,319"/>
+<area shape="rect" id="node7" href="$_path_manager_8c.html" title="Autopilot/Path Manager\l/PathManager.c" alt="" coords="539,278,697,319"/>
+<area shape="rect" id="node8" href="$_path_01_manager_2_interchip_d_m_a_8h.html" title="Autopilot/Path Manager\l/InterchipDMA.h" alt="" coords="657,97,815,138"/>
+<area shape="rect" id="node12" href="$_path_01_manager_2main_8c.html" title="Autopilot/Path Manager\l/main.c" alt="" coords="839,97,997,138"/>
+<area shape="rect" id="node13" href="$_main_battery_sensor_8c.html" title="Autopilot/Path Manager\l/MainBatterySensor.c" alt="" coords="1022,97,1180,138"/>
+<area shape="rect" id="node14" href="$_path_01_manager_2_startup_error_codes_8c.html" title="Autopilot/Path Manager\l/StartupErrorCodes.c" alt="" coords="1205,97,1363,138"/>
+<area shape="rect" id="node4" href="$_i2_c_8c.html" title="Autopilot/Path Manager\l/I2C.c" alt="" coords="239,187,397,229"/>
+<area shape="rect" id="node5" href="$_m_p_l3115_a2_8h.html" title="Autopilot/Path Manager\l/MPL3115A2.h" alt="" coords="422,187,580,229"/>
+<area shape="rect" id="node9" href="$_path_01_manager_2_interchip_d_m_a_8c.html" title="Autopilot/Path Manager\l/InterchipDMA.c" alt="" coords="707,187,865,229"/>
+<area shape="rect" id="node10" href="$_n_m_e_aparser_8h.html" title="Autopilot/Path Manager\l/NMEAparser.h" alt="" coords="890,187,1048,229"/>
+<area shape="rect" id="node11" href="$_n_m_e_aparser_8c.html" title="Autopilot/Path Manager\l/NMEAparser.c" alt="" coords="890,278,1048,319"/>
+</map>

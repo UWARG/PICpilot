@@ -1,0 +1,13 @@
+<map id="altitudeControl" name="altitudeControl">
+<area shape="rect" id="node2" href="$_orientation_control_8c.html#a24f2b62c2b4618a77920c00a0d46f414" title="controlSignalAltitude" alt="" coords="160,68,301,95"/>
+<area shape="rect" id="node3" href="$_logger_8c.html#a8e1bf3d5ea0a885f81e71d2023a55777" title="Output an error level message. " alt="" coords="375,31,423,57"/>
+<area shape="rect" id="node12" href="$_orientation_control_8c.html#ad3848892094dd89e76bab46257f0c9b6" title="controlSignal" alt="" coords="350,105,447,132"/>
+<area shape="rect" id="node4" href="$_logger_8c.html#ae277f439b43c863775ac78a01924f301" title="writeMessage" alt="" coords="497,31,599,57"/>
+<area shape="rect" id="node5" href="$_u_a_r_t_8c.html#a51715fb2bc17a7e041ff4c5709ae8387" title="Get the number of bytes that are guaranteed to be succesfully queued to the TX buffer. " alt="" coords="653,5,747,32"/>
+<area shape="rect" id="node7" href="$_u_a_r_t_8c.html#a6e29417886ed510f95ae8b8dcfa8d95f" title="Queues data to send through UART. " alt="" coords="649,56,751,83"/>
+<area shape="rect" id="node6" href="$_byte_queue_8c.html#a348f4bb5087027200338786bc0a71982" title="This function returns the number of bytes that is guaranteed to be pushed to the queue. " alt="" coords="801,5,925,32"/>
+<area shape="rect" id="node8" href="$_byte_queue_8c.html#a89f39e062c4ce869fc720daf9397d206" title="Push/add a byte onto the end of the queue. " alt="" coords="814,56,911,83"/>
+<area shape="rect" id="node11" href="$_byte_queue_8c.html#ad9b04340117667a9845f10fc03cf38af" title="Pop an element from the queue. " alt="" coords="817,107,908,133"/>
+<area shape="rect" id="node9" href="$_byte_queue_8c.html#afc58b8f58298bab29a1e401157c08732" title="Resizes a queue (either shrinks or grows) to the specified new size. " alt="" coords="973,81,1077,108"/>
+<area shape="rect" id="node10" href="$_byte_queue_8c.html#acaac1365b16ce78bc3992581cc0e7638" title="Pops all the elements in the queue and copies them into a provided array. " alt="" coords="1126,81,1231,108"/>
+</map>

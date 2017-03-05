@@ -1,0 +1,10 @@
+<map id="debug" name="debug">
+<area shape="rect" id="node2" href="$_logger_8c.html#ae277f439b43c863775ac78a01924f301" title="writeMessage" alt="" coords="113,31,215,57"/>
+<area shape="rect" id="node3" href="$_u_a_r_t_8c.html#a51715fb2bc17a7e041ff4c5709ae8387" title="Get the number of bytes that are guaranteed to be succesfully queued to the TX buffer. " alt="" coords="269,5,363,32"/>
+<area shape="rect" id="node5" href="$_u_a_r_t_8c.html#a6e29417886ed510f95ae8b8dcfa8d95f" title="Queues data to send through UART. " alt="" coords="265,56,367,83"/>
+<area shape="rect" id="node4" href="$_byte_queue_8c.html#a348f4bb5087027200338786bc0a71982" title="This function returns the number of bytes that is guaranteed to be pushed to the queue. " alt="" coords="417,5,541,32"/>
+<area shape="rect" id="node6" href="$_byte_queue_8c.html#a89f39e062c4ce869fc720daf9397d206" title="Push/add a byte onto the end of the queue. " alt="" coords="430,56,527,83"/>
+<area shape="rect" id="node9" href="$_byte_queue_8c.html#ad9b04340117667a9845f10fc03cf38af" title="Pop an element from the queue. " alt="" coords="433,107,524,133"/>
+<area shape="rect" id="node7" href="$_byte_queue_8c.html#afc58b8f58298bab29a1e401157c08732" title="Resizes a queue (either shrinks or grows) to the specified new size. " alt="" coords="589,81,693,108"/>
+<area shape="rect" id="node8" href="$_byte_queue_8c.html#acaac1365b16ce78bc3992581cc0e7638" title="Pops all the elements in the queue and copies them into a provided array. " alt="" coords="742,81,847,108"/>
+</map>

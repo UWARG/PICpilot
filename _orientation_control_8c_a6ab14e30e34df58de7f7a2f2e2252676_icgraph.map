@@ -1,0 +1,7 @@
+<map id="controlSignalAngles" name="controlSignalAngles">
+<area shape="rect" id="node2" href="$_attitude_manager_8h.html#a44ca20c152ed0e29a85518b6bc47c2ff" title="rollAngleControl" alt="" coords="197,5,312,32"/>
+<area shape="rect" id="node6" href="$_attitude_manager_8h.html#a78e8a476e3995730098c0f3470fe6109" title="pitchAngleControl" alt="" coords="192,56,317,83"/>
+<area shape="rect" id="node3" href="$_state_machine_8h.html#a882881ab0b9a6decabc3b91745d42054" title="lowLevelControl" alt="" coords="365,31,480,57"/>
+<area shape="rect" id="node4" href="$_state_machine_8h.html#a0557d935ed927de974186932309946e6" title="StateMachine" alt="" coords="529,31,631,57"/>
+<area shape="rect" id="node5" href="$_attitude_manager_2main_8c.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="680,31,731,57"/>
+</map>

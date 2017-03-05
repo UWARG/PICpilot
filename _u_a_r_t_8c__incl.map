@@ -1,0 +1,5 @@
+<map id="Autopilot/Common/Interfaces/UART.c" name="Autopilot/Common/Interfaces/UART.c">
+<area shape="rect" id="node2" href="$_u_a_r_t_8h.html" title="Contains implementation for using the UART functionality of the chip (for both interfaces) ..." alt="" coords="5,96,75,123"/>
+<area shape="rect" id="node4" href="$clock_8h.html" title="../clock.h" alt="" coords="263,96,339,123"/>
+<area shape="rect" id="node5" href="$_byte_queue_8h.html" title="Contains generic implementation of a byte queue. This is used extensively where a character buffer is..." alt="" coords="363,96,521,123"/>
+</map>

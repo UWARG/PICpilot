@@ -1,0 +1,12 @@
+<map id="setSensorStatus" name="setSensorStatus">
+<area shape="rect" id="node2" href="$_logger_8c.html#a41a264f07d7a57c334e29818d03c8ecd" title="Output a debug level message. " alt="" coords="178,5,235,32"/>
+<area shape="rect" id="node11" href="$_logger_8c.html#a005f7c042e3bfa278fcb1b22f2df0dbe" title="Output a warning level message. " alt="" coords="173,56,240,83"/>
+<area shape="rect" id="node3" href="$_logger_8c.html#ae277f439b43c863775ac78a01924f301" title="writeMessage" alt="" coords="289,31,391,57"/>
+<area shape="rect" id="node4" href="$_u_a_r_t_8c.html#a51715fb2bc17a7e041ff4c5709ae8387" title="Get the number of bytes that are guaranteed to be succesfully queued to the TX buffer. " alt="" coords="445,5,539,32"/>
+<area shape="rect" id="node6" href="$_u_a_r_t_8c.html#a6e29417886ed510f95ae8b8dcfa8d95f" title="Queues data to send through UART. " alt="" coords="441,56,543,83"/>
+<area shape="rect" id="node5" href="$_byte_queue_8c.html#a348f4bb5087027200338786bc0a71982" title="This function returns the number of bytes that is guaranteed to be pushed to the queue. " alt="" coords="593,5,717,32"/>
+<area shape="rect" id="node7" href="$_byte_queue_8c.html#a89f39e062c4ce869fc720daf9397d206" title="Push/add a byte onto the end of the queue. " alt="" coords="606,56,703,83"/>
+<area shape="rect" id="node10" href="$_byte_queue_8c.html#ad9b04340117667a9845f10fc03cf38af" title="Pop an element from the queue. " alt="" coords="609,107,700,133"/>
+<area shape="rect" id="node8" href="$_byte_queue_8c.html#afc58b8f58298bab29a1e401157c08732" title="Resizes a queue (either shrinks or grows) to the specified new size. " alt="" coords="765,81,869,108"/>
+<area shape="rect" id="node9" href="$_byte_queue_8c.html#acaac1365b16ce78bc3992581cc0e7638" title="Pops all the elements in the queue and copies them into a provided array. " alt="" coords="918,81,1023,108"/>
+</map>

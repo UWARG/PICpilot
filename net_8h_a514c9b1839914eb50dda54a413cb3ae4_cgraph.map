@@ -1,0 +1,8 @@
+<map id="outboundBufferMaintenance" name="outboundBufferMaintenance">
+<area shape="rect" id="node2" href="$net__outbound_8c.html#a8c75d9b63b7c5b1a68c34ab9a91f6264" title="destroyTelemetryBlock" alt="" coords="257,5,413,32"/>
+<area shape="rect" id="node3" href="$net__outbound_8c.html#af4e3494180005c16c46fc751be9133f8" title="getOutboundQueueLength" alt="" coords="248,56,421,83"/>
+<area shape="rect" id="node4" href="$net__outbound_8c.html#a6cf41167bbbcaeb6aab93adf62320508" title="stageTelemetryBlock" alt="" coords="262,107,407,133"/>
+<area shape="rect" id="node7" href="$net__outbound_8c.html#aff3afa9ddf1ea4a73d0b7b56ee3662cb" title="popOutboundTelemetryQueue" alt="" coords="237,157,432,184"/>
+<area shape="rect" id="node5" href="$net__outbound_8c.html#af3ea0b626d115dfd050917e11e6092e8" title="generateApiHeader" alt="" coords="480,81,613,108"/>
+<area shape="rect" id="node6" href="$net__outbound_8c.html#a8a74c11e2b1d7577fd924d5a9cd6cf37" title="sendNextByte" alt="" coords="494,132,599,159"/>
+</map>

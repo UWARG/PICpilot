@@ -1,0 +1,13 @@
+<map id="generateApiHeader" name="generateApiHeader">
+<area shape="rect" id="node2" href="$net__outbound_8c.html#a6cf41167bbbcaeb6aab93adf62320508" title="stageTelemetryBlock" alt="" coords="187,93,333,119"/>
+<area shape="rect" id="node11" href="$net__outbound_8c.html#a7fedacf7709dff79fc59f9d5922900cb" title="sendTelemetryBlock" alt="" coords="189,143,331,170"/>
+<area shape="rect" id="node3" href="$net__outbound_8c.html#a514c9b1839914eb50dda54a413cb3ae4" title="outboundBufferMaintenance" alt="" coords="381,93,565,119"/>
+<area shape="rect" id="node4" href="$_anaconda_8c.html#a9a955bd8d80ffc2c4382278f85fcde08" title="initialization" alt="" coords="1033,86,1124,113"/>
+<area shape="rect" id="node7" href="$_anaconda_8c.html#ac4a010716439d5ac858ae21a9c2f0f6d" title="dearmVehicle" alt="" coords="613,118,715,145"/>
+<area shape="rect" id="node10" href="$_state_machine_8h.html#a0557d935ed927de974186932309946e6" title="StateMachine" alt="" coords="1027,181,1130,207"/>
+<area shape="rect" id="node5" href="$_attitude_manager_8h.html#aca8d3a2d782422496e6d7adfa3ea2294" title="attitudeInit" alt="" coords="1179,111,1261,138"/>
+<area shape="rect" id="node6" href="$_attitude_manager_2main_8c.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="1309,143,1360,170"/>
+<area shape="rect" id="node8" href="$_anaconda_8c.html#a83af6c52b37ed394b8dde0ef68148861" title="stopArm" alt="" coords="763,93,834,119"/>
+<area shape="rect" id="node9" href="$_attitude_manager_8h.html#a674ea971a0e35acfbf481bb5a86915d2" title="readDatalink" alt="" coords="883,107,978,134"/>
+<area shape="rect" id="node12" href="$_attitude_manager_8h.html#a7a4dd2b79820f51766dac5b31ebc24bd" title="writeDatalink" alt="" coords="424,143,523,170"/>
+</map>

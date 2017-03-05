@@ -1,0 +1,16 @@
+<map id="checkHeartbeat" name="checkHeartbeat">
+<area shape="rect" id="node2" href="$timer_8c.html#a3c6380ce48cf6ff104824c3f8f5ca815" title="Get current time in ms. " alt="" coords="240,5,309,32"/>
+<area shape="rect" id="node3" href="$_program_status_8c.html#a4518e29044a00f9dbad0aaf7db866c37" title="setProgramStatus" alt="" coords="430,132,557,159"/>
+<area shape="rect" id="node13" href="$_common_8c.html#ab1037f62067bc851a93f4689549145a2" title="generateAMDataDMACheckbyte" alt="" coords="168,107,381,133"/>
+<area shape="rect" id="node14" href="$_common_8c.html#ae72f47fbe78ed858a1a9074c93210ea8" title="generateAMDataChecksum" alt="" coords="183,157,366,184"/>
+<area shape="rect" id="node15" href="$_state_machine_8c.html#aefe52cc9c0c6609c97693e029a4ff68a" title="killPlane" alt="" coords="239,208,310,235"/>
+<area shape="rect" id="node4" href="$_logger_8c.html#a41a264f07d7a57c334e29818d03c8ecd" title="Output a debug level message. " alt="" coords="606,132,663,159"/>
+<area shape="rect" id="node5" href="$_logger_8c.html#ae277f439b43c863775ac78a01924f301" title="writeMessage" alt="" coords="713,132,815,159"/>
+<area shape="rect" id="node6" href="$_u_a_r_t_8c.html#a51715fb2bc17a7e041ff4c5709ae8387" title="Get the number of bytes that are guaranteed to be succesfully queued to the TX buffer. " alt="" coords="869,107,963,133"/>
+<area shape="rect" id="node8" href="$_u_a_r_t_8c.html#a6e29417886ed510f95ae8b8dcfa8d95f" title="Queues data to send through UART. " alt="" coords="865,157,967,184"/>
+<area shape="rect" id="node7" href="$_byte_queue_8c.html#a348f4bb5087027200338786bc0a71982" title="This function returns the number of bytes that is guaranteed to be pushed to the queue. " alt="" coords="1017,107,1141,133"/>
+<area shape="rect" id="node9" href="$_byte_queue_8c.html#a89f39e062c4ce869fc720daf9397d206" title="Push/add a byte onto the end of the queue. " alt="" coords="1030,157,1127,184"/>
+<area shape="rect" id="node12" href="$_byte_queue_8c.html#ad9b04340117667a9845f10fc03cf38af" title="Pop an element from the queue. " alt="" coords="1033,208,1124,235"/>
+<area shape="rect" id="node10" href="$_byte_queue_8c.html#afc58b8f58298bab29a1e401157c08732" title="Resizes a queue (either shrinks or grows) to the specified new size. " alt="" coords="1189,183,1293,209"/>
+<area shape="rect" id="node11" href="$_byte_queue_8c.html#acaac1365b16ce78bc3992581cc0e7638" title="Pops all the elements in the queue and copies them into a provided array. " alt="" coords="1342,183,1447,209"/>
+</map>

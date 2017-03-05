@@ -1,0 +1,6 @@
+<map id="setThrottleSetpoint" name="setThrottleSetpoint">
+<area shape="rect" id="node2" href="$_state_machine_8h.html#a0ec275de1c3f187c834985ddbc1d067f" title="highLevelControl" alt="" coords="187,5,306,32"/>
+<area shape="rect" id="node5" href="$_state_machine_8h.html#a882881ab0b9a6decabc3b91745d42054" title="lowLevelControl" alt="" coords="189,56,304,83"/>
+<area shape="rect" id="node3" href="$_state_machine_8h.html#a0557d935ed927de974186932309946e6" title="StateMachine" alt="" coords="355,31,458,57"/>
+<area shape="rect" id="node4" href="$_attitude_manager_2main_8c.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="507,31,557,57"/>
+</map>

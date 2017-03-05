@@ -1,0 +1,20 @@
+<map id="controlSignal" name="controlSignal">
+<area shape="rect" id="node2" href="$_attitude_manager_8h.html#a978327a9985f0b5cabe11dd1679cd89a" title="rollRateControl" alt="" coords="355,245,464,272"/>
+<area shape="rect" id="node6" href="$_attitude_manager_8h.html#a2cdc9a1c1427ad91576d7251bb97c7ae" title="pitchRateControl" alt="" coords="165,5,285,32"/>
+<area shape="rect" id="node7" href="$_attitude_manager_8h.html#af7adc5499bd179da290b1e47a7fd685a" title="yawRateControl" alt="" coords="167,68,283,95"/>
+<area shape="rect" id="node8" href="$_orientation_control_8h.html#ad5a0882d1c59ae96d55ce3d989a3ac8a" title="controlSignalThrottle" alt="" coords="155,347,296,373"/>
+<area shape="rect" id="node11" href="$_orientation_control_8h.html#a77565a170d464bb6f5e5b5f2ba22a90e" title="controlSignalFlap" alt="" coords="164,195,287,221"/>
+<area shape="rect" id="node13" href="$_orientation_control_8h.html#a0ace1a25de5ca755b5e00b97f26c634d" title="controlSignalAltitude" alt="" coords="155,397,296,424"/>
+<area shape="rect" id="node15" href="$_orientation_control_8h.html#ab4f25c7417de7b20e4306df9dcf6c9b2" title="controlSignalHeading" alt="" coords="153,296,298,323"/>
+<area shape="rect" id="node17" href="$_orientation_control_8h.html#a6ab14e30e34df58de7f7a2f2e2252676" title="controlSignalAngles" alt="" coords="157,144,294,171"/>
+<area shape="rect" id="node3" href="$_state_machine_8h.html#a882881ab0b9a6decabc3b91745d42054" title="lowLevelControl" alt="" coords="523,119,637,145"/>
+<area shape="rect" id="node4" href="$_state_machine_8h.html#a0557d935ed927de974186932309946e6" title="StateMachine" alt="" coords="689,208,791,235"/>
+<area shape="rect" id="node5" href="$_attitude_manager_2main_8c.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="840,208,891,235"/>
+<area shape="rect" id="node9" href="$_attitude_manager_8h.html#a796c7cf32f787351df873cff0a713c1c" title="throttleControl" alt="" coords="357,347,461,373"/>
+<area shape="rect" id="node10" href="$_state_machine_8h.html#a0ec275de1c3f187c834985ddbc1d067f" title="highLevelControl" alt="" coords="521,321,639,348"/>
+<area shape="rect" id="node12" href="$_attitude_manager_8h.html#a29633c48bebfbf85e3b882b34ae22078" title="flapControl" alt="" coords="367,195,452,221"/>
+<area shape="rect" id="node14" href="$_attitude_manager_8h.html#a649078b62960adf7d20a06a0ac8aee9e" title="altitudeControl" alt="" coords="356,397,463,424"/>
+<area shape="rect" id="node16" href="$_attitude_manager_8h.html#ab232a34a6387425a4ce2f917f80dc823" title="headingControl" alt="" coords="355,296,464,323"/>
+<area shape="rect" id="node18" href="$_attitude_manager_8h.html#a44ca20c152ed0e29a85518b6bc47c2ff" title="rollAngleControl" alt="" coords="352,144,467,171"/>
+<area shape="rect" id="node19" href="$_attitude_manager_8h.html#a78e8a476e3995730098c0f3470fe6109" title="pitchAngleControl" alt="" coords="347,93,472,120"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="getCoordinates" name="getCoordinates">
+<area shape="rect" id="node2" href="$_path_manager_8h.html#a89485e3b088d7104d609a00ac8f635b4" title="pathManagerRuntime" alt="" coords="371,31,517,57"/>
+<area shape="rect" id="node4" href="$_path_manager_8h.html#aa3063dfc83d357cc1fa369dcbf0680b9" title="followWaypoints" alt="" coords="185,31,303,57"/>
+<area shape="rect" id="node5" href="$_path_manager_8h.html#a4663a4b9d0c42fce8e864aba3fce8ad1" title="followLineSegment" alt="" coords="178,81,310,108"/>
+<area shape="rect" id="node6" href="$_path_manager_8h.html#af594b836559d8731246723abf4ba609e" title="followLastLineSegment" alt="" coords="165,132,323,159"/>
+<area shape="rect" id="node7" href="$_path_manager_8h.html#a684d75198be0f8420e6e50411b75e42d" title="calculateHeadingHome" alt="" coords="165,183,323,209"/>
+<area shape="rect" id="node3" href="$_path_01_manager_2main_8c.html#a3c04138a5bfe5d72780bb7e82a18e627" title="main" alt="" coords="565,31,616,57"/>
+</map>
