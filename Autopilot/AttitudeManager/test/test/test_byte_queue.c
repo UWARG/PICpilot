@@ -189,3 +189,24 @@ void test_bQueueShouldHalfSizeIfQuarterFull(void){
     popBQueue(&bqueue);
     TEST_ASSERT_EQUAL_INT(4 ,bqueue._total_size);
 }
+//basically tests all functions of the queue. This test should catch any edge cases
+void test_bQueueFullDoubleEmptyFull(void){
+    deleteBQueue(&bqueue);
+    initBQueue(&bqueue, 4, 16);
+    char compare[16];
+    int i;
+    for (i = 0; i< 16; i++){ //fill up the queue to the max size
+        pushBQueue(&bqueue, i + 64);
+        compare[i] = i + 64;
+    }
+    //test to make sure that all data matches
+    for (i = 0; i< 12; i++){
+        TEST_ASSERT_EQUAL_INT(compare[i],popBQueue(&bqueue));
+    }
+    TEST_ASSERT_EQUAL_INT_MESSAGE(8,bqueue._total_size, "Queue should have halfed its size once contents are quarter full");
+    
+    for (i=12; i< 16; i++){ //fill up the queue to the max size
+        TEST_ASSERT_EQUAL_INT(compare[i],popBQueue(&bqueue));
+    }
+    TEST_ASSERT_EQUAL_INT(4,bqueue._total_size);   
+}
