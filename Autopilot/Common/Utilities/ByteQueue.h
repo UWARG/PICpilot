@@ -5,10 +5,9 @@
  * @brief
  * Contains generic implementation of a byte queue. This is used extensively where
  * a character buffer is required, such as in the UART implementation. This is an 
- * array based queue that will increase in size by 2x if the size is reached, but
- * will not shrink. Since this is an array based queue, there is little overhead
- * in terms of memory, and methods have been provided to copy the data over for
- * mass consumption to avoid the need for many function calls.
+ * array based queue that will increase in size by 2x if it becomes full and if
+ * its max size allows it. It will shrink in half if its a quarter full. 
+ * 
  * @copyright Waterloo Aerial Robotics Group 2017 \n
  *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE 
  */
@@ -23,7 +22,7 @@
  */
 typedef volatile struct _ByteQueue {
     unsigned char * _data;
-    unsigned int size; //current size of the queue. Can be accessed directly for convenience
+    unsigned int _size; //current size of the queue. Can be accessed directly for convenience
     unsigned int _total_size; //current total size of the queue
     unsigned int _initial_size; //Used to make sure that shrink resizing doesn't go below this value
     unsigned int _max_size; //max size of the queue. It cannot be resized to anything larger than this value
@@ -32,7 +31,11 @@ typedef volatile struct _ByteQueue {
 
 /**
  * Initializes the byte queue given the initial data size. If this number is 
- * exceeded, the queue will try to double in size. It will never shrink in size
+ * exceeded, the queue will try to double in size. The max size defines the limit
+ * to which the queue can grow. Note that because the queue will also shrink by 1/2
+ * if its 1/4 full, its best to define the initial size and max size to be even 
+ * multiples of each other. If initial size and max size are the same, the queue
+ * will not grow or shrink.
  * @param queue
  */
 void initBQueue(ByteQueue* queue, unsigned int initial_size, unsigned int max_size);

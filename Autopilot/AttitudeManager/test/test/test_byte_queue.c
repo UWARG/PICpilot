@@ -51,7 +51,7 @@ void tearDown(void)
  
 void test_bQueueInitialSizeZero(void)
 {
-    TEST_ASSERT_EQUAL_INT(0 ,bqueue.size);
+    TEST_ASSERT_EQUAL_INT(0 ,bqueue._size);
 }
 
 void test_bQueueAvailableSpaceShouldBeSetCorrectly(void)
