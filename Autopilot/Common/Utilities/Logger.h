@@ -1,4 +1,4 @@
-/* 
+/**
  * @file Logger.h
  * @author Chris Hajduk, Serj Babayan
  * @created August 24, 2014

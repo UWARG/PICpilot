@@ -1,5 +1,5 @@
-/* 
- * @file Logger.h
+/**
+ * @file Logger.c
  * @author Chris Hajduk, Serj Babayan
  * @created August 24, 2014
  * @copyright Waterloo Aerial Robotics Group 2017 \n
