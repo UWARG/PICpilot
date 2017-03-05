@@ -28,9 +28,9 @@ static void writeMessage(char* message, char* label, unsigned int label_length)
     //only send the uart data if theres enough space since we dont want to send over partial messages
     if (getTXSpace(LOGGER_UART_INTERFACE) >= label_length + 3 + length) {
         //add the message
-        quoueTXData(LOGGER_UART_INTERFACE, (unsigned char*) label, label_length);
-        quoueTXData(LOGGER_UART_INTERFACE, (unsigned char*) message, length);
-        quoueTXData(LOGGER_UART_INTERFACE, (unsigned char*) "\r\n\0", 3);
+        queueTXData(LOGGER_UART_INTERFACE, (unsigned char*) label, label_length);
+        queueTXData(LOGGER_UART_INTERFACE, (unsigned char*) message, length);
+        queueTXData(LOGGER_UART_INTERFACE, (unsigned char*) "\r\n\0", 3);
     }
 }
 

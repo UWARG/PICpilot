@@ -145,7 +145,7 @@ void initUART(unsigned char interface, unsigned long int baudrate, unsigned int 
     }
 }
 
-void quoueTXData(unsigned char interface, unsigned char* data, unsigned int data_length)
+void queueTXData(unsigned char interface, unsigned char* data, unsigned int data_length)
 {
     unsigned int i;
     if (interface == 1 && (uart1_status & UART_TX_ENABLE)) {
