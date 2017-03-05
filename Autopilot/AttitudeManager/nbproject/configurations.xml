@@ -11,8 +11,6 @@
       <logicalFolder name="f6" displayName="Common" projectFiles="true">
         <itemPath>../Common/Common.h</itemPath>
         <itemPath>../Common/clock.h</itemPath>
-        <itemPath>../Common/UART1.h</itemPath>
-        <itemPath>../Common/debug.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="Data Transfer" projectFiles="true">
         <itemPath>InterchipDMA.h</itemPath>
@@ -58,7 +56,6 @@
         <itemPath>DisplayQuad.h</itemPath>
       </logicalFolder>
       <itemPath>main.h</itemPath>
-      <itemPath>Config.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -76,7 +73,6 @@
       <logicalFolder name="f7" displayName="Common" projectFiles="true">
         <itemPath>../Common/Common.c</itemPath>
         <itemPath>../Common/clock.c</itemPath>
-        <itemPath>../Common/UART1.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="Data Transfer" projectFiles="true">
         <itemPath>InterchipDMA.c</itemPath>

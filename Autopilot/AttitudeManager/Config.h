@@ -10,11 +10,7 @@
 #ifndef CONFIG_H
 #define	CONFIG_H
 
-/**
- * Whether to enable the logger. Disabling it will cause all the functions defined
- * in the module to do nothing
- */
-#define ENABLE_LOGGER 1
+
 
 #endif
 
