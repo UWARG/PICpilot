@@ -5,9 +5,10 @@
  * Created on June 13, 2016, 6:05 PM
  */
 
-#include "I2C.c"
+#include "../Common/I2C.h"
 #include "MPU6050.h"
 #include "main.h"
+#include "../Common/debug.h"
 
 // At powerup all registers should be zero except for:
 //      Register 0x75 (WHO_AM_I)   = 0x68.
@@ -15,9 +16,14 @@ char imuConnected = 0;
 MPUData deviceData;
 
 char init_MPU6050(){
+    debug("Initing MPU6050");
     initI2C();
     imuConnected = checkDevicePresence(I2C_SLAVE_ADDRESS, MPU6050_WHO_AM_I);
-
+    if(imuConnected){
+        debug("IMU connected!");
+    }else{
+        debug("IMU not connected!");
+    }
     // default at power-up:
     //    Gyro at 250 degrees second
     //    Acceleration at 2g
@@ -42,6 +48,7 @@ void getAccel(){
     sendMessage(I2C_SLAVE_ADDRESS, MPU6050_ACCEL_ZOUT_H, &dataH, 1, READ);
     sendMessage(I2C_SLAVE_ADDRESS, MPU6050_ACCEL_ZOUT_L, &dataL, 1, READ);
     deviceData.accelZ = ((int)dataH << 8) + dataL;
+    debug((char)deviceData.accelX);
 }
 
 void getGyro(){
@@ -55,4 +62,5 @@ void getGyro(){
     sendMessage(I2C_SLAVE_ADDRESS, MPU6050_GYRO_ZOUT_H, &dataH, 1, READ);
     sendMessage(I2C_SLAVE_ADDRESS, MPU6050_GYRO_ZOUT_L, &dataL, 1, READ);
     deviceData.gyroZ = ((int)dataH << 8) + dataL;
+    
 }

@@ -18,7 +18,7 @@ extern "C" {
 // 50 character debug strings
 #define DEBUG_BUFFER_LENGTH 50
 //Debug character prefixes
-#define DEBUG_TAG_STRING "[debug]"
+#define DEBUG_TAG_STRING ""
 #define DEBUG_TAG_STRING_LENGTH 7
 #define ERROR_TAG_STRING "[error]"
 #define ERROR_TAG_STRING_LENGTH 7

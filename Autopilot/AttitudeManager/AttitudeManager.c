@@ -216,8 +216,12 @@ void attitudeInit() {
     //Todo: Finish this code to test the MPU IMU
     if (init_MPU6050()){
         //setSensorStatus
-        getAccel();
-        getGyro();
+        
+        while(1){
+            getAccel();
+            getGyro();
+        }
+        
         //debug(
     }
 
