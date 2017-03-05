@@ -14,13 +14,9 @@
 
 //Turns debug mode on or off. Usually contains small snippets of code to output
 //data through UART or to provide small input adjustments
-#define DEBUG 0
+#define DEBUG 1
 
 //  Path Manager - Communicates with the GPS in order to provide a constant
 //                  heading for the aircraft to follow.
 
 #define GPS_OLD 1 //1 Being the Old GPS (Uses SPI), and 0 Being the New GPS (Uses UART)
-
-#if DEBUG
-    #include "../Common/debug.h"
-#endif

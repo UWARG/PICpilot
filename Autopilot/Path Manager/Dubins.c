@@ -1,7 +1,6 @@
 #include <math.h>
 #include "Dubins.h"
 #include <stdio.h>
-#include "../Common/UART1.h"
 
 // makes code more readable
 float sq(float v) {

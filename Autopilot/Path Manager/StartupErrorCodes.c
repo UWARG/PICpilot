@@ -7,7 +7,7 @@
 #include "main.h"
 #include "../Common/Common.h"
 #include "StartupErrorCodes.h"
-
+#include "../Common/Utilities/Logger.h"
 unsigned int lastRuntimeErrors = 0;
 
 void checkErrorCodes(){
