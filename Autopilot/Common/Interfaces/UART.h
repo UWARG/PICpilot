@@ -1,4 +1,4 @@
-/* 
+/**
  * @file UART.h
  * @author Serge Babayan
  * @date February 14, 2017, 9:05 PM
