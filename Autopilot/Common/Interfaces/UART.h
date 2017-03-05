@@ -43,7 +43,7 @@ unsigned char readRXData(unsigned char interface);
  * @param data An array of bytes/chars to send
  * @param length The length of the aforementioned array of bytes/chars to send
  */
-void quoueTXData(unsigned char interface, unsigned char* data, unsigned int data_length);
+void queueTXData(unsigned char interface, unsigned char* data, unsigned int data_length);
 
 /**
  * Get the number of bytes that are guaranteed to be succesfully queued to the TX buffer.
