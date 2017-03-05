@@ -31,7 +31,7 @@ void initUART(unsigned char interface, unsigned long int baudrate, unsigned int 
     //we don't initialize twice or don't initialize if the interface is disabled
     if (interface == 1) {
         uart1_status = tx_rx;
-        
+
         U1MODEbits.UARTEN = 0; //Disable UART while we're configuring it
         U1MODEbits.USIDL = 0; //Keep interface on in idle mode
         U1MODEbits.IREN = 0; //No IR translation
@@ -73,22 +73,22 @@ void initUART(unsigned char interface, unsigned long int baudrate, unsigned int 
 
         IFS0bits.U1TXIF = 0; // Clear the Transmit Interrupt Flag
         IFS0bits.U1RXIF = 0; // Clear the receive Interrupt Flag
-        
-        if (uart1_status & UART_TX_ENABLE){
+
+        if (uart1_status & UART_TX_ENABLE) {
             initBQueue(&uart1_tx_queue, initial_buffer_size, max_buffer_size);
             IEC0bits.U1TXIE = 1; // Enable Transmit Interrupts
         }
-        
-        if (uart1_status & UART_RX_ENABLE){
+
+        if (uart1_status & UART_RX_ENABLE) {
             initBQueue(&uart1_rx_queue, initial_buffer_size, max_buffer_size);
             IEC0bits.U1RXIE = 1; // Enable receive Interrupts 
         }
-        
+
         U1MODEbits.UARTEN = 1; // And turn the peripheral on
         U1STAbits.UTXEN = 1; //enable transmit operations (must come after the uart enable)
     } else if (interface == 2) {
         uart2_status = tx_rx;
-        
+
         U2MODEbits.UARTEN = 0; //Disable UART while we're configuring it
         U2MODEbits.USIDL = 0; //Keep interface on in idle mode
         U2MODEbits.IREN = 0; //No IR translation
@@ -134,12 +134,12 @@ void initUART(unsigned char interface, unsigned long int baudrate, unsigned int 
             initBQueue(&uart2_rx_queue, initial_buffer_size, max_buffer_size);
             IEC1bits.U2RXIE = 1; // Enable receive Interrupts
         }
-        
+
         if (uart2_status & UART_TX_ENABLE) {
             initBQueue(&uart2_tx_queue, initial_buffer_size, max_buffer_size);
             IEC1bits.U2TXIE = 1; // Enable Transmit Interrupts
         }
-        
+
         U2MODEbits.UARTEN = 1; // And turn the peripheral on
         U2STAbits.UTXEN = 1; //enable transmit operations (must be called after uart enable)
     }
@@ -152,18 +152,18 @@ void quoueTXData(unsigned char interface, unsigned char* data, unsigned int data
         for (i = 0; i < data_length; i++) {
             pushBQueue(&uart1_tx_queue, data[i]);
         }
-        
-        if (U1STAbits.TRMT){ //if the transmit buffer is empty and register (no sending)
+
+        if (U1STAbits.TRMT) { //if the transmit buffer is empty and register (no sending)
             U1TXREG = popBQueue(&uart1_tx_queue); //trigger a send
-        }  
+        }
     } else if (interface == 2 && (uart2_status & UART_TX_ENABLE)) {
         for (i = 0; i < data_length; i++) {
             pushBQueue(&uart2_tx_queue, data[i]);
         }
-        
-        if (U2STAbits.TRMT){ //if the transmit buffer is empty and register (no sending)
+
+        if (U2STAbits.TRMT) { //if the transmit buffer is empty and register (no sending)
             U2TXREG = popBQueue(&uart2_tx_queue); //trigger a send
-        } 
+        }
     }
 }
 
@@ -177,7 +177,8 @@ unsigned char readRXData(unsigned char interface)
     return -1;
 }
 
-unsigned int getTXSpace(unsigned char interface){
+unsigned int getTXSpace(unsigned char interface)
+{
     if (interface == 1 && (uart1_status & UART_TX_ENABLE)) {
         return getBQueueSpace(&uart1_tx_queue);
     } else if (interface == 2 && (uart2_status & UART_TX_ENABLE)) {
