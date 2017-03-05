@@ -62,4 +62,3 @@ void warning(char* message);
 void debug(char* message);
 
 #endif
-

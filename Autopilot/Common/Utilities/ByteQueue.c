@@ -32,12 +32,12 @@ unsigned char popBQueue(ByteQueue* queue)
 
         //prevent any overflow
         queue->_start_index = (queue->_start_index + 1) % queue->_total_size;
-        
+
         //if the queue size is a quarter of the total size, half the size of the queue for space efficiency
-        if (queue->size <= queue->_total_size/4 && queue->_total_size/2 >= queue->_initial_size){
-           resizeBQueue(queue, queue->_total_size/2); //resize the queue by a half
+        if (queue->size <= queue->_total_size / 4 && queue->_total_size / 2 >= queue->_initial_size) {
+            resizeBQueue(queue, queue->_total_size / 2); //resize the queue by a half
         }
-        
+
         return to_return;
     }
 }
@@ -47,17 +47,17 @@ unsigned char pushBQueue(ByteQueue* queue, unsigned char byte)
     //if the queue is full
     if (queue->size == queue->_total_size) {
         unsigned int expand_size = queue->_total_size * 2;
-        
+
         //if we've already reached the max size of the queue
-        if (queue->_total_size == queue->_max_size){
+        if (queue->_total_size == queue->_max_size) {
             return 0;
-        } else if (expand_size > queue->_max_size){ //otherwise adjust to take up as much space as possible
+        } else if (expand_size > queue->_max_size) { //otherwise adjust to take up as much space as possible
             expand_size = queue->_max_size;
         }
-        
+
         char resize_status = resizeBQueue(queue, expand_size);
-        
-        if (resize_status == 0){ //if we couldn't reallocate more data
+
+        if (resize_status == 0) { //if we couldn't reallocate more data
             return 0;
         }
     }
@@ -67,11 +67,13 @@ unsigned char pushBQueue(ByteQueue* queue, unsigned char byte)
     return 1;
 }
 
-unsigned int getBQueueSize(ByteQueue* queue){
+unsigned int getBQueueSize(ByteQueue* queue)
+{
     return queue->size;
 }
 
-unsigned int getBQueueSpace(ByteQueue* queue){
+unsigned int getBQueueSpace(ByteQueue* queue)
+{
     return queue->_max_size - queue->size;
 }
 
@@ -111,20 +113,20 @@ static void popAllBQueue(ByteQueue* queue, unsigned char* array)
  * @param new_size
  * @return 1 if successful, 0 if not (if allocation failed)
  */
-static char resizeBQueue(ByteQueue* queue, unsigned int new_size){
+static char resizeBQueue(ByteQueue* queue, unsigned int new_size)
+{
     unsigned int old_size = queue->size;
     unsigned char* new_data = malloc(new_size);
-    
-    if (new_data == 0){
+
+    if (new_data == 0) {
         return 0;
     }
-    
+
     popAllBQueue(queue, new_data);
-    
+
     free((void*) queue->_data); //free the old data
     queue->_data = new_data;
     queue->size = old_size;
     queue->_total_size = new_size;
     return 1;
 }
-
