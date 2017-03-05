@@ -46,6 +46,7 @@ unsigned char pushBQueue(ByteQueue* queue, unsigned char byte)
 {
     //if the queue is full
     if (queue->size == queue->_total_size) {
+        return 0;
         unsigned int expand_size = queue->_total_size * 2;
         
         //if we've already reached the max size of the queue
@@ -120,6 +121,7 @@ static char resizeBQueue(ByteQueue* queue, unsigned int new_size){
     }
     
     popAllBQueue(queue, new_data);
+    
     free((void*) queue->_data); //free the old data
     queue->_data = new_data;
     queue->size = old_size;
