@@ -113,7 +113,7 @@ static void popAllBQueue(ByteQueue* queue, unsigned char* array)
  */
 static char resizeBQueue(ByteQueue* queue, unsigned int new_size){
     unsigned int old_size = queue->size;
-    unsigned char* new_data = malloc(old_size);
+    unsigned char* new_data = malloc(new_size);
     
     if (new_data == 0){
         return 0;
