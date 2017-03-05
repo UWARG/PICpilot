@@ -25,7 +25,7 @@
  * How long to make the string buffer. This should be the maximum length of the string
  * that can be logged, in bytes
  */
-#define LOGGER_BUFFER_INITIAL_LENGTH 100
+#define LOGGER_BUFFER_INITIAL_LENGTH 400
 #define LOGGER_BUFFER_MAX_LENGTH 400
 
 /**
