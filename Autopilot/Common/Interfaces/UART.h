@@ -26,6 +26,11 @@
  * @param initial_buffer_size Initial sizes of the RX and TX buffers
  * @param max_buffer_size Max size of the RX and TX buffers
  * @param tx_rx specifies to turn on either TX only, RX only, or BOTH. See status codes above
+ * 
+ * Note that the initial_buffer_size and max_buffer_size should ideally be even 
+ * multiples of each other. ie. 100, 200, or 400, 800, etc.
+ * This is because of the underlying bytequeue implementation that doubles and halves
+ * the queue, which works better with even multiples.
  */
 void initUART(unsigned char interface, unsigned long int baudrate, unsigned int initial_buffer_size, unsigned int max_buffer_size, unsigned char tx_rx);
 
