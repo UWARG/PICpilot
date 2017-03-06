@@ -21,6 +21,7 @@
     - -:test/support
   :source:
     - ../*
+    - ../../**/*
   :support:
     - test/support
 
@@ -43,6 +44,7 @@
   :plugins:
     - :ignore
     - :callback
+    - :array
   :treat_as:
     uint8:    HEX8
     uint16:   HEX16

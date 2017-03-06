@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   main.h
  * Author: Chris Hajduk
  *
@@ -14,8 +14,10 @@
 #include "timer.h"
 #include "delay.h"
 
-//Turns debug mode on or off. Usually contains small snippets of code to output
-//data through UART or to provide small input adjustments
+/**
+ * Whether to enable the logger. Disabling it will cause all the functions defined
+ * in the module to do nothing
+ */
 #define DEBUG 1
 
 //Defines the usage of this chip. It may be one or multiple of the following roles:
@@ -39,11 +41,11 @@
 #define VEHICLE_TYPE MULTIROTOR
 
 #if VEHICLE_TYPE == FIXED_WING
-#include "FixedWing.h" 
+#include "FixedWing.h"
 #elif VEHICLE_TYPE == MULTIROTOR
 #include "Multirotor.h"
 #endif
 
 #if DEBUG
-    #include "../Common/debug.h"
+    #include "../Common/Utilities/Logger.h"
 #endif
