@@ -20,6 +20,10 @@
         <itemPath>StartupErrorCodes.h</itemPath>
         <itemPath>ProgramStatus.h</itemPath>
       </logicalFolder>
+      <logicalFolder name="f12" displayName="Drivers" projectFiles="true">
+        <itemPath>Drivers/RadioXbee.h</itemPath>
+        <itemPath>Drivers/Radio.h</itemPath>
+      </logicalFolder>
       <logicalFolder name="f8" displayName="Interfaces" projectFiles="true">
         <itemPath>../Common/Interfaces/UART.h</itemPath>
       </logicalFolder>
@@ -80,6 +84,9 @@
         <itemPath>StartupErrorCodes.c</itemPath>
         <itemPath>ProgramStatus.c</itemPath>
       </logicalFolder>
+      <logicalFolder name="f12" displayName="Drivers" projectFiles="true">
+        <itemPath>Drivers/RadioXbee.c</itemPath>
+      </logicalFolder>
       <logicalFolder name="f8" displayName="Interfaces" projectFiles="true">
         <itemPath>../Common/Interfaces/UART.c</itemPath>
       </logicalFolder>
@@ -129,6 +136,7 @@
     <Elem>Utilities</Elem>
     <Elem>../Common/Utilities</Elem>
     <Elem>../Common/Interfaces</Elem>
+    <Elem>Drivers</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
