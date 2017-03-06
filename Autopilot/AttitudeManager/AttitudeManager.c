@@ -1,10 +1,10 @@
-/* 
+/*
  * File:   AttitudeManager.c
  * Author: Mitch
  *
  * Created on June 15, 2013, 3:40 PM
  */
- 
+
 //Include Header Files
 #include "delay.h"
 #include "VN100.h"
@@ -38,10 +38,6 @@ int sp_ThrottleRate = MIN_PWM;
 int sp_FlapRate = MIN_PWM;
 int sp_YawRate = 0;
 int sp_RollRate = 0;
-
-int tail_OutputR;   //what the rudder used to be
-int tail_OutputL;
-
 
 int sp_ComputedPitchRate = 0;
 //int sp_ComputedThrottleRate = 0;
@@ -157,7 +153,7 @@ void attitudeInit() {
     //Initialize Interchip communication
     TRISFbits.TRISF3 = 0;
     LATFbits.LATF3 = 1;
-    
+
     //the line below sets channel 7 IC to be an output. Used to be for DMA. Should
     //investigate DMA code to see why this was used in the first place, and if it'll have
     //any negative consequences. Commenting out for now. Serge Feb 7 2017
@@ -237,7 +233,7 @@ char checkDMA(){
         gps_Time = pmData.time;
         input_AP_Altitude = pmData.sp_Altitude;
         gps_Satellites = pmData.satellites;
-        gps_PositionFix = pmData.positionFix;   
+        gps_PositionFix = pmData.positionFix;
         waypointIndex = pmData.targetWaypoint;
         batteryLevel1 = pmData.batteryLevel1;
         batteryLevel2 = pmData.batteryLevel2;
@@ -252,7 +248,7 @@ char checkDMA(){
         if (gps_Altitude == pmData.altitude && gps_Heading == pmData.heading && gps_GroundSpeed == pmData.speed && gps_Latitude == pmData.latitude && gps_Longitude == pmData.longitude){
             return FALSE;
         }
-        
+
         gps_Heading = pmData.heading;
         gps_GroundSpeed = pmData.speed * 1000.0/3600.0; //Convert from km/h to m/s
         gps_Longitude = pmData.longitude;
@@ -293,7 +289,7 @@ char checkDMA(){
         while (DMA1REQbits.FORCE == 1);
         return FALSE;
     }
-    
+
 }
 
 float getAltitude(){
@@ -385,7 +381,8 @@ void setHeadingSetpoint(int setpoint){
 void inputCapture(){
     int* channelIn;
     channelIn = getPWMArray(getTime());
-    inputMixing(channelIn, &input_RC_RollRate, &input_RC_PitchRate, &input_RC_Throttle, &input_RC_YawRate, &input_RC_Flap);
+    
+    inputMixing(channelIn, &input_RC_RollRate, &input_RC_PitchRate, &input_RC_Throttle, &input_RC_YawRate);
 
     // Switches and Knobs
 //        sp_Type = channelIn[5];
@@ -540,13 +537,13 @@ void imuCommunication(){
     //TODO: This is a reminder for me to figure out a more elegant way to fix improper derivative control (based on configuration of the sensor), adding this negative is a temporary fix. Some kind of calibration command or something.
     //DO NOT ADD NEGATIVES IN THE STATEMENTS BELOW. IT IS A GOOD WAY TO ROYALLY SCREW YOURSELF OVER LATER.
     //Outputs in order: Roll,Pitch,Yaw
-    imu_RollRate = (imuData[IMU_ROLL_RATE]);
+    imu_RollRate = imuData[IMU_ROLL_RATE];
     imu_PitchRate = imuData[IMU_PITCH_RATE];
     imu_YawRate = imuData[IMU_YAW_RATE];
     VN100_SPI_GetYPR(0, &imuData[YAW], &imuData[PITCH], &imuData[ROLL]);
     imu_YawAngle = imuData[YAW];
     imu_PitchAngle = imuData[PITCH];
-    imu_RollAngle = (imuData[ROLL]);
+    imu_RollAngle = imuData[ROLL];
 #if DEBUG
     // Rate - Radians, Angle - Degrees
 //    char x[30];
@@ -573,13 +570,13 @@ int altitudeControl(int setpoint, int sensorAltitude){
 
 int throttleControl(int setpoint, int sensor){
     //Throttle
-    throttlePID = sp_ThrottleRate + controlSignalThrottle(setpoint, sensor);      
+    throttlePID = sp_ThrottleRate + controlSignalThrottle(setpoint, sensor);
     return throttlePID;
 }
 
 int flapControl(int setpoint, int sensor){
     //Flaps
-    flapPID = sp_FlapRate + controlSignalFlap(setpoint, sensor);      
+    flapPID = sp_FlapRate + controlSignalFlap(setpoint, sensor);
     return flapPID;
 }
 
@@ -641,7 +638,7 @@ char getControlPermission(unsigned int controlMask, unsigned int expectedValue, 
 }
 
 void readDatalink(void){
-  
+
     struct command* cmd = popCommand();
     //TODO: Add rudimentary input validation
     if ( cmd ) {
@@ -689,7 +686,7 @@ void readDatalink(void){
             case SET_HEADING_KD_GAIN:
                 setGain(HEADING, GAIN_KD, *(float*)(&cmd->data));
                 break;
-            case SET_HEADING_KP_GAIN:   
+            case SET_HEADING_KP_GAIN:
                 setGain(HEADING, GAIN_KP, *(float*)(&cmd->data));
                 break;
             case SET_HEADING_KI_GAIN:
@@ -713,7 +710,7 @@ void readDatalink(void){
             case SET_THROTTLE_KI_GAIN:
                 setGain(THROTTLE, GAIN_KI, *(float*)(&cmd->data));
                 break;
-                
+
             case SET_FLAP_KD_GAIN:
                 setGain(FLAP, GAIN_KD, *(float*)(&cmd->data));
                 break;
@@ -722,8 +719,8 @@ void readDatalink(void){
                 break;
             case SET_FLAP_KI_GAIN:
                 setGain(FLAP, GAIN_KI, *(float*)(&cmd->data));
-                break;    
-            
+                break;
+
             case SET_PATH_GAIN:
                 amData.pathGain = *(float*)(&cmd->data);
                 amData.command = PM_SET_PATH_GAIN;
@@ -847,11 +844,11 @@ void readDatalink(void){
                 break;
             case ARM_VEHICLE:
                 if (*(int*)(&cmd->data) == 1234)
-                    startArm();
+                    armVehicle(500);
                 break;
             case DEARM_VEHICLE:
                 if (*(int*)(&cmd->data) == 1234)
-                    stopArm();
+                    dearmVehicle();
                 break;
             case DROP_PROBE:
                 dropProbe(*(char*)(&cmd->data));
@@ -927,14 +924,14 @@ void readDatalink(void){
         }
         destroyCommand( cmd );
     }
- 
+
 }
 int writeDatalink(p_priority packet){
     struct telem_block* statusData = createTelemetryBlock(packet);
 
     //If Malloc fails, then quit...wait until there is memory available
     if (!statusData){return 0;}
-    
+
     int* input;
     int* output; //Pointers used for RC channel inputs and outputs
 
@@ -1031,10 +1028,10 @@ int writeDatalink(p_priority packet){
             statusData->data.p3_block.orbitGain = pmOrbitGain;
             statusData->data.p3_block.autonomousLevel = controlLevel;
             statusData->data.p3_block.startupErrorCodes = getStartupErrorCodes();
-            statusData->data.p3_block.startupSettings = DEBUG + (COPTER << 1); //TODO: put this in the startuperrorCode file
+            statusData->data.p3_block.startupSettings = DEBUG + (MULTIROTOR << 1); //TODO: put this in the startuperrorCode file
             statusData->data.p3_block.probeStatus = getProbeStatus();
             break;
-                
+
         default:
             break;
     }
@@ -1045,14 +1042,14 @@ int writeDatalink(p_priority packet){
     } else {
         return pushOutboundTelemetryQueue(statusData);
     }
-         
+
     return 0;
 
 }
 
 void checkUHFStatus(){
     unsigned long int time = getTime();
-    
+
     if (getPWMInputStatus() == PWM_STATUS_UHF_LOST){
         if (UHFTimer == 0){ //0 indicates that this is the first time we lost UHF
             UHFTimer = time;
@@ -1100,7 +1097,7 @@ void adjustVNOrientationMatrix(float* adjustment){
 
     float matrix[9];
     VN100_SPI_GetRefFrameRot(0, (float*)&matrix);
-    
+
     float refRotationMatrix[9] = {cos(adjustment[1]) * cos(adjustment[2]), -cos(adjustment[1]) * sin(adjustment[2]), sin(adjustment[1]),
         sin(deg2rad(adjustment[0])) * sin(adjustment[1]) * cos(adjustment[2]) + sin(adjustment[2]) * cos(adjustment[0]), -sin(adjustment[0]) * sin(adjustment[1]) * sin(adjustment[2]) + cos(adjustment[2]) * cos(adjustment[0]), -sin(adjustment[0]) * cos(adjustment[1]),
         -cos(deg2rad(adjustment[0])) * sin(adjustment[1]) * cos(adjustment[2]) + sin(adjustment[2]) * sin(adjustment[0]), cos(adjustment[0]) * sin(adjustment[1]) * sin(adjustment[2]) + cos(adjustment[2]) * sin(adjustment[0]), cos(adjustment[0]) * cos(adjustment[1])};

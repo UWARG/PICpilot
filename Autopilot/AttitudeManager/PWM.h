@@ -31,18 +31,24 @@
 #define MIN_PWM -1024
 
 /**
+ * Used in some of the calculations
+ */
+#define HALF_PWM_RANGE (MAX_PWM - MIN_PWM)/2
+
+/**
  * Maximum and minimum limits received from the controller. These should be calibrated,
  * and the scaling from these values to the MAX and MIN PWM values will depend on these.
  * Note that these will be used as the default/initial values, however the actual scaling values
  * can be set by the ground station
  */
-#define UPPER_PWM 1284
-#define LOWER_PWM 642
+#define UPPER_PWM 1250
+#define LOWER_PWM 625
 
 /**
- * Used in some of the calculations
+ * The middle of the PWM range of the RC controller. This is used as the initial
+ * offset in the output and input scaling calculations
  */
-#define HALF_PWM_RANGE (MAX_PWM - MIN_PWM)/2
+#define MIDDLE_PWM (int)(((UPPER_PWM - LOWER_PWM)/2) + LOWER_PWM)
 
 /**
  * Value to give to a channel thats disconnected. Used to easily let the
@@ -83,6 +89,14 @@ int* getPWMArray(unsigned long int sys_time);
  *      of this range will be ignored
  */
 void setPWM(unsigned int channel, int pwm);
+
+/**
+ * Sets the PWM outputs on all available channels. Make sure initPWM is called before
+ * this, otherwise unexpected behavior will occur.
+ * @param pwms C-style array of values from MIN_PWM to MAX_PWM (or -1024 to 1024), ordered
+ *      by channel number, zero-indexed. Values outside of this range will be ignored
+ */
+void setAllPWM(int* pwms);
 
 /**
  * Gets an array of all the set PWM values for all the 8 channel outputs

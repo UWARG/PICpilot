@@ -10,15 +10,14 @@
 /**
  * Number of timer ticks that indicate a sync pulse
  */
-#define PPM_SYNC_TICKS (int)((float)(PPM_MIN_SYNC_TIME/1000)*T2_TICKS_TO_MSEC)
+#define PPM_SYNC_TICKS (int)(((float)PPM_MIN_SYNC_TIME/1000)*T2_TICKS_TO_MSEC)
 
 /**
  * Holds the capture start and end time so that we can compare them later. We can
- * only do 8 with PWM enabled. Otherwise
+ * only do 8 with PWM enabled. With PPM, we only need the time of the last edge we catch.
  */
 #if USE_PPM
-static unsigned int start_time[PPM_CHANNELS];
-static unsigned int end_time[PPM_CHANNELS];
+static unsigned int last_edge;
 #else
 static unsigned int start_time[8];
 static unsigned int end_time[8];
@@ -69,7 +68,7 @@ unsigned int* getICValues(unsigned long int sys_time)
      * we detected a disconnect
      */
     if ((sys_time - ppm_last_capture_time) > PWM_ALIVE_THRESHOLD){
-        int i = 0;
+        int i;
         for (i = 0; i < PPM_CHANNELS; i++){
             capture_value[i] = 0;
         }
@@ -115,10 +114,21 @@ unsigned int* getICValues(unsigned long int sys_time)
 void initIC(unsigned char initIC)
 {
     //If using PPM, we want to unconditionally turn on channel 7
-    #if USE_PPM
-      initIC = 0b01000000;
-      ppm_index = 0;
-    #endif
+#if USE_PPM
+    IC7CONbits.ICM = 0b00; // Disable Input Capture 7 module (required to change it)
+    IC7CONbits.ICTMR = 1; // Select Timer2 as the IC7 Time base
+
+    // Generate capture event on every Rising (regular PPM) or Falling (inverted) edge
+    IC7CONbits.ICI = 0; // Interrupt on every capture
+    IC7CONbits.ICM = 0b010 + !PPM_INVERTED; // 0b010 = Falling, 0b011 = Rising
+
+    // Enable Capture Interrupt And Timer2
+    IPC5bits.IC7IP = 7; // Setup IC7 interrupt priority level - Highest
+    IFS1bits.IC7IF = 0; // Clear IC7 Interrupt Status Flag
+    IEC1bits.IC7IE = 1; // Enable IC7 interrupt
+
+    ppm_index = 0;
+#else
 
     if (initIC & 0b01) {
         IC1CONbits.ICM = 0b00; // Disable Input Capture 1 module (required to change it)
@@ -198,39 +208,39 @@ void initIC(unsigned char initIC)
         IFS1bits.IC8IF = 0;
         IEC1bits.IC8IE = 1;
     }
+#endif
 }
 
 #if USE_PPM
 /**
 * PPM Interrupt Service routine for Channel 7 for when PPM is enabled. Will trigger
-* on any edge change on channel 7. Calculates the time between the last rise time
-* and last fall time to determine if a PPM sync occurred, used to keep track
-* of the positions of the channels
+* on rising or falling edge on channel 7 (depending on PPM_INVERTED). Calculates the time 
+* between the last edge time and the current edge to determine if a PPM sync occurred,
+* used to keep track of the positions of the channels.
 */
 void __attribute__((__interrupt__, no_auto_psv)) _IC7Interrupt(void)
 {
-    static unsigned int time_diff;
+    unsigned int this_edge = IC7BUF;
+    unsigned int time_diff;
 
-    if (PORTDbits.RD14 == !PPM_INVERTED) { //If PPM inverted, check for fall (0). Otherwise check for rise (1)
-        start_time[ppm_index] = IC7BUF;
-    } else { //if PPM inverted, then if rise (1). Otherwise if fall
-        end_time[ppm_index] = IC7BUF;
-
-        //take into account for timer overflow
-        if (end_time[ppm_index] > start_time[ppm_index]){
-            time_diff = end_time[ppm_index] - start_time[ppm_index];
-        } else{
-            time_diff = (PR2 - start_time[ppm_index]) + end_time[ppm_index];
-        }
-
-        if (time_diff >= PPM_SYNC_TICKS){ //if we just captured a sync pulse
-            ppm_index = 0;
-        } else {
-            capture_value[ppm_index] = time_diff;
-            ppm_index = (ppm_index + 1) % PPM_CHANNELS; //make sure we don't overflow
-        }
-        ppm_last_capture_time = getTime(); //for detecting disconnect
+    // Check for timer overflow
+    if (this_edge > last_edge) {
+        time_diff = this_edge - last_edge;
+    } else {
+        time_diff = (PR2 - last_edge) + this_edge;
     }
+    if (time_diff >= PPM_SYNC_TICKS){ //if we just captured the first edge of a new frame
+        ppm_index = 0;
+    } else {
+        ppm_index = (ppm_index + 1) % (PPM_CHANNELS + 1); // index should reset, but just in case
+    }
+    if (ppm_index != 0) { // the first edge doesn't give us any data
+        capture_value[ppm_index - 1] = time_diff;
+    }
+
+    last_edge = this_edge;
+
+    ppm_last_capture_time = getTime(); //for detecting disconnect
 
     /**
      * Clear the input compare buffer to avoid any issues when hot swapping PWM cables.

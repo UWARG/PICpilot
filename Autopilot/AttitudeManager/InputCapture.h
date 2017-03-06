@@ -19,10 +19,11 @@
 #define USE_PPM 1
 
 /**
- * If the PPM signal is inverted. Some receivers, such as the ezUHF have an inverted
- * PPM signal, so set this to 1. If using the OrangeRX, set this to 0
+ * If the PPM signal is inverted (inverted = active low). Some receivers, such 
+ * as the OrangeRX have an inverted PPM signal, so set this to 1. If using the 
+ * ezUHF, set this to 0
  */
-#define PPM_INVERTED 0
+#define PPM_INVERTED 1
 
 /**
 * How many channels are expected to be in a single PPM frame
@@ -47,9 +48,7 @@
  * Initializes capture configuration of the PWM input channels. Make sure to initialize Timer2
  * before calling this! Disabled channels will not have interrupts called on them, and
  * disconnect detection will also be disabled
- * @param channel number from 0-7
- * @return Value of the IC channel. This is in Timer2 ticks, not ms!
- * The timer module defines number of ticks in a ms
+ * @param bitmask of the 8 input channels
  */
 void initIC(unsigned char initIC);
 
@@ -57,7 +56,8 @@ void initIC(unsigned char initIC);
  * Gets the input capture value (in Timer2 ticks) of all the channels
  * @param sys_time The system time in milliseconds. Used for detecting disconnected channels. A channel
  * that is disconnected will have a value of 0.
- * @return Array containing all the channel values
+ * @return Array containing all values of the IC channels. This is in Timer2 ticks, not ms!
+ * The timer module defines number of ticks in a ms
  */
 unsigned int* getICValues(unsigned long int sys_time);
 
