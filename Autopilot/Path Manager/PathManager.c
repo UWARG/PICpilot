@@ -20,7 +20,7 @@
 #if DEBUG
 #include <stdio.h>
 #include <stdlib.h>
-#include "../Common/UART1.h"
+#include "../Common/Utilities/Logger.h"
 #endif
 
 

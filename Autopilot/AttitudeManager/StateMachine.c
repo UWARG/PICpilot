@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   StateMachine.c
  * Author: Chris Hajduk
  *
@@ -6,13 +6,14 @@
  */
 
 #include "StateMachine.h"
-#include "../Common/debug.h"
+#include "Probe_Drop.h"
+#include "../Common/Utilities/Logger.h"
 #include "../Common/Common.h"
 #include "main.h"
 #include "ProgramStatus.h"
 
 /*
- * 
+ *
  */
 
 //State Machine Triggers (Mostly Timers)
@@ -38,8 +39,8 @@ void StateMachine(char entryLocation){
     downlinkP2Timer += dTime;
     imuTimer += dTime;
     dmaTimer += dTime;
-    
-    
+
+
     //Clear Watchdog timer
     asm("CLRWDT");
     //Feedback systems such as this autopilot are very sensitive to timing. In order to keep it consistent we should try to keep the timing between the calculation of error corrections and the output the same.
@@ -54,7 +55,7 @@ void StateMachine(char entryLocation){
         imuTimer = 0;
         //Poll Sensor
         imuCommunication();
-        
+
         flightUpdate = 1;
     }
     else if(isDMADataAvailable() && checkDMA()){
@@ -62,9 +63,9 @@ void StateMachine(char entryLocation){
         flightUpdate = 1;
     }
     else{
-       
+
     }
-    
+
     if (entryLocation == STATEMACHINE_IDLE) {
         // If we're waiting to be armed, don't run the flight control
         flightUpdate = 0;
@@ -77,7 +78,7 @@ void StateMachine(char entryLocation){
         highLevelControl();
         lowLevelControl();
     }
-    
+
     if(UPLINK_CHECK_FREQUENCY <= uplinkTimer){
         uplinkTimer = 0;
         readDatalink();
@@ -122,4 +123,3 @@ void killPlane(char action){
         setProgramStatus(MAIN_EXECUTION);
     }
 }
-

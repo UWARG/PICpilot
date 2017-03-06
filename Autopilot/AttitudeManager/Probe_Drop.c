@@ -19,7 +19,7 @@
  */
 
 #include "StateMachine.h"
-#include "../Common/debug.h"
+#include "../Common/Utilities/Logger.h"
 #include "Probe_Drop.h"
 
 static int prob_drop[3] = {PROBE1_DEFAULT, PROBE2_DEFAULT, PROBE3_DEFAULT};

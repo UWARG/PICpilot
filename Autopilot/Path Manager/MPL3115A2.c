@@ -6,6 +6,7 @@
  */
 #include "MPL3115A2.h"
 #include "main.h"
+#include "../Common/Utilities/Logger.h"
 
 float lastKnownAltitude = 0;
 char altimeterConnected = 0;

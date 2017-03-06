@@ -14,8 +14,10 @@
 #include "timer.h"
 #include "delay.h"
 
-//Turns debug mode on or off. Usually contains small snippets of code to output
-//data through UART or to provide small input adjustments
+/**
+ * Whether to enable the logger. Disabling it will cause all the functions defined
+ * in the module to do nothing
+ */
 #define DEBUG 0
 
 //Defines the usage of this chip. It may be one or multiple of the following roles:
@@ -45,5 +47,5 @@
 #endif
 
 #if DEBUG
-    #include "../Common/debug.h"
+    #include "../Common/Utilities/Logger.h"
 #endif

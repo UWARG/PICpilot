@@ -4,6 +4,13 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
+      <logicalFolder name="f2" displayName="Interfaces" projectFiles="true">
+        <itemPath>../Common/Interfaces/UART.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f1" displayName="Utilities" projectFiles="true">
+        <itemPath>../Common/Utilities/Logger.h</itemPath>
+        <itemPath>../Common/Utilities/ByteQueue.h</itemPath>
+      </logicalFolder>
       <itemPath>Dubins.h</itemPath>
       <itemPath>I2C.h</itemPath>
       <itemPath>InterchipDMA.h</itemPath>
@@ -13,8 +20,6 @@
       <itemPath>PathManager.h</itemPath>
       <itemPath>../Common/clock.h</itemPath>
       <itemPath>../Common/Common.h</itemPath>
-      <itemPath>../Common/debug.h</itemPath>
-      <itemPath>../Common/UART1.h</itemPath>
       <itemPath>StartupErrorCodes.h</itemPath>
       <itemPath>airspeedSensor.h</itemPath>
       <itemPath>ProbeDrop.h</itemPath>
@@ -27,6 +32,13 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
+      <logicalFolder name="f1" displayName="Interfaces" projectFiles="true">
+        <itemPath>../Common/Interfaces/UART.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f2" displayName="Utilities" projectFiles="true">
+        <itemPath>../Common/Utilities/ByteQueue.c</itemPath>
+        <itemPath>../Common/Utilities/Logger.c</itemPath>
+      </logicalFolder>
       <itemPath>Dubins.c</itemPath>
       <itemPath>I2C.c</itemPath>
       <itemPath>InterchipDMA.c</itemPath>
@@ -36,8 +48,6 @@
       <itemPath>PathManager.c</itemPath>
       <itemPath>../Common/clock.c</itemPath>
       <itemPath>../Common/Common.c</itemPath>
-      <itemPath>../Common/debug.c</itemPath>
-      <itemPath>../Common/UART1.c</itemPath>
       <itemPath>StartupErrorCodes.c</itemPath>
       <itemPath>airspeedSensor.c</itemPath>
       <itemPath>ProbeDrop.c</itemPath>
@@ -52,6 +62,8 @@
   <sourceRootList>
     <Elem>../AttitudeManager</Elem>
     <Elem>.</Elem>
+    <Elem>../Common/Utilities</Elem>
+    <Elem>../Common/Interfaces</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>

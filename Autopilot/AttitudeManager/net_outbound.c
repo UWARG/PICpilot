@@ -6,7 +6,6 @@
 
 #include <stdlib.h>
 #include "main.h"
-#include "../Common/UART1.h"
 
 struct telem_block *outBuffer [OUTBOUND_QUEUE_SIZE];
 int outbuff_start = 0;
