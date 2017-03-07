@@ -47,11 +47,11 @@ typedef struct PID_val { //holds values for a generic PID loop
     uint32_t lastTime; // for derivative control
     float lastErr;  
     float integral;
-    uint32_t imax; // maximum value for integral
+    float imax; // maximum value for integral
 } PID_val;
 
 
-void initPID(PID_val* pid, float Kp, float Ki, float Kd, uint32_t imax);
+void initPID(PID_val* pid, float Kp, float Ki, float Kd, float imax);
 void orientationInit();
 float PIDcontrol(uint8_t channel, float error);
 float getGain(uint8_t channel, uint8_t type);

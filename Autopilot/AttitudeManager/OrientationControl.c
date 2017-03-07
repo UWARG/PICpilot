@@ -29,7 +29,7 @@ const static float init_ki[PID_CHANNELS] = {0, 0, 0, 0, 0, 0, 0, 0};
 const static float init_kd[PID_CHANNELS] = {0.1, 0.1, 0, 0, 0, 0, 0, 0};
 
 // To be called to initialize a new PID channel
-void initPID(PID_val* pid, float Kp, float Ki, float Kd, uint32_t imax) {
+void initPID(PID_val* pid, float Kp, float Ki, float Kd, float imax) {
     pid->Kp = Kp;
     pid->Ki = Ki;
     pid->Kd = Kd;
