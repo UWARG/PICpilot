@@ -25,5 +25,11 @@
  */
 #define XBEE_DESTINATION_ADDRESS 0x0013A20040B47E6B
 
+/**
+ * Sets maximum number of hops a broadcast transmission can occur. If set to 0, 
+ * the broadcast radius will be set to the maximum hops value
+ */
+#define XBEE_BROADCAST_RADIUS 0x00
+
 #endif
 
