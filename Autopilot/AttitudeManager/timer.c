@@ -18,8 +18,8 @@ void initTimer2(void)
     T2CONbits.TON = 0; // Disable Timer
     T2CONbits.TCS = 0; // Select internal instruction cycle clock
     T2CONbits.TGATE = 0; // Disable Gated Timer mode
-    TMR2 = 0x00; // Clear timer register
     T2CONbits.TCKPS = 0x02; //1:64 scaler
+    TMR2 = 0x00; // Clear timer register
     PR2 = T2_PERIOD * T2_TICKS_TO_MSEC; //set the period
     IPC1bits.T2IP = 0x01; // Set Timer 2 Interrupt Priority Level - Lowest
     IFS0bits.T2IF = 0; // Clear Timer 2 Interrupt Flag
@@ -36,10 +36,10 @@ void initTimer4(){
     T4CONbits.TGATE = 0; // Disable Gated Timer mode
     T4CONbits.TCKPS = 0b10; // Select 1:64 Prescaler
     TMR4 = 0x00; // Clear timer register
-    PR4 = 642; // Load the period value
-    IPC6bits.T4IP = 0x01; // Set Timer1 Interrupt Priority Level
-    IFS1bits.T4IF = 0; // Clear Timer1 Interrupt Flag
-    IEC1bits.T4IE = 1; // Enable Timer1 interrupt
+    PR4 = T4_TICKS_TO_MSEC; // Load the period value
+    IPC6bits.T4IP = 0x01; // Set Timer 4 Interrupt Priority Level
+    IFS1bits.T4IF = 0; // Clear Timer 4 Interrupt Flag
+    IEC1bits.T4IE = 1; // Enable Timer 4 interrupt
     T4CONbits.TON = 1; // Start Timer
 }
 

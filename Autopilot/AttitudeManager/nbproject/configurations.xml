@@ -7,12 +7,11 @@
       <logicalFolder name="f9" displayName="Attitude Management" projectFiles="true">
         <itemPath>AttitudeManager.h</itemPath>
         <itemPath>OrientationControl.h</itemPath>
+        <itemPath>StateMachine.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f6" displayName="Common" projectFiles="true">
         <itemPath>../Common/Common.h</itemPath>
         <itemPath>../Common/clock.h</itemPath>
-        <itemPath>../Common/UART1.h</itemPath>
-        <itemPath>../Common/debug.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="Data Transfer" projectFiles="true">
         <itemPath>InterchipDMA.h</itemPath>
@@ -22,7 +21,7 @@
         <itemPath>ProgramStatus.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f8" displayName="Interfaces" projectFiles="true">
-        <itemPath>Interfaces/UART.h</itemPath>
+        <itemPath>../Common/Interfaces/UART.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f3" displayName="Network" projectFiles="true">
         <itemPath>commands.h</itemPath>
@@ -43,7 +42,8 @@
         <itemPath>fmath.h</itemPath>
         <itemPath>StringUtils.h</itemPath>
         <itemPath>timer.h</itemPath>
-        <itemPath>Utilities/ByteQueue.h</itemPath>
+        <itemPath>../Common/Utilities/ByteQueue.h</itemPath>
+        <itemPath>../Common/Utilities/Logger.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f7" displayName="VectorNav" projectFiles="true">
         <itemPath>VN100.h</itemPath>
@@ -53,8 +53,8 @@
         <itemPath>VN_user.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f11" displayName="Vehicles" projectFiles="true">
-        <itemPath>Anaconda.h</itemPath>
-        <itemPath>DisplayQuad.h</itemPath>
+        <itemPath>Multirotor.h</itemPath>
+        <itemPath>FixedWing.h</itemPath>
       </logicalFolder>
       <itemPath>main.h</itemPath>
     </logicalFolder>
@@ -69,13 +69,10 @@
         <itemPath>AttitudeManager.c</itemPath>
         <itemPath>OrientationControl.c</itemPath>
         <itemPath>StateMachine.c</itemPath>
-        <itemPath>StateMachine.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f7" displayName="Common" projectFiles="true">
         <itemPath>../Common/Common.c</itemPath>
         <itemPath>../Common/clock.c</itemPath>
-        <itemPath>../Common/UART1.c</itemPath>
-        <itemPath>../Common/debug.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="Data Transfer" projectFiles="true">
         <itemPath>InterchipDMA.c</itemPath>
@@ -85,7 +82,7 @@
         <itemPath>ProgramStatus.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f8" displayName="Interfaces" projectFiles="true">
-        <itemPath>Interfaces/UART.c</itemPath>
+        <itemPath>../Common/Interfaces/UART.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f3" displayName="Network" projectFiles="true">
         <itemPath>net_outbound.c</itemPath>
@@ -107,7 +104,8 @@
         <itemPath>delay.c</itemPath>
         <itemPath>StringUtils.c</itemPath>
         <itemPath>timer.c</itemPath>
-        <itemPath>Utilities/ByteQueue.c</itemPath>
+        <itemPath>../Common/Utilities/ByteQueue.c</itemPath>
+        <itemPath>../Common/Utilities/Logger.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f6" displayName="VectorNav" projectFiles="true">
         <itemPath>VN100.c</itemPath>
@@ -116,8 +114,8 @@
         <itemPath>VN_user.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f11" displayName="Vehicles" projectFiles="true">
-        <itemPath>Anaconda.c</itemPath>
-        <itemPath>DisplayQuad.c</itemPath>
+        <itemPath>Multirotor.c</itemPath>
+        <itemPath>FixedWing.c</itemPath>
       </logicalFolder>
       <itemPath>main.c</itemPath>
     </logicalFolder>
@@ -131,6 +129,8 @@
     <Elem>../PathManager</Elem>
     <Elem>Interfaces</Elem>
     <Elem>Utilities</Elem>
+    <Elem>../Common/Utilities</Elem>
+    <Elem>../Common/Interfaces</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -140,10 +140,10 @@
         <targetDevice>dsPIC33FJ256GP710A</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool>Simulator</platformTool>
+        <platformTool>ICD3PlatformTool</platformTool>
         <languageToolchain>XC16</languageToolchain>
-        <languageToolchainVersion>1.26</languageToolchainVersion>
-        <platform>2</platform>
+        <languageToolchainVersion>1.30</languageToolchainVersion>
+        <platform>3</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
@@ -157,6 +157,8 @@
           <parseOnProdLoad>false</parseOnProdLoad>
           <alternateLoadableFile></alternateLoadableFile>
         </loading>
+        <subordinates>
+        </subordinates>
       </compileType>
       <makeCustomizationType>
         <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
@@ -308,6 +310,7 @@
         <property key="UART 1" value="true"/>
         <property key="UART 2" value="true"/>
         <property key="debugoptions.useswbreakpoints" value="false"/>
+        <property key="firmware.download.all" value="false"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="false"/>
@@ -320,24 +323,21 @@
         <property key="memories.instruction.ram" value="true"/>
         <property key="memories.instruction.ram.end"
                   value="${memories.instruction.ram.end.value}"/>
+        <property key="memories.instruction.ram.ranges"
+                  value="${memories.instruction.ram.ranges}"/>
         <property key="memories.instruction.ram.start"
                   value="${memories.instruction.ram.start.value}"/>
         <property key="memories.programmemory" value="true"/>
-        <property key="memories.programmemory.end" value="0x2abff"/>
-        <property key="memories.programmemory.partition2" value="true"/>
-        <property key="memories.programmemory.partition2.end"
-                  value="${memories.programmemory.partition2.end.value}"/>
-        <property key="memories.programmemory.partition2.start"
-                  value="${memories.programmemory.partition2.start.value}"/>
-        <property key="memories.programmemory.start" value="0x0"/>
+        <property key="memories.programmemory.ranges" value="0-2abff"/>
         <property key="poweroptions.powerenable" value="false"/>
         <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>
         <property key="programoptions.preservedataflash" value="false"/>
+        <property key="programoptions.preservedataflash.ranges" value=""/>
         <property key="programoptions.preserveeeprom" value="false"/>
+        <property key="programoptions.preserveeeprom.ranges" value=""/>
+        <property key="programoptions.preserveprogram.ranges" value=""/>
         <property key="programoptions.preserveprogramrange" value="false"/>
-        <property key="programoptions.preserveprogramrange.end" value="0x2abff"/>
-        <property key="programoptions.preserveprogramrange.start" value="0x0"/>
         <property key="programoptions.preserveuserid" value="false"/>
         <property key="programoptions.programcalmem" value="false"/>
         <property key="programoptions.programuserotp" value="false"/>
