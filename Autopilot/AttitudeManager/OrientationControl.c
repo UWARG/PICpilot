@@ -18,14 +18,14 @@
  */
 
 // PID control values for the basic loops
-PID_val pids[PID_CHANNELS];
+static PID_val pids[PID_CHANNELS];
 
 static uint8_t gainsUpdated = 0; // updated gain flag
 
 
 // Initial PID gains. These are only used to keep sane values on startup.
 const static float init_kp[PID_CHANNELS] = {1.5, 1.5, 1.5, 1.0, 1.0, 1.0, 1.0, 1.0};
-const static float init_ki[PID_CHANNELS] = {0, 0, 0, 0, 0, 0, 0, 0};
+const static float init_ki[PID_CHANNELS] = {0.5, 0.5, 0.5, 0, 0, 0, 0, 0};
 const static float init_kd[PID_CHANNELS] = {3.5, 3.5, 3.5, 0, 0, 0, 0, 0};
 
 // To be called to initialize a new PID channel

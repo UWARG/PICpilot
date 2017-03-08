@@ -26,12 +26,9 @@ extern PMData pmData;
 extern AMData amData;
 extern char DMADataAvailable;
 
-long int lastTime = 0;
 long int heartbeatTimer = 0;
 long int UHFTimer = 0;
 long int gpsTimer = 0;
-
-float* velocityComponents;
 
 // Setpoints (From radio transmitter or autopilot)
 int sp_Throttle = MIN_PWM;
@@ -45,10 +42,8 @@ int sp_FlapRate = MIN_PWM;
 
 
 float sp_PitchAngle = 0;
-int ctrl_PitchAngle = 0;
 
 float sp_RollAngle = 0;
-int ctrl_RollAngle = 0;
 
 //Heading Variables
 int sp_Heading = 0;
@@ -56,7 +51,6 @@ int ctrl_Heading = 0;
 
 //Altitude Variables
 int sp_Altitude = 0;
-int ctrl_Altitude = 0;
 float sp_GroundSpeed = 0;
 
 //GPS Data
@@ -869,8 +863,8 @@ void readDatalink(void){
         }
         destroyCommand( cmd );
     }
-
 }
+
 int writeDatalink(p_priority packet){
     struct telem_block* statusData = createTelemetryBlock(packet);
 
