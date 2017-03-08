@@ -10,35 +10,20 @@
 #ifndef ORIENTATIONCONTROL_H
 #define	ORIENTATIONCONTROL_H
 
-#define GAIN_KP 0
-#define GAIN_KI 1
-#define GAIN_KD 2
-
 #define PID_CHANNELS 8 // to start
-
-#define PID_ROLL_RATE   0
-#define PID_PITCH_RATE  1
-#define PID_YAW_RATE    2
-
-#define PID_ROLL_ANGLE  3
-#define PID_PITCH_ANGLE 4
-
-#define PID_HEADING     5
-#define PID_ALTITUDE    6
-#define PID_SPEED       7 //Airspeed or groundspeed? discuss.
 
 #define PID_RESET_TIME 1000 // timeout to reset I and D terms (ms)
 
-#define MAX_ROLL_ANGLE 35.f // degrees
-#define MAX_PITCH_ANGLE 35.f
+#define MAX_ROLL_ANGLE 35 // degrees
+#define MAX_PITCH_ANGLE 35
 
-#define MAX_ROLL_RATE 180.f // degrees/second
-#define MAX_PITCH_RATE 180.f
-#define MAX_YAW_RATE 240.f
+#define MAX_ROLL_RATE 180 // degrees/second
+#define MAX_PITCH_RATE 180
+#define MAX_YAW_RATE 240
 
-#define wrap_180(x) (x < -180 ? x+360 : (x > 180 ? x - 360: x))
+#define wrap_180(x) (x < -180 ? x + 360 : (x > 180 ? x - 360 : x))
 
-typedef struct PID_val { //holds values for a generic PID loop
+typedef struct { //holds values for a generic PID loop
     // Gains
     float Kp;
     float Ki;
@@ -50,12 +35,29 @@ typedef struct PID_val { //holds values for a generic PID loop
     float imax; // maximum value for integral
 } PID_val;
 
+typedef enum {
+    KP = 0,
+    KI,
+    KD     
+} PID_gain;
+
+typedef enum {
+    ROLL_RATE = 0,
+    PITCH_RATE,
+    YAW_RATE,
+    ROLL_ANGLE,
+    PITCH_ANGLE,
+    HEADING,
+    ALTITUDE,
+    SPEED       //Airspeed or groundspeed? discuss.
+} PID_channel;
 
 void initPID(PID_val* pid, float Kp, float Ki, float Kd, float imax);
 void orientationInit();
-float PIDcontrol(uint8_t channel, float error);
-float getGain(uint8_t channel, uint8_t type);
-void setGain(uint8_t channel, uint8_t type, float value);
+PID_val* getPID(PID_channel channel);
+float PIDcontrol(PID_val* pid, float error);
+float getGain(PID_channel channel, PID_gain type);
+void setGain(PID_channel channel, PID_gain type, float value);
 uint8_t areGainsUpdated();
 void forceGainUpdate();
 

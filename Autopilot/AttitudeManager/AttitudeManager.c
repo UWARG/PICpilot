@@ -510,9 +510,9 @@ void setKValues(int type,float* values){
 
 void setGains(int channel, float* values){
     // values are found at index 1 to 3 in the data array
-    setGain(channel,GAIN_KD,values[0]);
-    setGain(channel,GAIN_KP,values[1]);
-    setGain(channel,GAIN_KI,values[2]);
+    setGain(channel,KD,values[0]);
+    setGain(channel,KP,values[1]);
+    setGain(channel,KI,values[2]);
 }
 
 void imuCommunication(){
@@ -602,68 +602,68 @@ void readDatalink(void){
 #endif
                 break;
             case SET_PITCH_KD_GAIN:
-                setGain(PID_PITCH_RATE, GAIN_KD, *(float*)(&cmd->data));
+                setGain(PITCH_RATE, KD, *(float*)(&cmd->data));
                 break;
             case SET_ROLL_KD_GAIN:
-                setGain(PID_ROLL_RATE, GAIN_KD, *(float*)(&cmd->data));
+                setGain(ROLL_RATE, KD, *(float*)(&cmd->data));
                 break;
             case SET_YAW_KD_GAIN:
-                setGain(PID_YAW_RATE, GAIN_KD, *(float*)(&cmd->data));
+                setGain(YAW_RATE, KD, *(float*)(&cmd->data));
                 break;
             case SET_PITCH_KP_GAIN:
-                setGain(PID_PITCH_RATE, GAIN_KP, *(float*)(&cmd->data));
+                setGain(PITCH_RATE, KP, *(float*)(&cmd->data));
                 break;
             case SET_ROLL_KP_GAIN:
-                setGain(PID_ROLL_RATE, GAIN_KP, *(float*)(&cmd->data));
+                setGain(ROLL_RATE, KP, *(float*)(&cmd->data));
                 break;
             case SET_YAW_KP_GAIN:
-                setGain(PID_YAW_RATE, GAIN_KP, *(float*)(&cmd->data));
+                setGain(YAW_RATE, KP, *(float*)(&cmd->data));
                 break;
             case SET_PITCH_KI_GAIN:
-                setGain(PID_PITCH_RATE, GAIN_KI, *(float*)(&cmd->data));
+                setGain(PITCH_RATE, KI, *(float*)(&cmd->data));
                 break;
             case SET_ROLL_KI_GAIN:
-                setGain(PID_ROLL_RATE, GAIN_KI, *(float*)(&cmd->data));
+                setGain(ROLL_RATE, KI, *(float*)(&cmd->data));
                 break;
             case SET_YAW_KI_GAIN:
-                setGain(PID_YAW_RATE, GAIN_KI, *(float*)(&cmd->data));
+                setGain(YAW_RATE, KI, *(float*)(&cmd->data));
                 break;
             case SET_HEADING_KD_GAIN:
-                setGain(PID_HEADING, GAIN_KD, *(float*)(&cmd->data));
+                setGain(HEADING, KD, *(float*)(&cmd->data));
                 break;
             case SET_HEADING_KP_GAIN:
-                setGain(PID_HEADING, GAIN_KP, *(float*)(&cmd->data));
+                setGain(HEADING, KP, *(float*)(&cmd->data));
                 break;
             case SET_HEADING_KI_GAIN:
-                setGain(PID_HEADING, GAIN_KI, *(float*)(&cmd->data));
+                setGain(HEADING, KI, *(float*)(&cmd->data));
                 break;
             case SET_ALTITUDE_KD_GAIN:
-                setGain(PID_ALTITUDE, GAIN_KD, *(float*)(&cmd->data));
+                setGain(ALTITUDE, KD, *(float*)(&cmd->data));
                 break;
             case SET_ALTITUDE_KP_GAIN:
-                setGain(PID_ALTITUDE, GAIN_KP, *(float*)(&cmd->data));
+                setGain(ALTITUDE, KP, *(float*)(&cmd->data));
                 break;
             case SET_ALTITUDE_KI_GAIN:
-                setGain(PID_ALTITUDE, GAIN_KI, *(float*)(&cmd->data));
+                setGain(ALTITUDE, KI, *(float*)(&cmd->data));
                 break;
             case SET_THROTTLE_KD_GAIN:
-                //setGain(PID_THROTTLE, GAIN_KD, *(float*)(&cmd->data));
+                //setGain(THROTTLE, KD, *(float*)(&cmd->data));
                 break;
             case SET_THROTTLE_KP_GAIN:
-                //setGain(PID_THROTTLE, GAIN_KP, *(float*)(&cmd->data));
+                //setGain(THROTTLE, KP, *(float*)(&cmd->data));
                 break;
             case SET_THROTTLE_KI_GAIN:
-                //setGain(PID_THROTTLE, GAIN_KI, *(float*)(&cmd->data));
+                //setGain(THROTTLE, KI, *(float*)(&cmd->data));
                 break;
 
             case SET_FLAP_KD_GAIN:
-                //setGain(FLAP, GAIN_KD, *(float*)(&cmd->data));
+                //setGain(FLAP, KD, *(float*)(&cmd->data));
                 break;
             case SET_FLAP_KP_GAIN:
-                //setGain(FLAP, GAIN_KP, *(float*)(&cmd->data));
+                //setGain(FLAP, KP, *(float*)(&cmd->data));
                 break;
             case SET_FLAP_KI_GAIN:
-                //setGain(FLAP, GAIN_KI, *(float*)(&cmd->data));
+                //setGain(FLAP, KI, *(float*)(&cmd->data));
                 break;
 
             case SET_PATH_GAIN:
@@ -850,13 +850,13 @@ void readDatalink(void){
                 setVNOrientationMatrix((float*)(&cmd->data));
                 break;
             case SET_KDVALUES:
-                setKValues(GAIN_KD,(float*)(&cmd->data));
+                setKValues(KD,(float*)(&cmd->data));
                 break;
             case SET_KPVALUES:
-                setKValues(GAIN_KP,(float*)(&cmd->data));
+                setKValues(KP,(float*)(&cmd->data));
                 break;
             case SET_KIVALUES:
-                setKValues(GAIN_KI,(float*)(&cmd->data));
+                setKValues(KI,(float*)(&cmd->data));
                 break;
             case SET_GAINS:
             {
@@ -903,12 +903,12 @@ int writeDatalink(p_priority packet){
             statusData->data.p1_block.throttleSetpoint = getThrottleSetpoint();
             break;
         case PRIORITY1:
-            statusData->data.p2_block.rollKD = getGain(PID_ROLL_RATE,GAIN_KD);
-            statusData->data.p2_block.rollKP = getGain(PID_ROLL_RATE,GAIN_KP);
-            statusData->data.p2_block.pitchKD = getGain(PID_PITCH_RATE,GAIN_KD);
-            statusData->data.p2_block.pitchKP = getGain(PID_PITCH_RATE,GAIN_KP);
-            statusData->data.p2_block.yawKD = getGain(PID_YAW_RATE,GAIN_KD);
-            statusData->data.p2_block.yawKP = getGain(PID_YAW_RATE,GAIN_KP);
+            statusData->data.p2_block.rollKD = getGain(ROLL_RATE,KD);
+            statusData->data.p2_block.rollKP = getGain(ROLL_RATE,KP);
+            statusData->data.p2_block.pitchKD = getGain(PITCH_RATE,KD);
+            statusData->data.p2_block.pitchKP = getGain(PITCH_RATE,KP);
+            statusData->data.p2_block.yawKD = getGain(YAW_RATE,KD);
+            statusData->data.p2_block.yawKP = getGain(YAW_RATE,KP);
             statusData->data.p2_block.lastCommandsSent[0] = lastCommandSentCode[lastCommandCounter];
             statusData->data.p2_block.lastCommandsSent[1] = lastCommandSentCode[(lastCommandCounter + (COMMAND_HISTORY_SIZE - 1))%COMMAND_HISTORY_SIZE];
             statusData->data.p2_block.lastCommandsSent[2] = lastCommandSentCode[(lastCommandCounter + (COMMAND_HISTORY_SIZE - 2))%COMMAND_HISTORY_SIZE];
@@ -954,21 +954,21 @@ int writeDatalink(p_priority packet){
             statusData->data.p2_block.pathFollowing = pathFollowing; //True or false
             break;
         case PRIORITY2:
-            statusData->data.p3_block.rollKI = getGain(ROLL,GAIN_KI);
-            statusData->data.p3_block.pitchKI = getGain(PITCH,GAIN_KI);
-            statusData->data.p3_block.yawKI = getGain(YAW, GAIN_KI);
-            statusData->data.p3_block.headingKD = getGain(HEADING, GAIN_KD);
-            statusData->data.p3_block.headingKP = getGain(HEADING, GAIN_KP);
-            statusData->data.p3_block.headingKI = getGain(HEADING, GAIN_KI);
-            statusData->data.p3_block.altitudeKD = getGain(ALTITUDE, GAIN_KD);
-            statusData->data.p3_block.altitudeKP = getGain(ALTITUDE, GAIN_KP);
-            statusData->data.p3_block.altitudeKI = getGain(ALTITUDE, GAIN_KI);
-            statusData->data.p3_block.throttleKD = getGain(THROTTLE, GAIN_KD);
-            statusData->data.p3_block.throttleKP = getGain(THROTTLE, GAIN_KP);
-            statusData->data.p3_block.throttleKI = getGain(THROTTLE, GAIN_KI);
-            statusData->data.p3_block.flapKD = getGain(FLAP, GAIN_KD);
-            statusData->data.p3_block.flapKP = getGain(FLAP, GAIN_KP);
-            statusData->data.p3_block.flapKI = getGain(FLAP, GAIN_KI);
+            statusData->data.p3_block.rollKI = getGain(ROLL,KI);
+            statusData->data.p3_block.pitchKI = getGain(PITCH,KI);
+            statusData->data.p3_block.yawKI = getGain(YAW, KI);
+            statusData->data.p3_block.headingKD = getGain(HEADING, KD);
+            statusData->data.p3_block.headingKP = getGain(HEADING, KP);
+            statusData->data.p3_block.headingKI = getGain(HEADING, KI);
+            statusData->data.p3_block.altitudeKD = getGain(ALTITUDE, KD);
+            statusData->data.p3_block.altitudeKP = getGain(ALTITUDE, KP);
+            statusData->data.p3_block.altitudeKI = getGain(ALTITUDE, KI);
+            statusData->data.p3_block.throttleKD = getGain(THROTTLE, KD);
+            statusData->data.p3_block.throttleKP = getGain(THROTTLE, KP);
+            statusData->data.p3_block.throttleKI = getGain(THROTTLE, KI);
+            statusData->data.p3_block.flapKD = getGain(FLAP, KD);
+            statusData->data.p3_block.flapKP = getGain(FLAP, KP);
+            statusData->data.p3_block.flapKI = getGain(FLAP, KI);
             statusData->data.p3_block.pathGain = pmPathGain;
             statusData->data.p3_block.orbitGain = pmOrbitGain;
             statusData->data.p3_block.autonomousLevel = controlLevel;

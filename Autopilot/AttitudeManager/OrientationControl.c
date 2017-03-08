@@ -18,15 +18,15 @@
  */
 
 // PID control values for the basic loops
-static PID_val pids[PID_CHANNELS];
+PID_val pids[PID_CHANNELS];
 
 static uint8_t gainsUpdated = 0; // updated gain flag
 
 
 // Initial PID gains. These are only used to keep sane values on startup.
-const static float init_kp[PID_CHANNELS] = {0.5, 0.5, 0, 10.0, 10.0, 1.0, 1.0, 1.0};
+const static float init_kp[PID_CHANNELS] = {1.5, 1.5, 1.5, 1.0, 1.0, 1.0, 1.0, 1.0};
 const static float init_ki[PID_CHANNELS] = {0, 0, 0, 0, 0, 0, 0, 0};
-const static float init_kd[PID_CHANNELS] = {0.1, 0.1, 0, 0, 0, 0, 0, 0};
+const static float init_kd[PID_CHANNELS] = {3.5, 3.5, 3.5, 0, 0, 0, 0, 0};
 
 // To be called to initialize a new PID channel
 void initPID(PID_val* pid, float Kp, float Ki, float Kd, float imax) {
@@ -42,16 +42,18 @@ void initPID(PID_val* pid, float Kp, float Ki, float Kd, float imax) {
 void orientationInit() {
     uint8_t i;
     for (i = 0; i < PID_CHANNELS; i++) {
-        initPID(&pids[i], init_kp[i], init_ki[i], init_kd[i], 1000);
+        initPID(&pids[i], init_kp[i], init_ki[i], init_kd[i], 0);
     }
 }
 
+PID_val* getPID(PID_channel channel) {
+    return &pids[channel];
+}
+
 // PID loop function. error is (setpointValue - currentValue)
-float PIDcontrol(uint8_t channel, float error) {
+float PIDcontrol(PID_val* pid, float error) {
     float output = 0;
-    
-    PID_val* pid = &pids[channel];
-    
+        
     uint32_t now = getTime();
     uint16_t delta_msec = (now - pid->lastTime);
     
@@ -90,27 +92,27 @@ float PIDcontrol(uint8_t channel, float error) {
     return output;
 }
 
-float getGain(uint8_t channel, uint8_t type){
+float getGain(PID_channel channel, PID_gain type){
     if (channel < PID_CHANNELS) {
-        if (type == GAIN_KP){
+        if (type == KP){
             return pids[channel].Kp;
-        } else if (type == GAIN_KI){
+        } else if (type == KI){
             return pids[channel].Ki;
-        } else if (type == GAIN_KD){
+        } else if (type == KD){
             return pids[channel].Kd;
         }
     }
     return -1; // TODO: return something better than an obviously wrong value
 }
 
-void setGain(uint8_t channel, uint8_t type, float value){
+void setGain(PID_channel channel, PID_gain type, float value){
     gainsUpdated = 1;
     if (channel < PID_CHANNELS) {
-        if (type == GAIN_KP){
+        if (type == KP){
             pids[channel].Kp = value;
-        } else if (type == GAIN_KI){
+        } else if (type == KI){
             pids[channel].Ki = value;
-        } else if (type == GAIN_KD){
+        } else if (type == KD){
             pids[channel].Kd = value;
         }
     }
