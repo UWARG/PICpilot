@@ -14,7 +14,6 @@
 #include "AttitudeManager.h"
 #include "commands.h"
 #include "cameraManager.h"
-#include "Probe_Drop.h"
 #include "StartupErrorCodes.h"
 #include "main.h"
 #include "InterchipDMA.h"
@@ -850,12 +849,6 @@ void readDatalink(void){
                 if (*(int*)(&cmd->data) == 1234)
                     dearmVehicle();
                 break;
-            case DROP_PROBE:
-                dropProbe(*(char*)(&cmd->data));
-                break;
-            case RESET_PROBE:
-                resetProbe(*(char*)(&cmd->data));
-                break;
             case FOLLOW_PATH:
                 amData.command = PM_FOLLOW_PATH;
                 amData.followPath = *(char*)(&cmd->data);
@@ -1028,8 +1021,7 @@ int writeDatalink(p_priority packet){
             statusData->data.p3_block.orbitGain = pmOrbitGain;
             statusData->data.p3_block.autonomousLevel = controlLevel;
             statusData->data.p3_block.startupErrorCodes = getStartupErrorCodes();
-            statusData->data.p3_block.startupSettings = DEBUG + (MULTIROTOR << 1); //TODO: put this in the startuperrorCode file
-            statusData->data.p3_block.probeStatus = getProbeStatus();
+            statusData->data.p3_block.startupSettings = DEBUG + (VEHICLE_TYPE << 1); //TODO: put this in the startuperrorCode file
             break;
 
         default:
