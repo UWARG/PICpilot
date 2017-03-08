@@ -78,8 +78,6 @@ char pathFollowing = 0;
 char waypointCount = 0;
 int batteryLevel1 = 0;
 int batteryLevel2 = 0;
-char lastProbeDrop = 0;
-
 
 // System outputs (get from IMU)
 float imuData[3];
@@ -254,18 +252,6 @@ char checkDMA(){
         gps_Latitude = pmData.latitude;
         gps_Altitude = pmData.altitude;
 
-
-//        if (pmData.dropProbe > lastProbeDrop){
-//            lastProbeDrop = pmData.dropProbe;
-//            char availableProbes = getProbeStatus();
-//            int i = 0;
-//            for (i = 0; i < MAX_PROBE; i++){
-//                if (availableProbes & (1 << i)){
-//                    dropProbe(pmData.dropProbe);
-//                }
-//            }
-//
-//        }
         if (gps_PositionFix){
             input_AP_Heading = pmData.sp_Heading;
         }
