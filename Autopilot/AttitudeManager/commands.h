@@ -64,8 +64,8 @@
 #define SET_FLAP_KD_GAIN 53
 #define SET_FLAP_KP_GAIN 54
 #define SET_FLAP_KI_GAIN 55
-#define DROP_PROBE 56
-#define RESET_PROBE 57
+#define UNUSED_1 56
+#define UNUSED_2 57
 #define FOLLOW_PATH 58
 #define EXIT_HOLD_ORBIT 59
 #define SHOW_SCALED_PWM 60

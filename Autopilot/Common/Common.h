@@ -75,7 +75,7 @@ typedef struct _waypointWrapper{ // 28 bytes
     long double latitude;
     float altitude;
     float radius; //Radius of turn
-    char type; //Regular or probe drop location
+    char type; //Regular or hold location
     char previousId; //For use with insertNode() or operations that require reference to another node
     char nextId; //For use with insertNode() or operations that require reference to another node
     char id;    //Array ID
@@ -113,7 +113,7 @@ typedef struct _PMData { // 62 Bytes
     char targetWaypoint;
     char waypointCount;
     char pathFollowing;
-    char dropProbe; //0 = No drop, 1 = 1st drop, 2 - 2nd drop, etc..
+    char padding;
     char checkbyteDMA1;
     char checkbyteDMA2;
 } PMData;

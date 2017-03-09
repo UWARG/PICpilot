@@ -14,7 +14,6 @@
 #include "PWM.h"
 #include "commands.h"
 #include "cameraManager.h"
-#include "Probe_Drop.h"
 #include "StartupErrorCodes.h"
 #include "main.h"
 #include "InterchipDMA.h"
@@ -71,7 +70,6 @@ char pathFollowing = 0;
 char waypointCount = 0;
 int batteryLevel1 = 0;
 int batteryLevel2 = 0;
-char lastProbeDrop = 0;
 
 // System outputs (get from IMU)
 float imuData[3];
@@ -199,9 +197,9 @@ void attitudeInit() {
     if (checkDataLinkConnection()){
         setSensorStatus(XBEE, SENSOR_INITIALIZED & TRUE);
     }
-    
+
     orientationInit();
-    
+
     initialization();
     setProgramStatus(MAIN_EXECUTION);
 }
@@ -237,18 +235,6 @@ char checkDMA(){
         gps_Latitude = pmData.latitude;
         gps_Altitude = pmData.altitude;
 
-
-//        if (pmData.dropProbe > lastProbeDrop){
-//            lastProbeDrop = pmData.dropProbe;
-//            char availableProbes = getProbeStatus();
-//            int i = 0;
-//            for (i = 0; i < MAX_PROBE; i++){
-//                if (availableProbes & (1 << i)){
-//                    dropProbe(pmData.dropProbe);
-//                }
-//            }
-//
-//        }
         if (gps_PositionFix){
             input_AP_Heading = pmData.sp_Heading;
         }
@@ -382,7 +368,7 @@ void setHeadingSetpoint(int setpoint){
 void inputCapture(){
     int* channelIn;
     channelIn = getPWMArray(getTime());
-    
+
     inputMixing(channelIn, &input_RC_RollRate, &input_RC_PitchRate, &input_RC_Throttle, &input_RC_YawRate);
 
     // Switches and Knobs
@@ -523,7 +509,7 @@ void imuCommunication(){
     imu_RollRate = rad2deg(imuData[IMU_ROLL_RATE]);
     imu_PitchRate = rad2deg(imuData[IMU_PITCH_RATE]);
     imu_YawRate = rad2deg(imuData[IMU_YAW_RATE]);
-    
+
     VN100_SPI_GetYPR(0, &imu_YawAngle, &imu_PitchAngle, &imu_RollAngle);
 
 #if DEBUG
@@ -789,12 +775,6 @@ void readDatalink(void){
                 if (*(int*)(&cmd->data) == 1234)
                     dearmVehicle();
                 break;
-            case DROP_PROBE:
-                dropProbe(*(char*)(&cmd->data));
-                break;
-            case RESET_PROBE:
-                resetProbe(*(char*)(&cmd->data));
-                break;
             case FOLLOW_PATH:
                 amData.command = PM_FOLLOW_PATH;
                 amData.followPath = *(char*)(&cmd->data);
@@ -967,8 +947,7 @@ int writeDatalink(p_priority packet){
             statusData->data.p3_block.orbitGain = pmOrbitGain;
             statusData->data.p3_block.autonomousLevel = controlLevel;
             statusData->data.p3_block.startupErrorCodes = getStartupErrorCodes();
-            statusData->data.p3_block.startupSettings = DEBUG;
-            statusData->data.p3_block.probeStatus = getProbeStatus();
+            statusData->data.p3_block.startupSettings = DEBUG + (VEHICLE_TYPE << 1); //TODO: put this in the startuperrorCode file
             break;
 
         default:

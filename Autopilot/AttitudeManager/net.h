@@ -109,7 +109,7 @@ struct priority2_block { //Medium Frequency - Once every second
     char pathFollowing; // 1 byte
 };
 
-// 75 bytes
+// 74 bytes
 struct priority3_block { //Low Frequency - On update...
     float rollKI; //4 Bytes
     float pitchKI;
@@ -122,7 +122,6 @@ struct priority3_block { //Low Frequency - On update...
     int autonomousLevel;
     unsigned int startupErrorCodes; //2 bytes
     int startupSettings;
-    char probeStatus;
 };
 
 typedef union {
