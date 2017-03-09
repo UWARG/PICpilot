@@ -30,7 +30,6 @@
       </logicalFolder>
       <logicalFolder name="f10" displayName="Other Peripherals" projectFiles="true">
         <itemPath>cameraManager.h</itemPath>
-        <itemPath>Probe_Drop.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f4" displayName="PWM Management" projectFiles="true">
         <itemPath>OutputCompare.h</itemPath>
@@ -92,7 +91,6 @@
       </logicalFolder>
       <logicalFolder name="f9" displayName="Other Peripherals" projectFiles="true">
         <itemPath>cameraManager.c</itemPath>
-        <itemPath>Probe_Drop.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f4" displayName="PWM Management" projectFiles="true">
         <itemPath>InputCapture.c</itemPath>
@@ -142,7 +140,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>ICD3PlatformTool</platformTool>
         <languageToolchain>XC16</languageToolchain>
-        <languageToolchainVersion>1.30</languageToolchainVersion>
+        <languageToolchainVersion>1.31</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
