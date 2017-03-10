@@ -1,8 +1,9 @@
-/* 
- * File:   OrientationControl.c
- * Author: Ian Frosst
- *
- * Created on March 2, 2017, 3:29 PM
+/**
+ * @file OrientationControl.c
+ * @author Ian Frosst
+ * @date March 2, 2017
+ * @copyright Waterloo Aerial Robotics Group 2017 \n
+ *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE 
  */
 
 #include "OrientationControl.h"
@@ -31,7 +32,7 @@ const static float init_kd[PID_CHANNELS] = {0, 0, 0, 0, 0, 0, 0, 0};
 /* Generic PID functions. Can be used to PID other things (flaps, etc) */
 
 // To be called to initialize a new PID channel
-void initPID(PID_val* pid, float Kp, float Ki, float Kd, float imax) {
+void initPID(PID_val* pid, float Kp, float Ki, float Kd, int16_t imax) {
     pid->Kp = Kp;
     pid->Ki = Ki;
     pid->Kd = Kd;

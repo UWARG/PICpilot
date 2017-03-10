@@ -512,32 +512,21 @@ void imuCommunication(){
      *****************************************************************************
      *****************************************************************************/
     float imuData[3];
-    VN100_SPI_GetRates(0, (float*) &imuData);
+    
+    VN100_SPI_GetYPR(0, &imu_YawAngle, &imu_PitchAngle, &imu_RollAngle); 
+    VN100_SPI_GetRates(0, &imuData);
 
-    //TODO: This is a reminder for me to figure out a more elegant way to fix improper derivative control (based on configuration of the sensor), adding this negative is a temporary fix. Some kind of calibration command or something.
-    //DO NOT ADD NEGATIVES IN THE STATEMENTS BELOW. IT IS A GOOD WAY TO ROYALLY SCREW YOURSELF OVER LATER.
+
+    /* TODO: This is a reminder for me to figure out a more elegant way to fix improper derivative control 
+     * (based on configuration of the sensor), adding this negative is a temporary fix. Some kind of calibration command or something.
+     */
     //Outputs in order: Roll,Pitch,Yaw      <--  TODO: not certain this is correct - investigate (Ian Frosst, March 2017)
     imu_RollRate = rad2deg(imuData[IMU_ROLL_RATE]);
     imu_PitchRate = rad2deg(imuData[IMU_PITCH_RATE]);
     imu_YawRate = rad2deg(imuData[IMU_YAW_RATE]);
-
-    VN100_SPI_GetYPR(0, &imu_YawAngle, &imu_PitchAngle, &imu_RollAngle);
-
-#if DEBUG
-    // Rate - Radians, Angle - Degrees
-//    char x[30];
-//    sprintf(x, "IMU Roll Rate: %f", imu_RollRate);
-//    debug(x);
-//    sprintf(x, "IMU Pitch Rate: %f", imu_PitchRate);
-//    debug(x);
-//    sprintf(x, "IMU Pitch Angle: %f", imu_PitchAngle);
-//    debug(x);
-//    sprintf(x, "IMU Roll Angle: %f", imu_RollAngle);
-//    debug(x);
-#endif
 }
 
-#if 0 // will fix thse later
+#if 0 // referece for plane implementation
 //Equivalent to "Yaw Angle Control"
 int headingControl(int setpoint, int sensor){
     //Heading
