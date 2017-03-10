@@ -9,13 +9,17 @@
 
 #include "./Radio.h"
 #include "./RadioXbee.h"
+#include "../../Common/Utilities/Logger.h"
 #include "../../Common/Interfaces/UART.h"
+#include <string.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
 
 #if USE_RADIO == RADIO_XBEE
+
+#define XBEE_BROADCAST_ADDRESS 0xFFFF
 
 /**
  * This is the first byte of all Xbee packets
@@ -57,6 +61,12 @@
  */
 #define XBEE_AT_COMMAND_TRANSMISSION_ERRORS "TR"
 
+/**
+ * AT command code to retrieve the 64-bit destination address of the xbee
+ */
+#define XBEE_AT_COMMAND_DESTINATION_ADDRESS_HIGH "DH"
+#define XBEE_AT_COMMAND_DESTINATION_ADDRESS_LOW "DL"
+
 #define XBEE_AT_COMMAND_STATUS_OK 0
 
 #define XBEE_AT_COMMAND_STATUS_ERROR 1
@@ -77,9 +87,22 @@ static uint16_t transmission_errors;
 static uint16_t received_error_count;
 
 /**
+ * The address that we'll send the packets to. This is the destination
+ * address stored on the xbee configured via XCTU
+ */
+static uint64_t receiver_address;
+
+/**
  * Current frame id of the response. Used to identify responses for AT commands
  */
 static uint16_t current_frame_id;
+
+/**
+ * When we receive an AT response with this frame id, we know that we received
+ * the last frame representing the radio status. Thus we know we can send over
+ * the updated radio status (includes RSSI, transmission errors, and received error count
+ */
+static uint16_t transmit_status_frame_id;
 
 /**
  * A buffer for storing the API messages to send over to the Xbee. Maximum length
@@ -87,7 +110,6 @@ static uint16_t current_frame_id;
  * overhead. So we'll need 113 bytes, but allocate 128 bytes for good measure
  */
 static uint8_t send_buffer[128];
-
 
 /**
  * Representation of an xbee api frame, which is what we'll send to the xbee. Is a
@@ -111,18 +133,25 @@ struct _XbeeFrameQueue{
     XbeeApiFrame* tail;
 } XbeeFrameQueue;
 
-static char  queueATCommand(char* at_command_id, char* optional_payload, unsigned int optional_payload_length);
+static bool queueATCommand(char* at_command_id, char* optional_payload, unsigned int optional_payload_length);
 static void queueApiFrame(XbeeApiFrame* frame);
+static uint8_t* parseReceivedApiFrame(uint8_t* data, uint16_t data_length);
+static void parseReceivedATResponse(uint8_t* data, uint16_t data_length);
 
 void initRadio(){
+    //set it to the broadcast address for now
+    receiver_address = XBEE_BROADCAST_ADDRESS; 
     transmission_errors = 0;
     received_error_count = 0;
     latest_rssi = 0;
 
     XbeeFrameQueue.head = NULL;
     XbeeFrameQueue.tail = NULL;
-
-    parsing_rx_packet = false;
+    
+    //request destination address
+    queueATCommand(XBEE_AT_COMMAND_DESTINATION_ADDRESS_HIGH, NULL, 0);
+    queueATCommand(XBEE_AT_COMMAND_DESTINATION_ADDRESS_LOW, NULL, 0);
+    info("Xbee Radio Initialized");
 }
 
 void queueRadioDownlinkPacket(){
@@ -130,6 +159,7 @@ void queueRadioDownlinkPacket(){
     queueATCommand(XBEE_AT_COMMAND_RSSI, NULL, 0);
     queueATCommand(XBEE_AT_COMMAND_RECEIVED_ERROR_COUNT, NULL, 0);
     queueATCommand(XBEE_AT_COMMAND_TRANSMISSION_ERRORS, NULL, 0);
+    transmit_status_frame_id = current_frame_id;
 }
 
 bool sendQueuedDownlinkPacket(){
@@ -161,7 +191,7 @@ bool sendQueuedDownlinkPacket(){
     return false;
 }
 
-bool queueDownlinkData(unsigned char* data, unsigned int data_length){
+bool queueDownlinkData(unsigned char* data, unsigned int data_length){ 
     int i;
     XbeeApiFrame* to_send = (XbeeApiFrame*)malloc(sizeof(XbeeApiFrame));
 
@@ -212,6 +242,17 @@ bool queueDownlinkData(unsigned char* data, unsigned int data_length){
     return true;
 }
 
+/**
+ * This function will queue and read characters received in the UART byte buffer
+ * until one of two things happen
+ * 1) The buffer becomes empty
+ * 2) The start delimiter is detected, in which this function will keep parsing
+ * 3) If the start delimiter is detected, and the length of the packet is reached,
+ *      will perform the checksum check on the received api frame. If it passses,
+ *      will send the api frame over for parsing
+ * @param length
+ * @return 
+ */
 uint8_t* parseUplinkPacket(uint16_t* length)
 {
     static bool parsing_rx_packet = false;
@@ -254,8 +295,9 @@ uint8_t* parseUplinkPacket(uint16_t* length)
 
     if (parsing_rx_packet == true) {
         //wait until we get the start delimiter
+        uint8_t byte;
         while (getRXSize(XBEE_UART_INTERFACE) != 0) {
-            static uint8_t byte = readRXData(XBEE_UART_INTERFACE);
+            byte = readRXData(XBEE_UART_INTERFACE);
 
             switch (rx_packet_pos) {
             case 0: //first byte is MSB of length of upcoming packet
@@ -274,7 +316,7 @@ uint8_t* parseUplinkPacket(uint16_t* length)
                         return NULL;
                     } else{
                         parsing_rx_packet = false;
-                        return parseReceivedApiFrame(receive_buffer, rx_packet_length - 1];
+                        return parseReceivedApiFrame(receive_buffer, rx_packet_length - 1);
                     }
                 }
 
@@ -283,6 +325,7 @@ uint8_t* parseUplinkPacket(uint16_t* length)
             rx_packet_pos ++;
         }
     }
+    return NULL;
 }
 
 /**
@@ -300,23 +343,7 @@ static uint8_t* parseReceivedApiFrame(uint8_t* data, uint16_t data_length){
 
     switch(frame_type){
         case XBEE_FRAME_TYPE_AT_RESPONSE:
-            uint8_t frame_id = data[1];
-            uint8_t at_command[2];
-
-            at_command[0] = data[2];
-            at_command[1] = data[3];
-
-            //4th byte is the command status.
-            if (data[4] ==  XBEE_AT_COMMAND_STATUS_OK){
-              if (strcmp(at_command, XBEE_AT_COMMAND_RSSI)){
-                
-              } else if (strcmp(at_command, XBEE_AT_COMMAND_RECEIVED_ERROR_COUNT)){
-
-              } else if (strcmp(at_command, XBEE_AT_COMMAND_TRANSMISSION_ERRORS)){
-
-              }
-            }
-
+            parseReceivedATResponse(data, data_length);
             return NULL;
             break;
         case XBEE_FRAME_TYPE_RX_INDICATOR:
@@ -344,6 +371,67 @@ static uint8_t* parseReceivedApiFrame(uint8_t* data, uint16_t data_length){
 }
 
 /**
+ * This function parses a received AT response packet. Based on the contents,
+ * modifies certain parameters of the driver. For example, if an AT packet containing
+ * a source address comes in, will flip the transmissions flag
+ * @param data The payload of the received API Frame (whatever comes after the length)
+ * @param data_length Length of the aforementioned API frame, not including the checksum
+ *      thats included at the end of the checksum
+ */
+static void parseReceivedATResponse(uint8_t* data, uint16_t data_length){
+    //a valid response frame payload needs to have a data length of at least 5, not including the checksum
+    if (data_length < 5){
+        return;
+    }
+    int i;
+    
+    //frame type is at 0, which we dont care about here
+    uint8_t frame_id = data[1];
+    char at_command[2];
+
+    at_command[0] = data[2];
+    at_command[1] = data[3];
+
+    //5th byte is the command status.
+    if (data[4] ==  XBEE_AT_COMMAND_STATUS_OK){
+      if (strcmp(at_command, XBEE_AT_COMMAND_RSSI)){
+         //the RSSI is just a byte
+         latest_rssi = data[5];
+      } else if (strcmp(at_command, XBEE_AT_COMMAND_RECEIVED_ERROR_COUNT)){
+          received_error_count = 0;
+          received_error_count = data[5] << 8;
+          received_error_count += data[6];
+      } else if (strcmp(at_command, XBEE_AT_COMMAND_TRANSMISSION_ERRORS)){
+          transmission_errors = 0;
+          transmission_errors = data[5] << 8;
+          transmission_errors += data[6];
+      } else if (strcmp(at_command, XBEE_AT_COMMAND_DESTINATION_ADDRESS_HIGH)){
+         //command data should be 8 bytes. Thus total data length should be 13
+         if (data_length < 13){return;}
+         receiver_address = receiver_address & 0xFFFFFFFF; //clear upper 32 bits
+         
+         //set the upper portion of the receiver address
+         for (i = 0; i < 4; i++){
+             receiver_address += data[5 + i] << (32 + 8*(4 - i));
+         }
+      } else if (strcmp(at_command, XBEE_AT_COMMAND_DESTINATION_ADDRESS_LOW)){
+          //command data should be 8 bytes. Thus total data length should be 13
+         if (data_length < 13){return;}
+         receiver_address = receiver_address & 0xFFFFFFFF00000000; //clear lower 32 bits
+         
+         //set the upper portion of the receiver address
+         for (i = 0; i < 4; i++){
+             receiver_address += data[5 + i] << 8*(4 - i);
+         }
+      }
+    }
+    
+    if (frame_id == transmit_status_frame_id){
+        //TODO: here we would build the mavlink readio status packet and send it over
+    }
+}
+
+/**
  * Queues an API frame for transmission, however does not send it yet
  * @param frame
  */
@@ -366,7 +454,7 @@ static void queueApiFrame(XbeeApiFrame* frame){
  * @param optional_payload_length Should be the length of the optional payload, if applicable.
  *      If the optional_payload is NULL, it doesnt matter what this value is
  */
-static char  queueATCommand(char* at_command_id, char* optional_payload, unsigned int optional_payload_length){
+static bool queueATCommand(char* at_command_id, char* optional_payload, unsigned int optional_payload_length){
     static unsigned int i;
     XbeeApiFrame* to_send = (XbeeApiFrame*)malloc(sizeof(XbeeApiFrame));
 
