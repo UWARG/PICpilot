@@ -68,13 +68,13 @@ void dearmVehicle(){
 }
 
 void inputMixing(int* channelIn, int* rollRate, int* pitchRate, int* throttle, int* yawRate) { //no flaps on a quad
-    if (getControlPermission(ROLL_CONTROL_SOURCE, RC_SOURCE, ROLL_CONTROL_SOURCE_SHIFT)){
+    if (getControlValue(ROLL_CONTROL_SOURCE) == RC_SOURCE){
         (*rollRate) = channelIn[ROLL_IN_CHANNEL - 1];
     }
-    if (getControlPermission(THROTTLE_CONTROL_SOURCE, RC_SOURCE, THROTTLE_CONTROL_SOURCE_SHIFT)){
+    if (getControlValue(THROTTLE_CONTROL_SOURCE) == RC_SOURCE){
         (*throttle) = channelIn[THROTTLE_IN_CHANNEL - 1];
     }
-    if (getControlPermission(PITCH_CONTROL_SOURCE, RC_SOURCE, PITCH_CONTROL_SOURCE_SHIFT)){
+    if (getControlValue(PITCH_CONTROL_SOURCE) == RC_SOURCE){
         (*pitchRate) = channelIn[PITCH_IN_CHANNEL - 1];
     }
 
@@ -102,8 +102,8 @@ void checkLimits(int* channelOut){
 
 void highLevelControl(){
    
-    uint8_t rollControlType = getControlValue(ROLL_CONTROL_TYPE, ROLL_CONTROL_TYPE_SHIFT);
-    uint8_t rollControlSource = getControlValue(ROLL_CONTROL_SOURCE, ROLL_CONTROL_SOURCE_SHIFT);
+    uint8_t rollControlType = getControlValue(ROLL_CONTROL_TYPE);
+    uint8_t rollControlSource = getControlValue(ROLL_CONTROL_SOURCE);
     if (rollControlType == ANGLE_CONTROL) {
         setRollAngleSetpoint(getRollAngleInput(rollControlSource));
         setRollRateSetpoint(PIDcontrol(getPID(ROLL_ANGLE), getRollAngleSetpoint() - getRoll()));
@@ -112,8 +112,8 @@ void highLevelControl(){
         setRollRateSetpoint(getRollRateInput(rollControlSource));
     }
 
-    uint8_t pitchControlType = getControlValue(PITCH_CONTROL_TYPE, PITCH_CONTROL_TYPE_SHIFT);
-    uint8_t pitchControlSource = getControlValue(PITCH_CONTROL_SOURCE, PITCH_CONTROL_SOURCE_SHIFT);
+    uint8_t pitchControlType = getControlValue(PITCH_CONTROL_TYPE);
+    uint8_t pitchControlSource = getControlValue(PITCH_CONTROL_SOURCE);
     if (pitchControlType == ANGLE_CONTROL) {
         setPitchAngleSetpoint(getPitchAngleInput(pitchControlSource));
         setPitchRateSetpoint(PIDcontrol(getPID(PITCH_ANGLE), getPitchAngleSetpoint() - getPitch()));
@@ -122,20 +122,20 @@ void highLevelControl(){
         setPitchRateSetpoint(getPitchRateInput(pitchControlSource));
     }
     
-    if (getControlValue(HEADING_CONTROL, HEADING_CONTROL_SHIFT) == CONTROL_ON) { // if heading control is enabled
-        setHeadingSetpoint(getHeadingInput(getControlValue(HEADING_CONTROL_SOURCE, HEADING_CONTROL_SOURCE_SHIFT))); // get heading value (GS or AP)
+    if (getControlValue(HEADING_CONTROL) == CONTROL_ON) { // if heading control is enabled
+        setHeadingSetpoint(getHeadingInput(getControlValue(HEADING_CONTROL_SOURCE))); // get heading value (GS or AP)
         setYawRateSetpoint(PIDcontrol(getPID(HEADING), getHeadingSetpoint() - getHeading()));
     } 
     else {
         setYawRateSetpoint(getYawRateInput(RC_SOURCE));
     }
         
-    if (getControlValue(ALTITUDE_CONTROL, ALTITUDE_CONTROL_SHIFT) == CONTROL_ON) { // if altitude control is enabled
-        setAltitudeSetpoint(getAltitudeInput(getControlValue(ALTITUDE_CONTROL_SOURCE, ALTITUDE_CONTROL_SOURCE_SHIFT))); // get altitude value (GS or AP)
+    if (getControlValue(ALTITUDE_CONTROL) == CONTROL_ON) { // if altitude control is enabled
+        setAltitudeSetpoint(getAltitudeInput(getControlValue(ALTITUDE_CONTROL_SOURCE))); // get altitude value (GS or AP)
         setThrottleSetpoint(PIDcontrol(getPID(ALTITUDE), getAltitudeSetpoint() - getAltitude()));
     } 
     else { // if no altitude control, get raw throttle input (RC or GS)
-        setThrottleSetpoint(getThrottleInput(getControlValue(THROTTLE_CONTROL_SOURCE, THROTTLE_CONTROL_SOURCE_SHIFT)));
+        setThrottleSetpoint(getThrottleInput(getControlValue(THROTTLE_CONTROL_SOURCE)));
     }
 //    setPitchAngleSetpoint(0);
 //    setPitchRateSetpoint(PIDcontrol(PID_PITCH_ANGLE, getPitchAngleSetpoint() - getPitch()));

@@ -25,6 +25,20 @@ extern PMData pmData;
 extern AMData amData;
 extern char DMADataAvailable;
 
+// Control level bit masks (indexed by ctrl_type)
+static const uint16_t ctrl_mask[16] = {
+            0b00000001, // Pitch Rate(0) or Pitch Angles(1)
+            0b00000010, // Pitch from Controller(0) or Ground Station(1)
+            0b00000100, // Roll Rates(0) or Roll Angles(1)
+            0b00001000, // Roll from Controller(0) or Ground Station(1)
+            0b00110000, // Throttle from Controller(0) or Ground Station(1) or Autopilot(2)(Controlled by the GroundSpeed/Altitude).
+            0b01000000, // Altitude from Ground Station(0) or Autopilot(1)
+            0b10000000, // Altitude Off(0) or On(1)
+    0b0000000100000000, // Heading from Ground Station(0) or Autopilot(1)
+    0b0000001000000000, // Heading Off(0) or On(1)
+    0b0000110000000000  // Flaps from Controller(0) or Ground Station(1) or Autopilot(2) // TODO:remove
+};
+
 long int heartbeatTimer = 0;
 long int UHFTimer = 0;
 long int gpsTimer = 0;
@@ -297,9 +311,7 @@ int getYawRateSetpoint(){
 int getThrottleSetpoint(){
     return sp_Throttle;
 }
-int getFlapSetpoint(){
-    return sp_FlapRate;
-}
+
 int getAltitudeSetpoint(){
     return sp_Altitude;
 }
@@ -340,13 +352,15 @@ void setRollRateSetpoint(int setpoint){
         sp_RollRate = setpoint;
 }
 void setYawRateSetpoint(int setpoint){
-    sp_YawRate = setpoint;
+    if (setpoint > MAX_YAW_RATE)
+        sp_YawRate = MAX_YAW_RATE;
+    else if (setpoint < -MAX_YAW_RATE)
+        sp_YawRate = -MAX_YAW_RATE;
+    else
+        sp_YawRate = setpoint;
 }
 void setThrottleSetpoint(int setpoint){
     sp_Throttle = setpoint;
-}
-void setFlapSetpoint(int setpoint){
-    sp_FlapRate = setpoint;
 }
 void setAltitudeSetpoint(int setpoint){
     sp_Altitude = setpoint;
@@ -545,13 +559,9 @@ int coordinatedTurn(float pitchRate, int rollAngle){
 }
 #endif
 
-char getControlPermission(unsigned int controlMask, unsigned int expectedValue, char bitshift){
-    int maskResult = (controlMask & controlLevel);
-    return (maskResult >> bitshift) == expectedValue;
-}
-
-uint8_t getControlValue(uint16_t controlMask, uint8_t bitshift) {
-    return (controlMask & controlLevel) >> bitshift;
+// Type is both bit shift value and index of bit mask array
+uint8_t getControlValue(ctrl_type type) {
+    return (controlLevel & ctrl_mask[type]) >> type;
 }
 
 void readDatalink(void){
@@ -907,7 +917,7 @@ int writeDatalink(p_priority packet){
             statusData->data.p2_block.yawRateSetpoint = getYawRateSetpoint();
             statusData->data.p2_block.headingSetpoint = getHeadingSetpoint();
             statusData->data.p2_block.altitudeSetpoint = getAltitudeSetpoint();
-            statusData->data.p2_block.flapSetpoint = getFlapSetpoint();
+            statusData->data.p2_block.flapSetpoint = 0;//getFlapSetpoint();
             statusData->data.p2_block.cameraStatus = cameraCounter;
             statusData->data.p2_block.wirelessConnection = 0;//((input[5] < 180) << 1) + (input[7] > 0);//+ RSSI;
             statusData->data.p2_block.autopilotActive = getProgramStatus();
@@ -919,21 +929,21 @@ int writeDatalink(p_priority packet){
             statusData->data.p2_block.pathFollowing = pathFollowing; //True or false
             break;
         case PRIORITY2:
-            statusData->data.p3_block.rollKI = getGain(ROLL,KI);
-            statusData->data.p3_block.pitchKI = getGain(PITCH,KI);
-            statusData->data.p3_block.yawKI = getGain(YAW, KI);
+            statusData->data.p3_block.rollKI = getGain(ROLL_RATE,KI);
+            statusData->data.p3_block.pitchKI = getGain(PITCH_RATE,KI);
+            statusData->data.p3_block.yawKI = getGain(YAW_RATE, KI);
             statusData->data.p3_block.headingKD = getGain(HEADING, KD);
             statusData->data.p3_block.headingKP = getGain(HEADING, KP);
             statusData->data.p3_block.headingKI = getGain(HEADING, KI);
             statusData->data.p3_block.altitudeKD = getGain(ALTITUDE, KD);
             statusData->data.p3_block.altitudeKP = getGain(ALTITUDE, KP);
             statusData->data.p3_block.altitudeKI = getGain(ALTITUDE, KI);
-            statusData->data.p3_block.throttleKD = getGain(THROTTLE, KD);
-            statusData->data.p3_block.throttleKP = getGain(THROTTLE, KP);
-            statusData->data.p3_block.throttleKI = getGain(THROTTLE, KI);
-            statusData->data.p3_block.flapKD = getGain(FLAP, KD);
-            statusData->data.p3_block.flapKP = getGain(FLAP, KP);
-            statusData->data.p3_block.flapKI = getGain(FLAP, KI);
+            statusData->data.p3_block.throttleKD = 0;//getGain(THROTTLE, KD);
+            statusData->data.p3_block.throttleKP = 0;//getGain(THROTTLE, KP);
+            statusData->data.p3_block.throttleKI = 0;//getGain(THROTTLE, KI);
+            statusData->data.p3_block.flapKD = 0;//getGain(FLAP, KD);
+            statusData->data.p3_block.flapKP = 0;//getGain(FLAP, KP);
+            statusData->data.p3_block.flapKI = 0;//getGain(FLAP, KI);
             statusData->data.p3_block.pathGain = pmPathGain;
             statusData->data.p3_block.orbitGain = pmOrbitGain;
             statusData->data.p3_block.autonomousLevel = controlLevel;
