@@ -106,7 +106,7 @@ void highLevelControl(){
     uint8_t rollControlSource = getControlValue(ROLL_CONTROL_SOURCE);
     if (rollControlType == ANGLE_CONTROL) {
         setRollAngleSetpoint(getRollAngleInput(rollControlSource));
-        setRollRateSetpoint(PIDcontrol(getPID(ROLL_ANGLE), getRollAngleSetpoint() - getRoll()));
+        setRollRateSetpoint(PIDcontrol(getPID(ROLL_ANGLE), getRollAngleSetpoint() - getRoll(), MAX_ROLL_RATE / MAX_ROLL_ANGLE));
     } 
     else if (rollControlType == RATE_CONTROL) {
         setRollRateSetpoint(getRollRateInput(rollControlSource));
@@ -116,7 +116,7 @@ void highLevelControl(){
     uint8_t pitchControlSource = getControlValue(PITCH_CONTROL_SOURCE);
     if (pitchControlType == ANGLE_CONTROL) {
         setPitchAngleSetpoint(getPitchAngleInput(pitchControlSource));
-        setPitchRateSetpoint(PIDcontrol(getPID(PITCH_ANGLE), getPitchAngleSetpoint() - getPitch()));
+        setPitchRateSetpoint(PIDcontrol(getPID(PITCH_ANGLE), getPitchAngleSetpoint() - getPitch(), MAX_PITCH_RATE / MAX_PITCH_ANGLE));
     } 
     else if (pitchControlType == RATE_CONTROL) {
         setPitchRateSetpoint(getPitchRateInput(pitchControlSource));
@@ -124,7 +124,7 @@ void highLevelControl(){
     
     if (getControlValue(HEADING_CONTROL) == CONTROL_ON) { // if heading control is enabled
         setHeadingSetpoint(getHeadingInput(getControlValue(HEADING_CONTROL_SOURCE))); // get heading value (GS or AP)
-        setYawRateSetpoint(PIDcontrol(getPID(HEADING), getHeadingSetpoint() - getHeading()));
+        setYawRateSetpoint(PIDcontrol(getPID(HEADING), wrap_180(getHeadingSetpoint() - getHeading()), MAX_YAW_RATE / 180));
     } 
     else {
         setYawRateSetpoint(getYawRateInput(RC_SOURCE));
@@ -132,10 +132,10 @@ void highLevelControl(){
         
     if (getControlValue(ALTITUDE_CONTROL) == CONTROL_ON) { // if altitude control is enabled
         setAltitudeSetpoint(getAltitudeInput(getControlValue(ALTITUDE_CONTROL_SOURCE))); // get altitude value (GS or AP)
-        setThrottleSetpoint(PIDcontrol(getPID(ALTITUDE), getAltitudeSetpoint() - getAltitude()));
+        setThrottleSetpoint(PIDcontrol(getPID(ALTITUDE), getAltitudeSetpoint() - getAltitude(), 1) + getThrottleSetpoint());
     } 
     else { // if no altitude control, get raw throttle input (RC or GS)
-        setThrottleSetpoint(getThrottleInput(getControlValue(THROTTLE_CONTROL_SOURCE)));
+        setThrottleSetpoint(getThrottleInput(getControlValue(THROTTLE_CONTROL_SOURCE)) + getThrottleSetpoint());
     }
 //    setPitchAngleSetpoint(0);
 //    setPitchRateSetpoint(PIDcontrol(PID_PITCH_ANGLE, getPitchAngleSetpoint() - getPitch()));
@@ -146,9 +146,9 @@ void highLevelControl(){
 
 void lowLevelControl() {  
 
-    control_Roll = PIDcontrol(getPID(ROLL_RATE), getRollRateSetpoint() - getRollRate());
-    control_Pitch = PIDcontrol(getPID(PITCH_RATE), getPitchRateSetpoint() - getPitchRate());
-    control_Yaw = PIDcontrol(getPID(YAW_RATE), getYawRateSetpoint() - getYawRate());
+    control_Roll = PIDcontrol(getPID(ROLL_RATE), getRollRateSetpoint() - getRollRate(), HALF_PWM_RANGE / MAX_ROLL_RATE);
+    control_Pitch = PIDcontrol(getPID(PITCH_RATE), getPitchRateSetpoint() - getPitchRate(), HALF_PWM_RANGE / MAX_PITCH_RATE);
+    control_Yaw = PIDcontrol(getPID(YAW_RATE), getYawRateSetpoint() - getYawRate(), HALF_PWM_RANGE / MAX_YAW_RATE);
     control_Throttle = getThrottleSetpoint();
     
     //Mixing!

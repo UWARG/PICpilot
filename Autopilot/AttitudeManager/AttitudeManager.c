@@ -43,11 +43,10 @@ long int heartbeatTimer = 0;
 long int UHFTimer = 0;
 long int gpsTimer = 0;
 
-// Setpoints (From radio transmitter or autopilot)
+// Setpoints
 int sp_Throttle = MIN_PWM;
 
-// Degrees per second
-int sp_RollRate = 0;
+int sp_RollRate = 0; // Degrees per second
 int sp_PitchRate = 0;
 int sp_YawRate = 0;
 
@@ -57,6 +56,8 @@ int sp_PitchAngle = 0;
 int sp_Heading = 0;
 int sp_Altitude = 0;
 float sp_GroundSpeed = 0;
+
+bool limitSetpoint = false;
 
 //GPS Data
 int gps_Heading = 0;
@@ -89,11 +90,11 @@ float imu_PitchAngle = 0;
 float imu_YawAngle = 0;
 
 //RC Input Signals (Input Capture Values)
+int input_RC_Throttle = MIN_PWM;
 int input_RC_RollRate = 0;
 int input_RC_PitchRate = 0;
-int input_RC_Throttle = 0;
-int input_RC_Flap = 0;
 int input_RC_YawRate = 0;
+int input_RC_Flap = 0;
 int input_RC_Aux1 = 0; //0=Roll, 1= Pitch, 2=Yaw
 int input_RC_Aux2 = 0; //0 = Saved Value, 1 = Edit Mode
 int input_RC_Switch1 = 0;
@@ -320,44 +321,49 @@ int getHeadingSetpoint(){
 }
 
 void setPitchAngleSetpoint(int setpoint){
-    if (setpoint > MAX_PITCH_ANGLE)
-        sp_PitchAngle = MAX_PITCH_ANGLE;
-    else if (setpoint < -MAX_PITCH_ANGLE)
-        sp_PitchAngle = -MAX_PITCH_ANGLE;
-    else
-        sp_PitchAngle = setpoint;
+    if (limitSetpoint) {
+        if (setpoint > MAX_PITCH_ANGLE)
+            setpoint = MAX_PITCH_ANGLE;
+        else if (setpoint < -MAX_PITCH_ANGLE)
+            setpoint = -MAX_PITCH_ANGLE;
+    }
+    sp_PitchAngle = setpoint;
 }
 void setRollAngleSetpoint(int setpoint){
-    if (setpoint > MAX_ROLL_ANGLE)
-        sp_RollAngle = MAX_ROLL_ANGLE;
-    else if (setpoint < -MAX_ROLL_ANGLE)
-        sp_RollAngle = -MAX_ROLL_ANGLE;
-    else
-        sp_RollAngle = setpoint;
+    if (limitSetpoint) {
+        if (setpoint > MAX_ROLL_ANGLE)
+            setpoint = MAX_ROLL_ANGLE;
+        else if (setpoint < -MAX_ROLL_ANGLE)
+            setpoint = -MAX_ROLL_ANGLE;
+    }
+    sp_RollAngle = setpoint;
 }
 void setPitchRateSetpoint(int setpoint){
-    if (setpoint > MAX_PITCH_RATE)
-        sp_PitchRate = MAX_PITCH_RATE;
-    else if (setpoint < -MAX_PITCH_RATE)
-        sp_PitchRate = -MAX_PITCH_RATE;
-    else
-        sp_PitchRate = setpoint;
+    if (limitSetpoint) {
+        if (setpoint > MAX_PITCH_RATE)
+            setpoint = MAX_PITCH_RATE;
+        else if (setpoint < -MAX_PITCH_RATE)
+            setpoint = -MAX_PITCH_RATE;
+    }
+    sp_PitchRate = setpoint;
 }
 void setRollRateSetpoint(int setpoint){
-    if (setpoint > MAX_ROLL_RATE)
-        sp_RollRate = MAX_ROLL_RATE;
-    else if (setpoint < -MAX_ROLL_RATE)
-        sp_RollRate = -MAX_ROLL_RATE;
-    else
-        sp_RollRate = setpoint;
+    if (limitSetpoint) {
+        if (setpoint > MAX_ROLL_RATE)
+            setpoint = MAX_ROLL_RATE;
+        else if (setpoint < -MAX_ROLL_RATE)
+            setpoint = -MAX_ROLL_RATE;
+    }
+    sp_RollRate = setpoint;
 }
 void setYawRateSetpoint(int setpoint){
-    if (setpoint > MAX_YAW_RATE)
-        sp_YawRate = MAX_YAW_RATE;
-    else if (setpoint < -MAX_YAW_RATE)
-        sp_YawRate = -MAX_YAW_RATE;
-    else
-        sp_YawRate = setpoint;
+    if (limitSetpoint) {
+        if (setpoint > MAX_YAW_RATE)
+            setpoint = MAX_YAW_RATE;
+        else if (setpoint < -MAX_YAW_RATE)
+            setpoint = -MAX_YAW_RATE;
+    }
+    sp_YawRate = setpoint;
 }
 void setThrottleSetpoint(int setpoint){
     sp_Throttle = setpoint;

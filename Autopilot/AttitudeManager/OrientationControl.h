@@ -53,9 +53,10 @@ typedef enum {
 } PID_channel;
 
 void initPID(PID_val* pid, float Kp, float Ki, float Kd, float imax);
+float PIDcontrol(PID_val* pid, float error, float scale);
+
 void orientationInit();
 PID_val* getPID(PID_channel channel);
-float PIDcontrol(PID_val* pid, float error);
 float getGain(PID_channel channel, PID_gain type);
 void setGain(PID_channel channel, PID_gain type, float value);
 uint8_t areGainsUpdated();
