@@ -37,6 +37,8 @@
 #define ERROR_TAG_STRING_LENGTH 7
 #define WARNING_TAG_STRING "[WARNING]"
 #define WARNING_TAG_STRING_LENGTH 9
+#define INFO_TAG_STRING "[INFO]"
+#define INFO_TAG_STRING_LENGTH 6
 
 /**
  * Initializes the logger module by initializing the specified UART channel
@@ -60,5 +62,11 @@ void warning(char* message);
  * @param message
  */
 void debug(char* message);
+
+/**
+ * Output a info level message
+ * @param message
+ */
+void info(char* message);
 
 #endif
