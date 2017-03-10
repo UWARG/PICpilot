@@ -49,7 +49,7 @@ typedef enum {
     PITCH_ANGLE,
     HEADING,
     ALTITUDE,
-    SPEED       //Airspeed or groundspeed? discuss.
+    GSPEED
 } PID_channel;
 
 void initPID(PID_val* pid, float Kp, float Ki, float Kd, float imax);

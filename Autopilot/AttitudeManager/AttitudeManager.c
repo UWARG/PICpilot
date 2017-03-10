@@ -33,22 +33,14 @@ long int gpsTimer = 0;
 int sp_Throttle = MIN_PWM;
 
 // Degrees per second
-float sp_RollRate = 0;
-float sp_PitchRate = 0;
-float sp_YawRate = 0;
+int sp_RollRate = 0;
+int sp_PitchRate = 0;
+int sp_YawRate = 0;
 
-int sp_FlapRate = MIN_PWM;
+int sp_RollAngle = 0; // degrees
+int sp_PitchAngle = 0;
 
-
-float sp_PitchAngle = 0;
-
-float sp_RollAngle = 0;
-
-//Heading Variables
 int sp_Heading = 0;
-int ctrl_Heading = 0;
-
-//Altitude Variables
 int sp_Altitude = 0;
 float sp_GroundSpeed = 0;
 
@@ -59,6 +51,7 @@ float gps_Time = 0;
 long double gps_Longitude = 0;
 long double gps_Latitude = 0;
 float gps_Altitude = 0;
+
 float airspeed = 0;
 char gps_Satellites = 0;
 char gps_PositionFix = 0;
@@ -72,7 +65,6 @@ int batteryLevel1 = 0;
 int batteryLevel2 = 0;
 
 // System outputs (get from IMU)
-float imuData[3];
 float imu_RollRate = 0;
 float imu_PitchRate = 0;
 float imu_YawRate = 0;
@@ -113,8 +105,6 @@ char displayGain = 0;
 int controlLevel = 0;
 int lastCommandSentCode[COMMAND_HISTORY_SIZE];
 int lastCommandCounter = 0;
-
-float refRotationMatrix[9];
 
 char lastNumSatellites = 0;
 
@@ -190,7 +180,7 @@ void attitudeInit() {
         setSensorStatus(VECTORNAV, SENSOR_CONNECTED & FALSE);
     }
 #if DEBUG
-        debug("Datalink Initialized");
+    debug("Datalink Initialized");
 #endif
 
     initDataLink();
@@ -501,6 +491,7 @@ void imuCommunication(){
                                 IMU COMMUNICATION
      *****************************************************************************
      *****************************************************************************/
+    float imuData[3];
     VN100_SPI_GetRates(0, (float*) &imuData);
 
     //TODO: This is a reminder for me to figure out a more elegant way to fix improper derivative control (based on configuration of the sensor), adding this negative is a temporary fix. Some kind of calibration command or something.
@@ -1037,6 +1028,8 @@ void setVNOrientationMatrix(float* angleOffset){
     angleOffset[1] = deg2rad(angleOffset[1]);
     angleOffset[2] = deg2rad(angleOffset[2]);
 
+    float refRotationMatrix[9];
+    
     refRotationMatrix[0] = cos(angleOffset[1]) * cos(angleOffset[2]);
     refRotationMatrix[1] = -cos(angleOffset[1]) * sin(angleOffset[2]);
     refRotationMatrix[2] = sin(angleOffset[1]);
