@@ -5,7 +5,6 @@ private/
 *.properties
 *.mk
 *.bash
-Makefile
 *.o
 
 # Object files
