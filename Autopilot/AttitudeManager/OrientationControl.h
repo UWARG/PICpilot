@@ -56,7 +56,7 @@ typedef enum {
 
 /**
  * Initializes a generic PID controller
- * @param pid Pointer to the PID_val struct
+ * @param pid Pointer to the PID_val struct to initialize
  * @param Kp
  * @param Ki
  * @param Kd

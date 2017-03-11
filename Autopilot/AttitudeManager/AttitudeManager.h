@@ -51,15 +51,6 @@ typedef enum {
 #define IMU_PITCH_RATE   1
 #define IMU_ROLL_RATE    0
 
-/**
- * RC receiver channel configuration.
- * Note that only channel 8 will work hardware-wise as the
- * autopilot channel, as it directly controls the relays
- */
-
-#define AUTOPILOT_ACTIVE_IN_CHANNEL 8 //Do not change this value, as only 8 will work hardware-wise
-
-
 //Misc
 #define COMMAND_HISTORY_SIZE 4
 

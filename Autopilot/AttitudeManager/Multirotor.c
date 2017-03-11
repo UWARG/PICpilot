@@ -17,10 +17,10 @@ static int outputSignal[NUM_CHANNELS];
 static int control_Roll, control_Pitch, control_Yaw, control_Throttle;
 
 void initialization(){
-    setPWM(FRONT_LEFT_MOTOR, MIN_PWM);
-    setPWM(FRONT_RIGHT_MOTOR, MIN_PWM);
-    setPWM(BACK_RIGHT_MOTOR, MIN_PWM);
-    setPWM(BACK_LEFT_MOTOR, MIN_PWM);
+    setPWM(1, MIN_PWM);
+    setPWM(2, MIN_PWM);
+    setPWM(3, MIN_PWM);
+    setPWM(4, MIN_PWM);
     
     int channel = 0;
     for (; channel < NUM_CHANNELS; channel++) {
@@ -41,10 +41,10 @@ void armVehicle(int delayTime){
     asm("CLRWDT");
     Delay(delayTime);
     asm("CLRWDT");
-    setPWM(FRONT_LEFT_MOTOR, MIN_PWM);
-    setPWM(FRONT_RIGHT_MOTOR, MIN_PWM);
-    setPWM(BACK_RIGHT_MOTOR, MIN_PWM);
-    setPWM(BACK_LEFT_MOTOR, MIN_PWM);
+    setPWM(1, MIN_PWM);
+    setPWM(2, MIN_PWM);
+    setPWM(3, MIN_PWM);
+    setPWM(4, MIN_PWM);
     asm("CLRWDT");
     Delay(delayTime);
     asm("CLRWDT");
@@ -162,10 +162,10 @@ void lowLevelControl() {
     if (control_Throttle > -850) {
         setAllPWM(outputSignal);
     } else {
-        setPWM(FRONT_LEFT_MOTOR, MIN_PWM);
-        setPWM(FRONT_RIGHT_MOTOR, MIN_PWM);
-        setPWM(BACK_RIGHT_MOTOR, MIN_PWM);
-        setPWM(BACK_LEFT_MOTOR, MIN_PWM);
+        setPWM(1, MIN_PWM);
+        setPWM(2, MIN_PWM);
+        setPWM(3, MIN_PWM);
+        setPWM(4, MIN_PWM);
     }
 }
 

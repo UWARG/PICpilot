@@ -79,6 +79,7 @@ void inputMixing(int* channelIn, int* rollRate, int* pitchRate, int* throttle, i
     if (getControlValue(FLAP_CONTROL_SOURCE) == RC_SOURCE) {
         input_RC_Flap = channelIn[FLAP_IN_CHANNEL - 1];
     }
+    
 }
 
 void outputMixing(int* channelOut, int* control_Roll, int* control_Pitch, int* control_Throttle, int* control_Yaw){

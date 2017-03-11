@@ -379,10 +379,6 @@ void inputCapture(){
 
     inputMixing(channelIn, &input_RC_RollRate, &input_RC_PitchRate, &input_RC_Throttle, &input_RC_YawRate);
 
-    // Switches and Knobs
-//        sp_Type = channelIn[5];
-//        sp_Value = channelIn[6];
-    input_RC_Switch1 = channelIn[AUTOPILOT_ACTIVE_IN_CHANNEL - 1];
 }
 
 int getPitchAngleInput(char source){
@@ -881,7 +877,7 @@ int writeDatalink(p_priority packet){
             statusData->data.p2_block.altitudeSetpoint = getAltitudeSetpoint();
             statusData->data.p2_block.flapSetpoint = 0;//getFlapSetpoint();
             statusData->data.p2_block.cameraStatus = cameraCounter;
-            statusData->data.p2_block.wirelessConnection = ((input[5] < 180) << 1) + (input[7] > 0);//+ RSSI;
+            statusData->data.p2_block.wirelessConnection = ((input[5] < 180) << 1) + (input[6] > 0);//+ RSSI;
             statusData->data.p2_block.autopilotActive = getProgramStatus();
             statusData->data.p2_block.gpsStatus = gps_Satellites + (gps_PositionFix << 4);
             statusData->data.p2_block.pathChecksum = waypointChecksum;

@@ -29,7 +29,7 @@ void lowLevelControl();
 #define HEX_P 3
 
 // Set multirotor type
-#define ROTOR_TYPE QUAD_X
+#define ROTOR_TYPE QUAD_P
 
 // Inputs
 #define THROTTLE_IN_CHANNEL 1

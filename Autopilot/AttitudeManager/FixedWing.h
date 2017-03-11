@@ -47,8 +47,7 @@ void lowLevelControl();
 #define ROLL_IN_CHANNEL 2
 #define PITCH_IN_CHANNEL 3
 #define YAW_IN_CHANNEL 4
-#define FLAP_IN_CHANNEL 5
-
+#define FLAP_IN_CHANNEL 8
 #if TAIL_TYPE == STANDARD_TAIL
 #define THROTTLE_OUT_CHANNEL 1
 #define ROLL_OUT_CHANNEL 2

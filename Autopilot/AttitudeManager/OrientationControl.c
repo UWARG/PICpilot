@@ -99,7 +99,7 @@ float PIDcontrol(PID_val* pid, float error, float scale) {
 void orientationInit() {
     uint8_t i;
     for (i = 0; i < PID_CHANNELS; i++) {
-        initPID(&pids[i], init_kp[i], init_ki[i], init_kd[i], 0);
+        initPID(&pids[i], init_kp[i], init_ki[i], init_kd[i], 1000);
     }
 }
 
