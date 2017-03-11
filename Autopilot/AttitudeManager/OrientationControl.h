@@ -32,6 +32,7 @@ typedef struct { //holds values for a generic PID loop
     
     uint32_t lastTime; // for derivative control
     float lastErr;  
+    float lastDer; // last derivative, for filtering
     float integral;
     int16_t imax; // maximum value for integral
 } PID_val;

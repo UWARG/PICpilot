@@ -9,6 +9,11 @@
 #include "OrientationControl.h"
 #include "main.h"
 
+/**
+ * Filtering constant for derivative. Between 0 and 1.
+ * The larger this is, the more twitchy D control is. 
+ */
+#define FILTER 0.4f
 
 /* 
  * Floating-point PID loops for attitude control. 
@@ -40,6 +45,7 @@ void initPID(PID_val* pid, float Kp, float Ki, float Kd, int16_t imax) {
     pid->integral = 0;
     pid->lastTime = 0;
     pid->lastErr = 0;
+    pid->lastDer = 0;
 }
 
 // PID loop function. error is (setpointValue - currentValue)
@@ -76,7 +82,9 @@ float PIDcontrol(PID_val* pid, float error, float scale) {
 
         if (fabsf(pid->Kd) > 0) { // Derivative control
             float derivative = (error - pid->lastErr) / dTime;
+            derivative = derivative * FILTER + pid->lastDer * (1-FILTER); // reduce jitter in derivative by averaging
             pid->lastErr = error;
+            pid->lastDer = derivative;
             output += pid->Kd * derivative;
         }
     }

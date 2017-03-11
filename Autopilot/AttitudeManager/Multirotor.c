@@ -82,11 +82,18 @@ void inputMixing(int* channelIn, int* rollRate, int* pitchRate, int* throttle, i
 }
 
 void outputMixing(int* channelOut, int* control_Roll, int* control_Pitch, int* control_Throttle, int* control_Yaw){
-    
-    channelOut[FRONT_LEFT_MOTOR - 1] = (*control_Throttle) + (*control_Pitch) + (*control_Roll) - (*control_Yaw);// + MIN_PWM;  
-    channelOut[FRONT_RIGHT_MOTOR - 1] = (*control_Throttle) + (*control_Pitch) - (*control_Roll) + (*control_Yaw);// + MIN_PWM;  
-    channelOut[BACK_RIGHT_MOTOR - 1] = (*control_Throttle) - (*control_Pitch) - (*control_Roll) - (*control_Yaw);// + MIN_PWM; 
-    channelOut[BACK_LEFT_MOTOR - 1] = (*control_Throttle) - (*control_Pitch) + (*control_Roll) + (*control_Yaw);// + MIN_PWM;  
+# if ROTOR_TYPE == QUAD_X
+    channelOut[FRONT_LEFT_MOTOR - 1] = (*control_Throttle) + (*control_Pitch) + (*control_Roll) - (*control_Yaw);
+    channelOut[FRONT_RIGHT_MOTOR - 1] = (*control_Throttle) + (*control_Pitch) - (*control_Roll) + (*control_Yaw);
+    channelOut[BACK_RIGHT_MOTOR - 1] = (*control_Throttle) - (*control_Pitch) - (*control_Roll) - (*control_Yaw);
+    channelOut[BACK_LEFT_MOTOR - 1] = (*control_Throttle) - (*control_Pitch) + (*control_Roll) + (*control_Yaw);
+#elif ROTOR_TYPE == QUAD_P
+    channelOut[FRONT_MOTOR - 1] = (*control_Throttle) + (*control_Pitch) - (*control_Yaw);
+    channelOut[RIGHT_MOTOR - 1] = (*control_Throttle) - (*control_Roll) + (*control_Yaw);
+    channelOut[BACK_MOTOR - 1] = (*control_Throttle) - (*control_Pitch) - (*control_Yaw);
+    channelOut[LEFT_MOTOR - 1] = (*control_Throttle) + (*control_Roll) + (*control_Yaw);
+
+#endif
 }
 
 void checkLimits(int* channelOut){
@@ -137,11 +144,6 @@ void highLevelControl(){
     else { // if no altitude control, get raw throttle input (RC or GS)
         setThrottleSetpoint(getThrottleInput(getControlValue(THROTTLE_CONTROL_SOURCE)));
     }
-//    setPitchAngleSetpoint(0);
-//    setPitchRateSetpoint(PIDcontrol(PID_PITCH_ANGLE, getPitchAngleSetpoint() - getPitch()));
-//    setRollAngleSetpoint(0);
-//    setRollRateSetpoint(PIDcontrol(PID_ROLL_ANGLE, getRollAngleSetpoint() - getRoll()));
-//    setYawRateSetpoint(0);
 }
 
 void lowLevelControl() {  

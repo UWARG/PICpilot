@@ -84,8 +84,8 @@ void inputMixing(int* channelIn, int* rollRate, int* pitchRate, int* throttle, i
 void outputMixing(int* channelOut, int* control_Roll, int* control_Pitch, int* control_Throttle, int* control_Yaw){
     //code for different tail configurations
     #if TAIL_TYPE == STANDARD_TAIL  //is a normal t-tail
-    channelsOut[PITCH_OUT_CHANNEL] = (*control_Pitch);
-    channelsOut[YAW_OUT_CHANNEL] = (*control_Yaw);
+    channelOut[PITCH_OUT_CHANNEL] = (*control_Pitch);
+    channelOut[YAW_OUT_CHANNEL] = (*control_Yaw);
 
     #elif TAIL_TYPE == V_TAIL    //V-tail
     // TODO
@@ -100,33 +100,25 @@ void outputMixing(int* channelOut, int* control_Roll, int* control_Pitch, int* c
 }
 
 void checkLimits(int* channelOut){
-    if (channelOut[ROLL_OUT_CHANNEL - 1] > MAX_ROLL_PWM) {
-        channelOut[ROLL_OUT_CHANNEL - 1] = MAX_ROLL_PWM;
-        // Limits the effects of the integrator, if the output signal is maxed out
-//        if (getIntegralSum(ROLL) * getGain(ROLL, GAIN_KI) > sp_RollRate - sp_ComputedRollRate) {
-//            setIntegralSum(ROLL, getIntegralSum(ROLL)/1.1);
-//        }
-    }
-    if (channelOut[ROLL_OUT_CHANNEL - 1] < MIN_ROLL_PWM) {
-        channelOut[ROLL_OUT_CHANNEL - 1] = MIN_ROLL_PWM;
-        // Limits the effects of the integrator, if the output signal is maxed out
-//        if (getIntegralSum(ROLL) * getGain(ROLL, GAIN_KI) < sp_RollAngle - sp_ComputedRollRate) {
-//            setIntegralSum(ROLL, getIntegralSum(ROLL)/1.1);
-//        }
-    }
-    if (channelOut[L_TAIL_OUT_CHANNEL - 1] > MAX_L_TAIL_PWM) {
-        channelOut[L_TAIL_OUT_CHANNEL - 1] = MAX_L_TAIL_PWM;
-    } else if (channelOut[L_TAIL_OUT_CHANNEL - 1] < MIN_L_TAIL_PWM) {
-        channelOut[L_TAIL_OUT_CHANNEL - 1] = MIN_L_TAIL_PWM;
-    }
-    
     //Throttle = 1
     if (channelOut[THROTTLE_OUT_CHANNEL - 1] > MAX_PWM) {
         channelOut[THROTTLE_OUT_CHANNEL - 1] = MAX_PWM;
     } else if (channelOut[THROTTLE_OUT_CHANNEL - 1] < MIN_PWM){
         channelOut[THROTTLE_OUT_CHANNEL - 1] = MIN_PWM;
     }
-
+    
+    if (channelOut[ROLL_OUT_CHANNEL - 1] > MAX_ROLL_PWM) {
+        channelOut[ROLL_OUT_CHANNEL - 1] = MAX_ROLL_PWM;
+    } else if (channelOut[ROLL_OUT_CHANNEL - 1] < MIN_ROLL_PWM) {
+        channelOut[ROLL_OUT_CHANNEL - 1] = MIN_ROLL_PWM;
+    }
+    
+    if (channelOut[L_TAIL_OUT_CHANNEL - 1] > MAX_L_TAIL_PWM) {
+        channelOut[L_TAIL_OUT_CHANNEL - 1] = MAX_L_TAIL_PWM;
+    } else if (channelOut[L_TAIL_OUT_CHANNEL - 1] < MIN_L_TAIL_PWM) {
+        channelOut[L_TAIL_OUT_CHANNEL - 1] = MIN_L_TAIL_PWM;
+    }
+    
     if (channelOut[R_TAIL_OUT_CHANNEL - 1] > MAX_R_TAIL_PWM) {
         channelOut[R_TAIL_OUT_CHANNEL - 1] = MAX_R_TAIL_PWM;
     } else if (channelOut[R_TAIL_OUT_CHANNEL - 1] < MIN_R_TAIL_PWM) {
@@ -190,7 +182,7 @@ void highLevelControl(){
 
     if (getControlValue(HEADING_CONTROL) == CONTROL_ON) {
         setHeadingSetpoint(getHeadingInput(getControlValue(HEADING_CONTROL_SOURCE)));
-        setRollAngleSetpoint(PIDcontrol(getPID(HEADING), getHeadingSetpoint() - getHeading(), 1));
+        setRollAngleSetpoint(PIDcontrol(getPID(HEADING), wrap_180(getHeadingSetpoint() - getHeading()), 1));
     } else {
         setRollAngleSetpoint(getRollAngleInput(getControlValue(ROLL_CONTROL_SOURCE)));
     }
@@ -204,11 +196,13 @@ void lowLevelControl(){
     }
 
     if (getControlValue(PITCH_CONTROL_TYPE) == ANGLE_CONTROL || getControlValue(ALTITUDE_CONTROL) == CONTROL_ON){
-        setPitchRateSetpoint(PIDcontrol(getPID(PITCH_ANGLE), getPitchAngleSetpoint() - getPitch(), MAX_PITCH_RATE / MAX_ROLL_RATE));
+        setPitchRateSetpoint(PIDcontrol(getPID(PITCH_ANGLE), getPitchAngleSetpoint() - getPitch(), MAX_PITCH_RATE / MAX_PITCH_ANGLE));
     } else {
         setPitchRateSetpoint(getPitchRateInput(getControlValue(PITCH_CONTROL_SOURCE)));
     }
     setPitchRateSetpoint(coordinatedTurn(getPitchRateSetpoint(), getRoll())); //Apply Coordinated Turn
+    
+    setYawRateSetpoint(getYawRateInput(RC_SOURCE));
 
     control_Roll = PIDcontrol(getPID(ROLL_RATE), getRollRateSetpoint() - getRollRate(), HALF_PWM_RANGE / MAX_ROLL_RATE);
     control_Pitch = PIDcontrol(getPID(PITCH_RATE), getPitchRateSetpoint() - getPitchRate(), HALF_PWM_RANGE / MAX_PITCH_RATE);

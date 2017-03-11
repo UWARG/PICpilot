@@ -123,8 +123,6 @@ int controlLevel = 0;
 int lastCommandSentCode[COMMAND_HISTORY_SIZE];
 int lastCommandCounter = 0;
 
-char lastNumSatellites = 0;
-
 unsigned int cameraCounter = 0;
 
 char show_scaled_pwm = 1;
@@ -214,7 +212,6 @@ void attitudeInit() {
 
 char checkDMA(){
     //Transfer data from PATHMANAGER CHIP
-    lastNumSatellites = gps_Satellites; //get the last number of satellites
     DMADataAvailable = 0;
     if (generatePMDataDMAChecksum1() == pmData.checkbyteDMA1 && generatePMDataDMAChecksum2() == pmData.checkbyteDMA2) {
         gps_Time = pmData.time;
@@ -521,7 +518,7 @@ void imuCommunication(){
     /* TODO: This is a reminder for me to figure out a more elegant way to fix improper derivative control 
      * (based on configuration of the sensor), adding this negative is a temporary fix. Some kind of calibration command or something.
      */
-    //Outputs in order: Roll,Pitch,Yaw      <--  TODO: not certain this is correct - investigate (Ian Frosst, March 2017)
+    //Outputs in order: Roll,Pitch,Yaw
     imu_RollRate = rad2deg(imuData[IMU_ROLL_RATE]);
     imu_PitchRate = rad2deg(imuData[IMU_PITCH_RATE]);
     imu_YawRate = rad2deg(imuData[IMU_YAW_RATE]);
@@ -611,15 +608,6 @@ void readDatalink(void){
                 //setGain(THROTTLE, KI, *(float*)(&cmd->data));
                 break;
 
-            case SET_FLAP_KD_GAIN:
-                //setGain(FLAP, KD, *(float*)(&cmd->data));
-                break;
-            case SET_FLAP_KP_GAIN:
-                //setGain(FLAP, KP, *(float*)(&cmd->data));
-                break;
-            case SET_FLAP_KI_GAIN:
-                //setGain(FLAP, KI, *(float*)(&cmd->data));
-                break;
 
             case SET_PATH_GAIN:
                 amData.pathGain = *(float*)(&cmd->data);
@@ -893,9 +881,8 @@ int writeDatalink(p_priority packet){
             statusData->data.p2_block.altitudeSetpoint = getAltitudeSetpoint();
             statusData->data.p2_block.flapSetpoint = 0;//getFlapSetpoint();
             statusData->data.p2_block.cameraStatus = cameraCounter;
-            statusData->data.p2_block.wirelessConnection = 0;//((input[5] < 180) << 1) + (input[7] > 0);//+ RSSI;
+            statusData->data.p2_block.wirelessConnection = ((input[5] < 180) << 1) + (input[7] > 0);//+ RSSI;
             statusData->data.p2_block.autopilotActive = getProgramStatus();
-            //statusData->data.p2_block.sensorStat = getSensorStatus(0) + (getSensorStatus(1) << 2);
             statusData->data.p2_block.gpsStatus = gps_Satellites + (gps_PositionFix << 4);
             statusData->data.p2_block.pathChecksum = waypointChecksum;
             statusData->data.p2_block.numWaypoints = waypointCount;
