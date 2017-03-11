@@ -188,16 +188,17 @@ bool sendQueuedDownlinkPacket()
 bool queueDownlinkPacket(uint8_t* data, uint16_t data_length)
 {
     int i;
-    XbeeApiFrame* to_send = (XbeeApiFrame*) malloc(sizeof(XbeeApiFrame));
+    XbeeApiFrame* to_send = malloc(sizeof(XbeeApiFrame));
 
     if (to_send == NULL) {
         return false;
     }
 
     //a non explicit TX frame requires 13 more bytes of header data to be attached than the payload we're actually transmitted
-    to_send->data = (unsigned char*) malloc(data_length + 13);
+    to_send->data = malloc(data_length + 13);
 
     if (to_send->data == NULL) {
+        free(to_send);
         return false;
     }
 
