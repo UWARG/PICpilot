@@ -42,42 +42,21 @@ void lowLevelControl();
 // Set airplane tail type
 #define TAIL_TYPE INV_V_TAIL 
 
-#if TAIL_TYPE == STANDARD_TAIL
 // Inputs
 #define THROTTLE_IN_CHANNEL 1
 #define ROLL_IN_CHANNEL 2
 #define PITCH_IN_CHANNEL 3
 #define YAW_IN_CHANNEL 4
 #define FLAP_IN_CHANNEL 5
-// Outputs
+
+#if TAIL_TYPE == STANDARD_TAIL
 #define THROTTLE_OUT_CHANNEL 1
 #define ROLL_OUT_CHANNEL 2
 #define PITCH_OUT_CHANNEL 3
 #define YAW_OUT_CHANNEL 4
 #define FLAP_OUT_CHANNEL 5
 
-#elif TAIL_TYPE == V_TAIL
-// Inputs
-#define THROTTLE_IN_CHANNEL 1
-#define ROLL_IN_CHANNEL 2
-#define L_TAIL_IN_CHANNEL 3
-#define R_TAIL_IN_CHANNEL 4
-#define FLAP_IN_CHANNEL 5
-// Outputs
-#define THROTTLE_OUT_CHANNEL 1
-#define ROLL_OUT_CHANNEL 2
-#define L_TAIL_OUT_CHANNEL 3
-#define R_TAIL_OUT_CHANNEL 4
-#define FLAP_OUT_CHANNEL 5
-
-#elif TAIL_TYPE == INV_V_TAIL
-// Inputs
-#define THROTTLE_IN_CHANNEL 1
-#define ROLL_IN_CHANNEL 2
-#define L_TAIL_IN_CHANNEL 3
-#define R_TAIL_IN_CHANNEL 4
-#define FLAP_IN_CHANNEL 5
-// Outputs
+#elif TAIL_TYPE == V_TAIL || TAIL_TYPE == INV_V_TAIL
 #define THROTTLE_OUT_CHANNEL 1
 #define ROLL_OUT_CHANNEL 2
 #define L_TAIL_OUT_CHANNEL 3

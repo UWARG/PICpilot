@@ -135,7 +135,7 @@ void highLevelControl(){
         setThrottleSetpoint(PIDcontrol(getPID(ALTITUDE), getAltitudeSetpoint() - getAltitude(), 1) + getThrottleSetpoint());
     } 
     else { // if no altitude control, get raw throttle input (RC or GS)
-        setThrottleSetpoint(getThrottleInput(getControlValue(THROTTLE_CONTROL_SOURCE)) + getThrottleSetpoint());
+        setThrottleSetpoint(getThrottleInput(getControlValue(THROTTLE_CONTROL_SOURCE)));
     }
 //    setPitchAngleSetpoint(0);
 //    setPitchRateSetpoint(PIDcontrol(PID_PITCH_ANGLE, getPitchAngleSetpoint() - getPitch()));

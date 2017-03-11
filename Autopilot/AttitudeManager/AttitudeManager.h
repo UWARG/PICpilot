@@ -111,29 +111,21 @@ void setAltitudeSetpoint(int setpoint);
 void setHeadingSetpoint(int setpoint);
 
 void inputCapture();
+
 int getPitchAngleInput(char source);
 int getRollAngleInput(char source);
-int getYawAngleInput(char source);
 int getPitchRateInput(char source);
 int getRollRateInput(char source);
 int getYawRateInput(char source);
 int getThrottleInput(char source);
-int getFlapInput(char source);
 int getAltitudeInput(char source);
 int getHeadingInput(char source);
 
+int getFlapInput(char source);
+
 void imuCommunication();
 
-int altitudeControl(int setpoint, int sensorAltitude);
-int throttleControl(int setpoint, int sensor);
-int flapControl(int setpoint, int sensor);
-int headingControl(int setpoint, int sensor);
-int rollAngleControl(int setpoint, int sensor);
-int pitchAngleControl(int setpoint, int sensor);
 int coordinatedTurn(float pitchRate, int rollAngle);
-int rollRateControl(float setpoint, float sensor);
-int pitchRateControl(float setpoint, float sensor);
-int yawRateControl(float setpoint, float sensor);
 
 uint8_t getControlValue(ctrl_type type);
 

@@ -21,6 +21,10 @@
 #include <string.h>
 
 
+int input_RC_Flap;
+int input_GS_Flap;
+
+
 extern PMData pmData;
 extern AMData amData;
 extern char DMADataAvailable;
@@ -57,7 +61,7 @@ int sp_Heading = 0;
 int sp_Altitude = 0;
 float sp_GroundSpeed = 0;
 
-bool limitSetpoint = false;
+bool limitSetpoint = true;
 
 //GPS Data
 int gps_Heading = 0;
@@ -94,7 +98,6 @@ int input_RC_Throttle = MIN_PWM;
 int input_RC_RollRate = 0;
 int input_RC_PitchRate = 0;
 int input_RC_YawRate = 0;
-int input_RC_Flap = 0;
 int input_RC_Aux1 = 0; //0=Roll, 1= Pitch, 2=Yaw
 int input_RC_Aux2 = 0; //0 = Saved Value, 1 = Edit Mode
 int input_RC_Switch1 = 0;
@@ -103,7 +106,6 @@ int input_RC_Switch1 = 0;
 int input_GS_Roll = 0;
 int input_GS_Pitch = 0;
 int input_GS_Throttle = 0;
-int input_GS_Flap = 0;
 int input_GS_Yaw = 0;
 int input_GS_RollRate = 0;
 int input_GS_PitchRate = 0;
@@ -312,7 +314,6 @@ int getYawRateSetpoint(){
 int getThrottleSetpoint(){
     return sp_Throttle;
 }
-
 int getAltitudeSetpoint(){
     return sp_Altitude;
 }
@@ -514,7 +515,7 @@ void imuCommunication(){
     float imuData[3];
     
     VN100_SPI_GetYPR(0, &imu_YawAngle, &imu_PitchAngle, &imu_RollAngle); 
-    VN100_SPI_GetRates(0, &imuData);
+    VN100_SPI_GetRates(0, imuData);
 
 
     /* TODO: This is a reminder for me to figure out a more elegant way to fix improper derivative control 
@@ -526,33 +527,11 @@ void imuCommunication(){
     imu_YawRate = rad2deg(imuData[IMU_YAW_RATE]);
 }
 
-#if 0 // referece for plane implementation
-//Equivalent to "Yaw Angle Control"
-int headingControl(int setpoint, int sensor){
-    //Heading
-    while (setpoint > 360)
-        setpoint -= 360;
-    while (setpoint < 0)
-        setpoint += 360;
-
-    setHeadingSetpoint(setpoint);
-    ctrl_Heading = controlSignalHeading(setpoint, sensor) * HEADING_TO_ROLL_DIRECTION;//gps_Satellites>=4?gps_Heading:(int)imu_YawAngle); //changed to monitor satellites, since we know these are good values while PositionFix might be corrupt...
-    //Approximating Roll angle from Heading
-    sp_RollAngle = ctrl_Heading;      //TODO: HOW IS HEADING HANDLED DIFFERENTLY BETWEEN QUADS AND PLANES
-
-    if (sp_RollAngle > MAX_ROLL_ANGLE)
-        sp_RollAngle = MAX_ROLL_ANGLE;
-    if (sp_RollAngle < -MAX_ROLL_ANGLE)
-        sp_RollAngle = -MAX_ROLL_ANGLE;
-    return sp_RollAngle;
-}
-
 int coordinatedTurn(float pitchRate, int rollAngle){
     //Feed forward Term when turning
     pitchRate += (int)(scaleFactor * abs(rollAngle)); //Linear Function
     return pitchRate;
 }
-#endif
 
 // Type is both bit shift value and index of bit mask array
 uint8_t getControlValue(ctrl_type type) {
@@ -862,7 +841,7 @@ int writeDatalink(p_priority packet){
             statusData->data.p1_block.pitchRate = getPitchRate();
             statusData->data.p1_block.rollRate = getRollRate();
             statusData->data.p1_block.yawRate = getYawRate();
-            statusData->data.p1_block.airspeed = 0;//airspeed;
+            statusData->data.p1_block.airspeed = airspeed;
             statusData->data.p1_block.alt = getAltitude();
             statusData->data.p1_block.gSpeed = gps_GroundSpeed;
             statusData->data.p1_block.heading = getHeading();
