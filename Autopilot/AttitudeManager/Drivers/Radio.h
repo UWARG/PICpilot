@@ -27,7 +27,7 @@
 /**
  * Initializes the selected radio driver
  */
-void initRadio();
+void initRadio(void);
 
 /**
  * Instructs the radio driver to retrieve information about the error counts and rssi
@@ -37,7 +37,7 @@ void initRadio();
  * When this packet is sent down, the data relay should also recognize it and attach its
  * uplink rssi to the mavlink packet
  */
-void queueRadioDownlinkPacket();
+void queueRadioDownlinkPacket(void);
 
 /**
  * Queues data to be sent down the data link
@@ -45,7 +45,7 @@ void queueRadioDownlinkPacket();
  * @param data_length Length of the aforementioned data
  * @return 1 if the downlink data was successfully queued. 0 otherwise (probably because of malloc)
  */
-bool queueDownlinkPacket(unsigned char* data, unsigned int data_length);
+bool queueDownlinkPacket(uint8_t* data, uint16_t data_length);
 
 /**
  * Sends the next queued up down the data link. Note that this will at most only 
@@ -53,7 +53,7 @@ bool queueDownlinkPacket(unsigned char* data, unsigned int data_length);
  * @return true if something was sent down, false otherwise. This may be false if there is no
  * more data to send, or if the UART buffers are currently too full
  */
-bool sendQueuedDownlinkPacket();
+bool sendQueuedDownlinkPacket(void);
 
 /**
  * Parses a received uplink packet received from the radio
@@ -65,6 +65,21 @@ bool sendQueuedDownlinkPacket();
  *      3) The packet is not applicable to received data from the link (ie. AT command)
  */
 uint8_t* parseUplinkPacket(uint16_t* length);
+
+/**
+ * Clears the downlink packet queue. Be wary of using this, as all commands
+ * that have not been sent will be lost forever
+ */
+void clearRadioDownlinkQueue(void);
+
+/**
+ * These are Xbee specific functions that are to be removed when the mavlink
+ * implementation comes into place
+ * @return 
+ */
+uint8_t getRadioRSSI(void);
+uint16_t getRadioTransmissionErrors(void);
+uint16_t getRadioReceiveErrors(void);
 
 #endif
 
