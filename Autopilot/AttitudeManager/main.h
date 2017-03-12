@@ -38,7 +38,7 @@
 
 /* CHANGE THIS HEADER FILE WHEN MODIFYING THIS FOR A NEW PLANE OR VEHICLE */
 /* Also update configurations in FixedWing.h or Multirotor.h */
-#define VEHICLE_TYPE MULTIROTOR
+#define VEHICLE_TYPE FIXED_WING
 
 
 

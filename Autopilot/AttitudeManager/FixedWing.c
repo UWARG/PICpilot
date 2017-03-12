@@ -69,18 +69,31 @@ void inputMixing(int* channelIn, int* rollRate, int* pitchRate, int* throttle, i
         *throttle = channelIn[THROTTLE_IN_CHANNEL - 1];
     }
     if (getControlValue(ROLL_CONTROL_SOURCE) == RC_SOURCE){
-        *rollRate = channelIn[ROLL_IN_CHANNEL - 1];
+        *rollRate = -channelIn[ROLL_IN_CHANNEL - 1];
     }
     if (getControlValue(PITCH_CONTROL_SOURCE) == RC_SOURCE){
-        *pitchRate = channelIn[PITCH_IN_CHANNEL - 1];
+        *pitchRate = -channelIn[PITCH_IN_CHANNEL - 1];
     }
-    *yawRate = channelIn[YAW_IN_CHANNEL - 1];
+    *yawRate = -channelIn[YAW_IN_CHANNEL - 1];
     
     if (getControlValue(FLAP_CONTROL_SOURCE) == RC_SOURCE) {
         input_RC_Flap = channelIn[FLAP_IN_CHANNEL - 1];
     }
     
 }
+/*
+ * Reference frames:
+ * Uses NED frame (XYZ: North, East, Down)
+ * In the plane's space this translates to:
+ * +X = Forward
+ * +Y = Right
+ * +Z = Down
+ * Angles are clockwise by those axes. Therefore:
+ * +Roll = Right
+ * +Pitch = Up
+ * +Yaw = Right
+ * These
+ */
 
 void outputMixing(int* channelOut, int* control_Roll, int* control_Pitch, int* control_Throttle, int* control_Yaw){
     //code for different tail configurations
@@ -92,8 +105,9 @@ void outputMixing(int* channelOut, int* control_Roll, int* control_Pitch, int* c
     // TODO
 
     #elif TAIL_TYPE == INV_V_TAIL   //Inverse V-Tail
-    channelOut[R_TAIL_OUT_CHANNEL - 1] =  (*control_Yaw) * RUDDER_PROPORTION + (*control_Pitch) * ELEVATOR_PROPORTION ; //Tail Output Right
     channelOut[L_TAIL_OUT_CHANNEL - 1] =  (*control_Yaw) * RUDDER_PROPORTION - (*control_Pitch) * ELEVATOR_PROPORTION ; //Tail Output Left
+    channelOut[R_TAIL_OUT_CHANNEL - 1] =  (*control_Yaw) * RUDDER_PROPORTION + (*control_Pitch) * ELEVATOR_PROPORTION ; //Tail Output Right
+
     
     #endif
     channelOut[ROLL_OUT_CHANNEL - 1] = (*control_Roll);

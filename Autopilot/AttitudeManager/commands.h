@@ -69,6 +69,7 @@
 #define FOLLOW_PATH 58
 #define EXIT_HOLD_ORBIT 59
 #define SHOW_SCALED_PWM 60
+#define LIMITLESS 61
 
 //Multipart Commands
 #define NEW_WAYPOINT 128

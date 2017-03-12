@@ -116,7 +116,7 @@ int input_GS_Heading = 0;
 int input_AP_Altitude = 0;
 int input_AP_Heading = 0;
 
-float scaleFactor = 20; //Change this
+float scaleFactor = 4; //Change this
 
 char displayGain = 0;
 int controlLevel = 0;
@@ -494,9 +494,9 @@ void setKValues(int type,float* values){
 
 void setGains(int channel, float* values){
     // values are found at index 1 to 3 in the data array
-    setGain(channel,KD,values[0]);
-    setGain(channel,KP,values[1]);
-    setGain(channel,KI,values[2]);
+    setGain(channel,KP,values[0]);
+    setGain(channel,KI,values[1]);
+    setGain(channel,KD,values[2]);
 }
 
 void imuCommunication(){
@@ -752,6 +752,8 @@ void readDatalink(void){
                     show_scaled_pwm = 0;
                 }
                 break;
+            case LIMITLESS:
+                limitSetpoint = (*(bool*)(&cmd->data));
             case NEW_WAYPOINT:
                 amData.waypoint = *(WaypointWrapper*)(&cmd->data);
                 amData.command = PM_NEW_WAYPOINT;
