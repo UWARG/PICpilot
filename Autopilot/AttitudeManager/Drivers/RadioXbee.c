@@ -128,7 +128,7 @@ uint16_t getRadioReceiveErrors()
     return received_error_count;
 }
 
-void queueRadioDownlinkPacket()
+void queueRadioStatusPacket()
 {
     //read request for the parameters we care about
     queueATCommand(XBEE_AT_COMMAND_RSSI);
@@ -252,7 +252,8 @@ bool queueDownlinkPacket(uint8_t* data, uint16_t data_length)
  *      will perform the checksum check on the received api frame. If it passses,
  *      will send the api frame over for parsing
  * @param length
- * @return 
+ * @return A link to a dynamically allocated array representing data received from the groundstation,
+ *      if applicable. NULL if the recieved packet was an AT command
  */
 uint8_t* parseUplinkPacket(uint16_t* length)
 {
@@ -376,7 +377,6 @@ static uint8_t* parseReceivedApiFrame(uint8_t* data, uint16_t data_length, uint1
     case XBEE_FRAME_TYPE_AT_RESPONSE:
         parseReceivedATResponse(data, data_length);
         return NULL;
-        break;
     case XBEE_FRAME_TYPE_RX_INDICATOR:
         //From the xbee api docs, we not care about the sender address in our case or what the receive options are
         //so we'll just skip to the payload ,since thats the only thing we really care about
@@ -396,7 +396,6 @@ static uint8_t* parseReceivedApiFrame(uint8_t* data, uint16_t data_length, uint1
 
         *length = data_length;
         return copied;
-        break;
     default:
         return NULL;
     }

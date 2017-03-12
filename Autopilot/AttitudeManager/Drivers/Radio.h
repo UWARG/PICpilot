@@ -37,7 +37,7 @@ void initRadio(void);
  * When this packet is sent down, the data relay should also recognize it and attach its
  * uplink rssi to the mavlink packet
  */
-void queueRadioDownlinkPacket(void);
+void queueRadioStatusPacket(void);
 
 /**
  * Queues data to be sent down the data link

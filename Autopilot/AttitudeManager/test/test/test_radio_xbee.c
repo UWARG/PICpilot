@@ -271,7 +271,7 @@ void test_sendQueuedDownlinkPacketShouldNotSendIfUARTIsTooFull(void)
     TEST_ASSERT_FALSE(sendQueuedDownlinkPacket());
 }
 
-void test_QueueRadioDownlinkPacketShouldSendCorrectDataOverUart(void)
+void test_QueueRadioStatusPacketShouldSendCorrectDataOverUart(void)
 {
     uint8_t rssi[8];
     uint8_t tr[8];
@@ -305,7 +305,7 @@ void test_QueueRadioDownlinkPacketShouldSendCorrectDataOverUart(void)
     getTXSpace_IgnoreAndReturn(100); //give it more than enough space
     getTXSpace_IgnoreAndReturn(100); //give it more than enough space
     getTXSpace_IgnoreAndReturn(100); //give it more than enough space
-    queueRadioDownlinkPacket();
+    queueRadioStatusPacket();
     queueTXData_ExpectWithArray(XBEE_UART_INTERFACE, rssi, 8, 8); //queue the data for tranmission over UART
     TEST_ASSERT_TRUE(sendQueuedDownlinkPacket());
     queueTXData_ExpectWithArray(XBEE_UART_INTERFACE, re, 8, 8); //queue the data for tranmission over UART
