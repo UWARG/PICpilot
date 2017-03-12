@@ -179,9 +179,15 @@ void queueTXData(uint8_t interface, uint8_t* data, uint16_t data_length)
 uint8_t readRXData(uint8_t interface)
 {
     if (interface == 1 && (uart1_status & UART_RX_ENABLE)) {
-        return popBQueue(&uart1_rx_queue);
+        IEC0bits.U1RXIE = 0; //disable RX interrupt for now
+        uint8_t byte = popBQueue(&uart1_rx_queue);
+        IEC0bits.U1RXIE = 1; //re-enable RX interrupts
+        return byte;
     } else if (interface == 2 && (uart2_status & UART_RX_ENABLE)) {
-        return popBQueue(&uart2_rx_queue);
+        IEC1bits.U2RXIE = 0; //disable RX interrupt for now
+        uint8_t byte = popBQueue(&uart2_rx_queue);
+        IEC1bits.U2RXIE = 1; //re-enable RX interrupts
+        return byte;
     }
     return -1;
 }
