@@ -28,7 +28,7 @@
 /**
  * This is the 64-bit broadcast address that the Xbee will broadcast to by default
  */
-#define XBEE_BROADCAST_ADDRESS 0xFFFF
+#define XBEE_BROADCAST_ADDRESS ((uint64_t)0xFFFF)
 
 /**
  * This is the first byte of all Xbee packets

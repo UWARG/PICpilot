@@ -82,4 +82,3 @@ uint16_t getRadioTransmissionErrors(void);
 uint16_t getRadioReceiveErrors(void);
 
 #endif
-
