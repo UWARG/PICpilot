@@ -106,6 +106,8 @@ void initRadio()
 
     XbeeFrameQueue.head = NULL;
     XbeeFrameQueue.tail = NULL;
+    
+    initUART(XBEE_UART_INTERFACE, XBEE_UART_BAUD_RATE, XBEE_UART_BUFFER_INITIAL_SIZE, XBEE_UART_BUFFER_MAX_SIZE);
 
     //request destination address
     queueATCommand(XBEE_AT_COMMAND_DESTINATION_ADDRESS_HIGH);
