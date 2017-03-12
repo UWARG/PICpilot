@@ -12,12 +12,22 @@
 /**
  * Which baud rate to communicate the xbee with
  */
-#define XBEE_BAUD_RATE 115200
+#define XBEE_UART_BAUD_RATE 115200
 
 /**
  * Which UART interface the xbee should use
  */
 #define XBEE_UART_INTERFACE 2
+
+/**
+ * Initial size of the rx and tx uart buffer. Will not go smaller than this value
+ */
+#define XBEE_UART_BUFFER_INITIAL_SIZE 200
+
+/**
+ * Max size of the rx and tx uart buffer
+ */
+#define XBEE_UART_BUFFER_MAX_SIZE 400
 
 /**
  * Sets maximum number of hops a broadcast transmission can occur. If set to 0, 
