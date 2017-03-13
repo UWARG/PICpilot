@@ -1,5 +1,10 @@
 /**
- * net.h
+ * @file net.h 
+ * @author Chris Hajduk 
+ * @date Sep 2015
+ * @brief List of defines required for XBEE communication and telemetry 
+ * @copyright Waterloo Aerial Robotics Group 2016 \n
+ *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE 
  */
 
 #ifndef NET_H
@@ -9,10 +14,17 @@
 extern "C" {
 #endif
 
-#define P0_SEND_FREQUENCY 300 //Time in miliseconds
-#define P1_SEND_FREQUENCY 1000 //Time in milliseconds
-#define P2_SEND_FREQUENCY 20000 //Time in milliseconds
-#define UPLINK_CHECK_FREQUENCY 100 //Time in milliseconds
+/** Time in miliseconds for how often a P0(high priority) packet gets sent down. Default=300 **/
+#define P0_SEND_FREQUENCY 200 
+
+/** Time in miliseconds for how often a P1(medium priority) packet gets sent down. Default=1000 **/
+#define P1_SEND_FREQUENCY 800
+
+/** Time in miliseconds for how often a P2(low priority) packet gets sent down. Default=20000 **/
+#define P2_SEND_FREQUENCY 5000
+
+/** Time in miliseconds for how often to check for new messages from the uplink. Default=100 **/
+#define UPLINK_CHECK_FREQUENCY 75
 
 #define BLOCKING_MODE 0
 
@@ -52,10 +64,19 @@ typedef enum _p_priority {
 } p_priority;
 
 
+/* For reference: 
+ In MPLAB XC 16 compiler:
+ char           : 1 byte
+ int            : 2 bytes
+ long int       : 4 bytes
+ float          : 4 bytes
+ long double    : 8 bytes
+ */
 
+// 72 bytes
 struct priority1_block { //High Frequency - Multiple times per second
-    long double lat, lon; // Latitude and longitude from gps    // 8Byte
-    long int sysTime; // 8 bytes
+    long double lat, lon; // Latitude and longitude from gps    // 2x8 Byte
+    long int sysTime; // 4 bytes
     float UTC; //4 Byte
     float pitch, roll, yaw;
     float pitchRate, rollRate, yawRate;
@@ -68,13 +89,14 @@ struct priority1_block { //High Frequency - Multiple times per second
     int throttleSetpoint;
 };
 
+// 88 bytes
 struct priority2_block { //Medium Frequency - Once every second
     float rollKD, rollKP;
     float pitchKD, pitchKP;
     float yawKD, yawKP;
-    float pathChecksum; //1 byte
-    int lastCommandsSent[4]; //4 bytes * 4 = 16
-    int batteryLevel1, batteryLevel2; // 4 bytes
+    float pathChecksum; // 4 bytes
+    int lastCommandsSent[4]; //4*2 bytes
+    int batteryLevel1, batteryLevel2; // 2*2 bytes
     int ch1In,ch2In,ch3In,ch4In,ch5In,ch6In,ch7In,ch8In;
     int ch1Out,ch2Out,ch3Out,ch4Out,ch5Out,ch6Out,ch7Out,ch8Out;
     int cameraStatus;
@@ -87,6 +109,7 @@ struct priority2_block { //Medium Frequency - Once every second
     char pathFollowing; // 1 byte
 };
 
+// 74 bytes
 struct priority3_block { //Low Frequency - On update...
     float rollKI; //4 Bytes
     float pitchKI;
@@ -99,7 +122,6 @@ struct priority3_block { //Low Frequency - On update...
     int autonomousLevel;
     unsigned int startupErrorCodes; //2 bytes
     int startupSettings;
-    char probeStatus;
 };
 
 typedef union {

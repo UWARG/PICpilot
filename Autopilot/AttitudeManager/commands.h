@@ -64,9 +64,11 @@
 #define SET_FLAP_KD_GAIN 53
 #define SET_FLAP_KP_GAIN 54
 #define SET_FLAP_KI_GAIN 55
-#define DROP_PROBE 56
-#define RESET_PROBE 57
+#define UNUSED_1 56
+#define UNUSED_2 57
 #define FOLLOW_PATH 58
+#define EXIT_HOLD_ORBIT 59
+#define SHOW_SCALED_PWM 60
 
 //Multipart Commands
 #define NEW_WAYPOINT 128
@@ -78,13 +80,9 @@
 #define SET_KPVALUES 134
 #define SET_KIVALUES 135
 #define UPDATE_WAYPOINT 136
+#define SET_GAINS 137
 
 //Multipart Command Structs
-typedef struct _newwaypointwrapper {
-    long double longitude;  //TODO: Longitude and Latitude is bulky. If problems arise, change the format.
-    long double latitude;
-    float altitude;
-    float radius; //Radius of turn
-} NewWaypointWrapper;
+
 #endif	/* COMMANDS_H */
 

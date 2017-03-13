@@ -27,7 +27,8 @@
 
 //Waypoint types
 #define DEFAULT_WAYPOINT 0
-#define PROBE_DROP_WAYPOINT 1
+#define WAYPOINT_UNUSED 1
+#define HOLD_WAYPOINT 2
 
 //Structs and typedefs
 
@@ -39,6 +40,7 @@ void pathManagerRuntime(void);
 char followWaypoints(PathData* currentWaypoint, float* position, float heading, int* sp_Heading);
 int followLineSegment(PathData* currentWaypoint, float* position, float heading);
 int followLastLineSegment(PathData* currentWaypoint, float* position, float heading);
+float orbitWaypoint(float* center, float radius, char direction, float* position, float heading);
 float followOrbit(float* center, float radius, char direction, float* position, float heading);
 float followStraightPath(float* waypointDirection, float* targetWaypoint, float* position, float heading);
 float maintainAltitude(PathData* cPath);
@@ -53,6 +55,7 @@ unsigned int removePathNode(unsigned int ID);
 void clearPathNodes(void);
 unsigned int insertPathNode(PathData* node, unsigned int previousID, unsigned int nextID);
 void copyGPSData(void);
+char gpsErrorCheck(double lat, double lon);
 void checkAMData(void);
 float getWaypointChecksum(void);
 

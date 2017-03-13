@@ -7,7 +7,6 @@
 #include "main.h"
 #include "UART2.h"
 
-
 // Initialize the data link
 int initDataLink(void) {
     InitUART2();
@@ -18,5 +17,6 @@ int initDataLink(void) {
 }
 
 int checkDataLinkConnection(){
+    //TODO: Should actually implement this properly
     return 1;
 }

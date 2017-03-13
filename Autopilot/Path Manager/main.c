@@ -17,7 +17,8 @@
 #include "main.h"
 #include "StartupErrorCodes.h"
 #include "PathManager.h"
-#include "../common/clock.h"
+#include "../Common/clock.h"
+#include "../Common/Utilities/Logger.h"
 
 /*
  * 
@@ -47,9 +48,9 @@ int main(int argc, char** argv) {
     
 //Debug Mode initialize communication with the serial port (Computer)
 #if DEBUG
-    initDebug();
+    initLogger();
 #endif
-
+    
 checkErrorCodes();
 pathManagerInit();
     while (1) {

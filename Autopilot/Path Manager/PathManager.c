@@ -10,17 +10,20 @@
 #include "../Common/Common.h"
 #include "Dubins.h"
 #include "MPL3115A2.h"
-#include "voltageSensor.h"
+#include "MainBatterySensor.h"
 #include "airspeedSensor.h"
-#include "ProbeDrop.h"
+#include "StartupErrorCodes.h"
 
 #include "InterchipDMA.h"
 
 #if DEBUG
 #include <stdio.h>
 #include <stdlib.h>
-#include "../Common/UART1.h"
+#include "../Common/Utilities/Logger.h"
 #endif
+
+
+static void checkForFirstGPSLock(); // function prototype for static function at line 679
 
 extern GPSData gpsData;
 extern PMData pmData;
@@ -46,8 +49,8 @@ char pathCount = 0;
 
 int lastKnownHeadingHome = 10;
 char returnHome = 0;
-char doProbeDrop = 0;
 char followPath = 0;
+char inHold = 0;
 
 void pathManagerInit(void) {
 
@@ -55,7 +58,7 @@ void pathManagerInit(void) {
 //Communication with GPS
     init_SPI2();
     init_DMA2();
-    initBatterySensor();
+    initMainBatterySensor();
     initAirspeedSensor();
 
 
@@ -160,17 +163,6 @@ void pathManagerRuntime(void) {
         lastKnownHeadingHome = calculateHeadingHome(home, (float*)position, heading);
     }
 
-    char verifiedDrop = 1;
-    
-    //Get the position of the target
-    if (path[currentIndex]->type == 1){
-        float targetWaypoint[2];
-        targetWaypoint[0] = path[currentIndex]->next->longitude;
-        targetWaypoint[1] = path[currentIndex]->next->latitude;
-        doProbeDrop = probeDrop(verifiedDrop, (float*)&targetWaypoint, position, &pmData.altitude, &pmData.speed, &pmData.airspeed);
-    }
-    
-    
     pmData.checkbyteDMA1 = generatePMDataDMAChecksum1();
     pmData.checkbyteDMA2 = generatePMDataDMAChecksum2();
 }
@@ -336,35 +328,46 @@ char followWaypoints(PathData* currentWaypoint, float* position, float heading, 
             float dotProduct = waypointDirection[0] * (position[0] - halfPlane[0]) + waypointDirection[1] * (position[1] - halfPlane[1]) + waypointDirection[2] * (position[2] - halfPlane[2]);
             if (dotProduct > 0){
                 orbitPathStatus = ORBIT;
+                if (targetWaypoint->type == HOLD_WAYPOINT)
+                {
+                    inHold = TRUE;
+                }
             }
 
             *sp_Heading = (int)followStraightPath((float*)&waypointDirection, (float*)targetCoordinates, (float*)position, heading);
         }
-        else{
+        else{            
+            
             float halfPlane[3];
             halfPlane[0] = targetCoordinates[0] + (targetWaypoint->radius/tan(turningAngle/2)) * nextWaypointDirection[0];
             halfPlane[1] = targetCoordinates[1] + (targetWaypoint->radius/tan(turningAngle/2)) * nextWaypointDirection[1];
             halfPlane[2] = targetCoordinates[2] + (targetWaypoint->radius/tan(turningAngle/2)) * nextWaypointDirection[2];
+            
+            char turnDirection = waypointDirection[0] * nextWaypointDirection[1] - waypointDirection[1] * nextWaypointDirection[0]>0?1:-1;
+            float euclideanWaypointDirection = sqrt(pow(nextWaypointDirection[0] - waypointDirection[0],2) + pow(nextWaypointDirection[1] - waypointDirection[1],2) + pow(nextWaypointDirection[2] - waypointDirection[2],2)) * ((nextWaypointDirection[0] - waypointDirection[0]) < 0?-1:1) * ((nextWaypointDirection[1] - waypointDirection[1]) < 0?-1:1) * ((nextWaypointDirection[2] - waypointDirection[2]) < 0?-1:1);
+
+            float turnCenter[3];
+            turnCenter[0] = targetCoordinates[0] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[0] - waypointDirection[0])/euclideanWaypointDirection);
+            turnCenter[1] = targetCoordinates[1] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[1] - waypointDirection[1])/euclideanWaypointDirection);
+            turnCenter[2] = targetCoordinates[2] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[2] - waypointDirection[2])/euclideanWaypointDirection);
+            
+            // if target waypoint is a hold waypoint the plane will follow the orbit until the break hold method is called
+            if (inHold == TRUE) {
+                *sp_Heading = (int)orbitWaypoint((float*) &turnCenter, targetWaypoint->radius, turnDirection, (float*)position, heading); //float OrbitWaypoint (float* center, float radius, char direction, float* position, float heading){
+                return currentWaypoint->index;
+            }
 
             float dotProduct = nextWaypointDirection[0] * (position[0] - halfPlane[0]) + nextWaypointDirection[1] * (position[1] - halfPlane[1]) + nextWaypointDirection[2] * (position[2] - halfPlane[2]);
             if (dotProduct > 0){
                 orbitPathStatus = PATH;
                 return targetWaypoint->index;
             }
-
-            char turnDirection = waypointDirection[0] * nextWaypointDirection[1] - waypointDirection[1] * nextWaypointDirection[0]>0?1:-1;
-            float euclideanWaypointDirection = sqrt(pow(nextWaypointDirection[0] - waypointDirection[0],2) + pow(nextWaypointDirection[1] - waypointDirection[1],2) + pow(nextWaypointDirection[2] - waypointDirection[2],2)) * ((nextWaypointDirection[0] - waypointDirection[0]) < 0?-1:1) * ((nextWaypointDirection[1] - waypointDirection[1]) < 0?-1:1) * ((nextWaypointDirection[2] - waypointDirection[2]) < 0?-1:1);
-
+            
             //If two waypoints are parallel to each other (no turns)
             if (euclideanWaypointDirection == 0){
                 orbitPathStatus = PATH;
                 return targetWaypoint->index;
             }
-
-            float turnCenter[3];
-            turnCenter[0] = targetCoordinates[0] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[0] - waypointDirection[0])/euclideanWaypointDirection);
-            turnCenter[1] = targetCoordinates[1] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[1] - waypointDirection[1])/euclideanWaypointDirection);
-            turnCenter[2] = targetCoordinates[2] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[2] - waypointDirection[2])/euclideanWaypointDirection);
 
             *sp_Heading = (int)followOrbit((float*) &turnCenter,targetWaypoint->radius, turnDirection, (float*)position, heading);
         }
@@ -416,6 +419,10 @@ int followLastLineSegment(PathData* currentWaypoint, float* position, float head
     }
 
     return (int)followStraightPath((float*)&waypointDirection, (float*)targetCoordinates, (float*)position, heading);
+}
+
+float OrbitWaypoint (float* center, float radius, char direction, float* position, float heading){
+    return (int)followOrbit(center, radius, direction, position, heading);
 }
 
 // direction: ccw = 1, cw = -1
@@ -628,7 +635,7 @@ unsigned int insertPathNode(PathData* node, unsigned int previousID, unsigned in
 }
 
 void copyGPSData(){
-    if (newGPSDataAvailable && gpsData.longitude < -98.0 && gpsData.latitude > 49.0){ //Hack fix for competition
+    if (newGPSDataAvailable && gpsErrorCheck(gpsData.latitude, gpsData.longitude)){
         newGPSDataAvailable = 0;
         pmData.time = gpsData.time;
         pmData.longitude = gpsData.longitude;
@@ -637,8 +644,10 @@ void copyGPSData(){
         pmData.speed = gpsData.speed;
         pmData.satellites = (char)gpsData.satellites;
         pmData.positionFix = (char)gpsData.positionFix;
+        checkForFirstGPSLock();
     }
-    pmData.batteryLevel = getBatteryLevel();
+    pmData.batteryLevel1 = getMainBatteryLevel();
+    pmData.batteryLevel2 = 5;
     pmData.airspeed = getCurrentAirspeed();
     pmData.altitude = getAltitude(); //want to get altitude regardless of if there is new GPS data
     pmData.pmOrbitGain = k_gain[ORBIT];
@@ -648,6 +657,30 @@ void copyGPSData(){
     pmData.pathFollowing = followPath;
     pmData.checkbyteDMA1 = generatePMDataDMAChecksum1();
     pmData.checkbyteDMA2 = generatePMDataDMAChecksum2();
+}
+
+static void checkForFirstGPSLock(){
+	static char gpsLockFlag = 1;
+    
+    if (gpsLockFlag){
+        unsigned int error_codes = getErrorCodes();
+        
+        if((error_codes & STARTUP_ERROR_BROWN_OUT_RESET) || (error_codes & STARTUP_ERROR_POWER_ON_RESET)){
+		home.latitude = gpsData.latitude;
+		home.longitude = gpsData.longitude;
+		home.altitude = gpsData.altitude;
+			
+		gpsLockFlag = 0;
+        }
+    }
+}
+
+//returns 1 if gps location makes sense, 0 if not
+char gpsErrorCheck(double lat, double lon){
+    if(abs(lon - RELATIVE_LONGITUDE)<GPS_ERROR && abs(lat - RELATIVE_LATITUDE)<GPS_ERROR){
+        return 1;
+    }
+        return 0;
 }
 
 
@@ -729,7 +762,9 @@ void checkAMData(){
                case PM_FOLLOW_PATH:
                     followPath = amData.followPath;
                     break;
-
+               case PM_EXIT_HOLD_ORBIT:
+                   inHold = FALSE;
+                   break;
                 case PM_CALIBRATE_ALTIMETER:
                     calibrateAltimeter(amData.calibrationHeight);
                     break;

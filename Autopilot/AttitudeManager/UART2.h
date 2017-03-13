@@ -1,35 +1,18 @@
-/*
- * File:   UART2.h
- * Author: Mitch
- *
- * Created on June 15, 2013, 2:52 PM
+/**
+ * @file UART2.h
+ * @author Mitch Hatfield
+ * @date Jun 2013
+ * @brief Settings for UART2 communication used for telemetry link 
+ * @copyright Waterloo Aerial Robotics Group 2016 \n
+ *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE 
  */
 
-#ifndef UART2_H
-#define	UART2_H
+#pragma once
+
 #include "main.h"
 
+/** Initializes the UART2 connection **/
 void InitUART2();
-void UART2_SendString(char *s);
-void UART2_SendChar(char data);
 
+/** UART2 interrupt function routine for when data comes in from the XBEE **/
 void __attribute__((interrupt, no_auto_psv)) _U2RXInterrupt( void );
-
-#if PATH_MANAGER && !GPS_OLD
-
- typedef struct _UART_RX_Buffer {
-     char data[256];
-     short get;
-     short put;
-     //short size;
-} UART_RX_Buffer;
-
-void init_rx_buffer(UART_RX_Buffer *buff);
-void write_rx_buffer(char c, UART_RX_Buffer *buff);
-char read_rx_buffer(UART_RX_Buffer *buff);
-
-
-
-#endif
-
-#endif	/* UART2_H */

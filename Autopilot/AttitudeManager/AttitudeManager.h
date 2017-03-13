@@ -16,16 +16,16 @@
 #include "../Common/Common.h"
 
 //Bit masks for levels of control - DON'T CHANGE THESE FOR SHITS AND GIGGLES
-#define PITCH_CONTROL_TYPE 0b00000001 //Pitch Rate(0) or Pitch Angles(1)
-#define PITCH_CONTROL_SOURCE 0b00000010 //Controller(0) or Ground Station(1)
-#define ROLL_CONTROL_TYPE 0b00000100 //Roll Rates(0) or Roll Angles(1)
-#define ROLL_CONTROL_SOURCE 0b00001000 //Controller(0) or Ground Station(1)
+#define PITCH_CONTROL_TYPE      0b00000001 //Pitch Rate(0) or Pitch Angles(1)
+#define PITCH_CONTROL_SOURCE    0b00000010 //Controller(0) or Ground Station(1)
+#define ROLL_CONTROL_TYPE       0b00000100 //Roll Rates(0) or Roll Angles(1)
+#define ROLL_CONTROL_SOURCE     0b00001000 //Controller(0) or Ground Station(1)
 #define THROTTLE_CONTROL_SOURCE 0b00110000 //Controller(0) or Ground Station(1) or Autopilot(2)(Controlled by the GroundSpeed).
 #define ALTITUDE_CONTROL_SOURCE 0b01000000 //Ground Station(0) or Autopilot(1)
-#define ALTITUDE_CONTROL 0b10000000 //Off(0) or On(1)
-#define HEADING_CONTROL_SOURCE 0b0000000100000000 // Ground Station(0) or Autopilot(1)
-#define HEADING_CONTROL 0b0000001000000000 //Off(0) or On(1)
-#define FLAP_CONTROL_SOURCE 0b0000110000000000 //Controller(0) or Ground Station(1) or Autopilot(2)
+#define ALTITUDE_CONTROL        0b10000000 //Off(0) or On(1)
+#define HEADING_CONTROL_SOURCE  0b0000000100000000 // Ground Station(0) or Autopilot(1)
+#define HEADING_CONTROL         0b0000001000000000 //Off(0) or On(1)
+#define FLAP_CONTROL_SOURCE     0b0000110000000000 //Controller(0) or Ground Station(1) or Autopilot(2)
 
 //Bit Mask Bit Shifts
 #define PITCH_CONTROL_TYPE_SHIFT 0
@@ -69,7 +69,7 @@
 
 
 //Defined Orientation Parameter constants
-#define YAW     0
+#define YAW 0
 #define PITCH   1
 #define ROLL    2
 #define HEADING 3
@@ -83,21 +83,13 @@
 #define IMU_PITCH_RATE   1
 #define IMU_ROLL_RATE    0
 
+/**
+ * RC receiver channel configuration.
+ * Note that only channel 8 will work hardware-wise as the
+ * autopilot channel, as it directly controls the relays
+ */
 
-//channels
-#define ROLL_IN_CHANNEL 1
-#define ROLL_OUT_CHANNEL 1
-#define PITCH_IN_CHANNEL 2
-#define PITCH_OUT_CHANNEL 2
-#define THROTTLE_IN_CHANNEL 3
-#define THROTTLE_OUT_CHANNEL 3
-#define YAW_IN_CHANNEL 4
-#define YAW_OUT_CHANNEL 4
-#define FLAP_IN_CHANNEL 5
-#define FLAP_OUT_CHANNEL 5
-#define PROBE1_OUT_CHANNEL 6
-#define PROBE2_OUT_CHANNEL 7
-#define PROBE3_OUT_CHANNEL 8
+#define AUTOPILOT_ACTIVE_IN_CHANNEL 8 //Do not change this value, as only 8 will work hardware-wise
 
 
 //Misc

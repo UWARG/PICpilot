@@ -11,7 +11,7 @@
 #include "OutputCompare.h"
 
 //Constants
-#define GIMBAL_PWM_RANGE SP_RANGE //Range one way (IE. Positive or Negative range, not both)
+#define GIMBAL_PWM_RANGE HALF_PWM_RANGE //Range one way (IE. Positive or Negative range, not both)
 #define GIMBAL_MOTION_RANGE 30 //Range one way
 #define LEFT_GIMBAL_MOTION_LIMIT 30 //Range Left way
 #define RIGHT_GIMBAL_MOTION_LIMIT 30 //Range Right way
