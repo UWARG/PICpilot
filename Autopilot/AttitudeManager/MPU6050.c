@@ -5,10 +5,10 @@
  * Created on June 13, 2016, 6:05 PM
  */
 
-#include "../Common/I2C.h"
+#include "../Common/Interfaces/I2C.h"
 #include "MPU6050.h"
 #include "main.h"
-#include "../Common/debug.h"
+#include "../Common/Utilities/Logger.h"
 
 // At powerup all registers should be zero except for:
 //      Register 0x75 (WHO_AM_I)   = 0x68.
@@ -48,7 +48,7 @@ void getAccel(){
     sendMessage(I2C_SLAVE_ADDRESS, MPU6050_ACCEL_ZOUT_H, &dataH, 1, READ);
     sendMessage(I2C_SLAVE_ADDRESS, MPU6050_ACCEL_ZOUT_L, &dataL, 1, READ);
     deviceData.accelZ = ((int)dataH << 8) + dataL;
-    debug((char)deviceData.accelX);
+    //debug((char)deviceData.accelX);
 }
 
 void getGyro(){

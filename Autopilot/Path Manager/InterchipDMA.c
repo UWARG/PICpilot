@@ -92,50 +92,6 @@ void init_DMA1(){
 
 }
 
-void init_SPI1(){
-    //Set interrupts
-    IFS0bits.SPI1IF = 0;
-    IEC0bits.SPI1IE = 1;
-    IPC2bits.SPI1IP = 4;
-
-    SPI1BUF = 0;
-    //Continue module operation in idle mode
-    SPI1STATbits.SPISIDL = 1;
-    //SPI clock controlled by this module
-    SPI1CON1bits.DISSCK = 0;
-    //Output pins are controlled by this module
-    SPI1CON1bits.DISSDO = 0;
-    //16/8 bit communication mode (1/0)
-    SPI1CON1bits.MODE16 = 0; //8
-    //Master mode(1)/Slave mode(0)
-    SPI1CON2bits.FRMEN = 0; // Framed mode disabled
-
-    SPI1CON1bits.MSTEN = 1; //Master
-    //Enable Slave Select
-    SPI1CON1bits.SSEN = 0;
-    //Sample Phase (end/middle)
-    SPI1CON1bits.SMP = 0; //Sample the input at the end of the square wave
-    //Clock Edge Select
-    SPI1CON1bits.CKE = 0; //Output data changes from idle state to active clock state (1 is the opposite)
-    //Clock Polarity
-    SPI1CON1bits.CKP = 0; //Idle clock state is low, active clock state is high
-
-    //Secondary Prescale (The prescale of the prescale)(3 bits)
-    SPI1CON1bits.SPRE = 0b100; //8:1 prescale
-    //Primary Prescale (The prescale of the clock) (2 bits)
-    SPI1CON1bits.PPRE = 0b10; //64:1 prescale
-
-    //Clear Receive Overflow
-    SPI1STATbits.SPIROV = 0;
-
-    //Enable SPI
-    SPI1STATbits.SPIEN = 1;
-
-    //Then write to the SPI1BUF
-
-
-}
-
 void init_SPI2(){
     //Set interrupts
     IFS2bits.SPI2IF = 0;

@@ -9,6 +9,19 @@
 #ifndef SPI_H
 #define	SPI_H
 
+#include <stdint.h>
+
+typedef enum {
+    PIN_LOW = 0,
+    PIN_HIGH
+} pin_state;
+
+typedef enum {
+    SPI_SLAVE = 0,
+    SPI_MASTER
+} spi_mode ;
+
+void initSPI(uint8_t interface, uint16_t clock, spi_mode mode);
 
 #endif	/* SPI_H */
 

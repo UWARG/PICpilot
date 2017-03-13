@@ -7,7 +7,10 @@
 
 //Include Header Files
 #include "delay.h"
+
 #include "VN100.h"
+#include "MPU6050.h"
+
 #include "InputCapture.h"
 #include "OutputCompare.h"
 #include "PWM.h"
@@ -16,10 +19,10 @@
 #include "cameraManager.h"
 #include "StartupErrorCodes.h"
 #include "main.h"
+#include "../Common/Interfaces/SPI.h"
 #include "InterchipDMA.h"
 #include "ProgramStatus.h"
 #include <string.h>
-#include "MPU6050.h"
 
 extern PMData pmData;
 extern AMData amData;
@@ -172,7 +175,7 @@ void attitudeInit() {
     TRISAbits.TRISA3 = 0;
     PORTAbits.RA3 = 1;
 
-    init_SPI1();
+    initSPI(1, 0, SPI_SLAVE);
     init_DMA0();
     init_DMA1();
 
