@@ -12,12 +12,7 @@
       <logicalFolder name="f6" displayName="Common" projectFiles="true">
         <itemPath>../Common/Common.h</itemPath>
         <itemPath>../Common/clock.h</itemPath>
-<<<<<<< HEAD
-        <itemPath>../Common/UART1.h</itemPath>
-        <itemPath>../Common/debug.h</itemPath>
         <itemPath>../Common/I2C.h</itemPath>
-=======
->>>>>>> 623bca98be31ebac965b5026ab44942e6b6e9004
       </logicalFolder>
       <logicalFolder name="f2" displayName="Data Transfer" projectFiles="true">
         <itemPath>InterchipDMA.h</itemPath>
@@ -36,11 +31,7 @@
       </logicalFolder>
       <logicalFolder name="f10" displayName="Other Peripherals" projectFiles="true">
         <itemPath>cameraManager.h</itemPath>
-<<<<<<< HEAD
-        <itemPath>Probe_Drop.h</itemPath>
         <itemPath>MPU6050.h</itemPath>
-=======
->>>>>>> 623bca98be31ebac965b5026ab44942e6b6e9004
       </logicalFolder>
       <logicalFolder name="f4" displayName="PWM Management" projectFiles="true">
         <itemPath>OutputCompare.h</itemPath>
@@ -83,12 +74,7 @@
       <logicalFolder name="f7" displayName="Common" projectFiles="true">
         <itemPath>../Common/Common.c</itemPath>
         <itemPath>../Common/clock.c</itemPath>
-<<<<<<< HEAD
-        <itemPath>../Common/UART1.c</itemPath>
-        <itemPath>../Common/debug.c</itemPath>
         <itemPath>../Common/I2C.c</itemPath>
-=======
->>>>>>> 623bca98be31ebac965b5026ab44942e6b6e9004
       </logicalFolder>
       <logicalFolder name="f2" displayName="Data Transfer" projectFiles="true">
         <itemPath>InterchipDMA.c</itemPath>
@@ -108,11 +94,7 @@
       </logicalFolder>
       <logicalFolder name="f9" displayName="Other Peripherals" projectFiles="true">
         <itemPath>cameraManager.c</itemPath>
-<<<<<<< HEAD
-        <itemPath>Probe_Drop.c</itemPath>
         <itemPath>MPU6050.c</itemPath>
-=======
->>>>>>> 623bca98be31ebac965b5026ab44942e6b6e9004
       </logicalFolder>
       <logicalFolder name="f4" displayName="PWM Management" projectFiles="true">
         <itemPath>InputCapture.c</itemPath>
@@ -147,15 +129,12 @@
   </logicalFolder>
   <sourceRootList>
     <Elem>../PathManager</Elem>
-<<<<<<< HEAD
     <Elem>.</Elem>
     <Elem>../Common</Elem>
-=======
     <Elem>Interfaces</Elem>
     <Elem>Utilities</Elem>
     <Elem>../Common/Utilities</Elem>
     <Elem>../Common/Interfaces</Elem>
->>>>>>> 623bca98be31ebac965b5026ab44942e6b6e9004
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -167,11 +146,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>ICD3PlatformTool</platformTool>
         <languageToolchain>XC16</languageToolchain>
-<<<<<<< HEAD
-        <languageToolchainVersion>1.26</languageToolchainVersion>
-=======
         <languageToolchainVersion>1.31</languageToolchainVersion>
->>>>>>> 623bca98be31ebac965b5026ab44942e6b6e9004
         <platform>3</platform>
       </toolsSet>
       <compileType>
