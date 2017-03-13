@@ -21,7 +21,6 @@
 //Function Prototypes
 void init_DMA0();
 void init_DMA1();
-void init_SPI1();
 char isDMADataAvailable();
 
 #endif	/* INTERCHIPDMA_H */

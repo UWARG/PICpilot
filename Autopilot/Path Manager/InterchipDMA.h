@@ -37,10 +37,8 @@ typedef struct _GPSData {
 //Function Prototypes
 void init_DMA0();
 void init_DMA1();
-void init_SPI1();
 char isDMADataAvailable();
 
-void init_SPI2();
 void init_DMA2();
 
 #endif	/* INTERCHIPDMA_H */

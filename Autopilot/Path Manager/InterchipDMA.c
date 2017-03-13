@@ -92,44 +92,6 @@ void init_DMA1(){
 
 }
 
-void init_SPI2(){
-    //Set interrupts
-    IFS2bits.SPI2IF = 0;
-    IEC2bits.SPI2IE = 0;
-
-    SPI2BUF = 0;
-    //Continue module operation in idle mode
-    SPI2STATbits.SPISIDL = 1;
-    //SPI clock controlled by this module
-    SPI2CON1bits.DISSCK = 0;
-    //Output pins are controlled by this module
-    SPI2CON1bits.DISSDO = 0;
-    //16/8 bit communication mode (1/0)
-    SPI2CON1bits.MODE16 = 1; //16
-    //Master mode(1)/Slave mode(0)
-    SPI2CON1bits.MSTEN = 0; //Slave
-    //Disable Slave Select
-    SPI2CON1bits.SSEN = 0;
-    //Sample Phase (end/middle)
-    SPI2CON1bits.SMP = 0; //Sample the input at the end of the square wave
-    //Clock Edge Select
-    SPI2CON1bits.CKE = 0; //Output data changes from idle state to active clock state (1 is the opposite)
-    //Clock Polarity
-    SPI2CON1bits.CKP = 0; //Idle clock state is low, active clock state is high
-
-
-    //Clear Receive Overflow
-    SPI2STATbits.SPIROV = 0;
-
-    //Enable SPI
-    SPI2STATbits.SPIEN = 1;
-//    IEC2bits.SPI2IE = 1;
-
-    //Then write to the SPI2BUF
-
-
-}
-
 char spiChecksum = 0;
 char GPSDataFlag = 0;
 
@@ -147,6 +109,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA2Interrupt(void){
     newGPSDataAvailable = 1;
     IFS1bits.DMA2IF = 0;// Clear the DMA2 Interrupt Flag
 }
+
 void init_DMA2(){
     IFS1bits.DMA2IF = 0;
     IEC1bits.DMA2IE = 1;

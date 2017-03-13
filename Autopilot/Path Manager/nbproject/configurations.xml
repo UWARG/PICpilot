@@ -25,10 +25,6 @@
       <itemPath>airspeedSensor.h</itemPath>
       <itemPath>MainBatterySensor.h</itemPath>
     </logicalFolder>
-    <logicalFolder name="Interfaces" displayName="Interfaces" projectFiles="true">
-      <itemPath>../Common/Interfaces/I2C.c</itemPath>
-      <itemPath>../Common/Interfaces/SPI.c</itemPath>
-    </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
                    projectFiles="true">
@@ -38,6 +34,8 @@
                    projectFiles="true">
       <logicalFolder name="f1" displayName="Interfaces" projectFiles="true">
         <itemPath>../Common/Interfaces/UART.c</itemPath>
+        <itemPath>../Common/Interfaces/I2C.c</itemPath>
+        <itemPath>../Common/Interfaces/SPI.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="Utilities" projectFiles="true">
         <itemPath>../Common/Utilities/ByteQueue.c</itemPath>

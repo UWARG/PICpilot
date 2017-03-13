@@ -53,7 +53,7 @@ VN100_SPI_Packet VN_SPI_LastReceivedPacket = {0, 0, 0, 0, {{0}}};
 * Return         : None
 *******************************************************************************/
 void VN100_initSPI(){
-    initSPI(2, 10000, SPI_MASTER);
+    initSPI(2, 10000, SPI_MODE3, SPI_BYTE, SPI_MASTER);
 }
 /*******************************************************************************
 * Function Name  : VN100_SPI_ReadRegister(unsigned char sensorID, unsigned char regID, unsigned char regWidth)

@@ -14,6 +14,7 @@
 #include "airspeedSensor.h"
 #include "StartupErrorCodes.h"
 
+#include "../Common/Interfaces/SPI.h"
 #include "InterchipDMA.h"
 
 #if DEBUG
@@ -56,7 +57,7 @@ void pathManagerInit(void) {
 
 
 //Communication with GPS
-    init_SPI2();
+    initSPI(2, 0, SPI_MODE1, SPI_WORD, SPI_SLAVE);
     init_DMA2();
     initMainBatterySensor();
     initAirspeedSensor();
@@ -74,7 +75,7 @@ void pathManagerInit(void) {
     INTERCOM_3 = 0;    //Set RA12 to Output a Value of 0
     INTERCOM_4 = 0;    //Set RA13 to Output a Value of 0
 
-    initSPI(1, 0, SPI_MASTER);
+    initSPI(1, 0, SPI_MODE1, SPI_BYTE, SPI_MASTER);
     init_DMA0();
     init_DMA1();
     DMA1REQbits.FORCE = 1;
