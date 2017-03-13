@@ -12,7 +12,6 @@
       <logicalFolder name="f6" displayName="Common" projectFiles="true">
         <itemPath>../Common/Common.h</itemPath>
         <itemPath>../Common/clock.h</itemPath>
-        <itemPath>../Common/I2C.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="Data Transfer" projectFiles="true">
         <itemPath>InterchipDMA.h</itemPath>
@@ -23,6 +22,8 @@
       </logicalFolder>
       <logicalFolder name="f8" displayName="Interfaces" projectFiles="true">
         <itemPath>../Common/Interfaces/UART.h</itemPath>
+        <itemPath>../Common/Interfaces/I2C.h</itemPath>
+        <itemPath>../Common/Interfaces/SPI.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f3" displayName="Network" projectFiles="true">
         <itemPath>commands.h</itemPath>
@@ -74,7 +75,6 @@
       <logicalFolder name="f7" displayName="Common" projectFiles="true">
         <itemPath>../Common/Common.c</itemPath>
         <itemPath>../Common/clock.c</itemPath>
-        <itemPath>../Common/I2C.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="Data Transfer" projectFiles="true">
         <itemPath>InterchipDMA.c</itemPath>
@@ -85,6 +85,8 @@
       </logicalFolder>
       <logicalFolder name="f8" displayName="Interfaces" projectFiles="true">
         <itemPath>../Common/Interfaces/UART.c</itemPath>
+        <itemPath>../Common/Interfaces/I2C.c</itemPath>
+        <itemPath>../Common/Interfaces/SPI.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f3" displayName="Network" projectFiles="true">
         <itemPath>net_outbound.c</itemPath>
