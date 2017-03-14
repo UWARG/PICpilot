@@ -151,6 +151,6 @@ void test_queueTelemetryBlockShouldCallRadioQueueMethodAndReturnFalse(void)
 {
     TelemetryBlock* block = createTelemetryBlock(PRIORITY0);
     queueDownlinkPacket_IgnoreAndReturn(false);
-    TEST_ASSERT_TRUE(queueTelemetryBlock(block));
+    TEST_ASSERT_FALSE(queueTelemetryBlock(block));
     free(block);
 }
