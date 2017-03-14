@@ -129,14 +129,10 @@ void initDatalink(void);
 /**
  * Reads the received data from the radio. If the received data was a TX sent
  * from the ground station, will parse the command and add to the internal command
- * queue
+ * queue. This function should be called whenever possible, as it is non-blocking,
+ * and will add at most a single command
  */
 void parseDatalinkBuffer(void);
-
-/**
- * Clears the internal command queue of the received commands
- */
-void clearDatalinkQueue(void);
 
 /**
  * Pop a command from the internal command queue
@@ -152,17 +148,17 @@ DatalinkCommand* popDatalinkCommand(void);
 void freeDatalinkCommand(DatalinkCommand* to_destroy);
 
 /**
- * Queues a telemetry block to be sent down the data link
- * @param data
- * @return True if successfully queued, false otherwise
- */
-bool queueTelemetryBlock(TelemetryBlock* data);
-
-/**
  * Create a telemetry block
  * @param packet Priority of the packet
  * @return NULL if malloc failed
  */
 TelemetryBlock* createTelemetryBlock(p_priority packet);
+
+/**
+ * Queues a telemetry block to be sent down the data link
+ * @param data
+ * @return True if successfully queued, false otherwise
+ */
+bool queueTelemetryBlock(TelemetryBlock* data);
 
 #endif
