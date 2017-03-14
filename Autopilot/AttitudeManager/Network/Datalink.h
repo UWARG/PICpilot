@@ -112,12 +112,12 @@ typedef struct TelemetryBlock {
     PacketPayload data;
 } TelemetryBlock;
 
-typedef struct Command {
+typedef struct DatalinkCommand {
     uint8_t cmd;
     uint8_t data_length;
     uint8_t* data;
-    struct Command* next;
-} Command;
+    struct DatalinkCommand* next;
+} DatalinkCommand;
 
 /**
  * Initializes the data link connection. Initializes the specified Radio as 
@@ -127,18 +127,29 @@ typedef struct Command {
 void initDatalink(void);
 
 /**
- * Create a telemetry block
- * @param packet Priority of the packet
- * @return NULL if malloc failed
- */
-TelemetryBlock* createTelemetryBlock(p_priority packet);
-
-/**
  * Reads the received data from the radio. If the received data was a TX sent
  * from the ground station, will parse the command and add to the internal command
  * queue
  */
-void inboundBufferMaintenance(void);
+void parseDatalinkBuffer(void);
+
+/**
+ * Clears the internal command queue of the received commands
+ */
+void clearDatalinkQueue(void);
+
+/**
+ * Pop a command from the internal command queue
+ * @return The command, or NULL if there are commands available
+ */
+DatalinkCommand* popDatalinkCommand(void);
+
+/**
+ * Destroys a command appropriately. Make sure to use this method rather than
+ * calling free() on a Command yourself
+ * @param to_destroy
+ */
+void freeDatalinkCommand(DatalinkCommand* to_destroy);
 
 /**
  * Queues a telemetry block to be sent down the data link
@@ -148,16 +159,10 @@ void inboundBufferMaintenance(void);
 bool queueTelemetryBlock(TelemetryBlock* data);
 
 /**
- * Pop a command from the internal command queue
- * @return The command, or NULL if there are commands available
+ * Create a telemetry block
+ * @param packet Priority of the packet
+ * @return NULL if malloc failed
  */
-Command* popCommand(void);
-
-/**
- * Destroys a command appropriately. Make sure to use this method rather than
- * calling free() on a Command yourself
- * @param to_destroy
- */
-void destroyCommand(Command* to_destroy);
+TelemetryBlock* createTelemetryBlock(p_priority packet);
 
 #endif
