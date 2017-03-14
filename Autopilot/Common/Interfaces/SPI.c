@@ -27,7 +27,6 @@ typedef uint16_t word;
  */
 
 
-
 void SPI_SS(uint8_t interface, pin_state state) {
     if (interface == 1) {
         PORTBbits.RB2 = state;
@@ -153,8 +152,18 @@ void initSPI(uint8_t interface, uint16_t clock, spi_mode mode, spi_width width, 
     }
 }
 
-void SPI_ReadReg(byte reg, byte data) {
-    
+byte SPI_TX_RX(uint8_t interface, byte data) {
+    if (interface == 1) {
+        SPI1BUF = data;
+        while (SPI1STATbits.SPITBF);
+        while (!SPI1STATbits.SPIRBF);
+        return SPI1BUF;
+    } else if (interface == 2) {
+        SPI2BUF = data;
+        while (SPI2STATbits.SPITBF);
+        while (!SPI2STATbits.SPIRBF);
+        return SPI2BUF;
+    }
 }
 
 
