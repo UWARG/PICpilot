@@ -11,6 +11,9 @@
 
 #include <stdint.h>
 
+typedef uint8_t byte;
+typedef uint16_t word;
+
 typedef enum {
     PIN_LOW = 0,
     PIN_HIGH
@@ -41,6 +44,8 @@ typedef enum {
 void SPI_SS(uint8_t interface, pin_state state);
 
 void initSPI(uint8_t interface, uint16_t clock, spi_mode mode, spi_width width, spi_type mss);
+
+byte SPI_TX_RX(uint8_t interface, byte data);
 
 #endif	/* SPI_H */
 

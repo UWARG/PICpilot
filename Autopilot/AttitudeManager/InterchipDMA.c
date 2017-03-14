@@ -14,9 +14,7 @@ void __attribute__((__interrupt__,no_auto_psv)) _SPI1Interrupt(void){
 }
 
 /*SPI RECEIVE OPERATION*/
-char transmitInitialized = 0; //0 = Nothing Received, 1 = Transmit Initialized
 char DMADataAvailable = 0;
-char newGPSDataAvailable = 0;
 
 AMData amData __attribute__((space(dma)));
 PMData pmData __attribute__((space(dma)));

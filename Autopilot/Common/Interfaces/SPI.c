@@ -10,8 +10,18 @@
 #include "SPI.h"
 #include "../clock.h"
 
-typedef uint8_t byte;
-typedef uint16_t word;
+typedef void (*func_ptr)(void); // this is a bad idea
+
+
+void null(){} // null function. safer than assigning pointer to NULL
+
+func_ptr SPI1_next = &null;
+func_ptr SPI2_next = &null;
+
+
+uint16_t SPI2_wait_len; // indicates how many bytes we're waiting to receive;
+
+byte SPI2_RXBF[32]; // buffer received bytes go in while we wait
 
 /*
  * Use this file as a modular way to interface with a device over SPI.
@@ -24,7 +34,21 @@ typedef uint16_t word;
  * SCKx: Shift Clock Input/Output       --> 1 : RF6, 2 : RG6
  * SSx/FSYNCx: Slave select/Frame Sync  --> 1 : RB2, 2 : RG9
  * Slave select is active-low
+ * 
+ * 
+ * Every TX byte/word we send, we'll expect corresponding RX data, of the same size.
+ * Whether we care about the received data is context-dependent.
+ * If we've just sent our first command, the RX bytes will be useless.
  */
+
+
+void buffRX() {
+    if (SPI2STATbits.SPIRBF) { // if there's data in the RX buffer
+        if (SPI2_wait_len > 0) { // if we're expecting data
+            SPI2_RXBF[--SPI2_wait_len] = SPI2BUF;
+        }
+    }
+}
 
 
 void SPI_SS(uint8_t interface, pin_state state) {
@@ -55,11 +79,11 @@ void initSPI(uint8_t interface, uint16_t clock, spi_mode mode, spi_width width, 
 
         if (mss == SPI_MASTER) {
             SPI1CON1bits.MSTEN = 1; // Master mode
-            SPI1CON1bits.SMP = 1; // sample input ad end of wave
+            SPI1CON1bits.SMP = 1; // sample input at end of wave
             SPI1CON1bits.SSEN = 0; // clear SS mode    
             TRISBbits.TRISB2 = 0; // set SS pin as output
             
-            // clock pre-scale bits: 2500 kHz // TODO: enable dynamic scaling
+            // clock pre-scale bits: 2500 kHz
             SPI1CON1bits.PPRE = 0b10; // Primary: 4:1 
             SPI1CON1bits.SPRE = 0b100; // Secondary: 4:1 
         } else if (mss == SPI_SLAVE) {
@@ -88,8 +112,8 @@ void initSPI(uint8_t interface, uint16_t clock, spi_mode mode, spi_width width, 
                 break;
         }
 
-        // TODO: see if we need SPI interrupts for DMA?
         IPC2bits.SPI1IP = 4; // Set interrupt priority
+        IFS0bits.SPI1IF = 0; //Clear interrupt flag
         IEC0bits.SPI1IE = 1; //Enable interrupt
 
         SPI1STATbits.SPIEN = 1; //Enable SPI
@@ -116,7 +140,7 @@ void initSPI(uint8_t interface, uint16_t clock, spi_mode mode, spi_width width, 
             SPI2CON1bits.SSEN = 0; // clear SS mode            
             TRISGbits.TRISG9 = 0; // set SS pin as output
 
-            // clock pre-scale bits: 5000 kHz // TODO: enable dynamic scaling
+            // clock pre-scale bits: 5000 kHz // TODO: implement dynamic scaling
             SPI2CON1bits.PPRE = 0b10; // Primary: 4:1 
             SPI2CON1bits.SPRE = 0b111; // Secondary: 1:1 
         } else if (mss == SPI_SLAVE) {
@@ -145,7 +169,9 @@ void initSPI(uint8_t interface, uint16_t clock, spi_mode mode, spi_width width, 
                 break;
         }
         
-        IEC2bits.SPI2IE = 0; //Disable interrupt
+        IPC8bits.SPI2IP = 4; // Set interrupt priority
+        IFS2bits.SPI2IF = 0; //Clear interrupt flag
+        IEC2bits.SPI2IE = 1; //Enable interrupt
 
         SPI2STATbits.SPIEN = 1; //Enable SPI
 
@@ -164,9 +190,24 @@ byte SPI_TX_RX(uint8_t interface, byte data) {
         while (!SPI2STATbits.SPIRBF);
         return SPI2BUF;
     }
+    return -1;
 }
 
 
-void __attribute__((__interrupt__, no_auto_psv)) _SPI1Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _SPI1Interrupt(void) {
+    IFS0bits.SPI1IF = 0; //Clear interrupt flag
+    if (IFS0bits.SPI1EIF){
+        //fix error
+        return;
+    }
+    (*SPI1_next)(); 
+}
 
-void __attribute__((__interrupt__, no_auto_psv)) _SPI2Interrupt(void);
+void __attribute__((__interrupt__, no_auto_psv)) _SPI2Interrupt(void) {
+    IFS2bits.SPI2IF = 0; //Clear interrupt flag
+    if (IFS2bits.SPI2EIF){
+        //fix error
+        return;
+    }
+    (*SPI2_next)(); 
+}
