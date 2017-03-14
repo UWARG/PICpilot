@@ -20,7 +20,6 @@
 #include "StartupErrorCodes.h"
 #include "main.h"
 #include "../Common/Interfaces/SPI.h"
-#include "InterchipDMA.h"
 #include "ProgramStatus.h"
 #include <string.h>
 
@@ -175,9 +174,9 @@ void attitudeInit() {
     TRISAbits.TRISA3 = 0;
     PORTAbits.RA3 = 1;
 
-    initSPI(IC_DMA_PORT, 0, SPI_MODE1, SPI_BYTE, SPI_SLAVE);
     init_DMA0();
     init_DMA1();
+    initSPI(IC_DMA_PORT, 0, SPI_MODE1, SPI_BYTE, SPI_SLAVE);
 
 
     /* Initialize Input Capture and Output Compare Modules */

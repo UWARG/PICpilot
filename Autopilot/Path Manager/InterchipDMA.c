@@ -6,14 +6,8 @@
  */
 #include "InterchipDMA.h"
 
-void __attribute__((__interrupt__,no_auto_psv)) _SPI1Interrupt(void){
-    SPI1STATbits.SPIROV = 0;
-    IFS0bits.SPI1IF = 0;
-    IFS0bits.SPI1EIF = 0;
-}
 
 /*SPI RECEIVE OPERATION*/
-char transmitInitialized = 0; //0 = Nothing Received, 1 = Transmit Initialized
 char newDMADataAvailable = 0;
 char newGPSDataAvailable = 0;
 
@@ -92,18 +86,10 @@ void init_DMA1(){
 
 }
 
-char spiChecksum = 0;
-char GPSDataFlag = 0;
-
 GPSData gpsData __attribute__((space(dma))); //Moved line outside Compiler Statement for a Quick Fix.... Needs to be turned on either wa for both GPS's
 /*
  *
  */
-void __attribute__((__interrupt__,no_auto_psv)) _SPI2Interrupt(void){
-    SPI2STATbits.SPIROV = 0;
-    IFS2bits.SPI2IF = 0;
-    IFS2bits.SPI2EIF = 0;
-}
 
 void __attribute__((__interrupt__, no_auto_psv)) _DMA2Interrupt(void){
     newGPSDataAvailable = 1;

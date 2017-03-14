@@ -10,7 +10,6 @@
 #ifndef INTERCHIPDMA_H
 #define	INTERCHIPDMA_H
 
-#include "main.h"
 
 //Intercom pins
 #define INTERCOM_1 PORTAbits.RA12 // output

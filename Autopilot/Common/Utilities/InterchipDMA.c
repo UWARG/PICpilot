@@ -5,13 +5,8 @@
  * Created on February 2, 2014, 2:10 PM
  */
 #include "InterchipDMA.h"
-#include "AttitudeManager.h"
+#include "../Common.h"
 
-void __attribute__((__interrupt__,no_auto_psv)) _SPI1Interrupt(void){
-    SPI1STATbits.SPIROV = 0;
-    IFS0bits.SPI1IF = 0;
-    IFS0bits.SPI1EIF = 0;
-}
 
 /*SPI RECEIVE OPERATION*/
 char DMADataAvailable = 0;
@@ -93,7 +88,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA1Interrupt(void){
 char isDMADataAvailable(){
     return DMADataAvailable;
 }
-
+    
 void init_DMA0(){
     IFS0bits.DMA0IF = 0;
     IEC0bits.DMA0IE = 1;
