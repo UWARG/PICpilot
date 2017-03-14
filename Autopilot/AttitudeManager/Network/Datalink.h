@@ -7,8 +7,11 @@
  *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE 
  */
 
-#ifndef NET_H
-#define	NET_H
+#ifndef DATALINK_H
+#define	DATALINK_H
+
+#include <stdint.h>
+#include <stdbool.h>
 
 /** Time in miliseconds for how often a P0(high priority) packet gets sent down. Default=300 **/
 #define P0_SEND_FREQUENCY 200 
@@ -109,19 +112,19 @@ typedef struct TelemetryBlock {
     PacketPayload data;
 } TelemetryBlock;
 
-typedef struct DatalinkCommand {
+typedef struct Command {
     uint8_t cmd;
     uint8_t data_length;
     uint8_t* data;
-    struct DatalinkCommand* next;
-} DatalinkCommand;
+    struct Command* next;
+} Command;
 
 /**
  * Initializes the data link connection. Initializes the specified Radio as 
  * well as sets up the internal command buffer
- * @return 
+ * @return Whether successfully initialized
  */
-int initDatalink(void);
+void initDatalink(void);
 
 /**
  * Create a telemetry block
@@ -148,6 +151,13 @@ bool queueTelemetryBlock(TelemetryBlock* data);
  * Pop a command from the internal command queue
  * @return The command, or NULL if there are commands available
  */
-DatalinkCommand* popCommand(void);
+Command* popCommand(void);
+
+/**
+ * Destroys a command appropriately. Make sure to use this method rather than
+ * calling free() on a Command yourself
+ * @param to_destroy
+ */
+void destroyCommand(Command* to_destroy);
 
 #endif

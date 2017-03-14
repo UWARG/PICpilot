@@ -88,9 +88,12 @@
       </logicalFolder>
       <logicalFolder name="f3" displayName="Network" projectFiles="true">
         <itemPath>Network/Datalink.c</itemPath>
+<<<<<<< HEAD
       </logicalFolder>
       <logicalFolder name="f2" displayName="Peripherals" projectFiles="true">
         <itemPath>Peripherals/UHF.c</itemPath>
+=======
+>>>>>>> Got project to compile
       </logicalFolder>
       <logicalFolder name="f4" displayName="PWM Management" projectFiles="true">
         <itemPath>InputCapture.c</itemPath>
@@ -131,7 +134,10 @@
     <Elem>Utilities</Elem>
     <Elem>test/test</Elem>
     <Elem>Network</Elem>
+<<<<<<< HEAD
     <Elem>Peripherals</Elem>
+=======
+>>>>>>> Got project to compile
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>

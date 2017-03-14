@@ -12,6 +12,7 @@
 #include "OrientationControl.h"
 #include "StateMachine.h"
 #include "../Common/Utilities/InterchipDMA.h"
+#include "Network/Datalink.h"
 #include "../Common/Common.h"
 
 //Bit Mask Bit Shifts
@@ -149,7 +150,7 @@ void readDatalink(void);
  * Output:  An error code indicating if the data was added to the queue successfully.
  *
  *****************************************************************************/
-int writeDatalink(p_priority packet);
+bool writeDatalink(p_priority packet);
 
 void checkHeartbeat();
 void checkGPS();
