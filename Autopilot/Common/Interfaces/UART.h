@@ -60,4 +60,11 @@ void queueTXData(unsigned char interface, unsigned char* data, unsigned int data
  */
 unsigned int getTXSpace(unsigned char interface);
 
+/**
+ * Get the current size of the uart rx buffer for the specified interface
+ * @param interface
+ * @return Size of the buffer in bytes
+ */
+unsigned int getRXSize(unsigned char interface);
+
 #endif

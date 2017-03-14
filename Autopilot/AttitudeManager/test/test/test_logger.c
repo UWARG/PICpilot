@@ -103,3 +103,12 @@ void test_writeMessageThatIsTooLongShouldNotQueueUART(void){
 
     error("thishsouldnotprint");
 }
+
+void test_infoShouldCallQueueUartWithCorrectMessage(void){
+    getTXSpace_ExpectAndReturn(LOGGER_UART_INTERFACE,100);
+    queueTXData_ExpectWithArray(LOGGER_UART_INTERFACE, (unsigned char*)INFO_TAG_STRING, INFO_TAG_STRING_LENGTH, INFO_TAG_STRING_LENGTH);
+    queueTXData_ExpectWithArray(LOGGER_UART_INTERFACE, (unsigned char*)"hello", 5, 5);
+    queueTXData_ExpectWithArray(LOGGER_UART_INTERFACE, (unsigned char*)"\r\n\0", 3, 3);
+
+    info("hello");
+}
