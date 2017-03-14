@@ -11,6 +11,7 @@
 #include "../Common/Utilities/Logger.h"
 #include "../Common/Common.h"
 #include "main.h"
+#include "Drivers/Radio.h"
 #include "ProgramStatus.h"
 
 //State Machine Triggers (Mostly Timers)
@@ -102,7 +103,9 @@ void StateMachine(char entryLocation){
         //Then Sleep
     }
     //Loop it back again!
-    parseDatalinkBuffer();
+    parseDatalinkBuffer(); //read any incoming data from the Xbee and put in buffer
+    sendQueuedDownlinkPacket(); //send any outgoing info
+    
     asm("CLRWDT");
 }
 
