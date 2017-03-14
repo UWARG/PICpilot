@@ -228,6 +228,7 @@ void test_xbeeInitRadioShouldAskForDestinationAddress(void)
     sb2[6] = XBEE_AT_COMMAND_DESTINATION_ADDRESS_LOW[1];
 
     info_Ignore();
+    initUART_Expect(XBEE_UART_INTERFACE, XBEE_UART_BAUD_RATE, XBEE_UART_BUFFER_INITIAL_SIZE, XBEE_UART_BUFFER_MAX_SIZE, 3);
     initRadio();
     getTXSpace_IgnoreAndReturn(100); //give as much space as possible
     queueTXData_ExpectWithArray(XBEE_UART_INTERFACE, sb, 8, 8); //queue the data for tranmission over UART
