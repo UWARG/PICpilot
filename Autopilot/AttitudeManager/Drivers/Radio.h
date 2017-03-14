@@ -9,6 +9,8 @@
  * @copyright Waterloo Aerial Robotics Group 2017 \n
  *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE 
  */
+#include <stdint.h>
+#include <stdbool.h>
 
 #ifndef RADIO_H
 #define	RADIO_H

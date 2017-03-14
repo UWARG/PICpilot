@@ -18,7 +18,6 @@
 #include "StartupErrorCodes.h"
 
 #include "AttitudeManager.h"
-#include "net.h"
 #include "../Common/clock.h"
 #include "../Common/Utilities/Logger.h"
 
