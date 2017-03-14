@@ -18,6 +18,8 @@
 #define INTERCOM_3 PORTBbits.RB4 // input
 #define INTERCOM_4 PORTBbits.RB5 // input
 
+#define IC_DMA_PORT 1
+
 //Function Prototypes
 void init_DMA0();
 void init_DMA1();
