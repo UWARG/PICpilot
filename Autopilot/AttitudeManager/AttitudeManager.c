@@ -513,13 +513,7 @@ uint8_t getControlValue(CtrlType type) {
 }
 
 void readDatalink(void){
-<<<<<<< HEAD
-    struct DatalinkCommand* cmd = popCommand();
-    
-=======
-
-    struct Command* cmd = popCommand();
->>>>>>> Got project to compile
+    struct DatalinkCommand* cmd = popDatalinkCommand();
     //TODO: Add rudimentary input validation
     if ( cmd ) {
         if (lastCommandSentCode[lastCommandCounter]/100 == cmd->cmd){
@@ -776,7 +770,7 @@ void readDatalink(void){
             default:
                 break;
         }
-        destroyCommand( cmd );
+        freeDatalinkCommand( cmd );
     }
 }
 <<<<<<< HEAD
