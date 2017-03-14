@@ -10,6 +10,8 @@
 #include "SPI.h"
 #include "../clock.h"
 
+typedef uint8_t byte;
+typedef uint16_t word;
 
 /*
  * Use this file as a modular way to interface with a device over SPI.
@@ -23,6 +25,8 @@
  * SSx/FSYNCx: Slave select/Frame Sync  --> 1 : RB2, 2 : RG9
  * Slave select is active-low
  */
+
+
 
 void SPI_SS(uint8_t interface, pin_state state) {
     if (interface == 1) {
@@ -147,9 +151,13 @@ void initSPI(uint8_t interface, uint16_t clock, spi_mode mode, spi_width width, 
         SPI2STATbits.SPIEN = 1; //Enable SPI
 
     }
-
-}
-void sendData(char command){
-
 }
 
+void SPI_ReadReg(byte reg, byte data) {
+    
+}
+
+
+void __attribute__((__interrupt__, no_auto_psv)) _SPI1Interrupt(void);
+
+void __attribute__((__interrupt__, no_auto_psv)) _SPI2Interrupt(void);
