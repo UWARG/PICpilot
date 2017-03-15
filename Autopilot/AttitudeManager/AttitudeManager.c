@@ -174,8 +174,8 @@ void attitudeInit() {
     TRISAbits.TRISA3 = 0;
     PORTAbits.RA3 = 1;
 
-    init_DMA0();
-    init_DMA1();
+    init_DMA0(1);
+    init_DMA1(1);
     initSPI(IC_DMA_PORT, 0, SPI_MODE1, SPI_BYTE, SPI_SLAVE);
 
 
@@ -287,8 +287,8 @@ char checkDMA(){
 //        INTERCOM_2 = 0;
 //        while(INTERCOM_4);
         initSPI(IC_DMA_PORT, 0, SPI_MODE1, SPI_BYTE, SPI_SLAVE); // Restart SPI
-        init_DMA0(); // Restart DMA0
-        init_DMA1(); // Restart DMA1
+        init_DMA0(1); // Restart DMA0
+        init_DMA1(1); // Restart DMA1
         DMA1REQbits.FORCE = 1;
         while (DMA1REQbits.FORCE == 1);
         return FALSE;
