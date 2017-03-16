@@ -248,8 +248,6 @@ void lowLevelControl(){
     checkLimits(outputSignal);
     //Then Output
     
-    goProGimbalStabilization(getRoll());
-    goProVerticalstabilization(getPitch());
     //For fixed-wing aircraft: Typically 0 = Roll, 1 = Pitch, 2 = Throttle, 3 = Yaw
 
     if (getProgramStatus() != KILL_MODE) {

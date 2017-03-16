@@ -19,7 +19,6 @@
 #include "InterchipDMA.h"
 #include "net.h"
 #include "VN100.h"
-#include "cameraManager.h"
 
 void StateMachine(char entryLocation);
 void forceStateMachineUpdate();
