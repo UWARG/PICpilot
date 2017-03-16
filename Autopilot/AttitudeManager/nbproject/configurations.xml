@@ -20,6 +20,7 @@
       <logicalFolder name="f12" displayName="Drivers" projectFiles="true">
         <itemPath>Drivers/RadioXbee.h</itemPath>
         <itemPath>Drivers/Radio.h</itemPath>
+        <itemPath>IMU.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f8" displayName="Interfaces" projectFiles="true">
         <itemPath>../Common/Interfaces/UART.h</itemPath>

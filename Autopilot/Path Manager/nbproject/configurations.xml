@@ -15,7 +15,6 @@
         <itemPath>../Common/Utilities/InterchipDMA.h</itemPath>
       </logicalFolder>
       <itemPath>Dubins.h</itemPath>
-      <itemPath>InterchipDMA.h</itemPath>
       <itemPath>main.h</itemPath>
       <itemPath>MPL3115A2.h</itemPath>
       <itemPath>NMEAparser.h</itemPath>
@@ -25,6 +24,7 @@
       <itemPath>StartupErrorCodes.h</itemPath>
       <itemPath>airspeedSensor.h</itemPath>
       <itemPath>MainBatterySensor.h</itemPath>
+      <itemPath>GPSDMA.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -44,7 +44,6 @@
         <itemPath>../Common/Utilities/InterchipDMA.c</itemPath>
       </logicalFolder>
       <itemPath>Dubins.c</itemPath>
-      <itemPath>InterchipDMA.c</itemPath>
       <itemPath>main.c</itemPath>
       <itemPath>MPL3115A2.c</itemPath>
       <itemPath>NMEAparser.c</itemPath>
@@ -54,6 +53,7 @@
       <itemPath>StartupErrorCodes.c</itemPath>
       <itemPath>airspeedSensor.c</itemPath>
       <itemPath>MainBatterySensor.c</itemPath>
+      <itemPath>GPSDMA.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
