@@ -9,7 +9,6 @@
 #include "delay.h"
 
 #include "VN100.h"
-#include "MPU6050.h"
 
 #include "InputCapture.h"
 #include "OutputCompare.h"
@@ -191,7 +190,6 @@ void attitudeInit() {
      *  *****************************************************************
      */
     
-#if 0 // disable IMUs while we test SPI
     //In order: Angular Walk, Angular Rate x 3, Magnetometer x 3, Acceleration x 3
     float filterVariance[10] = {1e-9, 1e-9, 1e-9, 1e-9, 1, 1, 1, 1e-4, 1e-4, 1e-4}; //  float filterVariance[10] = {1e-10, 1e-6, 1e-6, 1e-6, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2};
     VN100_initSPI();
@@ -215,18 +213,6 @@ void attitudeInit() {
         setSensorStatus(VECTORNAV, SENSOR_CONNECTED & FALSE);
     }
 
-    //Todo: Finish this code to test the MPU IMU
-    if (init_MPU6050()){
-        //setSensorStatus
-        
-        while(1){
-            getAccel();
-            getGyro();
-        }
-        
-        //debug(
-    }
-#endif
 
 #if DEBUG
         debug("Datalink Initialized");
@@ -264,7 +250,7 @@ char checkDMA(){
         if (gps_Altitude == pmData.altitude && gps_Heading == pmData.heading && gps_GroundSpeed == pmData.speed && gps_Latitude == pmData.latitude && gps_Longitude == pmData.longitude){
             return FALSE;
         }
-
+        
         gps_Heading = pmData.heading;
         gps_GroundSpeed = pmData.speed * 1000.0/3600.0; //Convert from km/h to m/s
         gps_Longitude = pmData.longitude;
@@ -277,18 +263,22 @@ char checkDMA(){
         return TRUE;
     }
     else{
+        debug("RESETTING DMA");
 //        INTERCOM_2 = 1;
-        SPI1STATbits.SPIEN = 0; //Disable SPI1
         DMA0CONbits.CHEN = 0; //Disable DMA0 channel
         DMA1CONbits.CHEN = 0; //Disable DMA1 channel
+        SPI1STATbits.SPIEN = 0; //Disable SPI1
+
         while(SPI1STATbits.SPIRBF) { //Clear SPI1
             SPI1BUF;
         }
 //        INTERCOM_2 = 0;
 //        while(INTERCOM_4);
-        initSPI(IC_DMA_PORT, 0, SPI_MODE1, SPI_BYTE, SPI_SLAVE); // Restart SPI
-        init_DMA0(1); // Restart DMA0
-        init_DMA1(1); // Restart DMA1
+        
+        init_DMA0(1);
+        init_DMA1(1);
+        initSPI(IC_DMA_PORT, 0, SPI_MODE1, SPI_BYTE, SPI_SLAVE);
+
         DMA1REQbits.FORCE = 1;
         while (DMA1REQbits.FORCE == 1);
         return FALSE;

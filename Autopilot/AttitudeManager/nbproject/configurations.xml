@@ -33,7 +33,6 @@
       </logicalFolder>
       <logicalFolder name="f10" displayName="Other Peripherals" projectFiles="true">
         <itemPath>cameraManager.h</itemPath>
-        <itemPath>MPU6050.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f4" displayName="PWM Management" projectFiles="true">
         <itemPath>OutputCompare.h</itemPath>
@@ -98,7 +97,6 @@
       </logicalFolder>
       <logicalFolder name="f9" displayName="Other Peripherals" projectFiles="true">
         <itemPath>cameraManager.c</itemPath>
-        <itemPath>MPU6050.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f4" displayName="PWM Management" projectFiles="true">
         <itemPath>InputCapture.c</itemPath>
