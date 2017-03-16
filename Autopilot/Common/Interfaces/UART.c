@@ -187,6 +187,15 @@ unsigned int getTXSpace(unsigned char interface)
     return 0;
 }
 
+unsigned int getRXSize(unsigned char interface){
+    if (interface == 1 && (uart1_status & UART_RX_ENABLE)) {
+        return getBQueueSize(&uart1_rx_queue);
+    } else if (interface == 2 && (uart2_status & UART_RX_ENABLE)) {
+        return getBQueueSize(&uart2_rx_queue);
+    }
+    return 0;
+}
+
 /**
  * Interrupt called whenever the TX buffer becomes empty
  */

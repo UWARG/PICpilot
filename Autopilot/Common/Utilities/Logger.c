@@ -54,3 +54,10 @@ void debug(char* message)
         writeMessage(message, DEBUG_TAG_STRING, DEBUG_TAG_STRING_LENGTH);
     }
 }
+
+void info(char* message)
+{
+    if (logger_initialized) {
+        writeMessage(message, INFO_TAG_STRING, INFO_TAG_STRING_LENGTH);
+    }
+}

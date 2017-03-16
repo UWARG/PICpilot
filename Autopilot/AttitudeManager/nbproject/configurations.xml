@@ -20,6 +20,10 @@
         <itemPath>StartupErrorCodes.h</itemPath>
         <itemPath>ProgramStatus.h</itemPath>
       </logicalFolder>
+      <logicalFolder name="f12" displayName="Drivers" projectFiles="true">
+        <itemPath>Drivers/RadioXbee.h</itemPath>
+        <itemPath>Drivers/Radio.h</itemPath>
+      </logicalFolder>
       <logicalFolder name="f8" displayName="Interfaces" projectFiles="true">
         <itemPath>../Common/Interfaces/UART.h</itemPath>
       </logicalFolder>
@@ -80,6 +84,9 @@
         <itemPath>StartupErrorCodes.c</itemPath>
         <itemPath>ProgramStatus.c</itemPath>
       </logicalFolder>
+      <logicalFolder name="f12" displayName="Drivers" projectFiles="true">
+        <itemPath>Drivers/RadioXbee.c</itemPath>
+      </logicalFolder>
       <logicalFolder name="f8" displayName="Interfaces" projectFiles="true">
         <itemPath>../Common/Interfaces/UART.c</itemPath>
       </logicalFolder>
@@ -124,11 +131,13 @@
     </logicalFolder>
   </logicalFolder>
   <sourceRootList>
+    <Elem>../Common/Utilities</Elem>
+    <Elem>../Common/Interfaces</Elem>
+    <Elem>Drivers</Elem>
     <Elem>../PathManager</Elem>
     <Elem>Interfaces</Elem>
     <Elem>Utilities</Elem>
-    <Elem>../Common/Utilities</Elem>
-    <Elem>../Common/Interfaces</Elem>
+    <Elem>test/test</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -237,6 +246,7 @@
         <property key="linker-stack" value="true"/>
         <property key="linker-symbols" value=""/>
         <property key="map-file" value="${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.map"/>
+        <property key="no-ivt" value="false"/>
         <property key="oXC16ld-extra-opts" value=""/>
         <property key="oXC16ld-fill-upper" value="0"/>
         <property key="oXC16ld-force-link" value="false"/>
@@ -261,8 +271,11 @@
         <property key="fast-math" value="false"/>
         <property key="generic-16-bit" value="false"/>
         <property key="legacy-libc" value="false"/>
+        <property key="mpreserve-all" value="false"/>
         <property key="oXC16glb-macros" value=""/>
         <property key="output-file-format" value="elf"/>
+        <property key="preserve-all" value="false"/>
+        <property key="preserve-file" value=""/>
         <property key="relaxed-math" value="false"/>
         <property key="save-temps" value="false"/>
       </C30Global>
@@ -308,7 +321,6 @@
         <property key="UART 1" value="true"/>
         <property key="UART 2" value="true"/>
         <property key="debugoptions.useswbreakpoints" value="false"/>
-        <property key="firmware.download.all" value="false"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="false"/>
@@ -319,12 +331,8 @@
         <property key="memories.flashdata" value="true"/>
         <property key="memories.id" value="true"/>
         <property key="memories.instruction.ram" value="true"/>
-        <property key="memories.instruction.ram.end"
-                  value="${memories.instruction.ram.end.value}"/>
         <property key="memories.instruction.ram.ranges"
                   value="${memories.instruction.ram.ranges}"/>
-        <property key="memories.instruction.ram.start"
-                  value="${memories.instruction.ram.start.value}"/>
         <property key="memories.programmemory" value="true"/>
         <property key="memories.programmemory.ranges" value="0-2abff"/>
         <property key="poweroptions.powerenable" value="false"/>
