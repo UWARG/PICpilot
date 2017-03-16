@@ -32,9 +32,6 @@
         <itemPath>net.h</itemPath>
         <itemPath>UART2.h</itemPath>
       </logicalFolder>
-      <logicalFolder name="f10" displayName="Other Peripherals" projectFiles="true">
-        <itemPath>cameraManager.h</itemPath>
-      </logicalFolder>
       <logicalFolder name="f4" displayName="PWM Management" projectFiles="true">
         <itemPath>OutputCompare.h</itemPath>
         <itemPath>InputCapture.h</itemPath>
@@ -43,7 +40,6 @@
       <logicalFolder name="f5" displayName="Utilities" projectFiles="true">
         <itemPath>delay.h</itemPath>
         <itemPath>fmath.h</itemPath>
-        <itemPath>StringUtils.h</itemPath>
         <itemPath>timer.h</itemPath>
         <itemPath>../Common/Utilities/ByteQueue.h</itemPath>
         <itemPath>../Common/Utilities/Logger.h</itemPath>
@@ -96,9 +92,6 @@
         <itemPath>net_common.c</itemPath>
         <itemPath>UART2.c</itemPath>
       </logicalFolder>
-      <logicalFolder name="f9" displayName="Other Peripherals" projectFiles="true">
-        <itemPath>cameraManager.c</itemPath>
-      </logicalFolder>
       <logicalFolder name="f4" displayName="PWM Management" projectFiles="true">
         <itemPath>InputCapture.c</itemPath>
         <itemPath>OutputCompare.c</itemPath>
@@ -107,7 +100,6 @@
       <logicalFolder name="f5" displayName="Utilities" projectFiles="true">
         <itemPath>fmath.c</itemPath>
         <itemPath>delay.c</itemPath>
-        <itemPath>StringUtils.c</itemPath>
         <itemPath>timer.c</itemPath>
         <itemPath>../Common/Utilities/ByteQueue.c</itemPath>
         <itemPath>../Common/Utilities/Logger.c</itemPath>

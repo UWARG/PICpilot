@@ -13,7 +13,6 @@
 #include "PWM.h"
 #include "AttitudeManager.h"
 #include "commands.h"
-#include "cameraManager.h"
 #include "StartupErrorCodes.h"
 #include "main.h"
 #include "InterchipDMA.h"
@@ -137,8 +136,6 @@ float lastAltitude = 0;
 long int lastAltitudeTime = 0;
 
 char lastNumSatellites = 0;
-
-unsigned int cameraCounter = 0;
 
 char show_scaled_pwm = 1;
 
@@ -807,15 +804,6 @@ void readDatalink(void){
             case SEND_HEARTBEAT:
                 heartbeatTimer = getTime();
                 break;
-            case TRIGGER_CAMERA:
-                triggerCamera(*(unsigned int*)(&cmd->data));
-                break;
-            case SET_TRIGGER_DISTANCE:
-                setTriggerDistance(*(float*)(&cmd->data));
-                break;
-            case SET_GIMBLE_OFFSET:
-                setGimbalOffset(*(unsigned int*)(&cmd->data));
-                break;
             case KILL_PLANE:
                 if (*(int*)(&cmd->data) == 1234)
                     killPlane(TRUE);
@@ -823,9 +811,6 @@ void readDatalink(void){
             case UNKILL_PLANE:
                 if (*(int*)(&cmd->data) == 1234)
                     killPlane(FALSE);
-                break;
-            case LOCK_GOPRO:
-                    lockGoPro(*(int*)(&cmd->data));
                 break;
             case ARM_VEHICLE:
                 if (*(int*)(&cmd->data) == 1234)
@@ -977,7 +962,7 @@ int writeDatalink(p_priority packet){
             statusData->data.p2_block.headingSetpoint = getHeadingSetpoint();
             statusData->data.p2_block.altitudeSetpoint = getAltitudeSetpoint();
             statusData->data.p2_block.flapSetpoint = getFlapSetpoint();
-            statusData->data.p2_block.cameraStatus = cameraCounter;
+            statusData->data.p2_block.unused = 0;
             statusData->data.p2_block.wirelessConnection = ((input[5] < 180) << 1) + (input[7] > 0);//+ RSSI;
             statusData->data.p2_block.autopilotActive = getProgramStatus();
             //statusData->data.p2_block.sensorStat = getSensorStatus(0) + (getSensorStatus(1) << 2);
