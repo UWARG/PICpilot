@@ -170,9 +170,9 @@ void attitudeInit() {
     TRISAbits.TRISA3 = 0;
     PORTAbits.RA3 = 1;
 
+    initSPI(IC_DMA_PORT, 0, SPI_MODE1, SPI_BYTE, SPI_SLAVE);
     init_DMA0(1);
     init_DMA1(1);
-    initSPI(IC_DMA_PORT, 0, SPI_MODE1, SPI_BYTE, SPI_SLAVE);
 
 
     /* Initialize Input Capture and Output Compare Modules */
@@ -254,13 +254,17 @@ char checkDMA(){
         gps_Latitude = pmData.latitude;
         gps_Altitude = pmData.altitude;
 
+        char bat[10];
+        sprintf(bat, "Bat2: %d", batteryLevel2); // this is always 5
+        debug(bat);
+        
         if (gps_PositionFix){
             input_AP_Heading = pmData.sp_Heading;
         }
         return TRUE;
     }
     else{
-        debug("RESETTING DMA");
+        //debug("RESETTING DMA");
 //        INTERCOM_2 = 1;
         DMA0CONbits.CHEN = 0; //Disable DMA0 channel
         DMA1CONbits.CHEN = 0; //Disable DMA1 channel
@@ -272,9 +276,9 @@ char checkDMA(){
 //        INTERCOM_2 = 0;
 //        while(INTERCOM_4);
         
+        initSPI(IC_DMA_PORT, 0, SPI_MODE1, SPI_BYTE, SPI_SLAVE);
         init_DMA0(1);
         init_DMA1(1);
-        initSPI(IC_DMA_PORT, 0, SPI_MODE1, SPI_BYTE, SPI_SLAVE);
 
         DMA1REQbits.FORCE = 1;
         while (DMA1REQbits.FORCE == 1);
@@ -535,17 +539,17 @@ void imuCommunication(){
     imu_YawAngle = imuData[YAW];
     imu_PitchAngle = imuData[PITCH];
     imu_RollAngle = imuData[ROLL];
-#if DEBUG
+#if DEBUG && 0
     // Rate - Radians, Angle - Degrees
-//    char x[30];
-//    sprintf(&x, "IMU Roll Rate: %f", imu_RollRate);
-//    debug(&x);
-//    sprintf(&x, "IMU Pitch Rate: %f", imu_PitchRate);
-//    debug(&x);
-//    sprintf(&x, "IMU Pitch Angle: %f", imu_PitchAngle);
-//    debug(&x);
-//    sprintf(&x, "IMU Roll Angle: %f", imu_RollAngle);
-//    debug(&x);
+    char x[30];
+    sprintf(x, "IMU Roll Rate: %f", imu_RollRate);
+    debug(x);
+    sprintf(x, "IMU Pitch Rate: %f", imu_PitchRate);
+    debug(x);
+    sprintf(x, "IMU Pitch Angle: %f", imu_PitchAngle);
+    debug(x);
+    sprintf(x, "IMU Roll Angle: %f", imu_RollAngle);
+    debug(x);
 #endif
 }
 

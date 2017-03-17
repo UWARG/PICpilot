@@ -81,13 +81,17 @@ unsigned long VN_SPI_SendReceive(unsigned long data){
     unsigned long ret = 0;
     
     /* Wait for SPI2 Tx buffer empty */
-  	while (SPI2STATbits.SPITBF);
+  	while (SPI2STATbits.SPITBF){}
     
     /* Send SPI2 requests, save received data */
-    int i;
-    for (i = 0; i < 4; i++) {
-        ret |= ((unsigned long)SPI_TX_RX(IMU_SPI_PORT, VN_BYTE(data, i)) << (8*i));
-    }
+//    int i;
+//    for (i = 0; i < 4; i++) {
+//        ret |= ((uint32_t)SPI_TX_RX(IMU_SPI_PORT, VN_BYTE(data, i))) << (8*i);
+//    }
+    ret |= ((uint32_t)SPI_TX_RX(IMU_SPI_PORT, VN_BYTE4(data)) << (8*0));
+    ret |= ((uint32_t)SPI_TX_RX(IMU_SPI_PORT, VN_BYTE3(data)) << (8*1));
+    ret |= ((uint32_t)SPI_TX_RX(IMU_SPI_PORT, VN_BYTE2(data)) << (8*2));
+    ret |= ((uint32_t)SPI_TX_RX(IMU_SPI_PORT, VN_BYTE1(data)) << (8*3));
     return ret;
 }
 
