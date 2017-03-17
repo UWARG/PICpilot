@@ -76,9 +76,9 @@ void pathManagerInit(void) {
 //    INTERCOM_3 = 0;    //Set RA12 to Output a Value of 0
 //    INTERCOM_4 = 0;    //Set RA13 to Output a Value of 0
 
-    initSPI(IC_DMA_PORT, 0, SPI_MODE1, SPI_BYTE, SPI_MASTER);
     init_DMA0(0);
     init_DMA1(0);
+    initSPI(IC_DMA_PORT, 0, SPI_MODE1, SPI_BYTE, SPI_MASTER);
 
     DMA1REQbits.FORCE = 1;
     while (DMA1REQbits.FORCE == 1);

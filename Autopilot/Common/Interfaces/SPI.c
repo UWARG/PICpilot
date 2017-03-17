@@ -69,7 +69,7 @@ void initSPI(uint8_t interface, uint16_t clock, spi_mode mode, spi_width width, 
         
         SPI1BUF = 0; // clear buffer
 
-        SPI1STATbits.SPISIDL = 1; //Don't continue module operation in idle mode
+        SPI1STATbits.SPISIDL = 0; // Continue module operation in idle mode
         SPI1STATbits.SPIROV = 0; // Clear receive overflow
         SPI1CON1bits.DISSCK = 0; //SPI clock controlled by this module
         SPI1CON1bits.DISSDO = 0; //Output pins are controlled by this module

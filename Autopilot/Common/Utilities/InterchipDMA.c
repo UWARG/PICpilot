@@ -42,14 +42,13 @@ void init_DMA0(char isAttMan){
     DMA0CONbits.MODE = 0b00; //Transfer continuously
     DMA0CONbits.SIZE = 1; //Transfer byte (8 bits)
     if (isAttMan == 1) {
-        DMA1STA = __builtin_dmaoffset(&pmData); //Primary Transfer Buffer
-        DMA0PAD = (volatile unsigned int) &SPI1BUF; //Peripheral Address
-        DMA1CNT = (sizeof(PMData) - 1); //+1 for checksum //DMA Transfer Count Length
+        DMA0STA = __builtin_dmaoffset(&pmData); //Primary Transfer Buffer
+        DMA0CNT = (sizeof(PMData) - 1); //+1 for checksum //DMA Transfer Count Length
     } else {
-        DMA1STA = __builtin_dmaoffset(&amData); //Primary Transfer Buffer
-        DMA0PAD = (volatile unsigned int) &SPI1BUF; //Peripheral Address
-        DMA1CNT = (sizeof(AMData) - 1); //+1 for checksum //DMA Transfer Count Length   
+        DMA0STA = __builtin_dmaoffset(&amData); //Primary Transfer Buffer
+        DMA0CNT = (sizeof(AMData) - 1); //+1 for checksum //DMA Transfer Count Length   
     }
+    DMA0PAD = (volatile unsigned int) &SPI1BUF; //Peripheral Address
     DMA0REQ = 0x000A;//0b0100001; //IRQ code for SPI1
     DMA0CONbits.CHEN = 1; //Enable the channel
 }
@@ -67,13 +66,12 @@ void init_DMA1(char isAttMan){
     DMA1CONbits.SIZE = 1; //Transfer byte (8 bits)
     if (isAttMan == 1) {
         DMA1STA = __builtin_dmaoffset(&amData); //Primary Transfer Buffer
-        DMA1PAD = (volatile unsigned int) &SPI1BUF; //Peripheral Address
         DMA1CNT = (sizeof(AMData) - 1); //+1 for checksum //DMA Transfer Count Length
     } else {
         DMA1STA = __builtin_dmaoffset(&pmData); //Primary Transfer Buffer
-        DMA1PAD = (volatile unsigned int) &SPI1BUF; //Peripheral Address
         DMA1CNT = (sizeof(PMData) - 1); //+1 for checksum //DMA Transfer Count Length   
     }
+    DMA1PAD = (volatile unsigned int) &SPI1BUF; //Peripheral Address
     DMA1REQ = 0x000A;//0b0100001; //IRQ code for SPI1
     DMA1CONbits.CHEN = 1; //Enable the channel
 }
