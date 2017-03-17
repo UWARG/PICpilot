@@ -46,9 +46,6 @@
 /* Bit mask to get the 1st byte (least significant) out of a 32-bit word */
 #define VN_BYTE4(word)    ((unsigned char)((word) & 0x000000FF))
 
-/* Bit mask to get the nth byte out of a 32-bit word where n=0 is most significant and n=3 is least significant */
-#define VN_BYTE(word, n)   ((unsigned char)((word & (0x000000FF << (n*8))) >> (n*8))) // doesn't work?
-
 /* Exported functions ------------------------------------------------------- */
 
 
