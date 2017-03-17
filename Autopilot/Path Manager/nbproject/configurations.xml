@@ -6,15 +6,14 @@
                    projectFiles="true">
       <logicalFolder name="f2" displayName="Interfaces" projectFiles="true">
         <itemPath>../Common/Interfaces/UART.h</itemPath>
-        <itemPath>../Common/Interfaces/I2C.h</itemPath>
-        <itemPath>../Common/Interfaces/SPI.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="Utilities" projectFiles="true">
         <itemPath>../Common/Utilities/Logger.h</itemPath>
         <itemPath>../Common/Utilities/ByteQueue.h</itemPath>
-        <itemPath>../Common/Utilities/InterchipDMA.h</itemPath>
       </logicalFolder>
       <itemPath>Dubins.h</itemPath>
+      <itemPath>I2C.h</itemPath>
+      <itemPath>InterchipDMA.h</itemPath>
       <itemPath>main.h</itemPath>
       <itemPath>MPL3115A2.h</itemPath>
       <itemPath>NMEAparser.h</itemPath>
@@ -24,7 +23,6 @@
       <itemPath>StartupErrorCodes.h</itemPath>
       <itemPath>airspeedSensor.h</itemPath>
       <itemPath>MainBatterySensor.h</itemPath>
-      <itemPath>GPSDMA.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -35,15 +33,14 @@
                    projectFiles="true">
       <logicalFolder name="f1" displayName="Interfaces" projectFiles="true">
         <itemPath>../Common/Interfaces/UART.c</itemPath>
-        <itemPath>../Common/Interfaces/I2C.c</itemPath>
-        <itemPath>../Common/Interfaces/SPI.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="Utilities" projectFiles="true">
         <itemPath>../Common/Utilities/ByteQueue.c</itemPath>
         <itemPath>../Common/Utilities/Logger.c</itemPath>
-        <itemPath>../Common/Utilities/InterchipDMA.c</itemPath>
       </logicalFolder>
       <itemPath>Dubins.c</itemPath>
+      <itemPath>I2C.c</itemPath>
+      <itemPath>InterchipDMA.c</itemPath>
       <itemPath>main.c</itemPath>
       <itemPath>MPL3115A2.c</itemPath>
       <itemPath>NMEAparser.c</itemPath>
@@ -53,7 +50,6 @@
       <itemPath>StartupErrorCodes.c</itemPath>
       <itemPath>airspeedSensor.c</itemPath>
       <itemPath>MainBatterySensor.c</itemPath>
-      <itemPath>GPSDMA.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -63,7 +59,6 @@
   </logicalFolder>
   <sourceRootList>
     <Elem>../AttitudeManager</Elem>
-    <Elem>../Common</Elem>
     <Elem>.</Elem>
     <Elem>../Common/Utilities</Elem>
     <Elem>../Common/Interfaces</Elem>

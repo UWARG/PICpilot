@@ -15,7 +15,7 @@
 #include "commands.h"
 #include "StartupErrorCodes.h"
 #include "main.h"
-#include "../Common/Interfaces/SPI.h"
+#include "InterchipDMA.h"
 #include "ProgramStatus.h"
 #include <string.h>
 
@@ -168,9 +168,9 @@ void attitudeInit() {
     TRISAbits.TRISA3 = 0;
     PORTAbits.RA3 = 1;
 
-    init_DMA0(1);
-    init_DMA1(1);
-    initSPI(IC_DMA_PORT, 0, SPI_MODE1, SPI_BYTE, SPI_SLAVE);
+    init_SPI1();
+    init_DMA0();
+    init_DMA1();
 
 
     /* Initialize Input Capture and Output Compare Modules */
@@ -256,20 +256,17 @@ char checkDMA(){
     }
     else{
 //        INTERCOM_2 = 1;
+        SPI1STATbits.SPIEN = 0; //Disable SPI1
         DMA0CONbits.CHEN = 0; //Disable DMA0 channel
         DMA1CONbits.CHEN = 0; //Disable DMA1 channel
-        SPI1STATbits.SPIEN = 0; //Disable SPI1
-
         while(SPI1STATbits.SPIRBF) { //Clear SPI1
             SPI1BUF;
         }
 //        INTERCOM_2 = 0;
 //        while(INTERCOM_4);
-        
-        init_DMA0(1);
-        init_DMA1(1);
-        initSPI(IC_DMA_PORT, 0, SPI_MODE1, SPI_BYTE, SPI_SLAVE);
-
+        init_SPI1(); // Restart SPI
+        init_DMA0(); // Restart DMA0
+        init_DMA1(); // Restart DMA1
         DMA1REQbits.FORCE = 1;
         while (DMA1REQbits.FORCE == 1);
         return FALSE;
@@ -529,17 +526,17 @@ void imuCommunication(){
     imu_YawAngle = imuData[YAW];
     imu_PitchAngle = imuData[PITCH];
     imu_RollAngle = imuData[ROLL];
-#if DEBUG && 0
+#if DEBUG
     // Rate - Radians, Angle - Degrees
-    char x[30];
-    sprintf(x, "IMU Roll Rate: %f", imu_RollRate);
-    debug(x);
-    sprintf(x, "IMU Pitch Rate: %f", imu_PitchRate);
-    debug(x);
-    sprintf(x, "IMU Pitch Angle: %f", imu_PitchAngle);
-    debug(x);
-    sprintf(x, "IMU Roll Angle: %f", imu_RollAngle);
-    debug(x);
+//    char x[30];
+//    sprintf(&x, "IMU Roll Rate: %f", imu_RollRate);
+//    debug(&x);
+//    sprintf(&x, "IMU Pitch Rate: %f", imu_PitchRate);
+//    debug(&x);
+//    sprintf(&x, "IMU Pitch Angle: %f", imu_PitchAngle);
+//    debug(&x);
+//    sprintf(&x, "IMU Roll Angle: %f", imu_RollAngle);
+//    debug(&x);
 #endif
 }
 
