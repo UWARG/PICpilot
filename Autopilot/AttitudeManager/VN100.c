@@ -17,7 +17,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "VN100.h"
 #include "VN_lib.h"
-#include "main.h"
 
 
 #ifdef _VN100

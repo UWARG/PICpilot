@@ -20,8 +20,6 @@
 #include "VN_user.h"
 #include "VN_lib.h"
 #include "delay.h"
-#include "StateMachine.h"
-#include "ProgramStatus.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/

@@ -80,6 +80,8 @@
       </logicalFolder>
       <logicalFolder name="f12" displayName="Drivers" projectFiles="true">
         <itemPath>Drivers/RadioXbee.c</itemPath>
+        <itemPath>IMU_VN100.c</itemPath>
+        <itemPath>IMU_MPU9250.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f8" displayName="Interfaces" projectFiles="true">
         <itemPath>../Common/Interfaces/UART.c</itemPath>
@@ -116,6 +118,7 @@
         <itemPath>FixedWing.c</itemPath>
       </logicalFolder>
       <itemPath>main.c</itemPath>
+      <itemPath>IMU_Generic.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
