@@ -1,7 +1,7 @@
 /**
  * @file IMU.h
  * @author Ian Frosst
- * @date MArch 16, 2017
+ * @date March 16, 2017
  * @copyright Waterloo Aerial Robotics Group 2017 \n
  *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE
  */

@@ -219,14 +219,14 @@ byte SPI_TX_RX(uint8_t interface, byte data) {
 
 void __attribute__((__interrupt__, no_auto_psv)) _SPI1Interrupt(void) {
     IFS0bits.SPI1IF = 0; //Clear interrupt flag
-    SPI1STATbits.SPIROV = 0;
     IFS0bits.SPI1EIF = 0;
-    //(*SPI1_next)(); 
+    SPI1STATbits.SPIROV = 0;
+    (*SPI1_next)(); // next SPI1 operation
 }
 
 void __attribute__((__interrupt__, no_auto_psv)) _SPI2Interrupt(void) {
     IFS2bits.SPI2IF = 0; //Clear interrupt flag
-    SPI2STATbits.SPIROV = 0;
     IFS2bits.SPI2EIF = 0;
-    //(*SPI2_next)(); 
+    SPI2STATbits.SPIROV = 0;
+    (*SPI2_next)(); // next SPI2 operation
 }
