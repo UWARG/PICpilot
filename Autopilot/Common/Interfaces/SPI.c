@@ -41,6 +41,25 @@ byte SPI2_RXBF[32]; // buffer received bytes go in while we wait
  * If we've just sent our first command, the RX bytes will be useless.
  */
 
+// values from the data sheet
+const static uint8_t ppre_vals[4] = {64,16,4,1}; // primary pre-scale
+const static uint8_t spre_vals[8] = {8,7,6,5,4,3,2,1}; // secondary pre-scale
+
+void getPrescale(uint16_t clock, uint8_t* ppre, uint8_t* spre) {
+    int i, j;
+    uint16_t clock_khz = CLOCK_FREQUENCY / 1000;
+    uint16_t highest_clock = 0;
+    for (i = 0; i < 4; i++) {
+        for (j = 0; j < 8; j++) {
+            uint16_t tmp_clock = clock_khz / (ppre_vals[i] * spre_vals[j]);
+            if (tmp_clock > highest_clock && tmp_clock <= clock) {
+                highest_clock = tmp_clock;
+                *ppre = ppre_vals[i];
+                *spre = spre_vals[j];
+            }
+        }
+    }
+}
 
 void buffRX() {
     if (SPI2STATbits.SPIRBF) { // if there's data in the RX buffer
@@ -83,9 +102,11 @@ void initSPI(uint8_t interface, uint16_t clock, spi_mode mode, spi_width width, 
             SPI1CON1bits.SSEN = 0; // clear SS mode    
             TRISBbits.TRISB2 = 0; // set SS pin as output
             
-            // clock pre-scale bits: 2500 kHz
-            SPI1CON1bits.PPRE = 0b10; // Primary: 4:1 
-            SPI1CON1bits.SPRE = 0b100; // Secondary: 4:1 
+            // clock pre-scale bits
+            uint8_t ppre, spre;
+            getPrescale(clock, &ppre, &spre);
+            SPI1CON1bits.PPRE = ppre;
+            SPI1CON1bits.SPRE = spre;
         } else if (mss == SPI_SLAVE) {
             SPI1CON1bits.MSTEN = 0; // Slave mode
             SPI1CON1bits.SMP = 0; // sample input in middle of wave
@@ -140,9 +161,11 @@ void initSPI(uint8_t interface, uint16_t clock, spi_mode mode, spi_width width, 
             SPI2CON1bits.SSEN = 0; // clear SS mode            
             TRISGbits.TRISG9 = 0; // set SS pin as output
 
-            // clock pre-scale bits: 5000 kHz // TODO: implement dynamic scaling
-            SPI2CON1bits.PPRE = 0b10; // Primary: 4:1 
-            SPI2CON1bits.SPRE = 0b111; // Secondary: 1:1 
+            // clock pre-scale bits
+            uint8_t ppre, spre;
+            getPrescale(clock, &ppre, &spre);
+            SPI2CON1bits.PPRE = ppre;
+            SPI2CON1bits.SPRE = spre;
         } else if (mss == SPI_SLAVE) {
             SPI2CON1bits.MSTEN = 0; // Slave mode
             SPI2CON1bits.SMP = 0; // sample input in middle of wave

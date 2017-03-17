@@ -24,6 +24,7 @@
 #endif
 
 #define IC_DMA_PORT 1
+#define DMA_CLOCK_KHZ 2500
 
 //Function Prototypes
 void init_DMA0(char isAttMan);
