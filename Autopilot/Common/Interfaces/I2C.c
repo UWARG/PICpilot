@@ -47,7 +47,7 @@ char checkDevicePresence(char devAddress, char reg){
     I2CIdle(); //Wait until acknowledge is sent from the slave
     I2C2TRN = (devAddress << 1) + 1; //Shift and add the read bit(1) - Prep for restart
     I2CIdle(); //Wait until acknowledge is sent from the slave
-    ///THE MESSAGE FROM THE SLAVE IS SENT HRE
+    ///THE MESSAGE FROM THE SLAVE IS SENT HERE
     I2C2CONbits.RCEN = 1; //Enable receive mode
     I2CIdle(); //Wait until all 8 bits have been acquired
     while (I2C2STATbits.RBF != 1 && count < 0x0FFF)count++;

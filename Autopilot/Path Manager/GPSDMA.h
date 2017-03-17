@@ -13,6 +13,7 @@
 #include "PathManager.h"
 #include "../Common/Common.h"
 
+#define GPS_SPI_PORT 2
 //Data Structures
 
 typedef struct _GPSData {

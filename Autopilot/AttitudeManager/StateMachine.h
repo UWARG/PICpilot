@@ -16,7 +16,6 @@
 
 #include "main.h"
 #include "AttitudeManager.h"
-#include "../Common/Utilities/InterchipDMA.h"
 #include "net.h"
 #include "VN100.h"
 

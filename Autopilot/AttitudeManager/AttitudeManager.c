@@ -7,9 +7,7 @@
 
 //Include Header Files
 #include "delay.h"
-
 #include "VN100.h"
-
 #include "InputCapture.h"
 #include "OutputCompare.h"
 #include "PWM.h"
@@ -186,7 +184,6 @@ void attitudeInit() {
      *  Initialize IMU with correct orientation matrix and filter settings
      *  *****************************************************************
      */
-    
     //In order: Angular Walk, Angular Rate x 3, Magnetometer x 3, Acceleration x 3
     float filterVariance[10] = {1e-9, 1e-9, 1e-9, 1e-9, 1, 1, 1, 1e-4, 1e-4, 1e-4}; //  float filterVariance[10] = {1e-10, 1e-6, 1e-6, 1e-6, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2};
     VN100_initSPI();
@@ -209,8 +206,6 @@ void attitudeInit() {
     else{
         setSensorStatus(VECTORNAV, SENSOR_CONNECTED & FALSE);
     }
-
-
 #if DEBUG
         debug("Datalink Initialized");
 #endif
@@ -247,13 +242,13 @@ char checkDMA(){
         if (gps_Altitude == pmData.altitude && gps_Heading == pmData.heading && gps_GroundSpeed == pmData.speed && gps_Latitude == pmData.latitude && gps_Longitude == pmData.longitude){
             return FALSE;
         }
-        
+
         gps_Heading = pmData.heading;
         gps_GroundSpeed = pmData.speed * 1000.0/3600.0; //Convert from km/h to m/s
         gps_Longitude = pmData.longitude;
         gps_Latitude = pmData.latitude;
         gps_Altitude = pmData.altitude;
-        
+
         if (gps_PositionFix){
             input_AP_Heading = pmData.sp_Heading;
         }

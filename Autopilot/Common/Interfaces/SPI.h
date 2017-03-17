@@ -43,8 +43,22 @@ typedef enum {
  */
 void SPI_SS(uint8_t interface, pin_state state);
 
-void initSPI(uint8_t interface, uint16_t clock, spi_mode mode, spi_width width, spi_type mss);
+/**
+ * Initializes an SPI port as a master or a slave
+ * @param interface Which interface to initialize (1 or 2)
+ * @param clock Highest acceptable clock speed (in Hz), if master. Will be set at or below this.
+ * @param mode SPI mode 0, 1, 2, or 3. Defines clock polarity and edge.
+ * @param width Byte-width or word-width
+ * @param master Whether this port will be a master or a slave
+ */
+void initSPI(uint8_t interface, uint16_t clock, spi_mode mode, spi_width width, spi_type master);
 
+/**
+ * 
+ * @param interface Which interface to send/receive on
+ * @param data The data to send
+ * @return The data returned
+ */
 byte SPI_TX_RX(uint8_t interface, byte data);
 
 #endif	/* SPI_H */

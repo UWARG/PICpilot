@@ -59,7 +59,7 @@ void pathManagerInit(void) {
 
 //Communication with GPS
     init_DMA2();
-    initSPI(2, 0, SPI_MODE1, SPI_WORD, SPI_SLAVE);
+    initSPI(GPS_SPI_PORT, 0, SPI_MODE1, SPI_WORD, SPI_SLAVE);
     initMainBatterySensor();
     initAirspeedSensor();
 
@@ -73,8 +73,8 @@ void pathManagerInit(void) {
     TRISBbits.TRISB4 = 1;   //Init RB4 as Input (1)
     TRISBbits.TRISB5 = 1;   //Init RB5 as Input (1)
 
-//    INTERCOM_3 = 0;    //Set RA12 to Output a Value of 0
-//    INTERCOM_4 = 0;    //Set RA13 to Output a Value of 0
+    INTERCOM_3 = 0;    //Set RA12 to Output a Value of 0
+    INTERCOM_4 = 0;    //Set RA13 to Output a Value of 0
 
     init_DMA0(0);
     init_DMA1(0);
