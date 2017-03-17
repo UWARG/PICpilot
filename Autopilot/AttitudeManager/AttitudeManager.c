@@ -7,6 +7,7 @@
 
 //Include Header Files
 #include "delay.h"
+#include "VN100.h"
 #include "InputCapture.h"
 #include "OutputCompare.h"
 #include "PWM.h"
@@ -16,7 +17,7 @@
 #include "main.h"
 #include "../Common/Interfaces/SPI.h"
 #include "ProgramStatus.h"
-#include "IMU.h"
+#include <string.h>
 
 extern PMData pmData;
 extern AMData amData;
@@ -26,6 +27,8 @@ long int lastTime = 0;
 long int heartbeatTimer = 0;
 long int UHFTimer = 0;
 long int gpsTimer = 0;
+
+float* velocityComponents;
 
 // Setpoints (From radio transmitter or autopilot)
 int sp_PitchRate = 0;
@@ -75,6 +78,21 @@ char waypointCount = 0;
 int batteryLevel1 = 0;
 int batteryLevel2 = 0;
 
+// System outputs (get from IMU)
+float imuData[3];
+float imu_RollRate = 0;
+float imu_PitchRate = 0;
+float imu_YawRate = 0;
+
+//IMU integration outputs
+float imu_RollAngle = 0;
+float imu_PitchAngle = 0;
+float imu_YawAngle = 0;
+
+int rollTrim = 0;
+int pitchTrim = 0;
+int yawTrim = 0;
+
 //RC Input Signals (Input Capture Values)
 int input_RC_RollRate = 0;
 int input_RC_PitchRate = 0;
@@ -113,6 +131,7 @@ int lastCommandCounter = 0;
 int headingCounter = 0;
 char altitudeTrigger = 0;
 
+float refRotationMatrix[9];
 float lastAltitude = 0;
 long int lastAltitudeTime = 0;
 
@@ -165,9 +184,28 @@ void attitudeInit() {
      *  Initialize IMU with correct orientation matrix and filter settings
      *  *****************************************************************
      */
+    //In order: Angular Walk, Angular Rate x 3, Magnetometer x 3, Acceleration x 3
+    float filterVariance[10] = {1e-9, 1e-9, 1e-9, 1e-9, 1, 1, 1, 1e-4, 1e-4, 1e-4}; //  float filterVariance[10] = {1e-10, 1e-6, 1e-6, 1e-6, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2};
+    VN100_initSPI();
 
-    initIMU();
+    char model[12];
+    VN100_SPI_GetModel(0, model);
+    if (strcmp(model, "VN-100T-SMD") == 0 || strcmp(model, "VN-100T") == 0){
+        setSensorStatus(VECTORNAV, SENSOR_CONNECTED & TRUE);
+        //IMU position matrix
+        // offset = {x, y, z}
+        float cal_x = -90;
+        float cal_y = -90;
+        float cal_z = 0.0;
+        float offset[3] = {cal_x,cal_y,cal_z};
 
+        setVNOrientationMatrix((float*)&offset);
+        VN100_SPI_SetFiltMeasVar(0, (float*)&filterVariance);
+        setSensorStatus(VECTORNAV, SENSOR_INITIALIZED & TRUE);
+    }
+    else{
+        setSensorStatus(VECTORNAV, SENSOR_CONNECTED & FALSE);
+    }
 #if DEBUG
         debug("Datalink Initialized");
 #endif
@@ -251,7 +289,24 @@ long double getLongitude(){
 long double getLatitude(){
     return gps_Latitude;
 }
-
+float getRoll(){
+    return imu_RollAngle;
+}
+float getPitch(){
+    return imu_PitchAngle;
+}
+float getYaw(){
+    return imu_YawAngle;
+}
+float getRollRate(){
+    return imu_RollRate;
+}
+float getPitchRate(){
+    return imu_PitchRate;
+}
+float getYawRate(){
+    return imu_YawRate;
+}
 int getRollAngleSetpoint(){
     return sp_RollAngle;
 }
@@ -462,7 +517,18 @@ void imuCommunication(){
                                 IMU COMMUNICATION
      *****************************************************************************
      *****************************************************************************/
-    readIMU();
+    VN100_SPI_GetRates(0, (float*) &imuData);
+
+    //TODO: This is a reminder for me to figure out a more elegant way to fix improper derivative control (based on configuration of the sensor), adding this negative is a temporary fix. Some kind of calibration command or something.
+    //DO NOT ADD NEGATIVES IN THE STATEMENTS BELOW. IT IS A GOOD WAY TO ROYALLY SCREW YOURSELF OVER LATER.
+    //Outputs in order: Roll,Pitch,Yaw
+    imu_RollRate = imuData[IMU_ROLL_RATE];
+    imu_PitchRate = imuData[IMU_PITCH_RATE];
+    imu_YawRate = imuData[IMU_YAW_RATE];
+    VN100_SPI_GetYPR(0, &imuData[YAW], &imuData[PITCH], &imuData[ROLL]);
+    imu_YawAngle = imuData[YAW];
+    imu_PitchAngle = imuData[PITCH];
+    imu_RollAngle = imuData[ROLL];
 #if DEBUG && 0
     // Rate - Radians, Angle - Degrees
     char x[30];
@@ -800,10 +866,10 @@ void readDatalink(void){
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case TARE_IMU:
-                IMU_tare();
+                adjustVNOrientationMatrix((float*)(&cmd->data));
                 break;
             case SET_IMU:
-                IMU_setOrientation((float*)(&cmd->data));
+                setVNOrientationMatrix((float*)(&cmd->data));
                 break;
             case SET_KDVALUES:
                 setKValues(GAIN_KD,(float*)(&cmd->data));
@@ -986,4 +1052,88 @@ void checkGPS(){
 //    else{
 //        gpsTimer = getTime();
 //    }
+}
+
+
+void adjustVNOrientationMatrix(float* adjustment){
+
+    adjustment[0] = deg2rad(adjustment[0]);
+    adjustment[1] = deg2rad(adjustment[1]);
+    adjustment[2] = deg2rad(adjustment[2]);
+
+    float matrix[9];
+    VN100_SPI_GetRefFrameRot(0, (float*)&matrix);
+
+    float refRotationMatrix[9] = {cos(adjustment[1]) * cos(adjustment[2]), -cos(adjustment[1]) * sin(adjustment[2]), sin(adjustment[1]),
+        sin(deg2rad(adjustment[0])) * sin(adjustment[1]) * cos(adjustment[2]) + sin(adjustment[2]) * cos(adjustment[0]), -sin(adjustment[0]) * sin(adjustment[1]) * sin(adjustment[2]) + cos(adjustment[2]) * cos(adjustment[0]), -sin(adjustment[0]) * cos(adjustment[1]),
+        -cos(deg2rad(adjustment[0])) * sin(adjustment[1]) * cos(adjustment[2]) + sin(adjustment[2]) * sin(adjustment[0]), cos(adjustment[0]) * sin(adjustment[1]) * sin(adjustment[2]) + cos(adjustment[2]) * sin(adjustment[0]), cos(adjustment[0]) * cos(adjustment[1])};
+
+    int i = 0;
+    for (i = 0; i < 9; i++){
+        refRotationMatrix[i] += matrix[i];
+    }
+
+    VN100_SPI_SetRefFrameRot(0, (float*)&refRotationMatrix);
+    VN100_SPI_WriteSettings(0);
+    VN100_SPI_Reset(0);
+
+}
+
+void setVNOrientationMatrix(float* angleOffset){
+    //angleOffset[0] = x, angleOffset[1] = y, angleOffset[2] = z
+    angleOffset[0] = deg2rad(angleOffset[0]);
+    angleOffset[1] = deg2rad(angleOffset[1]);
+    angleOffset[2] = deg2rad(angleOffset[2]);
+
+    refRotationMatrix[0] = cos(angleOffset[1]) * cos(angleOffset[2]);
+    refRotationMatrix[1] = -cos(angleOffset[1]) * sin(angleOffset[2]);
+    refRotationMatrix[2] = sin(angleOffset[1]);
+
+    refRotationMatrix[3] = sin(angleOffset[0]) * sin(angleOffset[1]) * cos(angleOffset[2]) + sin(angleOffset[2]) * cos(angleOffset[0]);
+    refRotationMatrix[4] = -sin(angleOffset[0]) * sin(angleOffset[1]) * sin(angleOffset[2]) + cos(angleOffset[2]) * cos(angleOffset[0]);
+    refRotationMatrix[5] = -sin(angleOffset[0]) * cos(angleOffset[1]);
+
+    refRotationMatrix[6] = -cos(angleOffset[0]) * sin(angleOffset[1]) * cos(angleOffset[2]) + sin(angleOffset[2]) * sin(angleOffset[0]);
+    refRotationMatrix[7] = cos(angleOffset[0]) * sin(angleOffset[1]) * sin(angleOffset[2]) + cos(angleOffset[2]) * sin(angleOffset[0]);
+    refRotationMatrix[8] = cos(angleOffset[0]) * cos(angleOffset[1]);
+    VN100_SPI_SetRefFrameRot(0, (float*)&refRotationMatrix);
+    VN100_SPI_WriteSettings(0);
+    VN100_SPI_Reset(0);
+}
+void setAngularWalkVariance(float variance){
+    float previousVariance[10];
+    VN100_SPI_GetFiltMeasVar(0, (float*)&previousVariance);
+    previousVariance[0] = variance;
+    VN100_SPI_SetFiltMeasVar(0, (float*)&previousVariance);
+    VN100_SPI_WriteSettings(0);
+}
+
+void setGyroVariance(float variance){
+    float previousVariance[10];
+    VN100_SPI_GetFiltMeasVar(0, (float*)&previousVariance);
+    previousVariance[1] = variance; //X -Can be split up later if needed
+    previousVariance[2] = variance; //Y
+    previousVariance[3] = variance; //Z
+    VN100_SPI_SetFiltMeasVar(0, (float*)&previousVariance);
+    VN100_SPI_WriteSettings(0);
+}
+
+void setMagneticVariance(float variance){
+    float previousVariance[10];
+    VN100_SPI_GetFiltMeasVar(0, (float*)&previousVariance);
+    previousVariance[4] = variance; //X -Can be split up later if needed
+    previousVariance[5] = variance; //Y
+    previousVariance[6] = variance; //Z
+    VN100_SPI_SetFiltMeasVar(0, (float*)&previousVariance);
+    VN100_SPI_WriteSettings(0);
+}
+
+void setAccelVariance(float variance){
+    float previousVariance[10];
+    VN100_SPI_GetFiltMeasVar(0, (float*)&previousVariance);
+    previousVariance[7] = variance; //X -Can be split up later if needed
+    previousVariance[8] = variance; //Y
+    previousVariance[9] = variance; //Z
+    VN100_SPI_SetFiltMeasVar(0, (float*)&previousVariance);
+    VN100_SPI_WriteSettings(0);
 }

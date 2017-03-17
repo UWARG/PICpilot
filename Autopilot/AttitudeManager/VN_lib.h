@@ -23,8 +23,6 @@
 #include "VN_math.h"
 #include "VN_user.h"
 
-#include "IMU.h"
-
 #ifdef _VN100
   #include "VN100.h"
 #endif /*_VN100 */

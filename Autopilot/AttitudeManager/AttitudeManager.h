@@ -77,6 +77,12 @@
 #define THROTTLE 5
 #define FLAP 6
 
+//Defined in the opposite order for rates of rotation
+//Be careful not to confuse the constants
+#define IMU_YAW_RATE     2
+#define IMU_PITCH_RATE   1
+#define IMU_ROLL_RATE    0
+
 /**
  * RC receiver channel configuration.
  * Note that only channel 8 will work hardware-wise as the
@@ -194,6 +200,38 @@ int writeDatalink(p_priority packet);
 
 void checkHeartbeat();
 void checkGPS();
+
+/*****************************************************************************
+ * Function: void adjustVNOrientationMatrix(float* adjustment);
+ *
+ * Preconditions: The VN100 module, and the SPI2 interface must have already been initialized.
+ *
+ * Overview: This function takes x,y,z positioning parameters (degrees) of the VN100 model, and applies
+ * it into an orientation matrix which removes any bias.
+ *
+ * Input:   float* adjustment - the x, y, z rotational components of the VN100 in degrees.
+ *
+ * Output:  None.
+ *
+ *****************************************************************************/
+void adjustVNOrientationMatrix(float* adjustment);
+
+/*****************************************************************************
+ * Function: void setVNOrientationMatrix(float* angleOffset);
+ *
+ * Preconditions: The VN100 module, and the SPI2 interface must have already been initialized.
+ *
+ * Overview: This function takes a roll, pitch, and yaw angle, and sets the
+ * VectorNav in a different orientation reference frame. Note that this saves the
+ * values to memory, and then resets the VN100.
+ *
+ * Input:   The angles in an array[3], which correspond to the x,y,z components of
+ * the altered reference frame.
+ *
+ * Output:  None.
+ *
+ *****************************************************************************/
+void setVNOrientationMatrix(float* angleOffset);
 
 //TODO: Add descriptions for these
 
