@@ -20,10 +20,15 @@ typedef struct IMU_data {
     float rollRate, pitchRate, yawRate;
 } IMU_data;
 
+/**
+ * Initializes the IMU. This also must initialize the interface for the IMU (SPI, I2C, etc.)
+ */
+void initIMU(void);
 
-void initIMU();
+/**
+ * Retrieves new orientation data from the IMU.
+ */
+void updateIMU(void);
 
-void updateIMU();
-
-#endif	/* IMU_H */
+#endif
 

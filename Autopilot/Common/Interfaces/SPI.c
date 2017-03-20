@@ -1,5 +1,5 @@
 /**
- * @file SPI.h
+ * @file SPI.c
  * @author Ian Frosst
  * @date March 13, 2017
  * @copyright Waterloo Aerial Robotics Group 2017 \n
@@ -12,40 +12,20 @@
 
 typedef void (*func_ptr)(void); // this is a bad idea
 
+static void null(){} // null function. safer than assigning pointer to NULL
 
-void null(){} // null function. safer than assigning pointer to NULL
+static func_ptr SPI1_next = &null;
+static func_ptr SPI2_next = &null;
 
-func_ptr SPI1_next = &null;
-func_ptr SPI2_next = &null;
+static uint16_t SPI2_wait_len; // indicates how many bytes we're waiting to receive;
 
-
-uint16_t SPI2_wait_len; // indicates how many bytes we're waiting to receive;
-
-byte SPI2_RXBF[32]; // buffer received bytes go in while we wait
-
-/*
- * Use this file as a modular way to interface with a device over SPI.
- */
-
-/*
- * SPI uses 4 pins:
- * SDIx: Serial Data Input              --> 1 : RF7, 2 : RG7
- * SDOx: Serial Data Output             --> 1 : RF8, 2 : RG8
- * SCKx: Shift Clock Input/Output       --> 1 : RF6, 2 : RG6
- * SSx/FSYNCx: Slave select/Frame Sync  --> 1 : RB2, 2 : RG9
- * Slave select is active-low
- * 
- * 
- * Every TX byte/word we send, we'll expect corresponding RX data, of the same size.
- * Whether we care about the received data is context-dependent.
- * If we've just sent our first command, the RX bytes will be useless.
- */
+static byte SPI2_RXBF[32]; // buffer received bytes go in while we wait
 
 // values from the data sheet
 const static uint8_t ppre_vals[4] = {64,16,4,1}; // primary pre-scale
 const static uint8_t spre_vals[8] = {8,7,6,5,4,3,2,1}; // secondary pre-scale
 
-void getPrescale(uint16_t clock, uint8_t* ppre, uint8_t* spre) {
+static void getPrescale(uint16_t clock, uint8_t* ppre, uint8_t* spre) {
     int i, j;
     uint16_t clock_khz = CLOCK_FREQUENCY / 1000;
     uint16_t highest_clock = 0;
@@ -61,20 +41,11 @@ void getPrescale(uint16_t clock, uint8_t* ppre, uint8_t* spre) {
     }
 }
 
-void buffRX() {
+static void buffRX() {
     if (SPI2STATbits.SPIRBF) { // if there's data in the RX buffer
         if (SPI2_wait_len > 0) { // if we're expecting data
             SPI2_RXBF[--SPI2_wait_len] = SPI2BUF;
         }
-    }
-}
-
-
-void SPI_SS(uint8_t interface, pin_state state) {
-    if (interface == 1) {
-        PORTBbits.RB2 = state;
-    } else if (interface == 2) {
-        PORTGbits.RG9 = state;
     }
 }
 
@@ -201,6 +172,14 @@ void initSPI(uint8_t interface, uint16_t clock, spi_mode mode, spi_width width, 
     }
 }
 
+void SPI_SS(uint8_t interface, pin_state state) {
+    if (interface == 1) {
+        PORTBbits.RB2 = state;
+    } else if (interface == 2) {
+        PORTGbits.RG9 = state;
+    }
+}
+
 byte SPI_TX_RX(uint8_t interface, byte data) {
     if (interface == 1) {
         SPI1BUF = data;
@@ -215,7 +194,6 @@ byte SPI_TX_RX(uint8_t interface, byte data) {
     }
     return -1;
 }
-
 
 void __attribute__((__interrupt__, no_auto_psv)) _SPI1Interrupt(void) {
     IFS0bits.SPI1IF = 0; //Clear interrupt flag

@@ -48,20 +48,17 @@
 void VN_SPI_SetSS(unsigned char sensorID, VN_PinState state){
 
 /* User code to set SPI SS lines goes here. */   
-  switch(sensorID){
-  
+    switch (sensorID) {
     case 0:
-      if(state == VN_PIN_LOW){
-        /* Start SPI Transaction - Pull SPI CS line low */
-        //GPIO_ResetBits(GPIOA, GPIO_Pin_0);
-		PORTGbits.RG9 = 0;
-      }else{
-        /* End SPI transaction - Pull SPI CS line high */
-        //GPIO_SetBits(GPIOA, GPIO_Pin_0);
-		PORTGbits.RG9 = 1;
-      }
-      break;
-  }
+        if(state == VN_PIN_LOW){
+          /* Start SPI Transaction - Pull SPI CS line low */
+            SPI_SS(IMU_SPI_PORT, PIN_LOW);
+        } else {
+          /* End SPI transaction - Pull SPI CS line high */
+            SPI_SS(IMU_SPI_PORT, PIN_HIGH);
+        }
+        break;
+    }
 }
 
 /*******************************************************************************

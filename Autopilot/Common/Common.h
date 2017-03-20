@@ -12,6 +12,8 @@
 #include <p33FJ256GP710A.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include <math.h>
 
 //Constants
@@ -129,6 +131,14 @@ typedef struct _AMData { // 60 Bytes
     char checksum;
     char checkbyteDMA;
 } AMData;
+
+/* Typing guidelines:
+ * When dealing with C-style strings or raw characters, use char
+ * When you need an integer no larger than 8 bits (i.e. +127/-128 or 0-255), use (u)int8_t
+ * When dealing with raw bytes (i.e. from a serial interface), use byte
+ */
+typedef uint8_t byte;
+typedef uint16_t word;
 
 char generatePMDataDMAChecksum1(void);
 char generatePMDataDMAChecksum2(void);

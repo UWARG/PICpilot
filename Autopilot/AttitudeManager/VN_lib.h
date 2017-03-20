@@ -43,7 +43,7 @@
 /* Bit mask to get the 3rd byte (most significant) out of a 32-bit word */
 #define VN_BYTE3(word)    ((unsigned char)(((word) & 0x0000FF00) >> 8))
 
-/* Bit mask to get the 1st byte (least significant) out of a 32-bit word */
+/* Bit mask to get the 4th byte (least significant) out of a 32-bit word */
 #define VN_BYTE4(word)    ((unsigned char)((word) & 0x000000FF))
 
 /* Exported functions ------------------------------------------------------- */
