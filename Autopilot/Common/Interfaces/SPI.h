@@ -31,24 +31,24 @@
 typedef enum {
     PIN_LOW = 0,
     PIN_HIGH
-} pin_state;
+} pinState;
 
 typedef enum {
     SPI_SLAVE = 0,
     SPI_MASTER
-} spi_type;
+} spiType;
 
 typedef enum {
     SPI_BYTE = 0,
     SPI_WORD
-} spi_width;
+} spiWidth;
 
 typedef enum {
     SPI_MODE0 = 0,
     SPI_MODE1,
     SPI_MODE2,
     SPI_MODE3
-} spi_mode;
+} spiMode;
 
 /**
  * Initializes an SPI port as a master or a slave
@@ -58,14 +58,14 @@ typedef enum {
  * @param width Byte-width or word-width
  * @param master Whether this port will be a master or a slave
  */
-void initSPI(uint8_t interface, uint16_t clock, spi_mode mode, spi_width width, spi_type master);
+void initSPI(uint8_t interface, uint16_t clock, spiMode mode, spiWidth width, spiType master);
 
 /**
  * Sets the Slave Select pin to the desired state. Not available in slave mode.
  * @param interface SPI interface to set SS for
  * @param state Pin state, high or low
  */
-void SPI_SS(uint8_t interface, pin_state state);
+void SPI_SS(uint8_t interface, pinState state);
 
 /**
  * 

@@ -49,7 +49,7 @@ static void buffRX() {
     }
 }
 
-void initSPI(uint8_t interface, uint16_t clock, spi_mode mode, spi_width width, spi_type mss){
+void initSPI(uint8_t interface, uint16_t clock, spiMode mode, spiWidth width, spiType mss){
 
     if (interface == 1) { // Usually DMA
         SPI1STATbits.SPIEN = 0; // Disable for configuration
@@ -172,7 +172,7 @@ void initSPI(uint8_t interface, uint16_t clock, spi_mode mode, spi_width width, 
     }
 }
 
-void SPI_SS(uint8_t interface, pin_state state) {
+void SPI_SS(uint8_t interface, pinState state) {
     if (interface == 1) {
         PORTBbits.RB2 = state;
     } else if (interface == 2) {

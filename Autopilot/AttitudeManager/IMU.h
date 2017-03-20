@@ -15,10 +15,10 @@
 
 #define USE_IMU VN100
 
-typedef struct IMU_data {
+typedef struct IMUData {
     float roll, pitch, heading;
     float rollRate, pitchRate, yawRate;
-} IMU_data;
+} IMUData;
 
 /**
  * Initializes the IMU. This also must initialize the interface for the IMU (SPI, I2C, etc.)
