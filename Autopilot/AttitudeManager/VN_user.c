@@ -76,15 +76,14 @@ void VN_SPI_SetSS(unsigned char sensorID, VN_PinState state){
 unsigned long VN_SPI_SendReceive(unsigned long data){
 /* User code to send out 4 bytes over SPI goes here */
     unsigned long ret = 0;
-    
-    /* Wait for SPI2 Tx buffer empty */
-  	while (SPI2STATbits.SPITBF){}
-    
+
     /* Send SPI2 requests, save received data */
-//    int i;
-//    for (i = 0; i < 4; i++) {
-//        ret |= ((uint32_t)SPI_TX_RX(IMU_SPI_PORT, VN_BYTE(data, i))) << (8*i);
-//    }
+#if 0 /* VN_BYTE() macro wasn't working. This is still a nicer way to run this code. */
+    int i;
+    for (i = 0; i < 4; i++) {
+        ret |= ((uint32_t)SPI_TX_RX(IMU_SPI_PORT, VN_BYTE(data, i))) << (8*i);
+    }
+#endif
     ret |= ((uint32_t)SPI_TX_RX(IMU_SPI_PORT, VN_BYTE4(data)) << (8*0));
     ret |= ((uint32_t)SPI_TX_RX(IMU_SPI_PORT, VN_BYTE3(data)) << (8*1));
     ret |= ((uint32_t)SPI_TX_RX(IMU_SPI_PORT, VN_BYTE2(data)) << (8*2));
