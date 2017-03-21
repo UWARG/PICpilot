@@ -48,20 +48,17 @@
 void VN_SPI_SetSS(unsigned char sensorID, VN_PinState state){
 
 /* User code to set SPI SS lines goes here. */   
-  switch(sensorID){
-  
+    switch (sensorID) {
     case 0:
-      if(state == VN_PIN_LOW){
-        /* Start SPI Transaction - Pull SPI CS line low */
-        //GPIO_ResetBits(GPIOA, GPIO_Pin_0);
-		PORTGbits.RG9 = 0;
-      }else{
-        /* End SPI transaction - Pull SPI CS line high */
-        //GPIO_SetBits(GPIOA, GPIO_Pin_0);
-		PORTGbits.RG9 = 1;
-      }
-      break;
-  }
+        if(state == VN_PIN_LOW){
+          /* Start SPI Transaction - Pull SPI CS line low */
+            SPI_SS(IMU_SPI_PORT, PIN_LOW);
+        } else {
+          /* End SPI transaction - Pull SPI CS line high */
+            SPI_SS(IMU_SPI_PORT, PIN_HIGH);
+        }
+        break;
+    }
 }
 
 /*******************************************************************************
@@ -77,74 +74,21 @@ void VN_SPI_SetSS(unsigned char sensorID, VN_PinState state){
 * Return         : The data received on the SPI bus
 *******************************************************************************/
 unsigned long VN_SPI_SendReceive(unsigned long data){
-
 /* User code to send out 4 bytes over SPI goes here */
-  unsigned long ret = 0;
-    /* Wait for SPI1 Tx buffer empty */
-    //while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_TXE) == RESET);
-  	while (SPI2STATbits.SPITBF){//if (smAllowed){StateMachine(STATEMACHINE_IMU);}
-        }
-    /* Send SPI1 requests */
-    //SPI_I2S_SendData(SPI1, VN_BYTE(data, i));
-	SPI2BUF = VN_BYTE4(data);
-        while (SPI2STATbits.SPITBF){
-        }
-    /* Wait for response from VN-100 */
-    //while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET);
-  	while (!SPI2STATbits.SPIRBF){//if (smAllowed){StateMachine(STATEMACHINE_IMU);}
-        }
-        
-    /* Save received data in buffer */
-    //ret |= ((unsigned long)SPI_I2S_ReceiveData(SPI1) << (8*i));
-	ret |= ((unsigned long)SPI2BUF << (0));
+    unsigned long ret = 0;
 
-  	while (SPI2STATbits.SPITBF){
-        }
-    /* Send SPI1 requests */
-    //SPI_I2S_SendData(SPI1, VN_BYTE(data, i));
-	SPI2BUF = VN_BYTE3(data);
-
-    /* Wait for response from VN-100 */
-    //while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET);
-  	while (!SPI2STATbits.SPIRBF){
-        }
-    /* Save received data in buffer */
-    //ret |= ((unsigned long)SPI_I2S_ReceiveData(SPI1) << (8*i));
-	ret |= ((unsigned long)SPI2BUF << (8));
-
-  	while (SPI2STATbits.SPITBF){
-        }
-    /* Send SPI1 requests */
-    //SPI_I2S_SendData(SPI1, VN_BYTE(data, i));
-	SPI2BUF = VN_BYTE2(data);
-
-    /* Wait for response from VN-100 */
-    //while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET);
-  	while (!SPI2STATbits.SPIRBF){
-        }
-
-    /* Save received data in buffer */
-    //ret |= ((unsigned long)SPI_I2S_ReceiveData(SPI1) << (8*i));
-	ret |= ((unsigned long)SPI2BUF << (16));
-
-  	while (SPI2STATbits.SPITBF){
-        }
-
-    /* Send SPI1 requests */
-    //SPI_I2S_SendData(SPI1, VN_BYTE(data, i));
-	SPI2BUF = VN_BYTE1(data);
-
-    /* Wait for response from VN-100 */
-    //while (SPI_I2S_GetFlagStatus(SPI1, SPI_I2S_FLAG_RXNE) == RESET);
-  	while (!SPI2STATbits.SPIRBF){
-        }
-    /* Save received data in buffer */
-    //ret |= ((unsigned long)SPI_I2S_ReceiveData(SPI1) << (8*i));
-	ret |= ((unsigned long)SPI2BUF << (24));
-
-
-
-  return ret;
+    /* Send SPI2 requests, save received data */
+#if 0 /* VN_BYTE() macro wasn't working. This is still a nicer way to run this code. */
+    int i;
+    for (i = 0; i < 4; i++) {
+        ret |= ((uint32_t)SPI_TX_RX(IMU_SPI_PORT, VN_BYTE(data, i))) << (8*i);
+    }
+#endif
+    ret |= ((uint32_t)SPI_TX_RX(IMU_SPI_PORT, VN_BYTE4(data)) << (8*0));
+    ret |= ((uint32_t)SPI_TX_RX(IMU_SPI_PORT, VN_BYTE3(data)) << (8*1));
+    ret |= ((uint32_t)SPI_TX_RX(IMU_SPI_PORT, VN_BYTE2(data)) << (8*2));
+    ret |= ((uint32_t)SPI_TX_RX(IMU_SPI_PORT, VN_BYTE1(data)) << (8*3));
+    return ret;
 }
 
 /*******************************************************************************

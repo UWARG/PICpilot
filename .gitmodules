@@ -1,0 +1,3 @@
+[submodule "Autopilot/vendor/mavlink"]
+	path = Autopilot/vendor/mavlink
+	url = git@github.com:UWARG/mavlink.git

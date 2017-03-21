@@ -99,7 +99,7 @@ struct priority2_block { //Medium Frequency - Once every second
     int batteryLevel1, batteryLevel2; // 2*2 bytes
     int ch1In,ch2In,ch3In,ch4In,ch5In,ch6In,ch7In,ch8In;
     int ch1Out,ch2Out,ch3Out,ch4Out,ch5Out,ch6Out,ch7Out,ch8Out;
-    int cameraStatus;
+    int unused;
     int yawRateSetpoint, headingSetpoint, altitudeSetpoint, flapSetpoint;
     char wirelessConnection; //1 byte
     char autopilotActive; //1 byte  

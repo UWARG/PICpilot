@@ -1,7 +1,7 @@
 #ifndef NMEAPARSER_H
 #define	NMEAPARSER_H
 
-#include "InterchipDMA.h"
+#include "GPSDMA.h"
 
 #if !GPS_OLD
 double convertLatLong(char latOrLong[]);

@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   commands.h
  * Author: andrew
  *
@@ -52,12 +52,12 @@
 #define RETURN_HOME 41
 #define CANCEL_RETURN_HOME 42
 #define SEND_HEARTBEAT 43
-#define TRIGGER_CAMERA 44
-#define SET_TRIGGER_DISTANCE 45
-#define SET_GIMBLE_OFFSET 46
+#define UNUSED_44 44
+#define UNUSED_45 45
+#define UNUSED_46 46
 #define KILL_PLANE 47
 #define UNKILL_PLANE 48
-#define LOCK_GOPRO 49
+#define UNUSED_49 49
 #define ARM_VEHICLE 50
 #define DEARM_VEHICLE 51
 #define SET_FLAP 52
@@ -69,7 +69,7 @@
 #define FOLLOW_PATH 58
 #define EXIT_HOLD_ORBIT 59
 #define SHOW_SCALED_PWM 60
-#define LIMITLESS 61
+#define REMOVE_LIMITS 61
 
 //Multipart Commands
 #define NEW_WAYPOINT 128
@@ -86,4 +86,3 @@
 //Multipart Command Structs
 
 #endif	/* COMMANDS_H */
-
