@@ -20,7 +20,7 @@
  * Inspired by ArduPilot control code.
  * TODO: convert to fixed-point (integers) for increased speed, decreased size.
  * (could probably do with tenth- or hundredth-degree integers)
- * 
+ * Floating-point math on the dsPIC33 is done via emulation, and is very slow.
  */
 
 // PID control values for the basic loops

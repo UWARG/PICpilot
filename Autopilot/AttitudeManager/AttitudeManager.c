@@ -115,7 +115,7 @@ int input_GS_Heading = 0;
 int input_AP_Altitude = 0;
 int input_AP_Heading = 0;
 
-float scaleFactor = 4; //Change this
+float scaleFactor = 5; // Roll angle -> pitch rate scaling (for fixed-wing turns) 
 
 char displayGain = 0;
 int controlLevel = 0;
@@ -505,81 +505,10 @@ void imuCommunication(){
                                 IMU COMMUNICATION
      *****************************************************************************
      *****************************************************************************/
-<<<<<<< HEAD
     float imuData[3];
 
     VN100_SPI_GetYPR(0, &imu_YawAngle, &imu_PitchAngle, &imu_RollAngle);
     VN100_SPI_GetRates(0, imuData);
-=======
-    VN100_SPI_GetRates(0, (float*) &imuData);
-
-    //TODO: This is a reminder for me to figure out a more elegant way to fix improper derivative control (based on configuration of the sensor), adding this negative is a temporary fix. Some kind of calibration command or something.
-    //DO NOT ADD NEGATIVES IN THE STATEMENTS BELOW. IT IS A GOOD WAY TO ROYALLY SCREW YOURSELF OVER LATER.
-    //Outputs in order: Roll,Pitch,Yaw
-    imu_RollRate = imuData[IMU_ROLL_RATE];
-    imu_PitchRate = imuData[IMU_PITCH_RATE];
-    imu_YawRate = imuData[IMU_YAW_RATE];
-    VN100_SPI_GetYPR(0, &imuData[YAW], &imuData[PITCH], &imuData[ROLL]);
-    imu_YawAngle = imuData[YAW];
-    imu_PitchAngle = imuData[PITCH];
-    imu_RollAngle = imuData[ROLL];
-#if DEBUG && 0
-    // Rate - Radians, Angle - Degrees
-    char x[30];
-    sprintf(x, "IMU Roll Rate: %f", imu_RollRate);
-    debug(x);
-    sprintf(x, "IMU Pitch Rate: %f", imu_PitchRate);
-    debug(x);
-    sprintf(x, "IMU Pitch Angle: %f", imu_PitchAngle);
-    debug(x);
-    sprintf(x, "IMU Roll Angle: %f", imu_RollAngle);
-    debug(x);
-#endif
-}
-
-int altitudeControl(int setpoint, int sensorAltitude){
-    //Altitude
-    ctrl_PitchAngle = controlSignalAltitude(setpoint, sensorAltitude) * ALTITUDE_TO_PITCH_DIRECTION; //TODO: Add -1 as a variable to flip directions
-    if (ctrl_PitchAngle > MAX_PITCH_ANGLE)
-        ctrl_PitchAngle = MAX_PITCH_ANGLE;
-    if (ctrl_PitchAngle < -MAX_PITCH_ANGLE)
-        ctrl_PitchAngle = -MAX_PITCH_ANGLE;
-    return ctrl_PitchAngle;
-}
-
-int throttleControl(int setpoint, int sensor){
-    //Throttle
-    throttlePID = sp_ThrottleRate + controlSignalThrottle(setpoint, sensor);
-    return throttlePID;
-}
-
-int flapControl(int setpoint, int sensor){
-    //Flaps
-    flapPID = sp_FlapRate + controlSignalFlap(setpoint, sensor);
-    return flapPID;
-}
-
-//Equivalent to "Yaw Angle Control"
-int headingControl(int setpoint, int sensor){
-    //Heading
-    while (setpoint > 360)
-        setpoint -= 360;
-    while (setpoint < 0)
-        setpoint += 360;
-
-    setHeadingSetpoint(setpoint);
-    ctrl_Heading = controlSignalHeading(setpoint, sensor) * HEADING_TO_ROLL_DIRECTION;//gps_Satellites>=4?gps_Heading:(int)imu_YawAngle); //changed to monitor satellites, since we know these are good values while PositionFix might be corrupt...
-    //Approximating Roll angle from Heading
-    sp_RollAngle = ctrl_Heading;      //TODO: HOW IS HEADING HANDLED DIFFERENTLY BETWEEN QUADS AND PLANES
-
-    if (sp_RollAngle > MAX_ROLL_ANGLE)
-        sp_RollAngle = MAX_ROLL_ANGLE;
-    if (sp_RollAngle < -MAX_ROLL_ANGLE)
-        sp_RollAngle = -MAX_ROLL_ANGLE;
-    return sp_RollAngle;
-}
->>>>>>> a200853f855cc0fc1bf6c140cd0b4bc5833da98b
-
 
     /* TODO: This is a reminder for me to figure out a more elegant way to fix improper derivative control
      * (based on configuration of the sensor), adding this negative is a temporary fix. Some kind of calibration command or something.
@@ -810,7 +739,7 @@ void readDatalink(void){
                     show_scaled_pwm = 0;
                 }
                 break;
-            case LIMITLESS:
+            case REMOVE_LIMITS:
                 limitSetpoint = (*(bool*)(&cmd->data));
             case NEW_WAYPOINT:
                 amData.waypoint = *(WaypointWrapper*)(&cmd->data);
@@ -935,15 +864,9 @@ int writeDatalink(p_priority packet){
             statusData->data.p2_block.yawRateSetpoint = getYawRateSetpoint();
             statusData->data.p2_block.headingSetpoint = getHeadingSetpoint();
             statusData->data.p2_block.altitudeSetpoint = getAltitudeSetpoint();
-<<<<<<< HEAD
             statusData->data.p2_block.flapSetpoint = 0;//getFlapSetpoint();
-            statusData->data.p2_block.cameraStatus = cameraCounter;
-            statusData->data.p2_block.wirelessConnection = ((input[5] < 180) << 1) + (input[6] > 0);//+ RSSI;
-=======
-            statusData->data.p2_block.flapSetpoint = getFlapSetpoint();
             statusData->data.p2_block.unused = 0;
-            statusData->data.p2_block.wirelessConnection = ((input[5] < 180) << 1) + (input[7] > 0);//+ RSSI;
->>>>>>> a200853f855cc0fc1bf6c140cd0b4bc5833da98b
+            statusData->data.p2_block.wirelessConnection = ((input[5] < 180) << 1) + (input[6] > 0);//+ RSSI;
             statusData->data.p2_block.autopilotActive = getProgramStatus();
             statusData->data.p2_block.gpsStatus = gps_Satellites + (gps_PositionFix << 4);
             statusData->data.p2_block.pathChecksum = waypointChecksum;
