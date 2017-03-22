@@ -65,6 +65,15 @@
 #define Fcy		    (Fosc*4/2)	    // w.PLL (Instruction Per Second)
 #define Fsck	    100000		    // 400kHz I2C
 #define I2C_BRG	    ((Fcy/2/Fsck)-1)
+#define PWM_ALIVE_THRESHOLD 100     //Max Time between edges
+/**
+ * Number of Timer1 ticks in a millisecond. To calculate this, take:
+ * 1/(frequencyCPU/Timer2PreScaler)*TICKS_TO_MSEC should equal close to 0.001 or 1 ms
+ * In this case, (1/(32 MHz/64))*500 = 1 ms
+ *
+ * IMPORTANT: This value depends on the pre-scaler used
+ */
+#define T1_TICKS_TO_MSEC 500
 
 /************************* Function Prototypes ********************************/
 void Init(void);
@@ -77,6 +86,8 @@ unsigned int timePeriod1 = 0;         // Used in interrupt
 unsigned int timePeriod2 = 0;
 unsigned int t[3] = {0,0,0};                // Used in interrupt
 unsigned int i = 0;
+static unsigned long int lastCaptureTime; //Used in tracking time between edges
+unsigned long int thisCaptureTime;        //Used in tracking time between edges
 unsigned int ch8_position = 0;      // Used in Main()
 
 
@@ -95,6 +106,8 @@ unsigned char dataI2C_2;
 /******************************* Interrupt ************************************/
 void __attribute__((__interrupt__,no_auto_psv)) _IC1Interrupt(void)
 {
+    lastCaptureTime = TMR1;     //Recording Time of each 
+    
     t[i] = IC1BUF;
     if (t[i] > t[(i+2)%3])
     {
@@ -139,6 +152,18 @@ void Init(void)
     IFS0bits.IC1IF = 0;         // Clear IC7 Interrupt Status Flag
     IEC0bits.IC1IE = 1;         // Enable IC7 interrupt
 
+    T1CONbits.TON = 0;          // Disable Timer
+    T1CONbits.TCS = 0;          // Select internal instruction cycle clock
+    T1CONbits.TGATE = 0;        // Disable Gated Timer mode
+    T1CONbits.TCKPS = 0b10;     // Select 1:64 Prescaler
+    
+    PR1 = 0xFFFF;               //Load the Period Value
+    TMR1 = 0x00;                //Clear Timer 1 Interrupt flag
+    
+    IFS0bits.T1IF = 0;
+    
+    T1CONbits.TON = 1;          //Start Timer 1
+    
     T2CONbits.TON = 0;          // Disable Timer
     T2CONbits.TCS = 0;          // Select internal instruction cycle clock
     T2CONbits.TGATE = 0;        // Disable Gated Timer mode
@@ -254,9 +279,11 @@ int main (void)
     Init();
 	while(1)
 	{
-
-                //The window on the controller is 43%-50%
-		if ((ch8_position > 400) && (ch8_position < 430)) //Controller Setting is: +47%, -33% //(ch8_position > 450)
+        thisCaptureTime = TMR1;
+        unsigned int timeDiff = (thisCaptureTime - lastCaptureTime)/T1_TICKS_TO_MSEC;
+                              
+               //The window on the controller is 43%-50%                                           //Controller Setting is: +47%, -33% //(ch8_position > 450)
+		if ((ch8_position > 400) && (ch8_position < 430) && (timeDiff <= PWM_ALIVE_THRESHOLD))     //Also that it hasn't been too long since last edge which means disconnect
 		{
 			PORTBbits.RB7 = 1;
 		}
