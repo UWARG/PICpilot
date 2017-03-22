@@ -69,11 +69,11 @@
 /**
  * Number of Timer1 ticks in a millisecond. To calculate this, take:
  * 1/(frequencyCPU/Timer2PreScaler)*TICKS_TO_MSEC should equal close to 0.001 or 1 ms
- * In this case, (1/(32 MHz/64))*500 = 1 ms
+ * In this case, (8 MHz/64)*1ms = 125
  *
  * IMPORTANT: This value depends on the pre-scaler used
  */
-#define T1_TICKS_TO_MSEC 500
+#define T1_TICKS_TO_MSEC 125
 
 /************************* Function Prototypes ********************************/
 void Init(void);
@@ -107,7 +107,9 @@ unsigned char dataI2C_2;
 void __attribute__((__interrupt__,no_auto_psv)) _IC1Interrupt(void)
 {
     lastCaptureTime = sysTime;
+    
     t[i] = IC1BUF;
+    
     if (t[i] > t[(i+2)%3])
     {
         timePeriod1 = t[i] - t[(i+2)%3];
