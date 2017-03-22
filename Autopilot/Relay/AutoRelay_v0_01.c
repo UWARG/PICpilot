@@ -82,13 +82,13 @@ void Delay_ms(unsigned int millisec);
 void readI2C(unsigned char sensor);
 
 /**************************** Global Variables ********************************/
-unsigned int timePeriod1 = 0;         // Used in interrupt
+unsigned int timePeriod1 = 0;               // Used in interrupt
 unsigned int timePeriod2 = 0;
 unsigned int t[3] = {0,0,0};                // Used in interrupt
 unsigned int i = 0;
-static unsigned long int lastCaptureTime; //Used in tracking time between edges
-unsigned long int thisCaptureTime;        //Used in tracking time between edges
-unsigned int ch8_position = 0;      // Used in Main()
+volatile unsigned long int lastCaptureTime = 0;      // Used in tracking time between edges
+volatile unsigned long int sysTime = 0;              // To keep track of time in ms
+unsigned int ch8_position = 0;              // Used in Main()
 
 
 unsigned char data = (char)0x00;
@@ -106,8 +106,7 @@ unsigned char dataI2C_2;
 /******************************* Interrupt ************************************/
 void __attribute__((__interrupt__,no_auto_psv)) _IC1Interrupt(void)
 {
-    lastCaptureTime = TMR1;     //Recording Time of each 
-    
+    lastCaptureTime = sysTime;
     t[i] = IC1BUF;
     if (t[i] > t[(i+2)%3])
     {
@@ -137,6 +136,15 @@ void __attribute__((__interrupt__,no_auto_psv)) _IC1Interrupt(void)
 	IFS0bits.IC1IF=0;
 }
 
+
+/**************************** Timer Interrupt *********************************/
+
+void __attribute__((__interrupt__,__shadow__)) _T1Interrupt(void)
+{
+    sysTime++;                  // Increment sysTime by one every ms
+    IFS0bits.T1IF = 0;          // Reset Timer 1 Interrupt flag
+}
+
 /********************************* Init() *************************************/
 void Init(void)
 {
@@ -152,17 +160,19 @@ void Init(void)
     IFS0bits.IC1IF = 0;         // Clear IC7 Interrupt Status Flag
     IEC0bits.IC1IE = 1;         // Enable IC7 interrupt
 
-    T1CONbits.TON = 0;          // Disable Timer
+    T1CON = 0;                  // Stops Timer1 and resets control reg
     T1CONbits.TCS = 0;          // Select internal instruction cycle clock
     T1CONbits.TGATE = 0;        // Disable Gated Timer mode
     T1CONbits.TCKPS = 0b10;     // Select 1:64 Prescaler
     
-    PR1 = 0xFFFF;               //Load the Period Value
-    TMR1 = 0x00;                //Clear Timer 1 Interrupt flag
+    PR1 = T1_TICKS_TO_MSEC;     //Load the Period Value as 1 ms
+    TMR1 = 0x00;                //Clear Timer register
     
-    IFS0bits.T1IF = 0;
+    IPC0bits.T1IP = 5;          // Set Timer 1 Interrupt Priority Level (5)
+    IFS0bits.T1IF = 0;          // Clear Timer 1 Interrupt flag
+    IEC0bits.T1IE = 1;          // Enable Timer 1 Interrupts    
+    T1CONbits.TON = 1;          // Start Timer 1
     
-    T1CONbits.TON = 1;          //Start Timer 1
     
     T2CONbits.TON = 0;          // Disable Timer
     T2CONbits.TCS = 0;          // Select internal instruction cycle clock
@@ -276,13 +286,16 @@ void Delay_ms(unsigned int millisec){
 
 int main (void)
 {
+    unsigned long int thisCaptureTime;        // Used in tracking time since last edge
+    unsigned int timeDiff;                    // Used in finding time since last edge
+    
     Init();
 	while(1)
-	{
-        thisCaptureTime = TMR1;
-        unsigned int timeDiff = (thisCaptureTime - lastCaptureTime)/T1_TICKS_TO_MSEC;
-                              
-               //The window on the controller is 43%-50%                                           //Controller Setting is: +47%, -33% //(ch8_position > 450)
+	{        
+        thisCaptureTime = sysTime;                  
+        timeDiff = thisCaptureTime - lastCaptureTime;
+        
+        //The window on the controller is 43%-50%                                                  //Controller Setting is: +47%, -33% //(ch8_position > 450)
 		if ((ch8_position > 400) && (ch8_position < 430) && (timeDiff <= PWM_ALIVE_THRESHOLD))     //Also that it hasn't been too long since last edge which means disconnect
 		{
 			PORTBbits.RB7 = 1;
