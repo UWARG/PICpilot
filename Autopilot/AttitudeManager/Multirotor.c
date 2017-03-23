@@ -100,7 +100,7 @@ void outputMixing(int* channelOut, int* control_Roll, int* control_Pitch, int* c
 void checkLimits(int* channelOut){
     int i;
     for (i = 0; i < NUM_CHANNELS; i++) {
-        channelOut[i] = constrain(channelOut[i], MIN_PWM, MAX_PWM);
+        constrain(&(channelOut[i]), MIN_PWM, MAX_PWM);
     }
 }
 

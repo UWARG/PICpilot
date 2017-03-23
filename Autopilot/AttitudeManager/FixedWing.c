@@ -128,15 +128,15 @@ void outputMixing(int* channelOut, int* control_Roll, int* control_Pitch, int* c
 }
 
 void checkLimits(int* channelOut){
-    channelOut[THROTTLE_OUT_CHANNEL - 1] = constrain(channelOut[THROTTLE_OUT_CHANNEL - 1], MIN_PWM, MAX_PWM);
+    constrain(&(channelOut[THROTTLE_OUT_CHANNEL - 1]), MIN_PWM, MAX_PWM);
 
-    channelOut[ROLL_OUT_CHANNEL - 1] = constrain(channelOut[ROLL_OUT_CHANNEL - 1], MIN_ROLL_PWM, MAX_ROLL_PWM);
+    constrain(&(channelOut[ROLL_OUT_CHANNEL - 1]), MIN_ROLL_PWM, MAX_ROLL_PWM);
 
-    channelOut[L_TAIL_OUT_CHANNEL - 1] = constrain(channelOut[L_TAIL_OUT_CHANNEL - 1], MIN_L_TAIL_PWM, MAX_L_TAIL_PWM)
+    constrain(&(channelOut[L_TAIL_OUT_CHANNEL - 1]), MIN_L_TAIL_PWM, MAX_L_TAIL_PWM);
 
-    channelOut[R_TAIL_OUT_CHANNEL - 1] = constrain(channelOut[R_TAIL_OUT_CHANNEL - 1], MIN_R_TAIL_PWM, MAX_R_TAIL_PWM);
+    constrain(&(channelOut[R_TAIL_OUT_CHANNEL - 1]), MIN_R_TAIL_PWM, MAX_R_TAIL_PWM);
 
-    channelOut[FLAP_OUT_CHANNEL - 1] = constrain(channelOut[FLAP_OUT_CHANNEL - 1], MIN_PWM, MAX_PWM)
+    constrain(&(channelOut[FLAP_OUT_CHANNEL - 1]), MIN_PWM, MAX_PWM);
 }
 
 void highLevelControl(){

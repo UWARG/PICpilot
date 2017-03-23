@@ -122,12 +122,11 @@ uint8_t getControlValue(ctrl_type type);
 
 /**
  * Limits an input value to a specified range.
- * @param input
+ * @param input Pointer to the input value
  * @param min Minimum value of input
  * @param max Maximum value of input
- * @return The limited input
  */
-int16_t constrain(int16_t input, int16_t min, int16_t max);
+void constrain(int16_t* input, int16_t min, int16_t max);
 
 /*****************************************************************************
  * Function: void readDatalink(void);

@@ -19,10 +19,8 @@
 #include "ProgramStatus.h"
 #include <string.h>
 
-
-int input_RC_Flap;
+int input_RC_Flap; // Flaps need to finish being refactored.
 int input_GS_Flap;
-
 
 extern PMData pmData;
 extern AMData amData;
@@ -320,46 +318,31 @@ int getHeadingSetpoint(){
 
 void setPitchAngleSetpoint(int setpoint){
     if (limitSetpoint) {
-        if (setpoint > MAX_PITCH_ANGLE)
-            setpoint = MAX_PITCH_ANGLE;
-        else if (setpoint < -MAX_PITCH_ANGLE)
-            setpoint = -MAX_PITCH_ANGLE;
+        constrain(&setpoint, -MAX_PITCH_ANGLE, MAX_PITCH_ANGLE);
     }
     sp_PitchAngle = setpoint;
 }
 void setRollAngleSetpoint(int setpoint){
     if (limitSetpoint) {
-        if (setpoint > MAX_ROLL_ANGLE)
-            setpoint = MAX_ROLL_ANGLE;
-        else if (setpoint < -MAX_ROLL_ANGLE)
-            setpoint = -MAX_ROLL_ANGLE;
+        constrain(&setpoint, -MAX_ROLL_ANGLE, MAX_ROLL_ANGLE);
     }
     sp_RollAngle = setpoint;
 }
 void setPitchRateSetpoint(int setpoint){
     if (limitSetpoint) {
-        if (setpoint > MAX_PITCH_RATE)
-            setpoint = MAX_PITCH_RATE;
-        else if (setpoint < -MAX_PITCH_RATE)
-            setpoint = -MAX_PITCH_RATE;
+        constrain(&setpoint, -MAX_PITCH_RATE, MAX_PITCH_RATE);
     }
     sp_PitchRate = setpoint;
 }
 void setRollRateSetpoint(int setpoint){
     if (limitSetpoint) {
-        if (setpoint > MAX_ROLL_RATE)
-            setpoint = MAX_ROLL_RATE;
-        else if (setpoint < -MAX_ROLL_RATE)
-            setpoint = -MAX_ROLL_RATE;
+        constrain(&setpoint, -MAX_ROLL_RATE, MAX_ROLL_RATE);
     }
     sp_RollRate = setpoint;
 }
 void setYawRateSetpoint(int setpoint){
     if (limitSetpoint) {
-        if (setpoint > MAX_YAW_RATE)
-            setpoint = MAX_YAW_RATE;
-        else if (setpoint < -MAX_YAW_RATE)
-            setpoint = -MAX_YAW_RATE;
+        constrain(&setpoint, -MAX_YAW_RATE, MAX_YAW_RATE);
     }
     sp_YawRate = setpoint;
 }
@@ -383,7 +366,7 @@ void inputCapture(){
 
 int getPitchAngleInput(char source){
     if (source == RC_SOURCE){
-        return (int)(input_RC_PitchRate  / (HALF_PWM_RANGE / MAX_PITCH_ANGLE));
+        return (int)(input_RC_PitchRate / (HALF_PWM_RANGE / MAX_PITCH_ANGLE));
     }
     else if (source == GS_SOURCE){
         return input_GS_Pitch;
@@ -393,7 +376,7 @@ int getPitchAngleInput(char source){
 }
 int getPitchRateInput(char source){
     if (source == RC_SOURCE){
-        return (int)(input_RC_PitchRate  / (HALF_PWM_RANGE / MAX_PITCH_RATE));
+        return (int)(input_RC_PitchRate / (HALF_PWM_RANGE / MAX_PITCH_RATE));
     }
     else if (source == GS_SOURCE){
         return input_GS_PitchRate;
@@ -530,14 +513,13 @@ uint8_t getControlValue(ctrl_type type) {
     return (controlLevel & ctrl_mask[type]) >> type;
 }
 
-int16_t constrain(int16_t input, int16_t min, int16_t max) {
-    if (input < min) {
-        return min;
+void constrain(int16_t* input, int16_t min, int16_t max) {
+    if (*input < min) {
+        *input = min;
     }
-    else if (input > max) {
-        return max;
+    else if (*input > max) {
+        *input = max;
     }
-    return input;
 }
 
 void readDatalink(void){
