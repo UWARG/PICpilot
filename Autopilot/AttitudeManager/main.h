@@ -40,9 +40,6 @@
 /* Also update configurations in FixedWing.h or Multirotor.h */
 #define VEHICLE_TYPE FIXED_WING
 
-
-
-
 #if VEHICLE_TYPE == FIXED_WING
 #include "FixedWing.h"
 #elif VEHICLE_TYPE == MULTIROTOR

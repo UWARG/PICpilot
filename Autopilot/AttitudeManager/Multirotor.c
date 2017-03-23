@@ -5,6 +5,7 @@
  * @copyright Waterloo Aerial Robotics Group 2017 \n
  *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE 
  */
+
 #include "Multirotor.h"
 #include "AttitudeManager.h"
 #include "PWM.h"
@@ -99,11 +100,7 @@ void outputMixing(int* channelOut, int* control_Roll, int* control_Pitch, int* c
 void checkLimits(int* channelOut){
     int i;
     for (i = 0; i < NUM_CHANNELS; i++) {
-        if (channelOut[i] > MAX_PWM) {
-            channelOut[i] = MAX_PWM;
-        } else if (channelOut[i] < MIN_PWM) {
-            channelOut[i] = MIN_PWM;
-        }
+        channelOut[i] = constrain(channelOut[i], MIN_PWM, MAX_PWM);
     }
 }
 
@@ -159,7 +156,7 @@ void lowLevelControl() {
     //Error Checking
     checkLimits(outputSignal);
 
-    if (control_Throttle > -850) {
+    if (control_Throttle > -850 && getProgramStatus() != KILL_MODE) {
         setAllPWM(outputSignal);
     } else {
         setPWM(1, MIN_PWM);

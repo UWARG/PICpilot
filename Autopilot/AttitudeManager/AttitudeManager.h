@@ -17,16 +17,16 @@
 
 //Bit Mask Bit Shifts
 typedef enum {
-    PITCH_CONTROL_TYPE = 0,
-    PITCH_CONTROL_SOURCE,
-    ROLL_CONTROL_TYPE,
-    ROLL_CONTROL_SOURCE,
-    THROTTLE_CONTROL_SOURCE,
-    ALTITUDE_CONTROL_SOURCE,
-    ALTITUDE_CONTROL,
-    HEADING_CONTROL_SOURCE,
-    HEADING_CONTROL,
-    FLAP_CONTROL_SOURCE,
+    PITCH_CONTROL_TYPE      = 0,
+    PITCH_CONTROL_SOURCE    = 1,
+    ROLL_CONTROL_TYPE       = 2,
+    ROLL_CONTROL_SOURCE     = 3,
+    THROTTLE_CONTROL_SOURCE = 4,
+    ALTITUDE_CONTROL_SOURCE = 6,
+    ALTITUDE_CONTROL        = 7,
+    HEADING_CONTROL_SOURCE  = 8,
+    HEADING_CONTROL         = 9,
+    FLAP_CONTROL_SOURCE     = 10,
 } ctrl_type;
        
 //Bit Mask Resultant Values
@@ -35,7 +35,7 @@ typedef enum {
 
 #define RC_SOURCE 0
 #define GS_SOURCE 1
-#define AP_SOURCE 2
+#define AP_SOURCE 2 // nothing actually uses AP_SOURCE yet
 
 #define HEADING_GS_SOURCE 0
 #define HEADING_AP_SOURCE 1
@@ -120,7 +120,14 @@ int coordinatedTurn(float pitchRate, int rollAngle);
 
 uint8_t getControlValue(ctrl_type type);
 
-
+/**
+ * Limits an input value to a specified range.
+ * @param input
+ * @param min Minimum value of input
+ * @param max Maximum value of input
+ * @return The limited input
+ */
+int16_t constrain(int16_t input, int16_t min, int16_t max);
 
 /*****************************************************************************
  * Function: void readDatalink(void);

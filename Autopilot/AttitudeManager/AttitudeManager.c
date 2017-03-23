@@ -530,6 +530,16 @@ uint8_t getControlValue(ctrl_type type) {
     return (controlLevel & ctrl_mask[type]) >> type;
 }
 
+int16_t constrain(int16_t input, int16_t min, int16_t max) {
+    if (input < min) {
+        return min;
+    }
+    else if (input > max) {
+        return max;
+    }
+    return input;
+}
+
 void readDatalink(void){
     struct command* cmd = popCommand();
     //TODO: Add rudimentary input validation
@@ -602,7 +612,6 @@ void readDatalink(void){
             case SET_THROTTLE_KI_GAIN:
                 //setGain(THROTTLE, KI, *(float*)(&cmd->data));
                 break;
-
 
             case SET_PATH_GAIN:
                 amData.pathGain = *(float*)(&cmd->data);

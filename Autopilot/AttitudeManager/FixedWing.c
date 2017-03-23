@@ -68,6 +68,8 @@ void inputMixing(int* channelIn, int* rollRate, int* pitchRate, int* throttle, i
     if (getControlValue(THROTTLE_CONTROL_SOURCE) == RC_SOURCE) {
         *throttle = channelIn[THROTTLE_IN_CHANNEL - 1];
     }
+
+#if TAIL_TYPE == STANDARD_TAIL
     if (getControlValue(ROLL_CONTROL_SOURCE) == RC_SOURCE){
         *rollRate = -channelIn[ROLL_IN_CHANNEL - 1];
     }
@@ -75,6 +77,18 @@ void inputMixing(int* channelIn, int* rollRate, int* pitchRate, int* throttle, i
         *pitchRate = -channelIn[PITCH_IN_CHANNEL - 1];
     }
     *yawRate = -channelIn[YAW_IN_CHANNEL - 1];
+
+#elif TAIL_TYPE == V_TAIL
+    
+#elif TAIL_TYPE == INV_V_TAIL
+    if (getControlValue(ROLL_CONTROL_SOURCE) == RC_SOURCE) {
+        *rollRate = -channelIn[ROLL_IN_CHANNEL - 1];
+    }
+    if (getControlValue(PITCH_CONTROL_SOURCE) == RC_SOURCE){
+        *pitchRate = (channelIn[L_TAIL_IN_CHANNEL - 1] - channelIn[R_TAIL_IN_CHANNEL - 1]) / (2 * ELEVATOR_PROPORTION);
+    }
+    *yawRate = (channelIn[L_TAIL_IN_CHANNEL - 1] + channelIn[R_TAIL_IN_CHANNEL - 1] ) / (2 * RUDDER_PROPORTION);
+#endif
 
     if (getControlValue(FLAP_CONTROL_SOURCE) == RC_SOURCE) {
         input_RC_Flap = channelIn[FLAP_IN_CHANNEL - 1];
@@ -108,83 +122,24 @@ void outputMixing(int* channelOut, int* control_Roll, int* control_Pitch, int* c
     channelOut[L_TAIL_OUT_CHANNEL - 1] =  (*control_Yaw) * RUDDER_PROPORTION - (*control_Pitch) * ELEVATOR_PROPORTION ; //Tail Output Left
     channelOut[R_TAIL_OUT_CHANNEL - 1] =  (*control_Yaw) * RUDDER_PROPORTION + (*control_Pitch) * ELEVATOR_PROPORTION ; //Tail Output Right
 
-
     #endif
     channelOut[ROLL_OUT_CHANNEL - 1] = (*control_Roll);
     channelOut[THROTTLE_OUT_CHANNEL - 1] = (*control_Throttle);
 }
 
 void checkLimits(int* channelOut){
-    //Throttle = 1
-    if (channelOut[THROTTLE_OUT_CHANNEL - 1] > MAX_PWM) {
-        channelOut[THROTTLE_OUT_CHANNEL - 1] = MAX_PWM;
-    } else if (channelOut[THROTTLE_OUT_CHANNEL - 1] < MIN_PWM){
-        channelOut[THROTTLE_OUT_CHANNEL - 1] = MIN_PWM;
-    }
+    channelOut[THROTTLE_OUT_CHANNEL - 1] = constrain(channelOut[THROTTLE_OUT_CHANNEL - 1], MIN_PWM, MAX_PWM);
 
-    if (channelOut[ROLL_OUT_CHANNEL - 1] > MAX_ROLL_PWM) {
-        channelOut[ROLL_OUT_CHANNEL - 1] = MAX_ROLL_PWM;
-    } else if (channelOut[ROLL_OUT_CHANNEL - 1] < MIN_ROLL_PWM) {
-        channelOut[ROLL_OUT_CHANNEL - 1] = MIN_ROLL_PWM;
-    }
+    channelOut[ROLL_OUT_CHANNEL - 1] = constrain(channelOut[ROLL_OUT_CHANNEL - 1], MIN_ROLL_PWM, MAX_ROLL_PWM);
 
-    if (channelOut[L_TAIL_OUT_CHANNEL - 1] > MAX_L_TAIL_PWM) {
-        channelOut[L_TAIL_OUT_CHANNEL - 1] = MAX_L_TAIL_PWM;
-    } else if (channelOut[L_TAIL_OUT_CHANNEL - 1] < MIN_L_TAIL_PWM) {
-        channelOut[L_TAIL_OUT_CHANNEL - 1] = MIN_L_TAIL_PWM;
-    }
+    channelOut[L_TAIL_OUT_CHANNEL - 1] = constrain(channelOut[L_TAIL_OUT_CHANNEL - 1], MIN_L_TAIL_PWM, MAX_L_TAIL_PWM)
 
-    if (channelOut[R_TAIL_OUT_CHANNEL - 1] > MAX_R_TAIL_PWM) {
-        channelOut[R_TAIL_OUT_CHANNEL - 1] = MAX_R_TAIL_PWM;
-    } else if (channelOut[R_TAIL_OUT_CHANNEL - 1] < MIN_R_TAIL_PWM) {
-        channelOut[R_TAIL_OUT_CHANNEL - 1] = MIN_R_TAIL_PWM;
-    }
+    channelOut[R_TAIL_OUT_CHANNEL - 1] = constrain(channelOut[R_TAIL_OUT_CHANNEL - 1], MIN_R_TAIL_PWM, MAX_R_TAIL_PWM);
 
-    //Flaps
-    if (channelOut[FLAP_OUT_CHANNEL - 1] > MAX_PWM){
-        channelOut[FLAP_OUT_CHANNEL - 1] = MAX_PWM;
-    }
+    channelOut[FLAP_OUT_CHANNEL - 1] = constrain(channelOut[FLAP_OUT_CHANNEL - 1], MIN_PWM, MAX_PWM)
 }
 
 void highLevelControl(){
-    /*
-    uint8_t rollControlType = getControlValue(ROLL_CONTROL_TYPE);
-    uint8_t rollControlSource = getControlValue(ROLL_CONTROL_SOURCE);
-    if (rollControlType == ANGLE_CONTROL) {
-        setRollAngleSetpoint(getRollAngleInput(rollControlSource));
-        setRollRateSetpoint(PIDcontrol(getPID(ROLL_ANGLE), getRollAngleSetpoint() - getRoll(), MAX_ROLL_RATE / MAX_ROLL_ANGLE));
-    }
-    else if (rollControlType == RATE_CONTROL) {
-        setRollRateSetpoint(getRollRateInput(rollControlSource));
-    }
-
-    uint8_t pitchControlType = getControlValue(PITCH_CONTROL_TYPE);
-    uint8_t pitchControlSource = getControlValue(PITCH_CONTROL_SOURCE);
-    if (pitchControlType == ANGLE_CONTROL) {
-        setPitchAngleSetpoint(getPitchAngleInput(pitchControlSource));
-        setPitchRateSetpoint(PIDcontrol(getPID(PITCH_ANGLE), getPitchAngleSetpoint() - getPitch(), MAX_PITCH_RATE / MAX_PITCH_ANGLE));
-    }
-    else if (pitchControlType == RATE_CONTROL) {
-        setPitchRateSetpoint(getPitchRateInput(pitchControlSource));
-    }
-
-    if (getControlValue(HEADING_CONTROL) == CONTROL_ON) { // if heading control is enabled
-        setHeadingSetpoint(getHeadingInput(getControlValue(HEADING_CONTROL_SOURCE))); // get heading value (GS or AP)
-        setYawRateSetpoint(PIDcontrol(getPID(HEADING), wrap_180(getHeadingSetpoint() - getHeading()), MAX_YAW_RATE / 180));
-    }
-    else {
-        setYawRateSetpoint(getYawRateInput(RC_SOURCE));
-    }
-
-    if (getControlValue(ALTITUDE_CONTROL) == CONTROL_ON) { // if altitude control is enabled
-        setAltitudeSetpoint(getAltitudeInput(getControlValue(ALTITUDE_CONTROL_SOURCE))); // get altitude value (GS or AP)
-        setThrottleSetpoint(PIDcontrol(getPID(ALTITUDE), getAltitudeSetpoint() - getAltitude(), 1) + getThrottleSetpoint());
-    }
-    else { // if no altitude control, get raw throttle input (RC or GS)
-        setThrottleSetpoint(getThrottleInput(getControlValue(THROTTLE_CONTROL_SOURCE)) + getThrottleSetpoint());
-    }
-
-    */
 
     if (getControlValue(ALTITUDE_CONTROL) == CONTROL_ON) {
         setAltitudeSetpoint(getAltitudeInput(getControlValue(ALTITUDE_CONTROL_SOURCE)));
