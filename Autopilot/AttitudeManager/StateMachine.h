@@ -16,7 +16,6 @@
 
 #include "main.h"
 #include "AttitudeManager.h"
-#include "InterchipDMA.h"
 #include "VN100.h"
 
 void StateMachine(char entryLocation);
