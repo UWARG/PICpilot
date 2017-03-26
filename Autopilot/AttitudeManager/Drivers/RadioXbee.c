@@ -477,6 +477,10 @@ static void parseReceivedATResponse(uint8_t* data, uint16_t data_length)
     }
 }
 
+/**
+ * Pops an element from the xbee frame queue
+ * @return Null if nothing to pop
+ */
 static XbeeApiFrame* popApiFrame(){
     XbeeApiFrame* packet = XbeeFrameQueue.head;
     
