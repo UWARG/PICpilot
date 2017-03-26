@@ -886,8 +886,9 @@ bool writeDatalink(p_priority packet){
         default:
             break;
     }
-
-    return queueTelemetryBlock(statusData);
+    bool status = queueTelemetryBlock(statusData);
+    free(statusData);
+    return status;
 }
 
 void checkUHFStatus(){
