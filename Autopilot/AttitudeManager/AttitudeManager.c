@@ -773,14 +773,9 @@ void readDatalink(void){
         freeDatalinkCommand( cmd );
     }
 }
-<<<<<<< HEAD
 
-int writeDatalink(p_priority packet){
-    struct TelemetryBlock* statusData = createTelemetryBlock(packet);
-=======
 bool writeDatalink(p_priority packet){
     TelemetryBlock* statusData = createTelemetryBlock(packet);
->>>>>>> Got project to compile
 
     //If Malloc fails, then quit...wait until there is memory available
     if (!statusData){return 0;}
@@ -850,9 +845,8 @@ bool writeDatalink(p_priority packet){
             statusData->data.p2_block.yawRateSetpoint = getYawRateSetpoint();
             statusData->data.p2_block.headingSetpoint = getHeadingSetpoint();
             statusData->data.p2_block.altitudeSetpoint = getAltitudeSetpoint();
-            statusData->data.p2_block.flapSetpoint = 0;//getFlapSetpoint();
-            statusData->data.p2_block.unused = 0;
-            statusData->data.p2_block.wirelessConnection = ((input[5] < 180) << 1) + (input[6] > 0);//+ RSSI;
+            statusData->data.p2_block.flapSetpoint = getFlapSetpoint();
+            statusData->data.p2_block.wirelessConnection = ((input[5] < 180) << 1) + (input[7] > 0);//+ RSSI;
             statusData->data.p2_block.autopilotActive = getProgramStatus();
             statusData->data.p2_block.gpsStatus = gps_Satellites + (gps_PositionFix << 4);
             statusData->data.p2_block.pathChecksum = waypointChecksum;
