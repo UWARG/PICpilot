@@ -7,13 +7,12 @@
  */
 
 #include "main.h"
+#include "PID.h"
 
 #ifndef ORIENTATIONCONTROL_H
 #define	ORIENTATIONCONTROL_H
 
-#define PID_CHANNELS 8 // to start
-
-#define PID_RESET_TIME 1000 // timeout to reset I and D terms (ms)
+#define CONTROL_CHANNELS 8
 
 #define MAX_ROLL_ANGLE 35.f // degrees
 #define MAX_PITCH_ANGLE 35.f
@@ -22,26 +21,14 @@
 #define MAX_PITCH_RATE 180.f
 #define MAX_YAW_RATE 240.f
 
+// used for wrapping heading control. converts an angle to -180/180
 #define wrap_180(x) (x < -180 ? x + 360 : (x > 180 ? x - 360 : x))
-
-typedef struct { //holds values for a generic PID loop
-    // Gains
-    float Kp;
-    float Ki;
-    float Kd;
-    
-    uint32_t lastTime; // for derivative control
-    float lastErr;  
-    float lastDer; // last derivative, for filtering
-    float integral;
-    int16_t imax; // maximum value for integral
-} PID_val;
 
 typedef enum {
     KP = 0,
     KI,
-    KD     
-} PID_gain;
+    KD
+} gainType;
 
 typedef enum {
     ROLL_RATE = 0,
@@ -52,26 +39,7 @@ typedef enum {
     HEADING,
     ALTITUDE,
     GSPEED
-} PID_channel;
-
-/**
- * Initializes a generic PID controller
- * @param pid Pointer to the PID_val struct to initialize
- * @param Kp
- * @param Ki
- * @param Kd
- * @param imax Limit for the integral term
- */
-void initPID(PID_val* pid, float Kp, float Ki, float Kd, int16_t imax);
-
-/**
- * Calculates output signal from a PID controller
- * @param pid Pointer to the PID_val struct to be updated
- * @param error Error value (setpoint - position)
- * @param scale Factor to help with I/O relationships
- * @return Control signal for a PID controller
- */
-float PIDcontrol(PID_val* pid, float error, float scale);
+} controlChannel;
 
 /**
  * Initializes all the basic orientation PID controllers
@@ -81,9 +49,9 @@ void orientationInit();
 /**
  * Retrieves a pointer to one of the basic orientation PID controllers
  * @param channel Channel to retrieve
- * @return Pointer to PID_val struct for that channel
+ * @return Pointer to PIDVal struct for that channel
  */
-PID_val* getPID(PID_channel channel);
+PIDVal* getPID(controlChannel channel);
 
 /**
  * Gets a gain value from a PID channel
@@ -91,7 +59,7 @@ PID_val* getPID(PID_channel channel);
  * @param type Type of gain (KP, KI or KD)
  * @return Requested gain value
  */
-float getGain(PID_channel channel, PID_gain type);
+float getGain(controlChannel channel, gainType type);
 
 /**
  * Sets a gain value for a PID channel
@@ -99,9 +67,9 @@ float getGain(PID_channel channel, PID_gain type);
  * @param type Type of gain (KP, KI or KD)
  * @param value Value to set the gain to
  */
-void setGain(PID_channel channel, PID_gain type, float value);
+void setGain(controlChannel channel, gainType type, float value);
 
-uint8_t areGainsUpdated();
+bool areGainsUpdated();
 void forceGainUpdate();
 
 #endif	/* ORIENTATIONCONTROL_H */

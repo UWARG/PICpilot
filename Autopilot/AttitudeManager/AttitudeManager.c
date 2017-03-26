@@ -470,7 +470,7 @@ int getHeadingInput(char source){
 
 void setKValues(int type,float* values){
     int i = 0;
-    for(; i<PID_CHANNELS; i++){
+    for(; i<CONTROL_CHANNELS; i++){
        setGain(i, type, values[i]);
     }
 }

@@ -8,6 +8,7 @@
         <itemPath>AttitudeManager.h</itemPath>
         <itemPath>StateMachine.h</itemPath>
         <itemPath>OrientationControl.h</itemPath>
+        <itemPath>PID.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f6" displayName="Common" projectFiles="true">
         <itemPath>../Common/Common.h</itemPath>
@@ -69,6 +70,7 @@
         <itemPath>AttitudeManager.c</itemPath>
         <itemPath>StateMachine.c</itemPath>
         <itemPath>OrientationControl.c</itemPath>
+        <itemPath>PID.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f7" displayName="Common" projectFiles="true">
         <itemPath>../Common/Common.c</itemPath>
