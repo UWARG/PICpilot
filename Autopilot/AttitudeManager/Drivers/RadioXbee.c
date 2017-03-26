@@ -94,6 +94,7 @@ static bool queueATCommand(char* at_command_id);
 static void queueApiFrame(XbeeApiFrame* frame);
 static uint8_t* parseReceivedApiFrame(uint8_t* data, uint16_t data_length, uint16_t* length);
 static void parseReceivedATResponse(uint8_t* data, uint16_t data_length);
+static XbeeApiFrame* popApiFrame(void);
 
 void initRadio()
 {
@@ -141,14 +142,10 @@ void queueRadioStatusPacket()
 
 void clearRadioDownlinkQueue()
 {
-    XbeeApiFrame* packet = XbeeFrameQueue.head;
+    XbeeApiFrame* packet = popApiFrame();
     while (packet != NULL) {
-        XbeeFrameQueue.head = packet->next_frame;
-        free(packet->data);
-        free(packet);
-        packet = XbeeFrameQueue.head;
+        packet = popApiFrame();
     }
-    XbeeFrameQueue.tail = NULL;
     current_frame_id = 1; //also reset the current frame id
 }
 
@@ -158,7 +155,7 @@ bool sendQueuedDownlinkPacket()
     static uint8_t send_buffer[XBEE_TX_BUFFER_LENGTH];
 
     send_buffer[0] = XBEE_START_DELIMITER;
-    XbeeApiFrame* to_send = XbeeFrameQueue.head; //to save on typing
+    XbeeApiFrame* to_send = XbeeFrameQueue.head; //to save on typing. We're only peeking at the value here, not popping!
 
     if (to_send != NULL) {
         //the 5 comes from the start delimiter, 2 bytes for length, 1 for frame type, 1 for checksum
@@ -171,6 +168,9 @@ bool sendQueuedDownlinkPacket()
         if (getTXSpace(XBEE_UART_INTERFACE) < total_frame_length) {
             return false;
         }
+        //weve got enough space for the packet. Pop it from the queue
+        popApiFrame();
+        
         send_buffer[1] = total_payload_length >> 8; //upper 8 bits of the length
         send_buffer[2] = total_payload_length & 0xFF; //lower 8 bits of the length
         send_buffer[3] = to_send->frame_type;
@@ -477,19 +477,37 @@ static void parseReceivedATResponse(uint8_t* data, uint16_t data_length)
     }
 }
 
+static XbeeApiFrame* popApiFrame(){
+    XbeeApiFrame* packet = XbeeFrameQueue.head;
+    
+    if (packet == XbeeFrameQueue.tail){
+        XbeeFrameQueue.tail = NULL;
+        XbeeFrameQueue.head = NULL;
+    } else {
+        XbeeFrameQueue.head = packet->next_frame;
+    }
+    return packet;
+}
+
 /**
  * Queues an API frame for transmission, however does not send it yet
  * @param frame
  */
 static void queueApiFrame(XbeeApiFrame* frame)
 {
-    //append this frame to the queue of frames to send
-    if (XbeeFrameQueue.tail == NULL) {
+    if (frame == NULL){
+        return;
+    }
+    
+    frame->next_frame = NULL;
+    
+    if (XbeeFrameQueue.head == NULL){
         XbeeFrameQueue.head = frame;
+        XbeeFrameQueue.tail = frame;
     } else {
         XbeeFrameQueue.tail->next_frame = frame;
+        XbeeFrameQueue.tail = frame;
     }
-    XbeeFrameQueue.tail = frame;
 }
 
 #endif
