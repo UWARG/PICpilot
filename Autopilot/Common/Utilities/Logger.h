@@ -11,6 +11,8 @@
 #ifndef LOGGER_H
 #define	LOGGER_H
 
+#include <stdint.h>
+
 /**
  * Which UART interface to use for the logger (1 or 2)
  */
@@ -26,7 +28,7 @@
  * that can be logged, in bytes
  */
 #define LOGGER_BUFFER_INITIAL_LENGTH 100
-#define LOGGER_BUFFER_MAX_LENGTH 400
+#define LOGGER_BUFFER_MAX_LENGTH 1000
 
 /**
  * Label prefixes to inject for each type of message
@@ -62,6 +64,14 @@ void warning(char* message);
  * @param message
  */
 void debug(char* message);
+
+
+/**
+ * Print out an array via debug in hex
+ * @param array
+ * @param length
+ */
+void debugArray(uint8_t* array, uint16_t length);
 
 /**
  * Output a info level message
