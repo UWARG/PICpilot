@@ -19,6 +19,7 @@
 #include "../Common/Interfaces/SPI.h"
 #include "Network/Datalink.h"
 #include "ProgramStatus.h"
+#include "Drivers/Radio.h"
 #include <string.h>
 
 int input_RC_Flap; // Flaps need to finish being refactored.
@@ -685,6 +686,7 @@ void readDatalink(void){
                 break;
             case SEND_HEARTBEAT:
                 heartbeatTimer = getTime();
+                queueRadioStatusPacket();
                 break;
             case KILL_PLANE:
                 if (*(int*)(&cmd->data) == 1234)
@@ -875,6 +877,11 @@ bool writeDatalink(p_priority packet){
             statusData->data.p3_block.autonomousLevel = controlLevel;
             statusData->data.p3_block.startupErrorCodes = getStartupErrorCodes();
             statusData->data.p3_block.startupSettings = DEBUG + (VEHICLE_TYPE << 1); //TODO: put this in the startuperrorCode file
+            statusData->data.p3_block.ul_rssi = getRadioRSSI();
+            statusData->data.p3_block.ul_receive_errors = getRadioReceiveErrors();
+            statusData->data.p3_block.dl_transmission_errors = getRadioTransmissionErrors();
+            statusData->data.p3_block.uhf_link_quality = 45;
+            statusData->data.p3_block.uhf_rssi = 25;
             break;
 
         default:
