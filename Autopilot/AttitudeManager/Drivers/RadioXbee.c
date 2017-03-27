@@ -145,6 +145,8 @@ void clearRadioDownlinkQueue()
 {
     XbeeApiFrame* packet = popApiFrame();
     while (packet != NULL) {
+        free(packet->data);
+        free(packet);
         packet = popApiFrame();
     }
     current_frame_id = 1; //also reset the current frame id
