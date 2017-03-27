@@ -20,6 +20,7 @@
 #include "Network/Datalink.h"
 #include "ProgramStatus.h"
 #include "Drivers/Radio.h"
+#include "Peripherals/UHF.h"
 #include <string.h>
 
 int input_RC_Flap; // Flaps need to finish being refactored.
@@ -880,8 +881,8 @@ bool writeDatalink(p_priority packet){
             statusData->data.p3_block.ul_rssi = getRadioRSSI();
             statusData->data.p3_block.ul_receive_errors = getRadioReceiveErrors();
             statusData->data.p3_block.dl_transmission_errors = getRadioTransmissionErrors();
-            statusData->data.p3_block.uhf_link_quality = 45;
-            statusData->data.p3_block.uhf_rssi = 25;
+            statusData->data.p3_block.uhf_link_quality = getUHFLinkQuality(getTime());
+            statusData->data.p3_block.uhf_rssi = getUHFRSSI(getTime());
             break;
 
         default:
