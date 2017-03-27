@@ -75,7 +75,7 @@ void debugArray(uint8_t* array, uint16_t length)
         }
         to_print[length*3] = 0;
 
-        writeMessage((char*)to_print, DEBUG_TAG_STRING, DEBUG_TAG_STRING_LENGTH);
+        writeMessage(to_print, DEBUG_TAG_STRING, DEBUG_TAG_STRING_LENGTH);
         free(to_print);
     }
 }
