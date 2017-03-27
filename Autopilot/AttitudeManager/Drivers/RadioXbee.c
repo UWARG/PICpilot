@@ -192,7 +192,6 @@ bool sendQueuedDownlinkPacket()
         
         queueTXData(XBEE_UART_INTERFACE, send_buffer, total_frame_length); //queue the data for tranmission over UART
 
-        XbeeFrameQueue.head = to_send->next_frame;
         free(to_send->data);
         free(to_send);
         return true;
