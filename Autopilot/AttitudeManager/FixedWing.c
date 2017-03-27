@@ -106,14 +106,17 @@ void inputMixing(int* channelIn, int* rollRate, int* pitchRate, int* throttle, i
  * +Roll = Right
  * +Pitch = Up
  * +Yaw = Right
- * These
+ * These are the same as most IMUs will give. For consistency, do not modify the
+ * orientation control with negatives. Add them where necessary to (controller)
+ * input mixing, IMU reading, and output mixing. The standard input mixing is set 
+ * up for standard controller layout (down+right is minimum values on sticks).
  */
 
 void outputMixing(int* channelOut, int* control_Roll, int* control_Pitch, int* control_Throttle, int* control_Yaw){
     //code for different tail configurations
     #if TAIL_TYPE == STANDARD_TAIL  //is a normal t-tail
-    channelOut[PITCH_OUT_CHANNEL] = (*control_Pitch);
-    channelOut[YAW_OUT_CHANNEL] = (*control_Yaw);
+    channelOut[PITCH_OUT_CHANNEL - 1] = (*control_Pitch);
+    channelOut[YAW_OUT_CHANNEL - 1] = (*control_Yaw);
 
     #elif TAIL_TYPE == V_TAIL    //V-tail
     // TODO

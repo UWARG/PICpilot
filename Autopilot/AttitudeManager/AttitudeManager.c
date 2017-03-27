@@ -26,13 +26,14 @@ extern PMData pmData;
 extern AMData amData;
 extern char DMADataAvailable;
 
-// Control level bit masks (indexed by ctrl_type)
+// Control level bit masks (indexed by CtrlType enum)
 static const uint16_t ctrl_mask[16] = {
             0b00000001, // Pitch Rate(0) or Pitch Angles(1)
             0b00000010, // Pitch from Controller(0) or Ground Station(1)
             0b00000100, // Roll Rates(0) or Roll Angles(1)
             0b00001000, // Roll from Controller(0) or Ground Station(1)
             0b00110000, // Throttle from Controller(0) or Ground Station(1) or Autopilot(2)(Controlled by the GroundSpeed/Altitude).
+            0b00000000, // Empty. Throttle is 2 bits, so index 5 is unused.
             0b01000000, // Altitude from Ground Station(0) or Autopilot(1)
             0b10000000, // Altitude Off(0) or On(1)
     0b0000000100000000, // Heading from Ground Station(0) or Autopilot(1)
@@ -509,17 +510,8 @@ int coordinatedTurn(float pitchRate, int rollAngle){
 }
 
 // Type is both bit shift value and index of bit mask array
-uint8_t getControlValue(ctrl_type type) {
+uint8_t getControlValue(CtrlType type) {
     return (controlLevel & ctrl_mask[type]) >> type;
-}
-
-void constrain(int16_t* input, int16_t min, int16_t max) {
-    if (*input < min) {
-        *input = min;
-    }
-    else if (*input > max) {
-        *input = max;
-    }
 }
 
 void readDatalink(void){
@@ -992,6 +984,7 @@ void setVNOrientationMatrix(float* angleOffset){
     VN100_SPI_WriteSettings(0);
     VN100_SPI_Reset(0);
 }
+
 void setAngularWalkVariance(float variance){
     float previousVariance[10];
     VN100_SPI_GetFiltMeasVar(0, (float*)&previousVariance);

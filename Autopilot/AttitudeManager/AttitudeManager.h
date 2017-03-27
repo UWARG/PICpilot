@@ -22,12 +22,13 @@ typedef enum {
     ROLL_CONTROL_TYPE       = 2,
     ROLL_CONTROL_SOURCE     = 3,
     THROTTLE_CONTROL_SOURCE = 4,
+    UNUSED_FIVE             = 5, // throttle is 2 bits
     ALTITUDE_CONTROL_SOURCE = 6,
     ALTITUDE_CONTROL        = 7,
     HEADING_CONTROL_SOURCE  = 8,
     HEADING_CONTROL         = 9,
     FLAP_CONTROL_SOURCE     = 10,
-} ctrl_type;
+} CtrlType;
        
 //Bit Mask Resultant Values
 #define RATE_CONTROL 0
@@ -118,15 +119,7 @@ void imuCommunication();
 
 int coordinatedTurn(float pitchRate, int rollAngle);
 
-uint8_t getControlValue(ctrl_type type);
-
-/**
- * Limits an input value to a specified range.
- * @param input Pointer to the input value
- * @param min Minimum value of input
- * @param max Maximum value of input
- */
-void constrain(int16_t* input, int16_t min, int16_t max);
+uint8_t getControlValue(CtrlType type);
 
 /*****************************************************************************
  * Function: void readDatalink(void);
