@@ -28,7 +28,7 @@ typedef enum {
     KP = 0,
     KI,
     KD
-} gainType;
+} GainType;
 
 typedef enum {
     ROLL_RATE = 0,
@@ -39,7 +39,7 @@ typedef enum {
     HEADING,
     ALTITUDE,
     GSPEED
-} controlChannel;
+} ControlChannel;
 
 /**
  * Initializes all the basic orientation PID controllers
@@ -51,7 +51,7 @@ void orientationInit();
  * @param channel Channel to retrieve
  * @return Pointer to PIDVal struct for that channel
  */
-PIDVal* getPID(controlChannel channel);
+PIDVal* getPID(ControlChannel channel);
 
 /**
  * Gets a gain value from a PID channel
@@ -59,7 +59,7 @@ PIDVal* getPID(controlChannel channel);
  * @param type Type of gain (KP, KI or KD)
  * @return Requested gain value
  */
-float getGain(controlChannel channel, gainType type);
+float getGain(ControlChannel channel, GainType type);
 
 /**
  * Sets a gain value for a PID channel
@@ -67,7 +67,7 @@ float getGain(controlChannel channel, gainType type);
  * @param type Type of gain (KP, KI or KD)
  * @param value Value to set the gain to
  */
-void setGain(controlChannel channel, gainType type, float value);
+void setGain(ControlChannel channel, GainType type, float value);
 
 bool areGainsUpdated();
 void forceGainUpdate();

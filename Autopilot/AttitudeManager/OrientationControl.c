@@ -30,11 +30,11 @@ void orientationInit() {
     }
 }
 
-PIDVal* getPID(controlChannel channel) {
+PIDVal* getPID(ControlChannel channel) {
     return &pids[channel];
 }
 
-float getGain(controlChannel channel, gainType type){
+float getGain(ControlChannel channel, GainType type){
     if (channel < CONTROL_CHANNELS) {
         if (type == KP){
             return pids[channel].kp;
@@ -47,7 +47,7 @@ float getGain(controlChannel channel, gainType type){
     return -1; // TODO: return something better than a wrong value
 }
 
-void setGain(controlChannel channel, gainType type, float value){
+void setGain(ControlChannel channel, GainType type, float value){
     gainsUpdated = 1;
     if (channel < CONTROL_CHANNELS) {
         if (type == KP){
