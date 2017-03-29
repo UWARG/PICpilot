@@ -7,28 +7,30 @@
       <logicalFolder name="f9" displayName="Attitude Management" projectFiles="true">
         <itemPath>AttitudeManager.h</itemPath>
         <itemPath>OrientationControl.h</itemPath>
+        <itemPath>StateMachine.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f6" displayName="Common" projectFiles="true">
         <itemPath>../Common/Common.h</itemPath>
         <itemPath>../Common/clock.h</itemPath>
-        <itemPath>../Common/UART1.h</itemPath>
-        <itemPath>../Common/debug.h</itemPath>
-      </logicalFolder>
-      <logicalFolder name="f2" displayName="Data Transfer" projectFiles="true">
-        <itemPath>InterchipDMA.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="Debugging" projectFiles="true">
         <itemPath>StartupErrorCodes.h</itemPath>
         <itemPath>ProgramStatus.h</itemPath>
       </logicalFolder>
+      <logicalFolder name="f12" displayName="Drivers" projectFiles="true">
+        <itemPath>Drivers/RadioXbee.h</itemPath>
+        <itemPath>Drivers/Radio.h</itemPath>
+        <itemPath>IMU.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f8" displayName="Interfaces" projectFiles="true">
+        <itemPath>../Common/Interfaces/UART.h</itemPath>
+        <itemPath>../Common/Interfaces/I2C.h</itemPath>
+        <itemPath>../Common/Interfaces/SPI.h</itemPath>
+      </logicalFolder>
       <logicalFolder name="f3" displayName="Network" projectFiles="true">
         <itemPath>commands.h</itemPath>
         <itemPath>net.h</itemPath>
         <itemPath>UART2.h</itemPath>
-      </logicalFolder>
-      <logicalFolder name="f10" displayName="Other Peripherals" projectFiles="true">
-        <itemPath>cameraManager.h</itemPath>
-        <itemPath>Probe_Drop.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f4" displayName="PWM Management" projectFiles="true">
         <itemPath>OutputCompare.h</itemPath>
@@ -38,7 +40,10 @@
       <logicalFolder name="f5" displayName="Utilities" projectFiles="true">
         <itemPath>delay.h</itemPath>
         <itemPath>fmath.h</itemPath>
-        <itemPath>StringUtils.h</itemPath>
+        <itemPath>timer.h</itemPath>
+        <itemPath>../Common/Utilities/ByteQueue.h</itemPath>
+        <itemPath>../Common/Utilities/Logger.h</itemPath>
+        <itemPath>../Common/Utilities/InterchipDMA.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f7" displayName="VectorNav" projectFiles="true">
         <itemPath>VN100.h</itemPath>
@@ -48,8 +53,8 @@
         <itemPath>VN_user.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f11" displayName="Vehicles" projectFiles="true">
-        <itemPath>Anaconda.h</itemPath>
-        <itemPath>DisplayQuad.h</itemPath>
+        <itemPath>Multirotor.h</itemPath>
+        <itemPath>FixedWing.h</itemPath>
       </logicalFolder>
       <itemPath>main.h</itemPath>
     </logicalFolder>
@@ -64,30 +69,28 @@
         <itemPath>AttitudeManager.c</itemPath>
         <itemPath>OrientationControl.c</itemPath>
         <itemPath>StateMachine.c</itemPath>
-        <itemPath>StateMachine.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f7" displayName="Common" projectFiles="true">
         <itemPath>../Common/Common.c</itemPath>
         <itemPath>../Common/clock.c</itemPath>
-        <itemPath>../Common/UART1.c</itemPath>
-        <itemPath>../Common/debug.c</itemPath>
-      </logicalFolder>
-      <logicalFolder name="f2" displayName="Data Transfer" projectFiles="true">
-        <itemPath>InterchipDMA.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="Debugging" projectFiles="true">
         <itemPath>StartupErrorCodes.c</itemPath>
         <itemPath>ProgramStatus.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f12" displayName="Drivers" projectFiles="true">
+        <itemPath>Drivers/RadioXbee.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f8" displayName="Interfaces" projectFiles="true">
+        <itemPath>../Common/Interfaces/UART.c</itemPath>
+        <itemPath>../Common/Interfaces/I2C.c</itemPath>
+        <itemPath>../Common/Interfaces/SPI.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f3" displayName="Network" projectFiles="true">
         <itemPath>net_outbound.c</itemPath>
         <itemPath>net_inbound.c</itemPath>
         <itemPath>net_common.c</itemPath>
         <itemPath>UART2.c</itemPath>
-      </logicalFolder>
-      <logicalFolder name="f9" displayName="Other Peripherals" projectFiles="true">
-        <itemPath>cameraManager.c</itemPath>
-        <itemPath>Probe_Drop.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f4" displayName="PWM Management" projectFiles="true">
         <itemPath>InputCapture.c</itemPath>
@@ -97,9 +100,10 @@
       <logicalFolder name="f5" displayName="Utilities" projectFiles="true">
         <itemPath>fmath.c</itemPath>
         <itemPath>delay.c</itemPath>
-        <itemPath>StringUtils.c</itemPath>
         <itemPath>timer.c</itemPath>
-        <itemPath>timer.h</itemPath>
+        <itemPath>../Common/Utilities/ByteQueue.c</itemPath>
+        <itemPath>../Common/Utilities/Logger.c</itemPath>
+        <itemPath>../Common/Utilities/InterchipDMA.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f6" displayName="VectorNav" projectFiles="true">
         <itemPath>VN100.c</itemPath>
@@ -108,8 +112,8 @@
         <itemPath>VN_user.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f11" displayName="Vehicles" projectFiles="true">
-        <itemPath>Anaconda.c</itemPath>
-        <itemPath>DisplayQuad.c</itemPath>
+        <itemPath>Multirotor.c</itemPath>
+        <itemPath>FixedWing.c</itemPath>
       </logicalFolder>
       <itemPath>main.c</itemPath>
     </logicalFolder>
@@ -121,6 +125,14 @@
   </logicalFolder>
   <sourceRootList>
     <Elem>../PathManager</Elem>
+    <Elem>.</Elem>
+    <Elem>../Common</Elem>
+    <Elem>Interfaces</Elem>
+    <Elem>Utilities</Elem>
+    <Elem>../Common/Utilities</Elem>
+    <Elem>../Common/Interfaces</Elem>
+    <Elem>Drivers</Elem>
+    <Elem>test/test</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -130,10 +142,10 @@
         <targetDevice>dsPIC33FJ256GP710A</targetDevice>
         <targetHeader></targetHeader>
         <targetPluginBoard></targetPluginBoard>
-        <platformTool>ICD3PlatformTool</platformTool>
+        <platformTool>Simulator</platformTool>
         <languageToolchain>XC16</languageToolchain>
-        <languageToolchainVersion>1.26</languageToolchainVersion>
-        <platform>2</platform>
+        <languageToolchainVersion>1.31</languageToolchainVersion>
+        <platform>3</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
@@ -147,6 +159,8 @@
           <parseOnProdLoad>false</parseOnProdLoad>
           <alternateLoadableFile></alternateLoadableFile>
         </loading>
+        <subordinates>
+        </subordinates>
       </compileType>
       <makeCustomizationType>
         <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
@@ -161,6 +175,7 @@
         <property key="code-model" value="default"/>
         <property key="const-model" value="default"/>
         <property key="data-model" value="large-data"/>
+        <property key="disable-instruction-scheduling" value="false"/>
         <property key="enable-all-warnings" value="true"/>
         <property key="enable-ansi-std" value="false"/>
         <property key="enable-ansi-warnings" value="false"/>
@@ -226,6 +241,7 @@
         <property key="linker-stack" value="true"/>
         <property key="linker-symbols" value=""/>
         <property key="map-file" value="${DISTDIR}/${PROJECTNAME}.${IMAGE_TYPE}.map"/>
+        <property key="no-ivt" value="false"/>
         <property key="oXC16ld-extra-opts" value=""/>
         <property key="oXC16ld-fill-upper" value="0"/>
         <property key="oXC16ld-force-link" value="false"/>
@@ -250,87 +266,14 @@
         <property key="fast-math" value="false"/>
         <property key="generic-16-bit" value="false"/>
         <property key="legacy-libc" value="false"/>
+        <property key="mpreserve-all" value="false"/>
         <property key="oXC16glb-macros" value=""/>
         <property key="output-file-format" value="elf"/>
+        <property key="preserve-all" value="false"/>
+        <property key="preserve-file" value=""/>
         <property key="relaxed-math" value="false"/>
         <property key="save-temps" value="false"/>
       </C30Global>
-      <ICD3PlatformTool>
-        <property key="ADC 1" value="true"/>
-        <property key="ADC 2" value="true"/>
-        <property key="AutoSelectMemRanges" value="auto"/>
-        <property key="DCI" value="true"/>
-        <property key="Freeze All Other Peripherals" value="true"/>
-        <property key="I2C1" value="true"/>
-        <property key="I2C2" value="true"/>
-        <property key="INPUT CAPTURE 1" value="true"/>
-        <property key="INPUT CAPTURE 2" value="true"/>
-        <property key="INPUT CAPTURE 3" value="true"/>
-        <property key="INPUT CAPTURE 4" value="true"/>
-        <property key="INPUT CAPTURE 5" value="true"/>
-        <property key="INPUT CAPTURE 6" value="true"/>
-        <property key="INPUT CAPTURE 7" value="true"/>
-        <property key="INPUT CAPTURE 8" value="true"/>
-        <property key="OUTPUT COMPARE 1" value="true"/>
-        <property key="OUTPUT COMPARE 2" value="true"/>
-        <property key="OUTPUT COMPARE 3" value="true"/>
-        <property key="OUTPUT COMPARE 4" value="true"/>
-        <property key="OUTPUT COMPARE 5" value="true"/>
-        <property key="OUTPUT COMPARE 6" value="true"/>
-        <property key="OUTPUT COMPARE 7" value="true"/>
-        <property key="OUTPUT COMPARE 8" value="true"/>
-        <property key="SPI 1" value="true"/>
-        <property key="SPI 2" value="true"/>
-        <property key="SecureSegment.SegmentProgramming" value="FullChipProgramming"/>
-        <property key="TIMER1" value="true"/>
-        <property key="TIMER2" value="true"/>
-        <property key="TIMER3" value="true"/>
-        <property key="TIMER4" value="true"/>
-        <property key="TIMER5" value="true"/>
-        <property key="TIMER6" value="true"/>
-        <property key="TIMER7" value="true"/>
-        <property key="TIMER8" value="true"/>
-        <property key="TIMER9" value="true"/>
-        <property key="ToolFirmwareFilePath"
-                  value="Press to browse for a specific firmware version"/>
-        <property key="ToolFirmwareOption.UseLatestFirmware" value="true"/>
-        <property key="UART 1" value="true"/>
-        <property key="UART 2" value="true"/>
-        <property key="debugoptions.useswbreakpoints" value="false"/>
-        <property key="firmware.download.all" value="false"/>
-        <property key="hwtoolclock.frcindebug" value="false"/>
-        <property key="memories.aux" value="false"/>
-        <property key="memories.bootflash" value="false"/>
-        <property key="memories.configurationmemory" value="false"/>
-        <property key="memories.configurationmemory2" value="true"/>
-        <property key="memories.dataflash" value="true"/>
-        <property key="memories.eeprom" value="true"/>
-        <property key="memories.flashdata" value="true"/>
-        <property key="memories.id" value="true"/>
-        <property key="memories.programmemory" value="true"/>
-        <property key="memories.programmemory.end" value="0x2abff"/>
-        <property key="memories.programmemory.partition2" value="true"/>
-        <property key="memories.programmemory.partition2.end"
-                  value="${memories.programmemory.partition2.end.value}"/>
-        <property key="memories.programmemory.partition2.start"
-                  value="${memories.programmemory.partition2.start.value}"/>
-        <property key="memories.programmemory.start" value="0x0"/>
-        <property key="poweroptions.powerenable" value="false"/>
-        <property key="programoptions.donoteraseauxmem" value="false"/>
-        <property key="programoptions.eraseb4program" value="true"/>
-        <property key="programoptions.preservedataflash" value="false"/>
-        <property key="programoptions.preserveeeprom" value="false"/>
-        <property key="programoptions.preserveprogramrange" value="false"/>
-        <property key="programoptions.preserveprogramrange.end" value="0x2abff"/>
-        <property key="programoptions.preserveprogramrange.start" value="0x0"/>
-        <property key="programoptions.preserveuserid" value="false"/>
-        <property key="programoptions.programcalmem" value="false"/>
-        <property key="programoptions.programuserotp" value="false"/>
-        <property key="programoptions.testmodeentrymethod" value="VPPFirst"/>
-        <property key="programoptions.usehighvoltageonmclr" value="false"/>
-        <property key="programoptions.uselvpprogramming" value="false"/>
-        <property key="voltagevalue" value="3.25"/>
-      </ICD3PlatformTool>
     </conf>
   </confs>
 </configurationDescriptor>

@@ -3,10 +3,8 @@ dist/
 *.d
 private/
 *.properties
-*.xml
 *.mk
 *.bash
-Makefile
 *.o
 
 # Object files
@@ -37,3 +35,6 @@ Makefile
 
 # Vim swap files
 *.swp
+
+# Ceedling files
+coverage/

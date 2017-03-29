@@ -6,7 +6,6 @@
 
 #include <stdlib.h>
 #include "main.h"
-#include "../Common/UART1.h"
 
 struct telem_block *outBuffer [OUTBOUND_QUEUE_SIZE];
 int outbuff_start = 0;
@@ -92,7 +91,7 @@ struct telem_block *getDebugTelemetryBlock(p_priority packet) {
             debugTelemetry->data.p2_block.headingSetpoint = 1;
             debugTelemetry->data.p2_block.altitudeSetpoint = 1;
             debugTelemetry->data.p2_block.flapSetpoint = 1;
-            debugTelemetry->data.p2_block.cameraStatus = 1;
+            debugTelemetry->data.p2_block.unused = 1;
             debugTelemetry->data.p2_block.wirelessConnection = 1;
             debugTelemetry->data.p2_block.autopilotActive = 1;
             debugTelemetry->data.p2_block.gpsStatus = 1;

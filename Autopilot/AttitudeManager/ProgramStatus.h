@@ -8,10 +8,6 @@
 #ifndef PROGRAMSTATUS_H
 #define	PROGRAMSTATUS_H
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
-
 #define NUM_SENSORS 2 //VectorNav, XBEE
 #define VECTORNAV 0
 #define XBEE 1
@@ -27,7 +23,6 @@ extern "C" {
 #define ARMING 2
 #define MAIN_EXECUTION 3
 #define KILL_MODE_WARNING 4
-#define WAITING_TO_DIE_MODE KILL_MODE_WARNING
 #define KILL_MODE 5
 
 /* Function Prototypes */
@@ -37,10 +32,6 @@ char getSensorStatus(char sensor);
 
 void setProgramStatus(int status);
 int getProgramStatus();
-
-#ifdef	__cplusplus
-}
-#endif
 
 #endif	/* PROGRAMSTATUS_H */
 

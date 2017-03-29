@@ -12,6 +12,8 @@
 #include <p33FJ256GP710A.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include <math.h>
 
 //Constants
@@ -75,7 +77,7 @@ typedef struct _waypointWrapper{ // 28 bytes
     long double latitude;
     float altitude;
     float radius; //Radius of turn
-    char type; //Regular or probe drop location
+    char type; //Regular or hold location
     char previousId; //For use with insertNode() or operations that require reference to another node
     char nextId; //For use with insertNode() or operations that require reference to another node
     char id;    //Array ID
@@ -113,7 +115,7 @@ typedef struct _PMData { // 62 Bytes
     char targetWaypoint;
     char waypointCount;
     char pathFollowing;
-    char dropProbe; //0 = No drop, 1 = 1st drop, 2 - 2nd drop, etc..
+    char padding;
     char checkbyteDMA1;
     char checkbyteDMA2;
 } PMData;
@@ -129,6 +131,14 @@ typedef struct _AMData { // 60 Bytes
     char checksum;
     char checkbyteDMA;
 } AMData;
+
+/* Typing guidelines:
+ * When dealing with C-style strings or raw characters, use char
+ * When you need an integer no larger than 8 bits (i.e. +127/-128 or 0-255), use (u)int8_t
+ * When dealing with raw bytes (i.e. from a serial interface), use byte
+ */
+typedef uint8_t byte;
+typedef uint16_t word;
 
 char generatePMDataDMAChecksum1(void);
 char generatePMDataDMAChecksum2(void);

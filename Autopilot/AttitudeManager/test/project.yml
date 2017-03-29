@@ -1,10 +1,3 @@
----
-
-# Notes:
-# Sample project C code is not presently written to produce a release artifact.
-# As such, release build options are disabled.
-# This sample, therefore, only demonstrates running a collection of unit tests.
-
 :project:
   :use_exceptions: FALSE
   :use_test_preprocessor: TRUE
@@ -28,6 +21,7 @@
     - -:test/support
   :source:
     - ../*
+    - ../../**/*
   :support:
     - test/support
 
@@ -50,6 +44,7 @@
   :plugins:
     - :ignore
     - :callback
+    - :array
   :treat_as:
     uint8:    HEX8
     uint16:   HEX16
@@ -57,15 +52,40 @@
     int8:     INT8
     bool:     UINT8
 
-#:tools:
-# Ceedling defaults to using gcc for compiling, linking, etc.
-# As [:tools] is blank, gcc will be used (so long as it's in your system path)
-# See documentation to configure a given toolchain for use
-
 :plugins:
   :load_paths:
     - vendor/ceedling/plugins
   :enabled:
     - stdout_pretty_tests_report
     - module_generator
-...
+    - gcov
+
+:flags:
+  :test:
+    :compile:
+      :*:
+        - -Wall
+        - -Wextra
+        - -Wstrict-prototypes
+        - -Werror
+        - -fdata-sections
+        - -ffunction-sections
+    :link:
+      :*:
+        - -flto
+        - -Wl,--gc-sections
+  :gcov:
+    :compile:
+      :*:
+        - -Wall
+        - -Wextra
+        - -Wstrict-prototypes
+        - -Werror
+        - -fprofile-arcs
+        - -ftest-coverage
+        - -fdata-sections
+        - -ffunction-sections
+    :link:
+      :*:
+        - -Wl,--gc-sections
+        - -coverage
