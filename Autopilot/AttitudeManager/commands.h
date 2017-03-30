@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   commands.h
  * Author: andrew
  *
@@ -61,14 +61,15 @@
 #define ARM_VEHICLE 50
 #define DEARM_VEHICLE 51
 #define SET_FLAP 52
-#define SET_FLAP_KD_GAIN 53
-#define SET_FLAP_KP_GAIN 54
-#define SET_FLAP_KI_GAIN 55
+#define UNUSED_53 53
+#define UNUSED_54 54
+#define UNUSED_55 55
 #define UNUSED_56 56
 #define UNUSED_57 57
 #define FOLLOW_PATH 58
 #define EXIT_HOLD_ORBIT 59
 #define SHOW_SCALED_PWM 60
+#define REMOVE_LIMITS 61
 
 //Multipart Commands
 #define NEW_WAYPOINT 128
@@ -85,4 +86,3 @@
 //Multipart Command Structs
 
 #endif	/* COMMANDS_H */
-

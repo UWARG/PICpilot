@@ -11,10 +11,6 @@
 #include "main.h"
 #include "ProgramStatus.h"
 
-/*
- *
- */
-
 //State Machine Triggers (Mostly Timers)
 static int dmaTimer = 0;
 static int uplinkTimer = 0;
@@ -31,14 +27,13 @@ static char flightUpdate = 0;
 void StateMachine(char entryLocation){
     //Timers
     dTime = (int)(getTime() - stateMachineTimer);
-    stateMachineTimer = getTime();
+    stateMachineTimer += dTime;
     uplinkTimer += dTime;
     downlinkP0Timer += dTime;
     downlinkP1Timer += dTime;
     downlinkP2Timer += dTime;
     imuTimer += dTime;
     dmaTimer += dTime;
-
 
     //Clear Watchdog timer
     asm("CLRWDT");
