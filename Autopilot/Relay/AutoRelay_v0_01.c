@@ -141,7 +141,7 @@ void __attribute__((__interrupt__,no_auto_psv)) _IC1Interrupt(void)
 
 /**************************** Timer Interrupt *********************************/
 
-void __attribute__((__interrupt__,__shadow__)) _T1Interrupt(void)
+void __attribute__((__interrupt__,no_auto_psv)) _T1Interrupt(void)
 {
     sysTime++;                  // Increment sysTime by one every ms
     IFS0bits.T1IF = 0;          // Reset Timer 1 Interrupt flag
@@ -284,7 +284,7 @@ void Delay_ms(unsigned int millisec){
 // setting on remote-controller:
 // 47 off
 // 48-52 on
-// 53 off
+// 53 off   
 
 int main (void)
 {
