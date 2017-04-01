@@ -36,12 +36,13 @@
 #define HALF_PWM_RANGE (MAX_PWM - MIN_PWM)/2
 
 /**
- * Maximum and minimum limits received from the controller. These should be calibrated,
- * and the scaling from these values to the MAX and MIN PWM values will depend on these.
- * Note that these will be used as the default/initial values, however the actual scaling values
- * can be set by the ground station
+ * Number of timer2 ticks that represents ~2ms, or the max pwm value
  */
 #define UPPER_PWM 1250
+
+/**
+ * Number of timer2 ticks that represents ~1ms, or lowest pwm value
+ */
 #define LOWER_PWM 625
 
 /**
