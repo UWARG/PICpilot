@@ -8,7 +8,7 @@
 #include "UHF.h"
 
 uint8_t getUHFRSSI(uint32_t sys_time){
-    if ((getPWMInputStatus() & UHF_RSSI_CHANNEL) == 1){
+    if ((getPWMInputStatus() & (1 << UHF_RSSI_CHANNEL)) != 0){
         return 0;
     }
     uint16_t unscaled = getICValues(sys_time)[UHF_RSSI_CHANNEL - 1];
@@ -22,7 +22,7 @@ uint8_t getUHFRSSI(uint32_t sys_time){
 }
 
 uint8_t getUHFLinkQuality(uint32_t sys_time){
-    if ((getPWMInputStatus() & UHF_LINK_QUALITY_CHANNEL) == 1){
+    if ((getPWMInputStatus() & (1 << UHF_LINK_QUALITY_CHANNEL)) != 0){
         return 0;
     }
     uint16_t unscaled = getICValues(sys_time)[UHF_LINK_QUALITY_CHANNEL - 1];
