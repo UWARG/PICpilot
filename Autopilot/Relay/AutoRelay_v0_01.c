@@ -1,8 +1,9 @@
 /*******************************************************************************
 *
-* FileName:        AutoRelay_v0_01.c
-* Dependencies:    Header (.h) files if applicable, see below
-* Processor:       PIC24Fxxxx
+* FileName:              AutoRelay_v0_01.c
+* Dependencies:          Header (.h) files if applicable, see below
+* Processor:             PIC24Fxxxx
+* Timer Clock Speed:     2 MHz
 *
 *******************************************************************************/
 
@@ -69,11 +70,11 @@
 /**
  * Number of Timer1 ticks in a millisecond. To calculate this, take:
  * 1/(frequencyCPU/Timer2PreScaler)*TICKS_TO_MSEC should equal close to 0.001 or 1 ms
- * In this case, (8 MHz/64)*1ms = 125
+ * In this case, (2 MHz/6)/1000 = 250
  *
  * IMPORTANT: This value depends on the pre-scaler used
  */
-#define T1_TICKS_TO_MSEC 125
+#define T1_TICKS_TO_MSEC  250      
 
 /************************* Function Prototypes ********************************/
 void Init(void);
@@ -145,6 +146,7 @@ void __attribute__((__interrupt__,no_auto_psv)) _T1Interrupt(void)
 {
     sysTime++;                  // Increment sysTime by one every ms
     IFS0bits.T1IF = 0;          // Reset Timer 1 Interrupt flag
+    asm("CLRWDT");              // Reset Watchdog for when IC1 doesn't do it anymore if disconnected
 }
 
 /********************************* Init() *************************************/
@@ -162,10 +164,10 @@ void Init(void)
     IFS0bits.IC1IF = 0;         // Clear IC7 Interrupt Status Flag
     IEC0bits.IC1IE = 1;         // Enable IC7 interrupt
 
-    T1CON = 0;                  // Stops Timer1 and resets control reg
+    T1CONbits.TON = 0;          // Stops Timer1 and resets control reg
     T1CONbits.TCS = 0;          // Select internal instruction cycle clock
     T1CONbits.TGATE = 0;        // Disable Gated Timer mode
-    T1CONbits.TCKPS = 0b10;     // Select 1:64 Prescaler
+    T1CONbits.TCKPS = 0b01;     // Select 1:8 Prescaler
     
     PR1 = T1_TICKS_TO_MSEC;     //Load the Period Value as 1 ms
     TMR1 = 0x00;                //Clear Timer register
@@ -289,7 +291,7 @@ void Delay_ms(unsigned int millisec){
 int main (void)
 {
     unsigned long int thisCaptureTime;        // Used in tracking time since last edge
-    unsigned int timeDiff;                    // Used in finding time since last edge
+    unsigned long int timeDiff;               // Used in finding time since last edge
     
     Init();
 	while(1)
@@ -298,7 +300,7 @@ int main (void)
         timeDiff = thisCaptureTime - lastCaptureTime;
         
         //The window on the controller is 43%-50%                                                  //Controller Setting is: +47%, -33% //(ch8_position > 450)
-		if ((ch8_position > 400) && (ch8_position < 430) && (timeDiff <= PWM_ALIVE_THRESHOLD))     //Also that it hasn't been too long since last edge which means disconnect
+		if (((ch8_position > 400) && (ch8_position < 430)) || (timeDiff >= PWM_ALIVE_THRESHOLD))     //Also that it hasn't been too long since last edge which means disconnect
 		{
 			PORTBbits.RB7 = 1;
 		}
