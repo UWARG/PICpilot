@@ -23,6 +23,7 @@
 #include "VN_lib.h"
 
 #define IMU_UPDATE_FREQUENCY 10 //Time in milliseconds
+#define IMU_SPI_PORT 2
 
 /* Exported constants --------------------------------------------------------*/
 
