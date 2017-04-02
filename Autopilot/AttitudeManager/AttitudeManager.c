@@ -773,7 +773,7 @@ void readDatalink(void){
             default:
                 break;
         }
-       // freeDatalinkCommand( cmd );
+       freeDatalinkCommand( cmd );
     }
 }
 
