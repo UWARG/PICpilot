@@ -70,7 +70,7 @@
 /**
  * Number of Timer1 ticks in a millisecond. To calculate this, take:
  * 1/(frequencyCPU/Timer2PreScaler)*TICKS_TO_MSEC should equal close to 0.001 or 1 ms
- * In this case, (2 MHz/6)/1000 = 250
+ * In this case, (2 MHz/8)/1000 = 250
  *
  * IMPORTANT: This value depends on the pre-scaler used
  */
