@@ -308,11 +308,11 @@ int sendTelemetryBlock(struct telem_block *telem) {
     return 0;
 }
 
-//void __attribute__((__interrupt__, no_auto_psv)) _U2TXInterrupt(void) {
-//    // Short circuit if nothing in the staging area yet
-//    if ( stagingBuffer.telemetry.asStruct == 0 ) {
-//        IFS1bits.U2TXIF = 0;
-//        return;
-//    }
-//        sendNextByte();
-//}
+void __attribute__((__interrupt__, no_auto_psv)) _U2TXInterrupt(void) {
+    // Short circuit if nothing in the staging area yet
+    if ( stagingBuffer.telemetry.asStruct == 0 ) {
+        IFS1bits.U2TXIF = 0;
+        return;
+    }
+        sendNextByte();
+}

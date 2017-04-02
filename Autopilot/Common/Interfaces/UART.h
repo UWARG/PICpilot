@@ -11,8 +11,6 @@
 #ifndef UART_H
 #define	UART_H
 
-#include <stdint.h>
-
 /**
  * Status codes for whether to only enable TX, RX, or both on the specified interface
  */
@@ -34,13 +32,13 @@
  * This is because of the underlying bytequeue implementation that doubles and halves
  * the queue, which works better with even multiples.
  */
-void initUART(uint8_t interface, uint32_t baudrate, uint16_t initial_buffer_size, uint16_t max_buffer_size, uint8_t tx_rx);
+void initUART(unsigned char interface, unsigned long int baudrate, unsigned int initial_buffer_size, unsigned int max_buffer_size, unsigned char tx_rx);
 
 /**
  * Read a byte from the uart RX buffer
  * @param interface The interface to read from (1 or 2)
  */
-uint8_t readRXData(uint8_t interface);
+unsigned char readRXData(unsigned char interface);
 
 /**
  * Queues data to send through UART. This will not necessarily send the data
@@ -50,7 +48,7 @@ uint8_t readRXData(uint8_t interface);
  * @param data An array of bytes/chars to send
  * @param length The length of the aforementioned array of bytes/chars to send
  */
-void queueTXData(uint8_t interface, uint8_t* data, uint16_t data_length);
+void queueTXData(unsigned char interface, unsigned char* data, unsigned int data_length);
 
 /**
  * Get the number of bytes that are guaranteed to be succesfully queued to the TX buffer.
@@ -60,13 +58,13 @@ void queueTXData(uint8_t interface, uint8_t* data, uint16_t data_length);
  * @param interface
  * @return number of bytes that can be written
  */
-uint16_t getTXSpace(uint8_t interface);
+unsigned int getTXSpace(unsigned char interface);
 
 /**
  * Get the current size of the uart rx buffer for the specified interface
  * @param interface
  * @return Size of the buffer in bytes
  */
-uint16_t getRXSize(uint8_t interface);
+unsigned int getRXSize(unsigned char interface);
 
 #endif
