@@ -27,7 +27,7 @@
 
 //Waypoint types
 #define DEFAULT_WAYPOINT 0
-#define PROBE_DROP_WAYPOINT 1
+#define WAYPOINT_UNUSED 1
 #define HOLD_WAYPOINT 2
 
 //Structs and typedefs

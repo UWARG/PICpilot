@@ -1,5 +1,7 @@
 #!/bin/bash
 
+rm -rf build/*
+
 # Run the unit tests and generate all the required gcov files
 ceedling gcov:all
 

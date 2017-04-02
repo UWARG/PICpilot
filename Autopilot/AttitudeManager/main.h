@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   main.h
  * Author: Chris Hajduk
  *
@@ -41,7 +41,7 @@
 #define VEHICLE_TYPE FIXED_WING
 
 #if VEHICLE_TYPE == FIXED_WING
-#include "FixedWing.h" 
+#include "FixedWing.h"
 #elif VEHICLE_TYPE == MULTIROTOR
 #include "Multirotor.h"
 #endif

@@ -214,7 +214,7 @@ void initIC(unsigned char initIC)
 #if USE_PPM
 /**
 * PPM Interrupt Service routine for Channel 7 for when PPM is enabled. Will trigger
-* on rising or falling edge on channel 7 (depending on PPM_INVERTED). Calculates the time 
+* on rising or falling edge on channel 7 (depending on PPM_INVERTED). Calculates the time
 * between the last edge time and the current edge to determine if a PPM sync occurred,
 * used to keep track of the positions of the channels.
 */

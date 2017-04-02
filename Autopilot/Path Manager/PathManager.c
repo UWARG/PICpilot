@@ -12,10 +12,11 @@
 #include "MPL3115A2.h"
 #include "MainBatterySensor.h"
 #include "airspeedSensor.h"
-#include "ProbeDrop.h"
 #include "StartupErrorCodes.h"
 
-#include "InterchipDMA.h"
+#include "../Common/Interfaces/SPI.h"
+#include "../Common/Utilities/InterchipDMA.h"
+#include "GPSDMA.h"
 
 #if DEBUG
 #include <stdio.h>
@@ -50,7 +51,6 @@ char pathCount = 0;
 
 int lastKnownHeadingHome = 10;
 char returnHome = 0;
-char doProbeDrop = 0;
 char followPath = 0;
 char inHold = 0;
 
@@ -58,8 +58,8 @@ void pathManagerInit(void) {
 
 
 //Communication with GPS
-    init_SPI2();
     init_DMA2();
+    initSPI(GPS_SPI_PORT, 0, SPI_MODE1, SPI_WORD, SPI_SLAVE);
     initMainBatterySensor();
     initAirspeedSensor();
 
@@ -73,12 +73,10 @@ void pathManagerInit(void) {
     TRISBbits.TRISB4 = 1;   //Init RB4 as Input (1)
     TRISBbits.TRISB5 = 1;   //Init RB5 as Input (1)
 
-    INTERCOM_3 = 0;    //Set RA12 to Output a Value of 0
-    INTERCOM_4 = 0;    //Set RA13 to Output a Value of 0
+    init_DMA0(0);
+    init_DMA1(0);
+    initSPI(IC_DMA_PORT, DMA_CLOCK_KHZ, SPI_MODE1, SPI_BYTE, SPI_MASTER);
 
-    init_SPI1();
-    init_DMA0();
-    init_DMA1();
     DMA1REQbits.FORCE = 1;
     while (DMA1REQbits.FORCE == 1);
 
@@ -165,17 +163,6 @@ void pathManagerRuntime(void) {
         lastKnownHeadingHome = calculateHeadingHome(home, (float*)position, heading);
     }
 
-    char verifiedDrop = 1;
-    
-    //Get the position of the target
-    if (path[currentIndex]->type == 1){
-        float targetWaypoint[2];
-        targetWaypoint[0] = path[currentIndex]->next->longitude;
-        targetWaypoint[1] = path[currentIndex]->next->latitude;
-        doProbeDrop = probeDrop(verifiedDrop, (float*)&targetWaypoint, position, &pmData.altitude, &pmData.speed, &pmData.airspeed);
-    }
-    
-    
     pmData.checkbyteDMA1 = generatePMDataDMAChecksum1();
     pmData.checkbyteDMA2 = generatePMDataDMAChecksum2();
 }
