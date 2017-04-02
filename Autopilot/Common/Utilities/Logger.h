@@ -73,14 +73,6 @@ void debug(char* message);
  */
 void debugArray(uint8_t* array, uint16_t length);
 
-
-/**
- * Prints out a message with an integer. Helper method that saves some typing
- * @param message
- * @param number
- */
-void debugInt(char* message, int64_t number);
-
 /**
  * Output a info level message
  * @param message
