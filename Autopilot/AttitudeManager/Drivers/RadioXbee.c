@@ -153,8 +153,6 @@ bool sendQueuedDownlinkPacket()
 {
     //to temporarily store the api messages to send over the uart line
     static uint8_t send_buffer[XBEE_TX_BUFFER_LENGTH];
-    
-    uint8_t checksum = 0;
 
     send_buffer[0] = XBEE_START_DELIMITER;
     XbeeApiFrame* to_send = XbeeFrameQueue.head; //to save on typing. We're only peeking at the value here, not popping!
@@ -176,16 +174,13 @@ bool sendQueuedDownlinkPacket()
         send_buffer[1] = total_payload_length >> 8; //upper 8 bits of the length
         send_buffer[2] = total_payload_length & 0xFF; //lower 8 bits of the length
         send_buffer[3] = to_send->frame_type;
-        
-        checksum += to_send->frame_type;
 
         uint16_t i;
         for (i = 0; i < to_send->data_length; i++) {
             send_buffer[i + 4] = to_send->data[i];
-            checksum += to_send->data[i];
         }
         //add the checksum
-        send_buffer[total_frame_length - 1] = 0xFF - checksum;
+        send_buffer[total_frame_length - 1] = total_payload_length % 0xFF;
 
         queueTXData(XBEE_UART_INTERFACE, send_buffer, total_frame_length); //queue the data for tranmission over UART
 
@@ -275,9 +270,6 @@ uint8_t* parseUplinkPacket(uint16_t* length)
 
     //the parsed length of the packet we're parsing. Used to tell when the packet is complete
     static uint16_t rx_packet_length;
-    
-    //current calculated checksum of the in-progress packet
-    static uint8_t checksum;
 
     uint8_t byte; //bytes after the start delimiter
 
@@ -318,9 +310,8 @@ uint8_t* parseUplinkPacket(uint16_t* length)
                 //copy over the payload (not including checksum). 2 because of the 2 length bytes
                 if (rx_packet_pos <= rx_packet_length + 2) {
                     receive_buffer[rx_packet_pos - 3] = byte;
-                    checksum += byte;
                 } else { //we've finished copying the payload, check the checksum byte
-                    if ((0xFF - checksum) != byte) {
+                    if (byte % 0xFF != rx_packet_length % 0xFF) {
                         parsing_rx_packet = false;
                         return NULL;
                     } else {
