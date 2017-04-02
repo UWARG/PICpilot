@@ -18,7 +18,7 @@
 #include "VN100.h"
 #include "VN_lib.h"
 #include "main.h"
-#include "../Common/Interfaces/SPI.h"
+
 
 #ifdef _VN100
 /* Private typedef -----------------------------------------------------------*/

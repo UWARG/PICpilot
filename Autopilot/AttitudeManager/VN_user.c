@@ -22,7 +22,6 @@
 #include "delay.h"
 #include "StateMachine.h"
 #include "ProgramStatus.h"
-#include "../Common/Interfaces/SPI.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
