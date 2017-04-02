@@ -78,7 +78,7 @@ TelemetryBlock* createTelemetryBlock(p_priority packet) {
 }
 
 bool queueTelemetryBlock(TelemetryBlock* telem) {
-    return queueDownlinkPacket((uint8_t*)(telem), sizeof(TelemetryBlock));
+    return queueDownlinkPacket((uint8_t*)(&(telem->data)), sizeof(telem->data));
 }
 
 /**
