@@ -109,11 +109,10 @@ void initRadio()
     XbeeFrameQueue.tail = NULL;
     
     initUART(XBEE_UART_INTERFACE, XBEE_UART_BAUD_RATE, XBEE_UART_BUFFER_INITIAL_SIZE, XBEE_UART_BUFFER_MAX_SIZE, UART_TX_RX_ENABLE);
-    
+
     //request destination address
     queueATCommand(XBEE_AT_COMMAND_DESTINATION_ADDRESS_HIGH);
     queueATCommand(XBEE_AT_COMMAND_DESTINATION_ADDRESS_LOW);
-    
     info("Xbee Radio Initialized");
 }
 
@@ -187,7 +186,7 @@ bool sendQueuedDownlinkPacket()
         }
         //add the checksum
         send_buffer[total_frame_length - 1] = 0xFF - checksum;
-        
+
         queueTXData(XBEE_UART_INTERFACE, send_buffer, total_frame_length); //queue the data for tranmission over UART
 
         XbeeFrameQueue.head = to_send->next_frame;
@@ -315,14 +314,13 @@ uint8_t* parseUplinkPacket(uint16_t* length)
             } else if (rx_packet_pos == 2) {
                 //second byte is the LSB of the length of the upcoming packet
                 rx_packet_length += (uint16_t) byte;
-                checksum = 0;
             } else if (rx_packet_pos >= 3) {
                 //copy over the payload (not including checksum). 2 because of the 2 length bytes
                 if (rx_packet_pos <= rx_packet_length + 2) {
                     receive_buffer[rx_packet_pos - 3] = byte;
                     checksum += byte;
                 } else { //we've finished copying the payload, check the checksum byte
-                    if ((checksum + byte) != 0xFF) {
+                    if ((0xFF - checksum) != byte) {
                         parsing_rx_packet = false;
                         return NULL;
                     } else {
