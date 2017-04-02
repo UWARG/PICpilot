@@ -10,6 +10,10 @@
 #ifndef NET_H
 #define	NET_H
 
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
 /** Time in miliseconds for how often a P0(high priority) packet gets sent down. Default=300 **/
 #define P0_SEND_FREQUENCY 200 
 
@@ -207,4 +211,8 @@ int checkPacket( char* rawPacket);
 // Handle the inbound buffer
 void inboundBufferMaintenance(void);
 
+#ifdef	__cplusplus
+}
 #endif
+
+#endif	/* NET_H */
