@@ -124,7 +124,7 @@ typedef struct _AMData { // 60 Bytes
     float pathGain;
     float orbitGain;
     float calibrationHeight;
-    char command;
+    char DatalinkCommand;
     char followPath;
     char padding[16];
     char checksum;
