@@ -1,8 +1,9 @@
 /*******************************************************************************
 *
-* FileName:        AutoRelay_v0_01.c
-* Dependencies:    Header (.h) files if applicable, see below
-* Processor:       PIC24Fxxxx
+* FileName:              AutoRelay_v0_01.c
+* Dependencies:          Header (.h) files if applicable, see below
+* Processor:             PIC24Fxxxx
+* Timer Clock Speed:     2 MHz
 *
 *******************************************************************************/
 
@@ -65,6 +66,15 @@
 #define Fcy		    (Fosc*4/2)	    // w.PLL (Instruction Per Second)
 #define Fsck	    100000		    // 400kHz I2C
 #define I2C_BRG	    ((Fcy/2/Fsck)-1)
+#define PWM_ALIVE_THRESHOLD 100     //Max Time between edges
+/**
+ * Number of Timer1 ticks in a millisecond. To calculate this, take:
+ * 1/(frequencyCPU/Timer2PreScaler)*TICKS_TO_MSEC should equal close to 0.001 or 1 ms
+ * In this case, (2 MHz/8)/1000 = 250
+ *
+ * IMPORTANT: This value depends on the pre-scaler used
+ */
+#define T1_TICKS_TO_MSEC  250      
 
 /************************* Function Prototypes ********************************/
 void Init(void);
@@ -73,11 +83,13 @@ void Delay_ms(unsigned int millisec);
 void readI2C(unsigned char sensor);
 
 /**************************** Global Variables ********************************/
-unsigned int timePeriod1 = 0;         // Used in interrupt
+unsigned int timePeriod1 = 0;               // Used in interrupt
 unsigned int timePeriod2 = 0;
 unsigned int t[3] = {0,0,0};                // Used in interrupt
 unsigned int i = 0;
-unsigned int ch8_position = 0;      // Used in Main()
+volatile unsigned long int lastCaptureTime = 0;      // Used in tracking time between edges
+volatile unsigned long int sysTime = 0;              // To keep track of time in ms
+unsigned int ch8_position = 0;              // Used in Main()
 
 
 unsigned char data = (char)0x00;
@@ -95,7 +107,10 @@ unsigned char dataI2C_2;
 /******************************* Interrupt ************************************/
 void __attribute__((__interrupt__,no_auto_psv)) _IC1Interrupt(void)
 {
+    lastCaptureTime = sysTime;
+    
     t[i] = IC1BUF;
+    
     if (t[i] > t[(i+2)%3])
     {
         timePeriod1 = t[i] - t[(i+2)%3];
@@ -124,6 +139,16 @@ void __attribute__((__interrupt__,no_auto_psv)) _IC1Interrupt(void)
 	IFS0bits.IC1IF=0;
 }
 
+
+/**************************** Timer Interrupt *********************************/
+
+void __attribute__((__interrupt__,no_auto_psv)) _T1Interrupt(void)
+{
+    sysTime++;                  // Increment sysTime by one every ms
+    IFS0bits.T1IF = 0;          // Reset Timer 1 Interrupt flag
+    asm("CLRWDT");              // Reset Watchdog for when IC1 doesn't do it anymore if disconnected
+}
+
 /********************************* Init() *************************************/
 void Init(void)
 {
@@ -139,6 +164,20 @@ void Init(void)
     IFS0bits.IC1IF = 0;         // Clear IC7 Interrupt Status Flag
     IEC0bits.IC1IE = 1;         // Enable IC7 interrupt
 
+    T1CONbits.TON = 0;          // Stops Timer1 and resets control reg
+    T1CONbits.TCS = 0;          // Select internal instruction cycle clock
+    T1CONbits.TGATE = 0;        // Disable Gated Timer mode
+    T1CONbits.TCKPS = 0b01;     // Select 1:8 Prescaler
+    
+    PR1 = T1_TICKS_TO_MSEC;     //Load the Period Value as 1 ms
+    TMR1 = 0x00;                //Clear Timer register
+    
+    IPC0bits.T1IP = 5;          // Set Timer 1 Interrupt Priority Level (5)
+    IFS0bits.T1IF = 0;          // Clear Timer 1 Interrupt flag
+    IEC0bits.T1IE = 1;          // Enable Timer 1 Interrupts    
+    T1CONbits.TON = 1;          // Start Timer 1
+    
+    
     T2CONbits.TON = 0;          // Disable Timer
     T2CONbits.TCS = 0;          // Select internal instruction cycle clock
     T2CONbits.TGATE = 0;        // Disable Gated Timer mode
@@ -247,16 +286,21 @@ void Delay_ms(unsigned int millisec){
 // setting on remote-controller:
 // 47 off
 // 48-52 on
-// 53 off
+// 53 off   
 
 int main (void)
 {
+    unsigned long int thisCaptureTime;        // Used in tracking time since last edge
+    unsigned long int timeDiff;               // Used in finding time since last edge
+    
     Init();
 	while(1)
-	{
-
-                //The window on the controller is 43%-50%
-		if ((ch8_position > 400) && (ch8_position < 430)) //Controller Setting is: +47%, -33% //(ch8_position > 450)
+	{        
+        thisCaptureTime = sysTime;                  
+        timeDiff = thisCaptureTime - lastCaptureTime;
+        
+        //The window on the controller is 43%-50%                                                  //Controller Setting is: +47%, -33% //(ch8_position > 450)
+		if (((ch8_position > 400) && (ch8_position < 430)) || (timeDiff >= PWM_ALIVE_THRESHOLD))     //Also that it hasn't been too long since last edge which means disconnect
 		{
 			PORTBbits.RB7 = 1;
 		}
