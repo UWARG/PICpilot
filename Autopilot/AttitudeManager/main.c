@@ -48,15 +48,15 @@ int main(int argc, char** argv) {
     AD2PCFGLbits.PCFG4 = 1;
     AD2PCFGLbits.PCFG5 = 1;
     
-    //as we plug in the picpilot, there may be intermittent power from the initial contact of the
-    //power plug which the sensor drivers don't like. This delay is meant to stop communication of sensors 
-    //until we know we're getting constant power
-    Delay(100);
-    
 //Debug Mode initialize communication with the serial port (Computer)
 #if DEBUG
     initLogger();
 #endif
+    
+    //as we plug in the picpilot, there may be intermittent power from the initial contact of the
+    //power plug which the sensor drivers don't like. This delay is meant to stop communication of sensors 
+    //until we know we're getting constant power
+    Delay(100);
     
     checkErrorCodes();
     attitudeInit();
