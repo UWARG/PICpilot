@@ -6,8 +6,6 @@
  */
 
 #include "StateMachine.h"
-#include "./Network/Datalink.h"
-#include "./AttitudeManager.h"
 #include "../Common/Utilities/Logger.h"
 #include "../Common/Common.h"
 #include "main.h"
@@ -103,6 +101,7 @@ void StateMachine(char entryLocation){
     }
     //Loop it back again!
     inboundBufferMaintenance();
+    outboundBufferMaintenance();
     asm("CLRWDT");
 }
 

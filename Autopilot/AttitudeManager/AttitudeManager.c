@@ -12,12 +12,12 @@
 #include "InputCapture.h"
 #include "OutputCompare.h"
 #include "PWM.h"
-#include "AttitudeManager.h"
-#include "Commands.h"
+#include "commands.h"
 #include "StartupErrorCodes.h"
 #include "main.h"
 #include "../Common/Interfaces/SPI.h"
 #include "Network/Datalink.h"
+#include "InterchipDMA.h"
 #include "ProgramStatus.h"
 #include <string.h>
 
@@ -513,13 +513,8 @@ uint8_t getControlValue(CtrlType type) {
 }
 
 void readDatalink(void){
-<<<<<<< HEAD
     struct DatalinkCommand* cmd = popCommand();
     
-=======
-
-    struct Command* cmd = popCommand();
->>>>>>> Got project to compile
     //TODO: Add rudimentary input validation
     if ( cmd ) {
         if (lastCommandSentCode[lastCommandCounter]/100 == cmd->cmd){
@@ -779,14 +774,9 @@ void readDatalink(void){
         destroyCommand( cmd );
     }
 }
-<<<<<<< HEAD
 
 int writeDatalink(p_priority packet){
     struct TelemetryBlock* statusData = createTelemetryBlock(packet);
-=======
-bool writeDatalink(p_priority packet){
-    TelemetryBlock* statusData = createTelemetryBlock(packet);
->>>>>>> Got project to compile
 
     //If Malloc fails, then quit...wait until there is memory available
     if (!statusData){return 0;}
@@ -893,7 +883,15 @@ bool writeDatalink(p_priority packet){
             break;
     }
 
-    return queueTelemetryBlock(statusData);
+    if (BLOCKING_MODE) {
+        sendTelemetryBlock(statusData);
+        destroyTelemetryBlock(statusData);
+    } else {
+        return pushOutboundTelemetryQueue(statusData);
+    }
+
+    return 0;
+
 }
 
 void checkUHFStatus(){
