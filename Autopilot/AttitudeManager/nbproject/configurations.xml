@@ -8,7 +8,6 @@
         <itemPath>AttitudeManager.h</itemPath>
         <itemPath>OrientationControl.h</itemPath>
         <itemPath>StateMachine.h</itemPath>
-        <itemPath>PID.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f6" displayName="Common" projectFiles="true">
         <itemPath>../Common/Common.h</itemPath>
@@ -29,7 +28,10 @@
       </logicalFolder>
       <logicalFolder name="f3" displayName="Network" projectFiles="true">
         <itemPath>Network/Datalink.h</itemPath>
-        <itemPath>Network/Commands.h</itemPath>
+        <itemPath>Commands.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f2" displayName="Peripherals" projectFiles="true">
+        <itemPath>Peripherals/UHF.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f4" displayName="PWM Management" projectFiles="true">
         <itemPath>OutputCompare.h</itemPath>
@@ -67,7 +69,6 @@
         <itemPath>AttitudeManager.c</itemPath>
         <itemPath>OrientationControl.c</itemPath>
         <itemPath>StateMachine.c</itemPath>
-        <itemPath>PID.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f7" displayName="Common" projectFiles="true">
         <itemPath>../Common/Common.c</itemPath>
@@ -87,6 +88,12 @@
       </logicalFolder>
       <logicalFolder name="f3" displayName="Network" projectFiles="true">
         <itemPath>Network/Datalink.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f2" displayName="Peripherals" projectFiles="true">
+        <itemPath>Peripherals/UHF.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f2" displayName="Peripherals" projectFiles="true">
+        <itemPath>Peripherals/UHF.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f4" displayName="PWM Management" projectFiles="true">
         <itemPath>InputCapture.c</itemPath>
@@ -127,7 +134,14 @@
     <Elem>Utilities</Elem>
     <Elem>test/test</Elem>
     <Elem>Network</Elem>
+<<<<<<< HEAD
+<<<<<<< HEAD
     <Elem>Peripherals</Elem>
+=======
+>>>>>>> Got project to compile
+=======
+    <Elem>Peripherals</Elem>
+>>>>>>> Removed unnessary cast
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>
@@ -269,9 +283,6 @@
         <property key="relaxed-math" value="false"/>
         <property key="save-temps" value="false"/>
       </C30Global>
-      <ICD3PlatformTool>
-        <property key="firmware.download.all" value="false"/>
-      </ICD3PlatformTool>
     </conf>
   </confs>
 </configurationDescriptor>
