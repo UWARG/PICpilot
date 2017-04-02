@@ -13,7 +13,7 @@
 #include "OutputCompare.h"
 #include "PWM.h"
 #include "AttitudeManager.h"
-#include "Network/Commands.h"
+#include "Commands.h"
 #include "StartupErrorCodes.h"
 #include "main.h"
 #include "../Common/Interfaces/SPI.h"
