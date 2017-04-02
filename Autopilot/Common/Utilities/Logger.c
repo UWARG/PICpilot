@@ -8,9 +8,6 @@
 
 #include "./Logger.h"
 #include "../Interfaces/UART.h"
-#include <stddef.h>
-#include <stdlib.h>
-#include <stdio.h>
 
 static char logger_initialized = 0;
 
@@ -56,22 +53,6 @@ void debug(char* message)
     if (logger_initialized) {
         writeMessage(message, DEBUG_TAG_STRING, DEBUG_TAG_STRING_LENGTH);
     }
-}
-
-void debugArray(uint8_t* array, uint16_t length)
-{
-    char* to_print = malloc(length*3 + 1);
-    if (to_print == NULL){
-        return;
-    }
-    int i;
-    for (i = 0; i < length; i++) {
-        sprintf(&to_print[i*3],"%02x ", array[i]);
-    }
-    to_print[length*3] = 0;
-    
-    writeMessage((char*)to_print, DEBUG_TAG_STRING, DEBUG_TAG_STRING_LENGTH);
-    free(to_print);
 }
 
 void info(char* message)
