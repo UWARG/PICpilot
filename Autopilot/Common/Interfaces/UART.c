@@ -155,24 +155,24 @@ void queueTXData(uint8_t interface, uint8_t* data, uint16_t data_length)
         for (i = 0; i < data_length; i++) {
             pushBQueue(&uart1_tx_queue, data[i]);
         }
+        
+        IEC0bits.U1TXIE = 1;	//Re-enable transmit interrupts
 
         if (U1STAbits.TRMT) { //if the transmit buffer is empty and register (no sending)
             U1TXREG = popBQueue(&uart1_tx_queue); //trigger a send
         }
-        
-        IEC0bits.U1TXIE = 1;	//Re-enable transmit interrupts
     } else if (interface == 2 && (uart2_status & UART_TX_ENABLE)) {
         IEC1bits.U2TXIE = 0;	//Disable transmit interrupts for now
         
         for (i = 0; i < data_length; i++) {
             pushBQueue(&uart2_tx_queue, data[i]);
         }
+        
+        IEC1bits.U2TXIE = 1;	//Re-enable transmit interrupts
 
         if (U2STAbits.TRMT) { //if the transmit buffer is empty and register (no sending)
             U2TXREG = popBQueue(&uart2_tx_queue); //trigger a send
         }
-        
-        IEC1bits.U2TXIE = 1;	//Re-enable transmit interrupts
     }
 }
 
