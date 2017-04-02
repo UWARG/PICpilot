@@ -13,8 +13,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-static void pushDatalinkCommand(DatalinkCommand* command);
-
+//to remove
+#include <stdio.h>
 struct DatalinkCommandQueue {
     DatalinkCommand* head;
     DatalinkCommand* tail;
@@ -46,21 +46,29 @@ void parseDatalinkBuffer(void) {
         command->next = NULL;
         
         //append the command to our queue
-        pushDatalinkCommand(command);
+        if (datalinkCommandQueue.tail != NULL){
+            datalinkCommandQueue.tail->next = command;
+        } else { //if the tail doesnt exist then the head shouldnt either
+            datalinkCommandQueue.head = command;
+            datalinkCommandQueue.tail = command;
+        }
     }
 }
 
-DatalinkCommand* popDatalinkCommand(){
-    DatalinkCommand* command = datalinkCommandQueue.head;
-    
-    if (command == datalinkCommandQueue.tail){
-        datalinkCommandQueue.tail = NULL;
-        datalinkCommandQueue.head = NULL;
+DatalinkCommand* popDatalinkCommand() {
+    if (datalinkCommandQueue.head == NULL){
+        return NULL;
     } else {
-        datalinkCommandQueue.head = command->next;
+         DatalinkCommand* current = datalinkCommandQueue.head;
+         if (current->next == NULL){
+             datalinkCommandQueue.tail = NULL;
+         }
+         datalinkCommandQueue.head = current->next;
+         current->next = NULL; //so that we cant use the list outside of this class
+         return current;
     }
-    return command;
 }
+
 
 void freeDatalinkCommand(DatalinkCommand* to_destroy){
     free(to_destroy->data - 1); //since data represents the actual data array not including the cmd id
@@ -79,25 +87,4 @@ TelemetryBlock* createTelemetryBlock(p_priority packet) {
 
 bool queueTelemetryBlock(TelemetryBlock* telem) {
     return queueDownlinkPacket((uint8_t*)(&(telem->data)), sizeof(telem->data));
-}
-
-/**
- * Adds a command to the command queue
- * @param command
- */
-static void pushDatalinkCommand(DatalinkCommand* command)
-{
-    if (command == NULL){
-        return;
-    }
-    
-    command->next = NULL;
-    
-    if (datalinkCommandQueue.head == NULL){
-        datalinkCommandQueue.head = command;
-        datalinkCommandQueue.tail = command;
-    } else {
-        datalinkCommandQueue.tail->next = command;
-        datalinkCommandQueue.tail = command;
-    }
 }
