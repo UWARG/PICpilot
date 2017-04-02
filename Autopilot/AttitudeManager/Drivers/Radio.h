@@ -13,6 +13,9 @@
 #ifndef RADIO_H
 #define	RADIO_H
 
+#include <stdint.h>
+#include <stdbool.h>
+
 #define RADIO_XBEE 0
 #define RADIO_3DR 1
 

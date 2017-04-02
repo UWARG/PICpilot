@@ -12,6 +12,7 @@
 #include "OrientationControl.h"
 #include "StateMachine.h"
 #include "../Common/Utilities/InterchipDMA.h"
+#include "net.h"
 #include "../Common/Common.h"
 
 //Bit Mask Bit Shifts
