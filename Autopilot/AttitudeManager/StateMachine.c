@@ -102,7 +102,7 @@ void StateMachine(char entryLocation){
         //Then Sleep
     }
     //Loop it back again!
-    parseDatalinkBuffer();
+    inboundBufferMaintenance();
     asm("CLRWDT");
 }
 
