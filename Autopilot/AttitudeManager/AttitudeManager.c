@@ -773,124 +773,120 @@ void readDatalink(void){
             default:
                 break;
         }
-        freeDatalinkCommand( cmd );
+       // freeDatalinkCommand( cmd );
     }
 }
 
 bool writeDatalink(p_priority packet){
-    TelemetryBlock* statusData = createTelemetryBlock(packet);
-
-    //If Malloc fails, then quit...wait until there is memory available
-    if (!statusData){return 0;}
+    static TelemetryBlock statusData;
 
     int* input;
     int* output; //Pointers used for RC channel inputs and outputs
-
+    statusData.type = packet;
+    
     switch(packet){
         case PRIORITY0:
-            statusData->data.p1_block.lat = getLatitude();
-            statusData->data.p1_block.lon = getLongitude();
-            statusData->data.p1_block.sysTime = getTime();
-            statusData->data.p1_block.UTC = gps_Time;
-            statusData->data.p1_block.pitch = getPitch();
-            statusData->data.p1_block.roll = getRoll();
-            statusData->data.p1_block.yaw = getYaw();
-            statusData->data.p1_block.pitchRate = getPitchRate();
-            statusData->data.p1_block.rollRate = getRollRate();
-            statusData->data.p1_block.yawRate = getYawRate();
-            statusData->data.p1_block.airspeed = airspeed;
-            statusData->data.p1_block.alt = getAltitude();
-            statusData->data.p1_block.gSpeed = gps_GroundSpeed;
-            statusData->data.p1_block.heading = getHeading();
-            statusData->data.p1_block.rollRateSetpoint = getRollRateSetpoint();
-            statusData->data.p1_block.rollSetpoint = getRollAngleSetpoint();
-            statusData->data.p1_block.pitchRateSetpoint = getPitchRateSetpoint();
-            statusData->data.p1_block.pitchSetpoint = getPitchAngleSetpoint();
-            statusData->data.p1_block.throttleSetpoint = getThrottleSetpoint();
+            statusData.data.p1_block.lat = getLatitude();
+            statusData.data.p1_block.lon = getLongitude();
+            statusData.data.p1_block.sysTime = getTime();
+            statusData.data.p1_block.UTC = gps_Time;
+            statusData.data.p1_block.pitch = getPitch();
+            statusData.data.p1_block.roll = getRoll();
+            statusData.data.p1_block.yaw = getYaw();
+            statusData.data.p1_block.pitchRate = getPitchRate();
+            statusData.data.p1_block.rollRate = getRollRate();
+            statusData.data.p1_block.yawRate = getYawRate();
+            statusData.data.p1_block.airspeed = airspeed;
+            statusData.data.p1_block.alt = getAltitude();
+            statusData.data.p1_block.gSpeed = gps_GroundSpeed;
+            statusData.data.p1_block.heading = getHeading();
+            statusData.data.p1_block.rollRateSetpoint = getRollRateSetpoint();
+            statusData.data.p1_block.rollSetpoint = getRollAngleSetpoint();
+            statusData.data.p1_block.pitchRateSetpoint = getPitchRateSetpoint();
+            statusData.data.p1_block.pitchSetpoint = getPitchAngleSetpoint();
+            statusData.data.p1_block.throttleSetpoint = getThrottleSetpoint();
             break;
         case PRIORITY1:
-            statusData->data.p2_block.rollKD = getGain(ROLL_RATE,KD);
-            statusData->data.p2_block.rollKP = getGain(ROLL_RATE,KP);
-            statusData->data.p2_block.pitchKD = getGain(PITCH_RATE,KD);
-            statusData->data.p2_block.pitchKP = getGain(PITCH_RATE,KP);
-            statusData->data.p2_block.yawKD = getGain(YAW_RATE,KD);
-            statusData->data.p2_block.yawKP = getGain(YAW_RATE,KP);
-            statusData->data.p2_block.lastCommandsSent[0] = lastCommandSentCode[lastCommandCounter];
-            statusData->data.p2_block.lastCommandsSent[1] = lastCommandSentCode[(lastCommandCounter + (COMMAND_HISTORY_SIZE - 1))%COMMAND_HISTORY_SIZE];
-            statusData->data.p2_block.lastCommandsSent[2] = lastCommandSentCode[(lastCommandCounter + (COMMAND_HISTORY_SIZE - 2))%COMMAND_HISTORY_SIZE];
-            statusData->data.p2_block.lastCommandsSent[3] = lastCommandSentCode[(lastCommandCounter + (COMMAND_HISTORY_SIZE - 3))%COMMAND_HISTORY_SIZE];
-            statusData->data.p2_block.batteryLevel1 = 50;//batteryLevel1;
-            statusData->data.p2_block.batteryLevel2 = 50;//batteryLevel2;
+            statusData.data.p2_block.rollKD = getGain(ROLL_RATE,KD);
+            statusData.data.p2_block.rollKP = getGain(ROLL_RATE,KP);
+            statusData.data.p2_block.pitchKD = getGain(PITCH_RATE,KD);
+            statusData.data.p2_block.pitchKP = getGain(PITCH_RATE,KP);
+            statusData.data.p2_block.yawKD = getGain(YAW_RATE,KD);
+            statusData.data.p2_block.yawKP = getGain(YAW_RATE,KP);
+            statusData.data.p2_block.lastCommandsSent[0] = lastCommandSentCode[lastCommandCounter];
+            statusData.data.p2_block.lastCommandsSent[1] = lastCommandSentCode[(lastCommandCounter + (COMMAND_HISTORY_SIZE - 1))%COMMAND_HISTORY_SIZE];
+            statusData.data.p2_block.lastCommandsSent[2] = lastCommandSentCode[(lastCommandCounter + (COMMAND_HISTORY_SIZE - 2))%COMMAND_HISTORY_SIZE];
+            statusData.data.p2_block.lastCommandsSent[3] = lastCommandSentCode[(lastCommandCounter + (COMMAND_HISTORY_SIZE - 3))%COMMAND_HISTORY_SIZE];
+            statusData.data.p2_block.batteryLevel1 = 50;//batteryLevel1;
+            statusData.data.p2_block.batteryLevel2 = 50;//batteryLevel2;
 //            debug("SW3");
             if (show_scaled_pwm){
                 input = getPWMArray(getTime());
             } else {
                 input = (int*)getICValues(getTime());
             }
-            statusData->data.p2_block.ch1In = input[0];
-            statusData->data.p2_block.ch2In = input[1];
-            statusData->data.p2_block.ch3In = input[2];
-            statusData->data.p2_block.ch4In = input[3];
-            statusData->data.p2_block.ch5In = input[4];
-            statusData->data.p2_block.ch6In = input[5];
-            statusData->data.p2_block.ch7In = input[6];
-            statusData->data.p2_block.ch8In = input[7];
+            statusData.data.p2_block.ch1In = input[0];
+            statusData.data.p2_block.ch2In = input[1];
+            statusData.data.p2_block.ch3In = input[2];
+            statusData.data.p2_block.ch4In = input[3];
+            statusData.data.p2_block.ch5In = input[4];
+            statusData.data.p2_block.ch6In = input[5];
+            statusData.data.p2_block.ch7In = input[6];
+            statusData.data.p2_block.ch8In = input[7];
             output = getPWMOutputs();
-            statusData->data.p2_block.ch1Out = output[0];
-            statusData->data.p2_block.ch2Out = output[1];
-            statusData->data.p2_block.ch3Out = output[2];
-            statusData->data.p2_block.ch4Out = output[3];
-            statusData->data.p2_block.ch5Out = output[4];
-            statusData->data.p2_block.ch6Out = output[5];
-            statusData->data.p2_block.ch7Out = output[6];
-            statusData->data.p2_block.ch8Out = output[7];
+            statusData.data.p2_block.ch1Out = output[0];
+            statusData.data.p2_block.ch2Out = output[1];
+            statusData.data.p2_block.ch3Out = output[2];
+            statusData.data.p2_block.ch4Out = output[3];
+            statusData.data.p2_block.ch5Out = output[4];
+            statusData.data.p2_block.ch6Out = output[5];
+            statusData.data.p2_block.ch7Out = output[6];
+            statusData.data.p2_block.ch8Out = output[7];
 //            debug("SW4");
-            statusData->data.p2_block.yawRateSetpoint = getYawRateSetpoint();
-            statusData->data.p2_block.headingSetpoint = getHeadingSetpoint();
-            statusData->data.p2_block.altitudeSetpoint = getAltitudeSetpoint();
-            statusData->data.p2_block.flapSetpoint = 0;
-            statusData->data.p2_block.wirelessConnection = ((input[5] < 180) << 1) + (input[7] > 0);//+ RSSI;
-            statusData->data.p2_block.autopilotActive = getProgramStatus();
-            statusData->data.p2_block.gpsStatus = gps_Satellites + (gps_PositionFix << 4);
-            statusData->data.p2_block.pathChecksum = waypointChecksum;
-            statusData->data.p2_block.numWaypoints = waypointCount;
-            statusData->data.p2_block.waypointIndex = waypointIndex;
-            statusData->data.p2_block.pathFollowing = pathFollowing; //True or false
+            statusData.data.p2_block.yawRateSetpoint = getYawRateSetpoint();
+            statusData.data.p2_block.headingSetpoint = getHeadingSetpoint();
+            statusData.data.p2_block.altitudeSetpoint = getAltitudeSetpoint();
+            statusData.data.p2_block.flapSetpoint = 0;
+            statusData.data.p2_block.wirelessConnection = ((input[5] < 180) << 1) + (input[7] > 0);//+ RSSI;
+            statusData.data.p2_block.autopilotActive = getProgramStatus();
+            statusData.data.p2_block.gpsStatus = gps_Satellites + (gps_PositionFix << 4);
+            statusData.data.p2_block.pathChecksum = waypointChecksum;
+            statusData.data.p2_block.numWaypoints = waypointCount;
+            statusData.data.p2_block.waypointIndex = waypointIndex;
+            statusData.data.p2_block.pathFollowing = pathFollowing; //True or false
             break;
         case PRIORITY2:
-            statusData->data.p3_block.rollKI = getGain(ROLL_RATE,KI);
-            statusData->data.p3_block.pitchKI = getGain(PITCH_RATE,KI);
-            statusData->data.p3_block.yawKI = getGain(YAW_RATE, KI);
-            statusData->data.p3_block.headingKD = getGain(HEADING, KD);
-            statusData->data.p3_block.headingKP = getGain(HEADING, KP);
-            statusData->data.p3_block.headingKI = getGain(HEADING, KI);
-            statusData->data.p3_block.altitudeKD = getGain(ALTITUDE, KD);
-            statusData->data.p3_block.altitudeKP = getGain(ALTITUDE, KP);
-            statusData->data.p3_block.altitudeKI = getGain(ALTITUDE, KI);
-            statusData->data.p3_block.throttleKD = 0;//getGain(THROTTLE, KD);
-            statusData->data.p3_block.throttleKP = 0;//getGain(THROTTLE, KP);
-            statusData->data.p3_block.throttleKI = 0;//getGain(THROTTLE, KI);
-            statusData->data.p3_block.flapKD = 0;//getGain(FLAP, KD);
-            statusData->data.p3_block.flapKP = 0;//getGain(FLAP, KP);
-            statusData->data.p3_block.flapKI = 0;//getGain(FLAP, KI);
-            statusData->data.p3_block.pathGain = pmPathGain;
-            statusData->data.p3_block.orbitGain = pmOrbitGain;
-            statusData->data.p3_block.autonomousLevel = controlLevel;
-            statusData->data.p3_block.startupErrorCodes = getStartupErrorCodes();
-            statusData->data.p3_block.startupSettings = DEBUG + (VEHICLE_TYPE << 1); //TODO: put this in the startuperrorCode file
-            statusData->data.p3_block.ul_rssi = getRadioRSSI();
-            statusData->data.p3_block.ul_receive_errors = getRadioReceiveErrors();
-            statusData->data.p3_block.dl_transmission_errors = getRadioTransmissionErrors();
-            statusData->data.p3_block.uhf_link_quality = getUHFLinkQuality(getTime());
-            statusData->data.p3_block.uhf_rssi = getUHFRSSI(getTime());
+            statusData.data.p3_block.rollKI = getGain(ROLL_RATE,KI);
+            statusData.data.p3_block.pitchKI = getGain(PITCH_RATE,KI);
+            statusData.data.p3_block.yawKI = getGain(YAW_RATE, KI);
+            statusData.data.p3_block.headingKD = getGain(HEADING, KD);
+            statusData.data.p3_block.headingKP = getGain(HEADING, KP);
+            statusData.data.p3_block.headingKI = getGain(HEADING, KI);
+            statusData.data.p3_block.altitudeKD = getGain(ALTITUDE, KD);
+            statusData.data.p3_block.altitudeKP = getGain(ALTITUDE, KP);
+            statusData.data.p3_block.altitudeKI = getGain(ALTITUDE, KI);
+            statusData.data.p3_block.throttleKD = 0;//getGain(THROTTLE, KD);
+            statusData.data.p3_block.throttleKP = 0;//getGain(THROTTLE, KP);
+            statusData.data.p3_block.throttleKI = 0;//getGain(THROTTLE, KI);
+            statusData.data.p3_block.flapKD = 0;//getGain(FLAP, KD);
+            statusData.data.p3_block.flapKP = 0;//getGain(FLAP, KP);
+            statusData.data.p3_block.flapKI = 0;//getGain(FLAP, KI);
+            statusData.data.p3_block.pathGain = pmPathGain;
+            statusData.data.p3_block.orbitGain = pmOrbitGain;
+            statusData.data.p3_block.autonomousLevel = controlLevel;
+            statusData.data.p3_block.startupErrorCodes = getStartupErrorCodes();
+            statusData.data.p3_block.startupSettings = DEBUG + (VEHICLE_TYPE << 1); //TODO: put this in the startuperrorCode file
+            statusData.data.p3_block.ul_rssi = getRadioRSSI();
+            statusData.data.p3_block.ul_receive_errors = getRadioReceiveErrors();
+            statusData.data.p3_block.dl_transmission_errors = getRadioTransmissionErrors();
+            statusData.data.p3_block.uhf_link_quality = getUHFLinkQuality(getTime());
+            statusData.data.p3_block.uhf_rssi = getUHFRSSI(getTime());
             break;
 
         default:
             break;
     }
-    bool status = queueTelemetryBlock(statusData);
-    free(statusData);
-    return status;
+    return queueTelemetryBlock(&statusData);
 }
 
 void checkUHFStatus(){
