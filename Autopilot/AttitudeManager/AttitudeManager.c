@@ -769,6 +769,10 @@ void readDatalink(void){
                 setGains(*channel,((float*)(&cmd->data)) + 1);
                 break;
             }
+            case PROBE_DROP_TRIGGER:		// bootcamp case. Command sent is 2 integers, one for the probe and the other for the camera pwm
+            	{
+            		probeDropTrigger((&cmd->data));
+				}
             default:
                 break;
         }

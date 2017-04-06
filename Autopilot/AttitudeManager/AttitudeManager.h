@@ -14,6 +14,7 @@
 #include "../Common/Utilities/InterchipDMA.h"
 #include "net.h"
 #include "../Common/Common.h"
+#include "Camera_Probe_Manager.h"
 
 //Bit Mask Bit Shifts
 typedef enum {
