@@ -83,6 +83,9 @@
 #define UPDATE_WAYPOINT 136
 #define SET_GAINS 137
 
+// Bootcamp custom command
+#define TRIGGER_CAMERA_AND_DROP_PROBE 160
+
 //Multipart Command Structs
 
 #endif	/* COMMANDS_H */
