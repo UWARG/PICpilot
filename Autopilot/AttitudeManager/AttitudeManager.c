@@ -516,6 +516,12 @@ uint8_t getControlValue(CtrlType type) {
 
 void readDatalink(void){
     struct DatalinkCommand* cmd = popDatalinkCommand();
+    uint8_t cmd_data[88];
+    
+    //this step is necessary for correct parsing of data, as we can't cast
+    //unaligned data to multi-byte values.
+    memcpy(cmd_data, cmd->data, cmd->data_length);
+    
     //TODO: Add rudimentary input validation
     if ( cmd ) {
         if (lastCommandSentCode[lastCommandCounter]/100 == cmd->cmd){
@@ -533,49 +539,49 @@ void readDatalink(void){
 #endif
                 break;
             case SET_PITCH_KD_GAIN:
-                setGain(PITCH_RATE, KD, *(float*)(&cmd->data));
+                setGain(PITCH_RATE, KD, CMD_TO_FLOAT(cmd_data));
                 break;
             case SET_ROLL_KD_GAIN:
-                setGain(ROLL_RATE, KD, *(float*)(&cmd->data));
+                setGain(ROLL_RATE, KD, CMD_TO_FLOAT(cmd_data));
                 break;
             case SET_YAW_KD_GAIN:
-                setGain(YAW_RATE, KD, *(float*)(&cmd->data));
+                setGain(YAW_RATE, KD, CMD_TO_FLOAT(cmd_data));
                 break;
             case SET_PITCH_KP_GAIN:
-                setGain(PITCH_RATE, KP, *(float*)(&cmd->data));
+                setGain(PITCH_RATE, KP, CMD_TO_FLOAT(cmd_data));
                 break;
             case SET_ROLL_KP_GAIN:
-                setGain(ROLL_RATE, KP, *(float*)(&cmd->data));
+                setGain(ROLL_RATE, KP, CMD_TO_FLOAT(cmd_data));
                 break;
             case SET_YAW_KP_GAIN:
-                setGain(YAW_RATE, KP, *(float*)(&cmd->data));
+                setGain(YAW_RATE, KP, CMD_TO_FLOAT(cmd_data));
                 break;
             case SET_PITCH_KI_GAIN:
-                setGain(PITCH_RATE, KI, *(float*)(&cmd->data));
+                setGain(PITCH_RATE, KI, CMD_TO_FLOAT(cmd_data));
                 break;
             case SET_ROLL_KI_GAIN:
-                setGain(ROLL_RATE, KI, *(float*)(&cmd->data));
+                setGain(ROLL_RATE, KI, CMD_TO_FLOAT(cmd_data));
                 break;
             case SET_YAW_KI_GAIN:
-                setGain(YAW_RATE, KI, *(float*)(&cmd->data));
+                setGain(YAW_RATE, KI, CMD_TO_FLOAT(cmd_data));
                 break;
             case SET_HEADING_KD_GAIN:
-                setGain(HEADING, KD, *(float*)(&cmd->data));
+                setGain(HEADING, KD, CMD_TO_FLOAT(cmd_data));
                 break;
             case SET_HEADING_KP_GAIN:
-                setGain(HEADING, KP, *(float*)(&cmd->data));
+                setGain(HEADING, KP, CMD_TO_FLOAT(cmd_data));
                 break;
             case SET_HEADING_KI_GAIN:
-                setGain(HEADING, KI, *(float*)(&cmd->data));
+                setGain(HEADING, KI, CMD_TO_FLOAT(cmd_data));
                 break;
             case SET_ALTITUDE_KD_GAIN:
-                setGain(ALTITUDE, KD, *(float*)(&cmd->data));
+                setGain(ALTITUDE, KD, CMD_TO_FLOAT(cmd_data));
                 break;
             case SET_ALTITUDE_KP_GAIN:
-                setGain(ALTITUDE, KP, *(float*)(&cmd->data));
+                setGain(ALTITUDE, KP, CMD_TO_FLOAT(cmd_data));
                 break;
             case SET_ALTITUDE_KI_GAIN:
-                setGain(ALTITUDE, KI, *(float*)(&cmd->data));
+                setGain(ALTITUDE, KI, CMD_TO_FLOAT(cmd_data));
                 break;
             case SET_THROTTLE_KD_GAIN:
                 //setGain(THROTTLE, KD, *(float*)(&cmd->data));
@@ -588,89 +594,89 @@ void readDatalink(void){
                 break;
 
             case SET_PATH_GAIN:
-                amData.pathGain = *(float*)(&cmd->data);
+                amData.pathGain = CMD_TO_FLOAT(cmd_data);
                 amData.command = PM_SET_PATH_GAIN;
                 amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case SET_ORBIT_GAIN:
-                amData.orbitGain = *(float*)(&cmd->data);
+                amData.orbitGain = CMD_TO_FLOAT(cmd_data);
                 amData.command = PM_SET_ORBIT_GAIN;
                 amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case SHOW_GAIN:
-                displayGain = *(char*)(&cmd->data);
+                displayGain = *cmd_data;
                 break;
             case SET_PITCH_RATE:
-                input_GS_PitchRate = *(int*)(&cmd->data);
+                input_GS_PitchRate = CMD_TO_INT(cmd_data);
                 break;
             case SET_ROLL_RATE:
-                input_GS_RollRate = *(int*)(&cmd->data);
+                input_GS_RollRate = CMD_TO_INT(cmd_data);
                 break;
             case SET_YAW_RATE:
-                input_GS_YawRate = *(int*)(&cmd->data);
+                input_GS_YawRate = CMD_TO_INT(cmd_data);
                 break;
             case SET_PITCH_ANGLE:
-                input_GS_Pitch = *(int*)(&cmd->data);
+                input_GS_Pitch = CMD_TO_INT(cmd_data);
                 break;
             case SET_ROLL_ANGLE:
-                input_GS_Roll = *(int*)(&cmd->data);
+                input_GS_Roll = CMD_TO_INT(cmd_data);
                 break;
             case SET_YAW_ANGLE:
 //                sp_YawAngle = *(int*)(&cmd->data);
                 break;
             case SET_ALTITUDE:
-                input_GS_Altitude = *(int*)(&cmd->data);
+                input_GS_Altitude = CMD_TO_INT(cmd_data);
                 break;
             case SET_HEADING:
-                input_GS_Heading = *(int*)(&cmd->data);
+                input_GS_Heading = CMD_TO_INT(cmd_data);
                 break;
             case SET_THROTTLE:
-                input_GS_Throttle = *(int*)(&cmd->data);
+                input_GS_Throttle = CMD_TO_INT(cmd_data);
                 break;
             case SET_FLAP:
-                input_GS_Flap = *(int*)(&cmd->data);//(int)(((long int)(*(int*)(&cmd->data))) * MAX_PWM * 2 / 100) - MAX_PWM;
+                input_GS_Flap = CMD_TO_INT(cmd_data);//(int)(((long int)(*(int*)(&cmd->data))) * MAX_PWM * 2 / 100) - MAX_PWM;
                 break;
             case SET_AUTONOMOUS_LEVEL:
-                controlLevel = *(int*)(&cmd->data);
+                controlLevel = CMD_TO_INT(cmd_data);
                 forceGainUpdate();
                 break;
             case SET_ANGULAR_WALK_VARIANCE:
-                setAngularWalkVariance(*(float*)(&cmd->data));
+                setAngularWalkVariance(CMD_TO_FLOAT(cmd_data));
                 break;
             case SET_GYRO_VARIANCE:
-                setGyroVariance(*(float*)(&cmd->data));
+                setGyroVariance(CMD_TO_FLOAT(cmd_data));
                 break;
             case SET_MAGNETIC_VARIANCE:
-                setMagneticVariance(*(float*)(&cmd->data));
+                setMagneticVariance(CMD_TO_FLOAT(cmd_data));
                 break;
             case SET_ACCEL_VARIANCE:
-                setAccelVariance(*(float*)(&cmd->data));
+                setAccelVariance(CMD_TO_FLOAT(cmd_data));
                 break;
             case SET_SCALE_FACTOR:
-                scaleFactor = *(float*)(&cmd->data);
+                scaleFactor = CMD_TO_FLOAT(cmd_data);
                 break;
             case CALIBRATE_ALTIMETER:
-                amData.calibrationHeight = *(float*)(&cmd->data);
+                amData.calibrationHeight = CMD_TO_FLOAT(cmd_data);
                 amData.command = PM_CALIBRATE_ALTIMETER;
                 amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case CLEAR_WAYPOINTS:
-                amData.waypoint.id = (*(char *)(&cmd->data)); //Dummy Data
+                amData.waypoint.id = *cmd_data; //Dummy Data
                 amData.command = PM_CLEAR_WAYPOINTS;
                 amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case REMOVE_WAYPOINT:
-                amData.waypoint.id = (*(char *)(&cmd->data));
+                amData.waypoint.id = *cmd_data;
                 amData.command = PM_REMOVE_WAYPOINT;
                 amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case SET_TARGET_WAYPOINT:
-                amData.waypoint.id = *(char *)(&cmd->data);
+                amData.waypoint.id = *cmd_data;
                 amData.command = PM_SET_TARGET_WAYPOINT;
                 amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
@@ -690,24 +696,24 @@ void readDatalink(void){
                 queueRadioStatusPacket();
                 break;
             case KILL_PLANE:
-                if (*(int*)(&cmd->data) == 1234)
+                if (CMD_TO_INT(cmd_data) == 1234)
                     killPlane(TRUE);
                 break;
             case UNKILL_PLANE:
-                if (*(int*)(&cmd->data) == 1234)
+                if (CMD_TO_INT(cmd_data) == 1234)
                     killPlane(FALSE);
                 break;
             case ARM_VEHICLE:
-                if (*(int*)(&cmd->data) == 1234)
+                if (CMD_TO_INT(cmd_data) == 1234)
                     armVehicle(500);
                 break;
             case DEARM_VEHICLE:
-                if (*(int*)(&cmd->data) == 1234)
+                if (CMD_TO_INT(cmd_data) == 1234)
                     dearmVehicle();
                 break;
             case FOLLOW_PATH:
                 amData.command = PM_FOLLOW_PATH;
-                amData.followPath = *(char*)(&cmd->data);
+                amData.followPath = *cmd_data;
                 amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
@@ -717,57 +723,59 @@ void readDatalink(void){
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case SHOW_SCALED_PWM:
-                if ((*(char*)(&cmd->data)) == 1){
+                if (*cmd_data == 1){
                     show_scaled_pwm = 1;
                 } else{
                     show_scaled_pwm = 0;
                 }
                 break;
             case REMOVE_LIMITS:
-                limitSetpoint = (*(bool*)(&cmd->data));
+                limitSetpoint = *(bool*)cmd_data;
             case NEW_WAYPOINT:
-                amData.waypoint = *(WaypointWrapper*)(&cmd->data);
+                amData.waypoint = CMD_TO_TYPE(cmd_data, WaypointWrapper);
                 amData.command = PM_NEW_WAYPOINT;
                 amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case INSERT_WAYPOINT:
-                amData.waypoint = *(WaypointWrapper*)(&cmd->data);
+                amData.waypoint = CMD_TO_TYPE(cmd_data, WaypointWrapper);
                 amData.command = PM_INSERT_WAYPOINT;
                 amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case UPDATE_WAYPOINT:
-                amData.waypoint = *(WaypointWrapper*)(&cmd->data);
+                amData.waypoint = CMD_TO_TYPE(cmd_data, WaypointWrapper);
                 amData.command = PM_UPDATE_WAYPOINT;
                 amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case SET_RETURN_HOME_COORDINATES:
-                amData.waypoint = *(WaypointWrapper*)(&cmd->data);
+                amData.waypoint = CMD_TO_TYPE(cmd_data, WaypointWrapper);
                 amData.command = PM_SET_RETURN_HOME_COORDINATES;
                 amData.checkbyteDMA = generateAMDataDMACheckbyte();
                 amData.checksum = generateAMDataChecksum(&amData);
                 break;
             case TARE_IMU:
-                adjustVNOrientationMatrix((float*)(&cmd->data));
+                adjustVNOrientationMatrix(CMD_TO_FLOAT_ARRAY(cmd_data));
                 break;
             case SET_IMU:
-                setVNOrientationMatrix((float*)(&cmd->data));
+                setVNOrientationMatrix(CMD_TO_FLOAT_ARRAY(cmd_data));
                 break;
             case SET_KDVALUES:
-                setKValues(KD,(float*)(&cmd->data));
+                setKValues(KD, CMD_TO_FLOAT_ARRAY(cmd_data));
                 break;
             case SET_KPVALUES:
-                setKValues(KP,(float*)(&cmd->data));
+                setKValues(KP, CMD_TO_FLOAT_ARRAY(cmd_data));
                 break;
             case SET_KIVALUES:
-                setKValues(KI,(float*)(&cmd->data));
+                setKValues(KI, CMD_TO_FLOAT_ARRAY(cmd_data));
                 break;
             case SET_GAINS:
             {
-                char* channel = (char*) (&cmd->data);
-                setGains(*channel,((float*)(&cmd->data)) + 1);
+                //note we're using the unaligned version specifically since the first value is the channel type
+                //this makes our original structure word aligned
+                char channel = *cmd->data;
+                setGains(channel, CMD_TO_FLOAT_ARRAY(cmd->data + 1));
                 break;
             }
             default:
