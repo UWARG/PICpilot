@@ -31,6 +31,9 @@
         <itemPath>Network/Datalink.h</itemPath>
         <itemPath>Network/Commands.h</itemPath>
       </logicalFolder>
+      <logicalFolder name="f2" displayName="Peripherals" projectFiles="true">
+        <itemPath>Peripherals/UHF.h</itemPath>
+      </logicalFolder>
       <logicalFolder name="f4" displayName="PWM Management" projectFiles="true">
         <itemPath>OutputCompare.h</itemPath>
         <itemPath>InputCapture.h</itemPath>
@@ -88,6 +91,9 @@
       <logicalFolder name="f3" displayName="Network" projectFiles="true">
         <itemPath>Network/Datalink.c</itemPath>
       </logicalFolder>
+      <logicalFolder name="f2" displayName="Peripherals" projectFiles="true">
+        <itemPath>Peripherals/UHF.c</itemPath>
+      </logicalFolder>
       <logicalFolder name="f4" displayName="PWM Management" projectFiles="true">
         <itemPath>InputCapture.c</itemPath>
         <itemPath>OutputCompare.c</itemPath>
@@ -139,8 +145,8 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>ICD3PlatformTool</platformTool>
         <languageToolchain>XC16</languageToolchain>
-        <languageToolchainVersion>1.31</languageToolchainVersion>
-        <platform>2</platform>
+        <languageToolchainVersion>1.26</languageToolchainVersion>
+        <platform>3</platform>
       </toolsSet>
       <compileType>
         <linkerTool>
@@ -154,8 +160,6 @@
           <parseOnProdLoad>false</parseOnProdLoad>
           <alternateLoadableFile></alternateLoadableFile>
         </loading>
-        <subordinates>
-        </subordinates>
       </compileType>
       <makeCustomizationType>
         <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>

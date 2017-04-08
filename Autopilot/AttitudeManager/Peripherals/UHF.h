@@ -13,23 +13,14 @@
 #include <stdint.h>
 
 #define UHF_RSSI_CHANNEL 6
-
 #define UHF_LINK_QUALITY_CHANNEL 7
-
-/**
- * Note that we're not going to be using
- * @param sys_time
- * @return 
- */
-#define UHF_RSSI_MAX_PWM 1210
-#define UHF_RSSI_MIN_PWM 625
-#define UHF_LINK_QUALITY_MAX_PWM 1170
-#define UHF_LINK_QUALITY_MIN_PWM 625
 
 /**
  * @param sys_time Current system time in ms
  * @return A percentage value from 0-100 of what the relative signal strength
  * of the uplink uhf connection is
+ * 
+ * If the channel has disconnected will return a 0
  */
 uint8_t getUHFRSSI(uint32_t sys_time);
 
@@ -38,6 +29,8 @@ uint8_t getUHFRSSI(uint32_t sys_time);
  * @return A percentage value from 0-100 representing the signal quality. Different
  * radios represent this differently. This may be a percentage of the frames dropped
  * out of the last 15 frames in the case of the orange rx, or something else.
+ * 
+ * If the channel has disconnected will return a 0
  */
 uint8_t getUHFLinkQuality(uint32_t sys_time);
 
