@@ -42,7 +42,12 @@ void parseDatalinkBuffer(void) {
         
         command->data_length = length - 1; //data length doesnt acount the cmd id
         command->cmd = received[0];
-        command->data = received + 1; //dont include the cmd id in the data
+        
+        command->data = received;
+        
+        //don't include the command id in the data part of the command. This is required so
+        //that the data that we later parse is word aligned, which is required for casting
+        memcpy(command->data, command->data + 1, command->data_length);
         command->next = NULL;
         
         //append the command to our queue
@@ -63,7 +68,7 @@ DatalinkCommand* popDatalinkCommand(){
 }
 
 void freeDatalinkCommand(DatalinkCommand* to_destroy){
-    free(to_destroy->data - 1); //since data represents the actual data array not including the cmd id
+    free(to_destroy->data);
     free(to_destroy);
 }
 
