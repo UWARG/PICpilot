@@ -94,43 +94,6 @@ typedef struct _PathData{
     char index;
 } PathData;
 
-typedef struct _PMData { // 62 Bytes
-    float time;     // 4 Bytes   -  hhmmss.ssss
-    long double latitude;  // 8 Bytes - ddd.mmmmmm
-    long double longitude; // 8 Bytes - ddd.mmmmmm
-    float speed;    //KM/H
-    float altitude;
-    float airspeed;
-    float pmPathGain;
-    float pmOrbitGain;
-    float waypointChecksum;
-    int sp_Altitude; // Meters
-    int heading;  //Degrees
-    int sp_Heading; //Degrees
-    int batteryLevel1;
-    int batteryLevel2;
-    char satellites;    //1 Byte
-    char positionFix;   //0 = No GPS, 1 = GPS fix, 2 = DGSP Fix
-    char targetWaypoint;
-    char waypointCount;
-    char pathFollowing;
-    char padding;
-    char checkbyteDMA1;
-    char checkbyteDMA2;
-} PMData;
-
-typedef struct _AMData { // 60 Bytes
-    WaypointWrapper waypoint; //28 bytes
-    float pathGain;
-    float orbitGain;
-    float calibrationHeight;
-    char command;
-    char followPath;
-    char padding[16];
-    char checksum;
-    char checkbyteDMA;
-} AMData;
-
 /* Typing guidelines:
  * When dealing with C-style strings or raw characters, use char
  * When you need an integer no larger than 8 bits (i.e. +127/-128 or 0-255), use (u)int8_t
@@ -139,10 +102,6 @@ typedef struct _AMData { // 60 Bytes
 typedef uint8_t byte;
 typedef uint16_t word;
 
-char generatePMDataDMAChecksum1(void);
-char generatePMDataDMAChecksum2(void);
-char generateAMDataDMACheckbyte(void);
-char generateAMDataChecksum(AMData* data);
 float getDistance(long double lat1, long double lon1, long double lat2, long double lon2);
 
 /**

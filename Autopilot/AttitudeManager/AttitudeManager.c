@@ -21,14 +21,11 @@
 #include "ProgramStatus.h"
 #include "Drivers/Radio.h"
 #include "Peripherals/UHF.h"
+#include "../Common/Interfaces/InterchipDMA.h"
 #include <string.h>
 
 int input_RC_Flap; // Flaps need to finish being refactored.
 int input_GS_Flap;
-
-extern PMData pmData;
-extern AMData amData;
-extern char DMADataAvailable;
 
 // Control level bit masks (indexed by CtrlType enum)
 static const uint16_t ctrl_mask[16] = {
@@ -127,17 +124,17 @@ int lastCommandCounter = 0;
 
 char show_scaled_pwm = 1;
 
+/** Used to make sure that we dont read the same data twice from the path manager */
+static uint8_t last_pm_data_checksum = 0;
+
 void attitudeInit() {
     setProgramStatus(INITIALIZATION);
     //Initialize Timer
     initTimer4();
     
-    amData.checkbyteDMA = generateAMDataDMACheckbyte();
-    init_DMA0(1);
-    init_DMA1(1);
+    initDMA(DMA_CHIP_ID_ATTITUDE_MANAGER);
     initSPI(IC_DMA_PORT, 0, SPI_MODE1, SPI_BYTE, SPI_SLAVE);
-
-
+    
     /* Initialize Input Capture and Output Compare Modules */
 #if DEBUG
     initPWM(0b11111111, 0b11111111);
@@ -182,64 +179,34 @@ void attitudeInit() {
     setProgramStatus(MAIN_EXECUTION);
 }
 
-
 char checkDMA(){
-    //Transfer data from PATHMANAGER CHIP
-    DMADataAvailable = 0;
-    if (generatePMDataDMAChecksum1() == pmData.checkbyteDMA1 && generatePMDataDMAChecksum2() == pmData.checkbyteDMA2) {
-        gps_Time = pmData.time;
-        input_AP_Altitude = pmData.sp_Altitude;
-        gps_Satellites = pmData.satellites;
-        gps_PositionFix = pmData.positionFix;
-        waypointIndex = pmData.targetWaypoint;
-        batteryLevel1 = pmData.batteryLevel1;
-        batteryLevel2 = pmData.batteryLevel2;
-        waypointCount = pmData.waypointCount;
-        waypointChecksum = pmData.waypointChecksum;
-        pathFollowing = pmData.pathFollowing;
-        airspeed = pmData.airspeed;
-        pmOrbitGain = pmData.pmOrbitGain;
-        pmPathGain = pmData.pmPathGain;
-
-        //Check if this data is new and requires action or if it is old and redundant
-        if (gps_Altitude == pmData.altitude && gps_Heading == pmData.heading && gps_GroundSpeed == pmData.speed / 3.6f && gps_Latitude == pmData.latitude && gps_Longitude == pmData.longitude){
-            return FALSE;
-        }
+    if (dma_receive_buffer.pm_data.checksum != last_pm_data_checksum){
+        gps_Time = dma_receive_buffer.pm_data.time;
+        input_AP_Altitude = dma_receive_buffer.pm_data.sp_Altitude;
+        gps_Satellites = dma_receive_buffer.pm_data.satellites;
+        gps_PositionFix = dma_receive_buffer.pm_data.positionFix;
+        waypointIndex = dma_receive_buffer.pm_data.targetWaypoint;
+        batteryLevel1 = dma_receive_buffer.pm_data.batteryLevel1;
+        batteryLevel2 = dma_receive_buffer.pm_data.batteryLevel2;
+        waypointCount = dma_receive_buffer.pm_data.waypointCount;
+        waypointChecksum = dma_receive_buffer.pm_data.waypointChecksum;
+        pathFollowing = dma_receive_buffer.pm_data.pathFollowing;
+        airspeed = dma_receive_buffer.pm_data.airspeed;
+        pmOrbitGain = dma_receive_buffer.pm_data.pmOrbitGain;
+        pmPathGain = dma_receive_buffer.pm_data.pmPathGain;
         
-        debug("New DMA data!");
-
-        gps_Heading = pmData.heading;
-        gps_GroundSpeed = pmData.speed / 3.6f; //Convert from km/h to m/s
-        gps_Longitude = pmData.longitude;
-        gps_Latitude = pmData.latitude;
-        gps_Altitude = pmData.altitude;
+        gps_Heading = dma_receive_buffer.pm_data.heading;
+        gps_GroundSpeed = dma_receive_buffer.pm_data.speed / 3.6f; //Convert from km/h to m/s
+        gps_Longitude = dma_receive_buffer.pm_data.longitude;
+        gps_Latitude = dma_receive_buffer.pm_data.latitude;
+        gps_Altitude = dma_receive_buffer.pm_data.altitude;
 
         if (gps_PositionFix){
-            input_AP_Heading = pmData.sp_Heading;
+            input_AP_Heading = dma_receive_buffer.pm_data.sp_Heading;
         }
         return TRUE;
     }
-    else{
-        debug("DMA Reset occured");
-//        INTERCOM_2 = 1;
-        DMA0CONbits.CHEN = 0; //Disable DMA0 channel
-        DMA1CONbits.CHEN = 0; //Disable DMA1 channel
-        SPI1STATbits.SPIEN = 0; //Disable SPI1
-
-        while(SPI1STATbits.SPIRBF) { //Clear SPI1
-            SPI1BUF;
-        }
-//        INTERCOM_2 = 0;
-//        while(INTERCOM_4);
-
-        init_DMA0(1);
-        init_DMA1(1);
-        initSPI(IC_DMA_PORT, 0, SPI_MODE1, SPI_BYTE, SPI_SLAVE);
-
-        DMA1REQbits.FORCE = 1;
-        while (DMA1REQbits.FORCE == 1);
-        return FALSE;
-    }
+    return FALSE;
 }
 
 float getAltitude(){
@@ -569,16 +536,14 @@ void readDatalink(void){
                 break;
 
             case SET_PATH_GAIN:
-                amData.pathGain = CMD_TO_FLOAT(cmd->data);
-                amData.command = PM_SET_PATH_GAIN;
-                amData.checkbyteDMA = generateAMDataDMACheckbyte();
-                amData.checksum = generateAMDataChecksum(&amData);
+                dma_send_buffer.am_data.pathGain = CMD_TO_FLOAT(cmd->data);
+                dma_send_buffer.am_data.command = PM_SET_PATH_GAIN;
+                triggerDMASend();
                 break;
             case SET_ORBIT_GAIN:
-                amData.orbitGain = CMD_TO_FLOAT(cmd->data);
-                amData.command = PM_SET_ORBIT_GAIN;
-                amData.checkbyteDMA = generateAMDataDMACheckbyte();
-                amData.checksum = generateAMDataChecksum(&amData);
+                dma_send_buffer.am_data.orbitGain = CMD_TO_FLOAT(cmd->data);
+                dma_send_buffer.am_data.command = PM_SET_ORBIT_GAIN;
+                triggerDMASend();
                 break;
             case SHOW_GAIN:
                 displayGain = *cmd->data;
@@ -633,38 +598,32 @@ void readDatalink(void){
                 scaleFactor = CMD_TO_FLOAT(cmd->data);
                 break;
             case CALIBRATE_ALTIMETER:
-                amData.calibrationHeight = CMD_TO_FLOAT(cmd->data);
-                amData.command = PM_CALIBRATE_ALTIMETER;
-                amData.checkbyteDMA = generateAMDataDMACheckbyte();
-                amData.checksum = generateAMDataChecksum(&amData);
+                dma_send_buffer.am_data.calibrationHeight = CMD_TO_FLOAT(cmd->data);
+                dma_send_buffer.am_data.command = PM_CALIBRATE_ALTIMETER;
+                triggerDMASend();
                 break;
             case CLEAR_WAYPOINTS:
-                amData.waypoint.id = *cmd->data; //Dummy Data
-                amData.command = PM_CLEAR_WAYPOINTS;
-                amData.checkbyteDMA = generateAMDataDMACheckbyte();
-                amData.checksum = generateAMDataChecksum(&amData);
+                dma_send_buffer.am_data.waypoint.id = *cmd->data; //Dummy Data
+                dma_send_buffer.am_data.command = PM_CLEAR_WAYPOINTS;
+                triggerDMASend();
                 break;
             case REMOVE_WAYPOINT:
-                amData.waypoint.id = *cmd->data;
-                amData.command = PM_REMOVE_WAYPOINT;
-                amData.checkbyteDMA = generateAMDataDMACheckbyte();
-                amData.checksum = generateAMDataChecksum(&amData);
+                dma_send_buffer.am_data.waypoint.id = *cmd->data;
+                dma_send_buffer.am_data.command = PM_REMOVE_WAYPOINT;
+                triggerDMASend();
                 break;
             case SET_TARGET_WAYPOINT:
-                amData.waypoint.id = *cmd->data;
-                amData.command = PM_SET_TARGET_WAYPOINT;
-                amData.checkbyteDMA = generateAMDataDMACheckbyte();
-                amData.checksum = generateAMDataChecksum(&amData);
+                dma_send_buffer.am_data.waypoint.id = *cmd->data;
+                dma_send_buffer.am_data.command = PM_SET_TARGET_WAYPOINT;
+                triggerDMASend();
                 break;
             case RETURN_HOME:
-                amData.command = PM_RETURN_HOME;
-                amData.checkbyteDMA = generateAMDataDMACheckbyte();
-                amData.checksum = generateAMDataChecksum(&amData);
+                dma_send_buffer.am_data.command = PM_RETURN_HOME;
+                triggerDMASend();
                 break;
             case CANCEL_RETURN_HOME:
-                amData.command = PM_CANCEL_RETURN_HOME;
-                amData.checkbyteDMA = generateAMDataDMACheckbyte();
-                amData.checksum = generateAMDataChecksum(&amData);
+                dma_send_buffer.am_data.command = PM_CANCEL_RETURN_HOME;
+                triggerDMASend();
                 break;
             case SEND_HEARTBEAT:
                 heartbeatTimer = getTime();
@@ -687,15 +646,13 @@ void readDatalink(void){
                     dearmVehicle();
                 break;
             case FOLLOW_PATH:
-                amData.command = PM_FOLLOW_PATH;
-                amData.followPath = *cmd->data;
-                amData.checkbyteDMA = generateAMDataDMACheckbyte();
-                amData.checksum = generateAMDataChecksum(&amData);
+                dma_send_buffer.am_data.command = PM_FOLLOW_PATH;
+                dma_send_buffer.am_data.followPath = *cmd->data;
+                triggerDMASend();
                 break;
             case EXIT_HOLD_ORBIT:
-                amData.command = PM_EXIT_HOLD_ORBIT;
-                amData.checkbyteDMA = generateAMDataDMACheckbyte();
-                amData.checksum = generateAMDataChecksum(&amData);
+                dma_send_buffer.am_data.command = PM_EXIT_HOLD_ORBIT;
+                triggerDMASend();
                 break;
             case SHOW_SCALED_PWM:
                 if (*cmd->data == 1){
@@ -707,28 +664,24 @@ void readDatalink(void){
             case REMOVE_LIMITS:
                 limitSetpoint = *(bool*)cmd->data;
             case NEW_WAYPOINT:
-                amData.waypoint = CMD_TO_TYPE(cmd->data, WaypointWrapper);
-                amData.command = PM_NEW_WAYPOINT;
-                amData.checkbyteDMA = generateAMDataDMACheckbyte();
-                amData.checksum = generateAMDataChecksum(&amData);
+                dma_send_buffer.am_data.waypoint = CMD_TO_TYPE(cmd->data, WaypointWrapper);
+                dma_send_buffer.am_data.command = PM_NEW_WAYPOINT;
+                triggerDMASend();
                 break;
             case INSERT_WAYPOINT:
-                amData.waypoint = CMD_TO_TYPE(cmd->data, WaypointWrapper);
-                amData.command = PM_INSERT_WAYPOINT;
-                amData.checkbyteDMA = generateAMDataDMACheckbyte();
-                amData.checksum = generateAMDataChecksum(&amData);
+                dma_send_buffer.am_data.waypoint = CMD_TO_TYPE(cmd->data, WaypointWrapper);
+                dma_send_buffer.am_data.command = PM_INSERT_WAYPOINT;
+                triggerDMASend();
                 break;
             case UPDATE_WAYPOINT:
-                amData.waypoint = CMD_TO_TYPE(cmd->data, WaypointWrapper);
-                amData.command = PM_UPDATE_WAYPOINT;
-                amData.checkbyteDMA = generateAMDataDMACheckbyte();
-                amData.checksum = generateAMDataChecksum(&amData);
+                dma_send_buffer.am_data.waypoint = CMD_TO_TYPE(cmd->data, WaypointWrapper);
+                dma_send_buffer.am_data.command = PM_UPDATE_WAYPOINT;
+                triggerDMASend();
                 break;
             case SET_RETURN_HOME_COORDINATES:
-                amData.waypoint = CMD_TO_TYPE(cmd->data, WaypointWrapper);
-                amData.command = PM_SET_RETURN_HOME_COORDINATES;
-                amData.checkbyteDMA = generateAMDataDMACheckbyte();
-                amData.checksum = generateAMDataChecksum(&amData);
+                dma_send_buffer.am_data.waypoint = CMD_TO_TYPE(cmd->data, WaypointWrapper);
+                dma_send_buffer.am_data.command = PM_SET_RETURN_HOME_COORDINATES;
+                triggerDMASend();
                 break;
             case TARE_IMU:
                 adjustVNOrientationMatrix(CMD_TO_FLOAT_ARRAY(cmd->data));
@@ -892,9 +845,8 @@ void checkUHFStatus(){
 void checkHeartbeat(){
     if (getTime() - heartbeatTimer > HEARTBEAT_TIMEOUT){
         setProgramStatus(KILL_MODE_WARNING);
-        amData.command = PM_RETURN_HOME;
-        amData.checkbyteDMA = generateAMDataDMACheckbyte();
-        amData.checksum = generateAMDataChecksum(&amData);
+        dma_send_buffer.am_data.command = PM_RETURN_HOME;
+        triggerDMASend();
     }
     else if (getTime() - heartbeatTimer > HEARTBEAT_KILL_TIMEOUT){
         killPlane(TRUE);
