@@ -455,12 +455,11 @@ uint8_t getControlValue(CtrlType type) {
     return (controlLevel & ctrl_mask[type]) >> type;
 }
 
-int counter = 20;
 void readDatalink(void){
     struct DatalinkCommand* cmd = popDatalinkCommand();
   
     interchip_send_buffer.am_data.waypoint.altitude = 43.3424;
-    triggerDMASend();
+    sendInterchipData();
     
     //TODO: Add rudimentary input validation
     if ( cmd ) {
@@ -536,12 +535,12 @@ void readDatalink(void){
             case SET_PATH_GAIN:
                 interchip_send_buffer.am_data.pathGain = CMD_TO_FLOAT(cmd->data);
                 interchip_send_buffer.am_data.command = PM_SET_PATH_GAIN;
-                triggerDMASend();
+                sendInterchipData();
                 break;
             case SET_ORBIT_GAIN:
                 interchip_send_buffer.am_data.orbitGain = CMD_TO_FLOAT(cmd->data);
                 interchip_send_buffer.am_data.command = PM_SET_ORBIT_GAIN;
-                triggerDMASend();
+                sendInterchipData();
                 break;
             case SHOW_GAIN:
                 displayGain = *cmd->data;
@@ -598,30 +597,30 @@ void readDatalink(void){
             case CALIBRATE_ALTIMETER:
                 interchip_send_buffer.am_data.calibrationHeight = CMD_TO_FLOAT(cmd->data);
                 interchip_send_buffer.am_data.command = PM_CALIBRATE_ALTIMETER;
-                triggerDMASend();
+                sendInterchipData();
                 break;
             case CLEAR_WAYPOINTS:
                 interchip_send_buffer.am_data.waypoint.id = *cmd->data; //Dummy Data
                 interchip_send_buffer.am_data.command = PM_CLEAR_WAYPOINTS;
-                triggerDMASend();
+                sendInterchipData();
                 break;
             case REMOVE_WAYPOINT:
                 interchip_send_buffer.am_data.waypoint.id = *cmd->data;
                 interchip_send_buffer.am_data.command = PM_REMOVE_WAYPOINT;
-                triggerDMASend();
+                sendInterchipData();
                 break;
             case SET_TARGET_WAYPOINT:
                 interchip_send_buffer.am_data.waypoint.id = *cmd->data;
                 interchip_send_buffer.am_data.command = PM_SET_TARGET_WAYPOINT;
-                triggerDMASend();
+                sendInterchipData();
                 break;
             case RETURN_HOME:
                 interchip_send_buffer.am_data.command = PM_RETURN_HOME;
-                triggerDMASend();
+                sendInterchipData();
                 break;
             case CANCEL_RETURN_HOME:
                 interchip_send_buffer.am_data.command = PM_CANCEL_RETURN_HOME;
-                triggerDMASend();
+                sendInterchipData();
                 break;
             case SEND_HEARTBEAT:
                 heartbeatTimer = getTime();
@@ -646,11 +645,11 @@ void readDatalink(void){
             case FOLLOW_PATH:
                 interchip_send_buffer.am_data.command = PM_FOLLOW_PATH;
                 interchip_send_buffer.am_data.followPath = *cmd->data;
-                triggerDMASend();
+                sendInterchipData();
                 break;
             case EXIT_HOLD_ORBIT:
                 interchip_send_buffer.am_data.command = PM_EXIT_HOLD_ORBIT;
-                triggerDMASend();
+                sendInterchipData();
                 break;
             case SHOW_SCALED_PWM:
                 if (*cmd->data == 1){
@@ -664,22 +663,22 @@ void readDatalink(void){
             case NEW_WAYPOINT:
                 interchip_send_buffer.am_data.waypoint = CMD_TO_TYPE(cmd->data, WaypointWrapper);
                 interchip_send_buffer.am_data.command = PM_NEW_WAYPOINT;
-                triggerDMASend();
+                sendInterchipData();
                 break;
             case INSERT_WAYPOINT:
                 interchip_send_buffer.am_data.waypoint = CMD_TO_TYPE(cmd->data, WaypointWrapper);
                 interchip_send_buffer.am_data.command = PM_INSERT_WAYPOINT;
-                triggerDMASend();
+                sendInterchipData();
                 break;
             case UPDATE_WAYPOINT:
                 interchip_send_buffer.am_data.waypoint = CMD_TO_TYPE(cmd->data, WaypointWrapper);
                 interchip_send_buffer.am_data.command = PM_UPDATE_WAYPOINT;
-                triggerDMASend();
+                sendInterchipData();
                 break;
             case SET_RETURN_HOME_COORDINATES:
                 interchip_send_buffer.am_data.waypoint = CMD_TO_TYPE(cmd->data, WaypointWrapper);
                 interchip_send_buffer.am_data.command = PM_SET_RETURN_HOME_COORDINATES;
-                triggerDMASend();
+                sendInterchipData();
                 break;
             case TARE_IMU:
                 adjustVNOrientationMatrix(CMD_TO_FLOAT_ARRAY(cmd->data));
@@ -844,7 +843,7 @@ void checkHeartbeat(){
     if (getTime() - heartbeatTimer > HEARTBEAT_TIMEOUT){
         setProgramStatus(KILL_MODE_WARNING);
         interchip_send_buffer.am_data.command = PM_RETURN_HOME;
-        triggerDMASend();
+        sendInterchipData();
     }
     else if (getTime() - heartbeatTimer > HEARTBEAT_KILL_TIMEOUT){
         killPlane(TRUE);

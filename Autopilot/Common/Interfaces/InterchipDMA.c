@@ -8,14 +8,20 @@
 
 #include "InterchipDMA.h"
 #include "../Common.h"
-#include "../Utilities/Logger.h"
 #include <stdbool.h>
+#include "../Utilities/Logger.h"
+
+volatile DMADataBuffer interchip_send_buffer;
+volatile DMADataBuffer interchip_receive_buffer;
 
 /** To indicate to users that new data is available to read from */
-volatile bool is_dma_available = 0;
+static volatile bool is_dma_available = 0;
 
 /** Used to make sure we write to the appropriate buffers */
 static uint8_t chip;
+
+/** To keep track of how many communication errors we get */
+static volatile uint16_t dma_error_count = 0;
 
 //allocate specific space that the DMA controller can write to. Add a byte for the checksum
 static uint8_t dma0_space[sizeof(DMADataBuffer) + 1] __attribute__((space(dma)));
@@ -23,9 +29,6 @@ static uint8_t dma1_space[sizeof(DMADataBuffer) + 1] __attribute__((space(dma)))
 
 static void initDMA0(uint8_t chip_id);
 static void initDMA1(uint8_t chip_id);
-
-volatile DMADataBuffer interchip_send_buffer;
-volatile DMADataBuffer interchip_receive_buffer;
 
 void initInterchip(uint8_t chip_id){
     //some input validation
@@ -36,7 +39,7 @@ void initInterchip(uint8_t chip_id){
     }
 }
 
-bool isDMADataAvailable(){
+bool newInterchipData(){
     if (is_dma_available){
         is_dma_available = false;
         return true;
@@ -44,7 +47,11 @@ bool isDMADataAvailable(){
     return false;
 }
 
-void triggerDMASend(){
+uint16_t getInterchipErrorCount(){
+    return dma_error_count;
+}
+
+void sendInterchipData(){
     uint16_t i = 0;
     uint8_t checksum = 0;
     
@@ -70,9 +77,6 @@ void triggerDMASend(){
     
     //add the checksum to the end of the payload
     ((uint8_t*)(&dma1_space))[i] = 0xFF - checksum;
-    
-    debug("---------------- Sending -----------------");
-    debugArray(((uint8_t*)(&dma1_space)), sizeof(dma1_space));
 
     //trigger a DMA send
     DMA1CONbits.CHEN = 1;
@@ -129,11 +133,18 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
     uint8_t checksum = 0;
     uint16_t i = 0;
     
+    //its perfectly acceptable for us to get a payload of all 0's, if the device had nothing to send
+    //we dont want to add these to the dma error count
+    bool empty_data = true;
+    
     switch(chip){
         case DMA_CHIP_ID_ATTITUDE_MANAGER:
             for (i = 0; i < sizeof(PMData); i++){ //go through all the bytes, including the checksum
                 ((uint8_t*)(&interchip_receive_buffer.pm_data))[i] = ((uint8_t*)(&dma0_space))[i];
                 checksum += ((uint8_t*)(&dma0_space))[i];
+                if (((uint8_t*)(&dma0_space))[i]){
+                    empty_data = false;
+                }
             }
             break;
         case DMA_CHIP_ID_PATH_MANAGER:
@@ -145,14 +156,15 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
         default:
             break;
     }
-    char buffer[100];
-    debug("---------------- Received -----------------");
-    debugArray(((uint8_t*)(&dma0_space)), sizeof(dma0_space));
+
     if (checksum + ((uint8_t*)(&dma0_space))[i] == 0xFF){
         is_dma_available = true;
-        debug("dma checksum passed");
+        debug("received valid data");
+    } else if (!empty_data){ //if we got a failed checksum with non-empty data, add to the error count
+        dma_error_count++;
+        error("error mof");
     } else {
-        debug("dma checksum failed");
+        debug("zeroes received");
     }
     
     IFS0bits.DMA0IF = 0; //clear the interrupt flag

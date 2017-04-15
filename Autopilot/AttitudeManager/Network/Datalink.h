@@ -23,7 +23,7 @@
 #define P2_SEND_FREQUENCY 5000
 
 /** Time in miliseconds for how often to check for new messages from the uplink. Default=100 **/
-#define UPLINK_CHECK_FREQUENCY 500
+#define UPLINK_CHECK_FREQUENCY 5000
 
 // TODO: Put these headers in the new kill mode implementation
 #define HEARTBEAT_TIMEOUT 10000 //In Milliseconds
