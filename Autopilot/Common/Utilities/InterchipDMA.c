@@ -39,7 +39,7 @@ void init_DMA0(char isAttMan){
 
     DMA0CONbits.DIR = 0; //Transfer from SPI to DSPRAM
     DMA0CONbits.AMODE = 0b00; //With post increment mode
-    DMA0CONbits.MODE = 0b00; //Transfer continuously
+    DMA0CONbits.MODE = 0b00; //Transfer continuously. Ping pong mode disabled
     DMA0CONbits.SIZE = 1; //Transfer byte (8 bits)
     if (isAttMan == 1) {
         DMA0STA = __builtin_dmaoffset(&pmData); //Primary Transfer Buffer
@@ -61,7 +61,7 @@ void init_DMA1(char isAttMan){
     DMACS1 = 0; //Clear any IO error flags
 
     DMA1CONbits.DIR = 1; //Transfer from DSPRAM to SPI
-    DMA1CONbits.AMODE = 0b00; //Without post increment mode
+    DMA1CONbits.AMODE = 0b00; //With post increment mode
     DMA1CONbits.MODE = 0b00; //Transfer continuously, ping ponging between buffers
     DMA1CONbits.SIZE = 1; //Transfer byte (8 bits)
     if (isAttMan == 1) {

@@ -39,14 +39,6 @@ _FWDT(FWDTEN_ON & WDTPOST_PS4096 & WDTPRE_PR128);
 int main(int argc, char** argv) {
 
     useFRCPLLClock();
-
-    // Init intercom pins as digital pins
-    AD1PCFGHbits.PCFG20 = 1;
-    AD1PCFGHbits.PCFG21 = 1;
-    AD1PCFGLbits.PCFG4 = 1;
-    AD1PCFGLbits.PCFG5 = 1;
-    AD2PCFGLbits.PCFG4 = 1;
-    AD2PCFGLbits.PCFG5 = 1;
     
     //as we plug in the picpilot, there may be intermittent power from the initial contact of the
     //power plug which the sensor drivers don't like. This delay is meant to stop communication of sensors 
