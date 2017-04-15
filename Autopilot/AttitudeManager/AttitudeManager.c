@@ -131,31 +131,8 @@ void attitudeInit() {
     setProgramStatus(INITIALIZATION);
     //Initialize Timer
     initTimer4();
-
-    //Initialize Interchip communication
-    TRISFbits.TRISF3 = 0;
-    LATFbits.LATF3 = 1;
-
-    //the line below sets channel 7 IC to be an output. Used to be for DMA. Should
-    //investigate DMA code to see why this was used in the first place, and if it'll have
-    //any negative consequences. Commenting out for now. Serge Feb 7 2017
-    //TRISDbits.TRISD14 = 0;
-    LATDbits.LATD14 = 0;
-
+    
     amData.checkbyteDMA = generateAMDataDMACheckbyte();
-
-    //Initialize Interchip Interrupts for Use in DMA Reset
-    //Set opposite Input / Output Configuration on the PathManager
-    TRISAbits.TRISA12 = 0;  //Init RA12 as Output (0), (1) is Input
-    INTERCOM_1 = 0;    //Set RA12 to Output a Value of 0
-    TRISAbits.TRISA13 = 0;  //Init RA13 as Output (0), (1) is Input
-    INTERCOM_2 = 0;    //Set RA13 to Output a Value of 0
-
-    TRISBbits.TRISB4 = 1;   //Init RB4 as Input (1), (0) is Output
-    TRISBbits.TRISB5 = 1;   //Init RB5 as Input (1), (0) is Output
-    TRISAbits.TRISA3 = 0;
-    PORTAbits.RA3 = 1;
-
     init_DMA0(1);
     init_DMA1(1);
     initSPI(IC_DMA_PORT, 0, SPI_MODE1, SPI_BYTE, SPI_SLAVE);
@@ -228,6 +205,8 @@ char checkDMA(){
         if (gps_Altitude == pmData.altitude && gps_Heading == pmData.heading && gps_GroundSpeed == pmData.speed / 3.6f && gps_Latitude == pmData.latitude && gps_Longitude == pmData.longitude){
             return FALSE;
         }
+        
+        debug("New DMA data!");
 
         gps_Heading = pmData.heading;
         gps_GroundSpeed = pmData.speed / 3.6f; //Convert from km/h to m/s
@@ -241,6 +220,7 @@ char checkDMA(){
         return TRUE;
     }
     else{
+        debug("DMA Reset occured");
 //        INTERCOM_2 = 1;
         DMA0CONbits.CHEN = 0; //Disable DMA0 channel
         DMA1CONbits.CHEN = 0; //Disable DMA1 channel
