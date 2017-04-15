@@ -13,9 +13,8 @@
 #include "MainBatterySensor.h"
 #include "airspeedSensor.h"
 #include "StartupErrorCodes.h"
-
 #include "../Common/Interfaces/SPI.h"
-#include "../Common/Utilities/InterchipDMA.h"
+#include "../Common/Interfaces/InterchipDMA.h"
 #include "GPSDMA.h"
 
 #if DEBUG
@@ -28,8 +27,6 @@
 static void checkForFirstGPSLock(); // function prototype for static function at line 679
 
 extern GPSData gpsData;
-extern PMData pmData;
-extern AMData amData;
 
 extern char newGPSDataAvailable;
 
@@ -73,12 +70,8 @@ void pathManagerInit(void) {
     TRISBbits.TRISB4 = 1;   //Init RB4 as Input (1)
     TRISBbits.TRISB5 = 1;   //Init RB5 as Input (1)
 
-    init_DMA0(0);
-    init_DMA1(0);
+    initInterchip(DMA_CHIP_ID_PATH_MANAGER);
     initSPI(IC_DMA_PORT, DMA_CLOCK_KHZ, SPI_MODE1, SPI_BYTE, SPI_MASTER);
-
-    DMA1REQbits.FORCE = 1;
-    while (DMA1REQbits.FORCE == 1);
 
     //Communication with Altimeter
     if (initAltimeter()){
@@ -131,6 +124,8 @@ void pathManagerInit(void) {
 #endif
 }
 
+uint32_t dma_startime = 0;
+int32_t counter = 0;
 void pathManagerRuntime(void) {
 #if DEBUG
 //    char str[16];
@@ -140,9 +135,9 @@ void pathManagerRuntime(void) {
     copyGPSData();
 
     if (returnHome){
-        pmData.targetWaypoint = -1;
+        interchip_send_buffer.pm_data.targetWaypoint = -1;
     } else {
-        pmData.targetWaypoint = path[currentIndex]->id;
+        interchip_send_buffer.pm_data.targetWaypoint = path[currentIndex]->id;
     }
 
     //Check for new uplink command data
@@ -155,16 +150,20 @@ void pathManagerRuntime(void) {
     heading = (float)gpsData.heading;
 
     if (returnHome || (pathCount - currentIndex < 1 && pathCount >= 0)){
-        pmData.sp_Heading = lastKnownHeadingHome;
-    } else if (followPath && pathCount - currentIndex >= 1 && pmData.positionFix > 0) {
-        currentIndex = followWaypoints(path[currentIndex], (float*)position, heading, (int*)&pmData.sp_Heading);
+        interchip_send_buffer.pm_data.sp_Heading = lastKnownHeadingHome;
+    } else if (followPath && pathCount - currentIndex >= 1 && interchip_send_buffer.pm_data.positionFix > 0) {
+        currentIndex = followWaypoints(path[currentIndex], (float*)position, heading, (int*)&interchip_send_buffer.pm_data.sp_Heading);
     }
-    if (pmData.positionFix >= 1){
+    if (interchip_send_buffer.pm_data.positionFix >= 1){
         lastKnownHeadingHome = calculateHeadingHome(home, (float*)position, heading);
     }
-
-    pmData.checkbyteDMA1 = generatePMDataDMAChecksum1();
-    pmData.checkbyteDMA2 = generatePMDataDMAChecksum2();
+    
+    //trigger the dma send here
+    counter++;
+    if (counter == 250){
+        triggerDMASend();
+        counter = 0;
+    }
 }
 
 #if DUBINS_PATH
@@ -400,7 +399,7 @@ int followLastLineSegment(PathData* currentWaypoint, float* position, float head
     float waypointPosition[3];
     waypointPosition[0] = position[0];
     waypointPosition[1] = position[1];
-    waypointPosition[2] = pmData.altitude;
+    waypointPosition[2] = interchip_send_buffer.pm_data.altitude;
 
     PathData* targetWaypoint = currentWaypoint;
     float targetCoordinates[3];
@@ -637,26 +636,24 @@ unsigned int insertPathNode(PathData* node, unsigned int previousID, unsigned in
 void copyGPSData(){
     if (newGPSDataAvailable && gpsErrorCheck(gpsData.latitude, gpsData.longitude)){
         newGPSDataAvailable = 0;
-        pmData.time = gpsData.time;
-        pmData.longitude = gpsData.longitude;
-        pmData.latitude = gpsData.latitude;
-        pmData.heading = gpsData.heading;
-        pmData.speed = gpsData.speed;
-        pmData.satellites = (char)gpsData.satellites;
-        pmData.positionFix = (char)gpsData.positionFix;
+        interchip_send_buffer.pm_data.time = gpsData.time;
+        interchip_send_buffer.pm_data.longitude = gpsData.longitude;
+        interchip_send_buffer.pm_data.latitude = gpsData.latitude;
+        interchip_send_buffer.pm_data.heading = gpsData.heading;
+        interchip_send_buffer.pm_data.speed = gpsData.speed;
+        interchip_send_buffer.pm_data.satellites = (char)gpsData.satellites;
+        interchip_send_buffer.pm_data.positionFix = (char)gpsData.positionFix;
         checkForFirstGPSLock();
     }
-    pmData.batteryLevel1 = getMainBatteryLevel();
-    pmData.batteryLevel2 = 5;
-    pmData.airspeed = getCurrentAirspeed();
-    pmData.altitude = getAltitude(); //want to get altitude regardless of if there is new GPS data
-    pmData.pmOrbitGain = k_gain[ORBIT];
-    pmData.pmPathGain = k_gain[PATH];
-    pmData.waypointCount = pathCount;
-    pmData.waypointChecksum = getWaypointChecksum();
-    pmData.pathFollowing = followPath;
-    pmData.checkbyteDMA1 = generatePMDataDMAChecksum1();
-    pmData.checkbyteDMA2 = generatePMDataDMAChecksum2();
+    interchip_send_buffer.pm_data.batteryLevel1 = getMainBatteryLevel();
+    interchip_send_buffer.pm_data.batteryLevel2 = 5;
+    interchip_send_buffer.pm_data.airspeed = getCurrentAirspeed();
+    interchip_send_buffer.pm_data.altitude = getAltitude(); //want to get altitude regardless of if there is new GPS data
+    interchip_send_buffer.pm_data.pmOrbitGain = k_gain[ORBIT];
+    interchip_send_buffer.pm_data.pmPathGain = k_gain[PATH];
+    interchip_send_buffer.pm_data.waypointCount = pathCount;
+    interchip_send_buffer.pm_data.waypointChecksum = getWaypointChecksum();
+    interchip_send_buffer.pm_data.pathFollowing = followPath;
 }
 
 static void checkForFirstGPSLock(){
@@ -683,24 +680,20 @@ char gpsErrorCheck(double lat, double lon){
         return 0;
 }
 
+uint8_t last_amdata_checksum = 0;
 
 void checkAMData(){
-    if (amData.checkbyteDMA == generateAMDataDMACheckbyte()){
-        if (lastAMDataChecksum != amData.checksum && amData.checksum == generateAMDataChecksum(&amData)){
-            lastAMDataChecksum = amData.checksum;
-//            debug("Command");
-           // All commands/actions that need to be run go here
-           switch (amData.command){
+        switch (interchip_receive_buffer.am_data.command){
                 case PM_DEBUG_TEST:
     //                UART1_SendString("Test");
                     break;
                 case PM_NEW_WAYPOINT:;
                     PathData* node = initializePathNode();
-                    node->altitude = amData.waypoint.altitude;
-                    node->latitude = amData.waypoint.latitude;
-                    node->longitude = amData.waypoint.longitude;
-                    node->radius = amData.waypoint.radius;
-                    node->type = amData.waypoint.type;
+                    node->altitude = interchip_receive_buffer.am_data.waypoint.altitude;
+                    node->latitude = interchip_receive_buffer.am_data.waypoint.latitude;
+                    node->longitude = interchip_receive_buffer.am_data.waypoint.longitude;
+                    node->radius = interchip_receive_buffer.am_data.waypoint.radius;
+                    node->type = interchip_receive_buffer.am_data.waypoint.type;
                     appendPathNode(node);
 //                    debug("new");
 //                    char str[20];
@@ -713,24 +706,24 @@ void checkAMData(){
                     break;
                 case PM_INSERT_WAYPOINT:
                     node = initializePathNode();
-                    node->altitude = amData.waypoint.altitude;
-                    node->latitude = amData.waypoint.latitude;
-                    node->longitude = amData.waypoint.longitude;
-                    node->radius = amData.waypoint.radius;
-                    node->type = amData.waypoint.type;
-                    insertPathNode(node,amData.waypoint.previousId,amData.waypoint.nextId);
+                    node->altitude = interchip_receive_buffer.am_data.waypoint.altitude;
+                    node->latitude = interchip_receive_buffer.am_data.waypoint.latitude;
+                    node->longitude = interchip_receive_buffer.am_data.waypoint.longitude;
+                    node->radius = interchip_receive_buffer.am_data.waypoint.radius;
+                    node->type = interchip_receive_buffer.am_data.waypoint.type;
+                    insertPathNode(node,interchip_receive_buffer.am_data.waypoint.previousId,interchip_receive_buffer.am_data.waypoint.nextId);
                     break;
                 case PM_UPDATE_WAYPOINT:
                     node = initializePathNode();
-                    node->altitude = amData.waypoint.altitude;
-                    node->latitude = amData.waypoint.latitude;
-                    node->longitude = amData.waypoint.longitude;
-                    node->radius = amData.waypoint.radius;
-                    node->type = amData.waypoint.type;
-                    updatePathNode(node,amData.waypoint.id);
+                    node->altitude = interchip_receive_buffer.am_data.waypoint.altitude;
+                    node->latitude = interchip_receive_buffer.am_data.waypoint.latitude;
+                    node->longitude = interchip_receive_buffer.am_data.waypoint.longitude;
+                    node->radius = interchip_receive_buffer.am_data.waypoint.radius;
+                    node->type = interchip_receive_buffer.am_data.waypoint.type;
+                    updatePathNode(node,interchip_receive_buffer.am_data.waypoint.id);
                    break;
                 case PM_REMOVE_WAYPOINT:
-                    removePathNode(amData.waypoint.id);
+                    removePathNode(interchip_receive_buffer.am_data.waypoint.id);
                     break;
                 case PM_SET_TARGET_WAYPOINT:
 //                    node = initializePathNode();
@@ -739,16 +732,16 @@ void checkAMData(){
 //                    node->longitude = gpsData.longitude;
 //                    node->radius = 1; //Arbitrary value
 //                    node->type = DEFAULT_WAYPOINT;
-                    if (path[getIndexFromID(amData.waypoint.id)] && path[getIndexFromID(amData.waypoint.id)]->previous){
+                    if (path[getIndexFromID(interchip_receive_buffer.am_data.waypoint.id)] && path[getIndexFromID(interchip_receive_buffer.am_data.waypoint.id)]->previous){
 //                        insertPathNode(node,path[getIndexFromID(amData.waypoint.id)]->previous->id,amData.waypoint.id);
-                        currentIndex = getIndexFromID(amData.waypoint.id);
+                        currentIndex = getIndexFromID(interchip_receive_buffer.am_data.waypoint.id);
                     }
                     returnHome = 0;
                     break;
                 case PM_SET_RETURN_HOME_COORDINATES:
-                    home.altitude = amData.waypoint.altitude;
-                    home.latitude = amData.waypoint.latitude;
-                    home.longitude = amData.waypoint.longitude;
+                    home.altitude = interchip_receive_buffer.am_data.waypoint.altitude;
+                    home.latitude = interchip_receive_buffer.am_data.waypoint.latitude;
+                    home.longitude = interchip_receive_buffer.am_data.waypoint.longitude;
                     home.radius = 1;
                     home.id = -1;
                     home.type = DEFAULT_WAYPOINT;
@@ -760,43 +753,23 @@ void checkAMData(){
                     returnHome = 0;
                     break;
                case PM_FOLLOW_PATH:
-                    followPath = amData.followPath;
+                    followPath = interchip_receive_buffer.am_data.followPath;
                     break;
                case PM_EXIT_HOLD_ORBIT:
                    inHold = FALSE;
                    break;
                 case PM_CALIBRATE_ALTIMETER:
-                    calibrateAltimeter(amData.calibrationHeight);
+                    calibrateAltimeter(interchip_receive_buffer.am_data.calibrationHeight);
                     break;
                 case PM_SET_PATH_GAIN:
-                    k_gain[PATH] = amData.pathGain;
+                    k_gain[PATH] = interchip_receive_buffer.am_data.pathGain;
                     break;
                 case PM_SET_ORBIT_GAIN:
-                    k_gain[ORBIT] = amData.orbitGain;
+                    k_gain[ORBIT] = interchip_receive_buffer.am_data.orbitGain;
                     break;
                 default:
                     break;
             }
-        }
-    }
-    else{
-    ////        INTERCOM_4 = 1;
-    ////        while(!INTERCOM_2);
-    //        SPI1STATbits.SPIEN = 0; //Disable SPI1
-    //        DMA0CONbits.CHEN = 0; //Disable DMA0 channel
-    //        DMA1CONbits.CHEN = 0; //Disable DMA1 channel
-    //        while(SPI1STATbits.SPIRBF) { //Clear SPI1
-    //            int dummy = SPI1BUF;
-    //        }
-    //        // Clear flags
-    ////        INTERCOM_4 = 0;
-    ////        while(INTERCOM_2);
-    //        init_SPI1(); // Restart SPI
-    //        init_DMA0(); // Restart DMA0
-    //        init_DMA1(); // Restart DMA1
-    //        DMA1REQbits.FORCE = 1;
-    //        while (DMA1REQbits.FORCE == 1);
-    }
 }
 
 float getWaypointChecksum(void){
