@@ -56,7 +56,7 @@ void StateMachine(char entryLocation){
 
         flightUpdate = 1;
     }
-    else if(isDMADataAvailable() && checkDMA()){
+    else if(newInterchipData() && checkDMA()){
         //Input from Controller
         flightUpdate = 1;
     }

@@ -105,7 +105,7 @@ void initInterchip(uint8_t chip_id);
  * Whether there is data that can be read from the buffer. Note that calling this
  * function will reset the flag!
  */
-bool isDMADataAvailable();
+bool newInterchipData(void);
 
 /**
  * Triggers a send of the DMA buffer. In the case of the path manager, will
@@ -113,7 +113,13 @@ bool isDMADataAvailable();
  * of the attitude manager, will simply copy over the data. The next path manager
  * update will send it
  */
-void triggerDMASend();
+void sendInterchipData(void);
+
+/**
+ * @return Total number of communication errors between the path and
+ * attitude manager
+ */
+uint16_t getInterchipErrorCount(void);
 
 #endif
 
