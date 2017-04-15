@@ -11,7 +11,6 @@
 //Header Files
 #include "OrientationControl.h"
 #include "StateMachine.h"
-#include "../Common/Utilities/InterchipDMA.h"
 #include "Network/Datalink.h"
 #include "../Common/Common.h"
 

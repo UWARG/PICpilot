@@ -11,6 +11,7 @@
 #include "../Common/Utilities/Logger.h"
 #include "../Common/Common.h"
 #include "main.h"
+#include "../Common/Interfaces/InterchipDMA.h"
 #include "Drivers/Radio.h"
 #include "ProgramStatus.h"
 

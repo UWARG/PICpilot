@@ -24,8 +24,8 @@
       </logicalFolder>
       <logicalFolder name="f8" displayName="Interfaces" projectFiles="true">
         <itemPath>../Common/Interfaces/UART.h</itemPath>
-        <itemPath>../Common/Utilities/InterchipDMA.h</itemPath>
         <itemPath>../Common/Interfaces/SPI.h</itemPath>
+        <itemPath>../Common/Interfaces/InterchipDMA.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f3" displayName="Network" projectFiles="true">
         <itemPath>Network/Datalink.h</itemPath>
@@ -85,8 +85,8 @@
       </logicalFolder>
       <logicalFolder name="f8" displayName="Interfaces" projectFiles="true">
         <itemPath>../Common/Interfaces/UART.c</itemPath>
-        <itemPath>../Common/Utilities/InterchipDMA.c</itemPath>
         <itemPath>../Common/Interfaces/SPI.c</itemPath>
+        <itemPath>../Common/Interfaces/InterchipDMA.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f3" displayName="Network" projectFiles="true">
         <itemPath>Network/Datalink.c</itemPath>
