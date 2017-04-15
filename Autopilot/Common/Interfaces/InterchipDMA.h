@@ -41,10 +41,10 @@
  * Data that the path manager sends to the attitude manager. Note that its
  * vital that the last byte be the checksum byte!
  */
-typedef struct { // 62 Bytes
-    float time;     // 4 Bytes   -  hhmmss.ssss
+typedef struct { // 60 Bytes
     long double latitude;  // 8 Bytes - ddd.mmmmmm
     long double longitude; // 8 Bytes - ddd.mmmmmm
+    float time;     // 4 Bytes   -  hhmmss.ssss
     float speed;    //KM/H
     float altitude;
     float airspeed;
@@ -61,8 +61,6 @@ typedef struct { // 62 Bytes
     char targetWaypoint;
     char waypointCount;
     char pathFollowing;
-    char padding;
-    uint8_t checksum;
 } PMData;
 
 /**
@@ -76,33 +74,32 @@ typedef struct {
     float calibrationHeight;
     char command;
     char followPath;
-    uint8_t checksum;
 } AMData;
 
 typedef union{
-    AMData am_data;
     PMData pm_data;
+    AMData am_data;
 } DMADataBuffer;
 
 /**
  * Global send buffer. Attitude manager should write to the am_data field,
  * path manager should write to the pm_data field
  */
-extern volatile DMADataBuffer dma_send_buffer;
+extern volatile DMADataBuffer interchip_send_buffer;
 
 /**
  * Global receive buffer. Attitude manager should read the pm_data field, path
  * manager should read the am_data field. Note that reads should only happen if
  * the isDMADataAvailable function returns true!
  */
-extern volatile DMADataBuffer dma_receive_buffer;
+extern volatile DMADataBuffer interchip_receive_buffer;
 
 /**
  * Initializes all the DMA channels
  * @param chip_id Which chip is currently running the code. Differentiates between
  *      path and attitude manager
  */
-void initDMA(uint8_t chip_id);
+void initInterchip(uint8_t chip_id);
 
 /** 
  * Whether there is data that can be read from the buffer. Note that calling this

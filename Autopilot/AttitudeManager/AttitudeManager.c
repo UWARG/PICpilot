@@ -124,15 +124,12 @@ int lastCommandCounter = 0;
 
 char show_scaled_pwm = 1;
 
-/** Used to make sure that we dont read the same data twice from the path manager */
-static uint8_t last_pm_data_checksum = 0;
-
 void attitudeInit() {
     setProgramStatus(INITIALIZATION);
     //Initialize Timer
     initTimer4();
     
-    initDMA(DMA_CHIP_ID_ATTITUDE_MANAGER);
+    initInterchip(DMA_CHIP_ID_ATTITUDE_MANAGER);
     initSPI(IC_DMA_PORT, 0, SPI_MODE1, SPI_BYTE, SPI_SLAVE);
     
     /* Initialize Input Capture and Output Compare Modules */
@@ -179,34 +176,31 @@ void attitudeInit() {
     setProgramStatus(MAIN_EXECUTION);
 }
 
-char checkDMA(){
-    if (dma_receive_buffer.pm_data.checksum != last_pm_data_checksum){
-        gps_Time = dma_receive_buffer.pm_data.time;
-        input_AP_Altitude = dma_receive_buffer.pm_data.sp_Altitude;
-        gps_Satellites = dma_receive_buffer.pm_data.satellites;
-        gps_PositionFix = dma_receive_buffer.pm_data.positionFix;
-        waypointIndex = dma_receive_buffer.pm_data.targetWaypoint;
-        batteryLevel1 = dma_receive_buffer.pm_data.batteryLevel1;
-        batteryLevel2 = dma_receive_buffer.pm_data.batteryLevel2;
-        waypointCount = dma_receive_buffer.pm_data.waypointCount;
-        waypointChecksum = dma_receive_buffer.pm_data.waypointChecksum;
-        pathFollowing = dma_receive_buffer.pm_data.pathFollowing;
-        airspeed = dma_receive_buffer.pm_data.airspeed;
-        pmOrbitGain = dma_receive_buffer.pm_data.pmOrbitGain;
-        pmPathGain = dma_receive_buffer.pm_data.pmPathGain;
+char checkDMA(){   
+        gps_Time = interchip_receive_buffer.pm_data.time;
+        input_AP_Altitude = interchip_receive_buffer.pm_data.sp_Altitude;
+        gps_Satellites = interchip_receive_buffer.pm_data.satellites;
+        gps_PositionFix = interchip_receive_buffer.pm_data.positionFix;
+        waypointIndex = interchip_receive_buffer.pm_data.targetWaypoint;
+        batteryLevel1 = interchip_receive_buffer.pm_data.batteryLevel1;
+        batteryLevel2 = interchip_receive_buffer.pm_data.batteryLevel2;
+        waypointCount = interchip_receive_buffer.pm_data.waypointCount;
+        waypointChecksum = interchip_receive_buffer.pm_data.waypointChecksum;
+        pathFollowing = interchip_receive_buffer.pm_data.pathFollowing;
+        airspeed = interchip_receive_buffer.pm_data.airspeed;
+        pmOrbitGain = interchip_receive_buffer.pm_data.pmOrbitGain;
+        pmPathGain = interchip_receive_buffer.pm_data.pmPathGain;
         
-        gps_Heading = dma_receive_buffer.pm_data.heading;
-        gps_GroundSpeed = dma_receive_buffer.pm_data.speed / 3.6f; //Convert from km/h to m/s
-        gps_Longitude = dma_receive_buffer.pm_data.longitude;
-        gps_Latitude = dma_receive_buffer.pm_data.latitude;
-        gps_Altitude = dma_receive_buffer.pm_data.altitude;
+        gps_Heading = interchip_receive_buffer.pm_data.heading;
+        gps_GroundSpeed = interchip_receive_buffer.pm_data.speed / 3.6f; //Convert from km/h to m/s
+        gps_Longitude = interchip_receive_buffer.pm_data.longitude;
+        gps_Latitude = interchip_receive_buffer.pm_data.latitude;
+        gps_Altitude = interchip_receive_buffer.pm_data.altitude;
 
         if (gps_PositionFix){
-            input_AP_Heading = dma_receive_buffer.pm_data.sp_Heading;
+            input_AP_Heading = interchip_receive_buffer.pm_data.sp_Heading;
         }
         return TRUE;
-    }
-    return FALSE;
 }
 
 float getAltitude(){
@@ -461,8 +455,12 @@ uint8_t getControlValue(CtrlType type) {
     return (controlLevel & ctrl_mask[type]) >> type;
 }
 
+int counter = 20;
 void readDatalink(void){
     struct DatalinkCommand* cmd = popDatalinkCommand();
+  
+    interchip_send_buffer.am_data.waypoint.altitude = 43.3424;
+    triggerDMASend();
     
     //TODO: Add rudimentary input validation
     if ( cmd ) {
@@ -536,13 +534,13 @@ void readDatalink(void){
                 break;
 
             case SET_PATH_GAIN:
-                dma_send_buffer.am_data.pathGain = CMD_TO_FLOAT(cmd->data);
-                dma_send_buffer.am_data.command = PM_SET_PATH_GAIN;
+                interchip_send_buffer.am_data.pathGain = CMD_TO_FLOAT(cmd->data);
+                interchip_send_buffer.am_data.command = PM_SET_PATH_GAIN;
                 triggerDMASend();
                 break;
             case SET_ORBIT_GAIN:
-                dma_send_buffer.am_data.orbitGain = CMD_TO_FLOAT(cmd->data);
-                dma_send_buffer.am_data.command = PM_SET_ORBIT_GAIN;
+                interchip_send_buffer.am_data.orbitGain = CMD_TO_FLOAT(cmd->data);
+                interchip_send_buffer.am_data.command = PM_SET_ORBIT_GAIN;
                 triggerDMASend();
                 break;
             case SHOW_GAIN:
@@ -598,31 +596,31 @@ void readDatalink(void){
                 scaleFactor = CMD_TO_FLOAT(cmd->data);
                 break;
             case CALIBRATE_ALTIMETER:
-                dma_send_buffer.am_data.calibrationHeight = CMD_TO_FLOAT(cmd->data);
-                dma_send_buffer.am_data.command = PM_CALIBRATE_ALTIMETER;
+                interchip_send_buffer.am_data.calibrationHeight = CMD_TO_FLOAT(cmd->data);
+                interchip_send_buffer.am_data.command = PM_CALIBRATE_ALTIMETER;
                 triggerDMASend();
                 break;
             case CLEAR_WAYPOINTS:
-                dma_send_buffer.am_data.waypoint.id = *cmd->data; //Dummy Data
-                dma_send_buffer.am_data.command = PM_CLEAR_WAYPOINTS;
+                interchip_send_buffer.am_data.waypoint.id = *cmd->data; //Dummy Data
+                interchip_send_buffer.am_data.command = PM_CLEAR_WAYPOINTS;
                 triggerDMASend();
                 break;
             case REMOVE_WAYPOINT:
-                dma_send_buffer.am_data.waypoint.id = *cmd->data;
-                dma_send_buffer.am_data.command = PM_REMOVE_WAYPOINT;
+                interchip_send_buffer.am_data.waypoint.id = *cmd->data;
+                interchip_send_buffer.am_data.command = PM_REMOVE_WAYPOINT;
                 triggerDMASend();
                 break;
             case SET_TARGET_WAYPOINT:
-                dma_send_buffer.am_data.waypoint.id = *cmd->data;
-                dma_send_buffer.am_data.command = PM_SET_TARGET_WAYPOINT;
+                interchip_send_buffer.am_data.waypoint.id = *cmd->data;
+                interchip_send_buffer.am_data.command = PM_SET_TARGET_WAYPOINT;
                 triggerDMASend();
                 break;
             case RETURN_HOME:
-                dma_send_buffer.am_data.command = PM_RETURN_HOME;
+                interchip_send_buffer.am_data.command = PM_RETURN_HOME;
                 triggerDMASend();
                 break;
             case CANCEL_RETURN_HOME:
-                dma_send_buffer.am_data.command = PM_CANCEL_RETURN_HOME;
+                interchip_send_buffer.am_data.command = PM_CANCEL_RETURN_HOME;
                 triggerDMASend();
                 break;
             case SEND_HEARTBEAT:
@@ -646,12 +644,12 @@ void readDatalink(void){
                     dearmVehicle();
                 break;
             case FOLLOW_PATH:
-                dma_send_buffer.am_data.command = PM_FOLLOW_PATH;
-                dma_send_buffer.am_data.followPath = *cmd->data;
+                interchip_send_buffer.am_data.command = PM_FOLLOW_PATH;
+                interchip_send_buffer.am_data.followPath = *cmd->data;
                 triggerDMASend();
                 break;
             case EXIT_HOLD_ORBIT:
-                dma_send_buffer.am_data.command = PM_EXIT_HOLD_ORBIT;
+                interchip_send_buffer.am_data.command = PM_EXIT_HOLD_ORBIT;
                 triggerDMASend();
                 break;
             case SHOW_SCALED_PWM:
@@ -664,23 +662,23 @@ void readDatalink(void){
             case REMOVE_LIMITS:
                 limitSetpoint = *(bool*)cmd->data;
             case NEW_WAYPOINT:
-                dma_send_buffer.am_data.waypoint = CMD_TO_TYPE(cmd->data, WaypointWrapper);
-                dma_send_buffer.am_data.command = PM_NEW_WAYPOINT;
+                interchip_send_buffer.am_data.waypoint = CMD_TO_TYPE(cmd->data, WaypointWrapper);
+                interchip_send_buffer.am_data.command = PM_NEW_WAYPOINT;
                 triggerDMASend();
                 break;
             case INSERT_WAYPOINT:
-                dma_send_buffer.am_data.waypoint = CMD_TO_TYPE(cmd->data, WaypointWrapper);
-                dma_send_buffer.am_data.command = PM_INSERT_WAYPOINT;
+                interchip_send_buffer.am_data.waypoint = CMD_TO_TYPE(cmd->data, WaypointWrapper);
+                interchip_send_buffer.am_data.command = PM_INSERT_WAYPOINT;
                 triggerDMASend();
                 break;
             case UPDATE_WAYPOINT:
-                dma_send_buffer.am_data.waypoint = CMD_TO_TYPE(cmd->data, WaypointWrapper);
-                dma_send_buffer.am_data.command = PM_UPDATE_WAYPOINT;
+                interchip_send_buffer.am_data.waypoint = CMD_TO_TYPE(cmd->data, WaypointWrapper);
+                interchip_send_buffer.am_data.command = PM_UPDATE_WAYPOINT;
                 triggerDMASend();
                 break;
             case SET_RETURN_HOME_COORDINATES:
-                dma_send_buffer.am_data.waypoint = CMD_TO_TYPE(cmd->data, WaypointWrapper);
-                dma_send_buffer.am_data.command = PM_SET_RETURN_HOME_COORDINATES;
+                interchip_send_buffer.am_data.waypoint = CMD_TO_TYPE(cmd->data, WaypointWrapper);
+                interchip_send_buffer.am_data.command = PM_SET_RETURN_HOME_COORDINATES;
                 triggerDMASend();
                 break;
             case TARE_IMU:
@@ -845,7 +843,7 @@ void checkUHFStatus(){
 void checkHeartbeat(){
     if (getTime() - heartbeatTimer > HEARTBEAT_TIMEOUT){
         setProgramStatus(KILL_MODE_WARNING);
-        dma_send_buffer.am_data.command = PM_RETURN_HOME;
+        interchip_send_buffer.am_data.command = PM_RETURN_HOME;
         triggerDMASend();
     }
     else if (getTime() - heartbeatTimer > HEARTBEAT_KILL_TIMEOUT){
