@@ -6,10 +6,11 @@
  */
 #include "InterchipDMA.h"
 #include "../Common.h"
+#include <stdbool.h>
 
 
 /*SPI RECEIVE OPERATION*/
-char DMADataAvailable = 0;
+volatile bool DMADataAvailable = 0;
 
 AMData amData __attribute__((space(dma)));
 PMData pmData __attribute__((space(dma)));
@@ -19,11 +20,11 @@ PMData pmData __attribute__((space(dma)));
  */
 void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
     DMADataAvailable = 1;
-    IFS0bits.DMA0IF = 0;// Clear the DMA1 Interrupt Flag
+    IFS0bits.DMA0IF = 0; //clear the interrupt flag
 }
         
 void __attribute__((__interrupt__, no_auto_psv)) _DMA1Interrupt(void){
-    IFS0bits.DMA1IF = 0;// Clear the DMA0 Interrupt Flag
+    IFS0bits.DMA1IF = 0; //clear the interrupt flag
 }
 
 char isDMADataAvailable(){
