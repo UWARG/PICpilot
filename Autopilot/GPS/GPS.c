@@ -55,7 +55,6 @@
 
 #include "p24F16KA101.h"
 #include "uart2.h"
-#include "i2c.h"
 #include <math.h>
 
 #define Fosc	(16000000) 	// crystal
