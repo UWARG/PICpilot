@@ -192,6 +192,15 @@ char checkDMA(){
         pmOrbitGain = interchip_receive_buffer.pm_data.pmOrbitGain;
         pmPathGain = interchip_receive_buffer.pm_data.pmPathGain;
         
+         //Check if this data is new and requires action or if it is old and redundant
+        if (gps_Altitude == interchip_receive_buffer.pm_data.altitude 
+                && gps_Heading == interchip_receive_buffer.pm_data.heading 
+                && gps_GroundSpeed == interchip_receive_buffer.pm_data.speed / 3.6f 
+                && gps_Latitude == interchip_receive_buffer.pm_data.latitude 
+                && gps_Longitude == interchip_receive_buffer.pm_data.longitude){    
+            return FALSE;		
+        }
+
         gps_Heading = interchip_receive_buffer.pm_data.heading;
         gps_GroundSpeed = interchip_receive_buffer.pm_data.speed / 3.6f; //Convert from km/h to m/s
         gps_Longitude = interchip_receive_buffer.pm_data.longitude;
@@ -455,7 +464,6 @@ int coordinatedTurn(float pitchRate, int rollAngle){
 uint8_t getControlValue(CtrlType type) {
     return (controlLevel & ctrl_mask[type]) >> type;
 }
-int count = 0;
 
 void readDatalink(void){
     struct DatalinkCommand* cmd = popDatalinkCommand();

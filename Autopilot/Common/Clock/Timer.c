@@ -35,7 +35,7 @@ void initTimer4(){
     T4CONbits.TCS = 0; // Select internal instruction cycle clock
     T4CONbits.TGATE = 0; // Disable Gated Timer mode
     T4CONbits.TCKPS = 0b01; // Select 1:8 Prescaler
-    T4CONbits.T32 = 0; //use as single 64-bit timer (uses Timer5)
+    T4CONbits.T32 = 0; //use as single 16-bit timer
     TMR4 = 0x00; // Clear timer register
     PR4 = T4_TICKS_TO_MSEC; // Load the period value
     IPC6bits.T4IP = 0x01; // Set Timer 4 Interrupt Priority Level
