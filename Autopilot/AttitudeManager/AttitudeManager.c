@@ -421,20 +421,6 @@ int getHeadingInput(char source){
         return 0;
 }
 
-void setKValues(int type,float* values){
-    int i = 0;
-    for(; i<CONTROL_CHANNELS; i++){
-       setGain(i, type, values[i]);
-    }
-}
-
-void setGains(int channel, float* values){
-    // values are found at index 1 to 3 in the data array
-    setGain(channel,KP,values[0]);
-    setGain(channel,KI,values[1]);
-    setGain(channel,KD,values[2]);
-}
-
 void imuCommunication(){
     /*****************************************************************************
      *****************************************************************************
@@ -485,61 +471,15 @@ void readDatalink(void){
                 debug( (char*) cmd->data);
 #endif
                 break;
-            case SET_PITCH_KD_GAIN:
-                setGain(PITCH_RATE, KD, CMD_TO_FLOAT(cmd->data));
-                break;
-            case SET_ROLL_KD_GAIN:
-                setGain(ROLL_RATE, KD, CMD_TO_FLOAT(cmd->data));
-                break;
-            case SET_YAW_KD_GAIN:
-                setGain(YAW_RATE, KD, CMD_TO_FLOAT(cmd->data));
-                break;
-            case SET_PITCH_KP_GAIN:
-                setGain(PITCH_RATE, KP, CMD_TO_FLOAT(cmd->data));
-                break;
-            case SET_ROLL_KP_GAIN:
-                setGain(ROLL_RATE, KP, CMD_TO_FLOAT(cmd->data));
-                break;
-            case SET_YAW_KP_GAIN:
-                setGain(YAW_RATE, KP, CMD_TO_FLOAT(cmd->data));
-                break;
-            case SET_PITCH_KI_GAIN:
-                setGain(PITCH_RATE, KI, CMD_TO_FLOAT(cmd->data));
-                break;
-            case SET_ROLL_KI_GAIN:
-                setGain(ROLL_RATE, KI, CMD_TO_FLOAT(cmd->data));
-                break;
-            case SET_YAW_KI_GAIN:
-                setGain(YAW_RATE, KI, CMD_TO_FLOAT(cmd->data));
-                break;
-            case SET_HEADING_KD_GAIN:
-                setGain(HEADING, KD, CMD_TO_FLOAT(cmd->data));
-                break;
-            case SET_HEADING_KP_GAIN:
+            case SET_HEADING_GAIN:
                 setGain(HEADING, KP, CMD_TO_FLOAT(cmd->data));
                 break;
-            case SET_HEADING_KI_GAIN:
-                setGain(HEADING, KI, CMD_TO_FLOAT(cmd->data));
-                break;
-            case SET_ALTITUDE_KD_GAIN:
-                setGain(ALTITUDE, KD, CMD_TO_FLOAT(cmd->data));
-                break;
-            case SET_ALTITUDE_KP_GAIN:
+            case SET_ALTITUDE_GAIN:
                 setGain(ALTITUDE, KP, CMD_TO_FLOAT(cmd->data));
                 break;
-            case SET_ALTITUDE_KI_GAIN:
-                setGain(ALTITUDE, KI, CMD_TO_FLOAT(cmd->data));
+            case SET_GROUND_SPEED_GAIN:
+                setGain(GSPEED, KP, CMD_TO_FLOAT(cmd->data));
                 break;
-            case SET_THROTTLE_KD_GAIN:
-                //setGain(THROTTLE, KD, *(float*)(&cmd->data));
-                break;
-            case SET_THROTTLE_KP_GAIN:
-                //setGain(THROTTLE, KP, *(float*)(&cmd->data));
-                break;
-            case SET_THROTTLE_KI_GAIN:
-                //setGain(THROTTLE, KI, *(float*)(&cmd->data));
-                break;
-
             case SET_PATH_GAIN:
                 interchip_send_buffer.am_data.pathGain = CMD_TO_FLOAT(cmd->data);
                 interchip_send_buffer.am_data.command = PM_SET_PATH_GAIN;
@@ -549,9 +489,6 @@ void readDatalink(void){
                 interchip_send_buffer.am_data.orbitGain = CMD_TO_FLOAT(cmd->data);
                 interchip_send_buffer.am_data.command = PM_SET_ORBIT_GAIN;
                 sendInterchipData();
-                break;
-            case SHOW_GAIN:
-                displayGain = *cmd->data;
                 break;
             case SET_PITCH_RATE:
                 input_GS_PitchRate = CMD_TO_INT(cmd->data);
@@ -693,24 +630,32 @@ void readDatalink(void){
                 break;
             case SET_IMU:
                 setVNOrientationMatrix(CMD_TO_FLOAT_ARRAY(cmd->data));
+                break;    
+            case SET_ROLL_RATE_GAINS:
+                setGain(ROLL_RATE, KP, CMD_TO_FLOAT(cmd->data));
+                setGain(ROLL_RATE, KD, CMD_TO_FLOAT(cmd->data + 4));
+                setGain(ROLL_RATE, KI, CMD_TO_FLOAT(cmd->data + 8));
                 break;
-            case SET_KDVALUES:
-                setKValues(KD, CMD_TO_FLOAT_ARRAY(cmd->data));
+            case SET_PITCH_RATE_GAINS:
+                setGain(PITCH_RATE, KP, CMD_TO_FLOAT(cmd->data));
+                setGain(PITCH_RATE, KD, CMD_TO_FLOAT(cmd->data + 4));
+                setGain(PITCH_RATE, KI, CMD_TO_FLOAT(cmd->data + 8));
                 break;
-            case SET_KPVALUES:
-                setKValues(KP, CMD_TO_FLOAT_ARRAY(cmd->data));
+            case SET_YAW_RATE_GAINS:
+                setGain(YAW_RATE, KP, CMD_TO_FLOAT(cmd->data));
+                setGain(YAW_RATE, KD, CMD_TO_FLOAT(cmd->data + 4));
+                setGain(YAW_RATE, KI, CMD_TO_FLOAT(cmd->data + 8));
                 break;
-            case SET_KIVALUES:
-                setKValues(KI, CMD_TO_FLOAT_ARRAY(cmd->data));
+            case SET_ROLL_ANGLE_GAINS:
+                setGain(ROLL_ANGLE, KP, CMD_TO_FLOAT(cmd->data));
+                setGain(ROLL_ANGLE, KD, CMD_TO_FLOAT(cmd->data + 4));
+                setGain(ROLL_ANGLE, KI, CMD_TO_FLOAT(cmd->data + 8));
                 break;
-            case SET_GAINS:
-            {
-                char channel = cmd->data[0];
-                //We're making the rest of the data word aligned here, which is required for casting it to floats
-                memcpy(cmd->data, cmd->data + 1, cmd->data_length - 1);
-                setGains(channel, CMD_TO_FLOAT_ARRAY(cmd->data));
+            case SET_PITCH_ANGLE_GAINS:
+                setGain(PITCH_ANGLE, KP, CMD_TO_FLOAT(cmd->data));
+                setGain(PITCH_ANGLE, KD, CMD_TO_FLOAT(cmd->data + 4));
+                setGain(PITCH_ANGLE, KI, CMD_TO_FLOAT(cmd->data + 8));
                 break;
-            }
             default:
                 break;
         }
