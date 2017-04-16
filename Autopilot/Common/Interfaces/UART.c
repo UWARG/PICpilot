@@ -8,7 +8,7 @@
 
 #include "UART.h"
 #include <p33FJ256GP710A.h>
-#include "../clock.h"
+#include "../Clock/Clock.h"
 #include "../Utilities/ByteQueue.h"
 #include <stdint.h>
 

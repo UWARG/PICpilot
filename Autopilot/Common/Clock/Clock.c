@@ -5,8 +5,8 @@
  *
  * Created on September 8, 2015, 11:16 PM
  */
-#include "../AttitudeManager/main.h"
-#include "clock.h"
+#include "./Clock.h"
+#include <p33FJ256GP710A.h>
 
 void useFRCPLLClock(){
     // Configure PLL prescaler, PLL postscaler, PLL divisor

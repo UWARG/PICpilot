@@ -8,7 +8,7 @@
 
 #include <p33FJ256GP710A.h>
 #include "SPI.h"
-#include "../clock.h"
+#include "../Clock/Clock.h"
 
 typedef void (*func_ptr)(void); // this is a bad idea
 

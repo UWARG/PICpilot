@@ -7,6 +7,7 @@
  */
 
 #include "PID.h"
+#include "../Common/Clock/Timer.h"
 
 /**
  * Filtering constant for derivative. Between 0 and 1.

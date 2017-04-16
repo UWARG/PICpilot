@@ -18,7 +18,7 @@
 #include "StartupErrorCodes.h"
 
 #include "AttitudeManager.h"
-#include "../Common/clock.h"
+#include "../Common/Clock/Clock.h"
 #include "../Common/Utilities/Logger.h"
 #include "delay.h"
 
