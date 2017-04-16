@@ -35,7 +35,7 @@
 /**
  * SPI frequency of the channel in khz
  */
-#define DMA_CLOCK_KHZ 40000
+#define DMA_CLOCK_KHZ 40000 //40Mhz
 
 /**
  * Data that the path manager sends to the attitude manager. Note that its
@@ -74,7 +74,6 @@ typedef struct {
     float calibrationHeight;
     char command;
     char followPath;
-    char padding[17];
 } AMData;
 
 typedef union{

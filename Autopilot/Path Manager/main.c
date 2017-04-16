@@ -17,7 +17,7 @@
 #include "main.h"
 #include "StartupErrorCodes.h"
 #include "PathManager.h"
-#include "../Common/clock.h"
+#include "../Common/Clock/Clock.h"
 #include "../Common/Utilities/Logger.h"
 
 /*
