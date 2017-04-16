@@ -23,8 +23,8 @@ static uint8_t chip;
 static volatile uint16_t dma_error_count = 0;
 
 //allocate specific space that the DMA controller can write to. Add a byte for the checksum
-static uint8_t dma0_space[(sizeof(DMADataBuffer) + 1)*2] __attribute__((space(dma)));
-static uint8_t dma1_space[(sizeof(DMADataBuffer) + 1)*2] __attribute__((space(dma)));
+static uint8_t dma0_space[sizeof(DMADataBuffer) + 1] __attribute__((space(dma)));
+static uint8_t dma1_space[sizeof(DMADataBuffer) + 1] __attribute__((space(dma)));
 
 static void initDMA0(uint8_t chip_id);
 static void initDMA1(uint8_t chip_id);

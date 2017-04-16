@@ -20,3 +20,6 @@
 //                  heading for the aircraft to follow.
 
 #define GPS_OLD 1 //1 Being the Old GPS (Uses SPI), and 0 Being the New GPS (Uses UART)
+
+/** How often the path manager will send/request data from the attitude manager via DMA */
+#define INTERCHIP_SEND_INTERVAL_US 10000
