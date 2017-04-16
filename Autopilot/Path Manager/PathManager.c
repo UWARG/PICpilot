@@ -160,7 +160,7 @@ void pathManagerRuntime(void) {
         lastKnownHeadingHome = calculateHeadingHome(home, (float*)position, heading);
     }
     
-    if (getTimeUs() - interchip_last_send_time >= 5000000){
+    if (getTimeUs() - interchip_last_send_time >= INTERCHIP_SEND_INTERVAL_US){
         interchip_last_send_time = getTimeUs();
         sendInterchipData();
     }
@@ -636,6 +636,7 @@ unsigned int insertPathNode(PathData* node, unsigned int previousID, unsigned in
 void copyGPSData(){
     if (newGPSDataAvailable && gpsErrorCheck(gpsData.latitude, gpsData.longitude)){
         newGPSDataAvailable = 0;
+        
         interchip_send_buffer.pm_data.time = gpsData.time;
         interchip_send_buffer.pm_data.longitude = gpsData.longitude;
         interchip_send_buffer.pm_data.latitude = gpsData.latitude;
