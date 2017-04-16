@@ -454,12 +454,13 @@ int coordinatedTurn(float pitchRate, int rollAngle){
 uint8_t getControlValue(CtrlType type) {
     return (controlLevel & ctrl_mask[type]) >> type;
 }
+int count = 0;
 
 void readDatalink(void){
     struct DatalinkCommand* cmd = popDatalinkCommand();
-  
     interchip_send_buffer.am_data.waypoint.altitude = 43.3424;
     sendInterchipData();
+    
     
     //TODO: Add rudimentary input validation
     if ( cmd ) {
