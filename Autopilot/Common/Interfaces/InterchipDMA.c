@@ -9,7 +9,6 @@
 #include "InterchipDMA.h"
 #include "../Common.h"
 #include <stdbool.h>
-#include "../Utilities/Logger.h"
 
 volatile DMADataBuffer interchip_send_buffer;
 volatile DMADataBuffer interchip_receive_buffer;
@@ -24,8 +23,8 @@ static uint8_t chip;
 static volatile uint16_t dma_error_count = 0;
 
 //allocate specific space that the DMA controller can write to. Add a byte for the checksum
-static uint8_t dma0_space[sizeof(DMADataBuffer) + 1] __attribute__((space(dma)));
-static uint8_t dma1_space[sizeof(DMADataBuffer) + 1] __attribute__((space(dma)));
+static uint8_t dma0_space[(sizeof(DMADataBuffer) + 1)*2] __attribute__((space(dma)));
+static uint8_t dma1_space[(sizeof(DMADataBuffer) + 1)*2] __attribute__((space(dma)));
 
 static void initDMA0(uint8_t chip_id);
 static void initDMA1(uint8_t chip_id);
@@ -69,7 +68,6 @@ void sendInterchipData(){
                 ((uint8_t*)(&dma1_space))[i] = ((uint8_t*)(&interchip_send_buffer.pm_data))[i];
                 checksum += ((uint8_t*)(&interchip_send_buffer.pm_data))[i] + i;
             }
-               
             break;
         default:
             break;
@@ -77,7 +75,7 @@ void sendInterchipData(){
     
     //add the checksum to the end of the payload
     ((uint8_t*)(&dma1_space))[i] = checksum;
-    
+          
     //trigger a DMA send
     DMA1CONbits.CHEN = 1;
     DMA1REQbits.FORCE = 1;
@@ -159,15 +157,11 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
         default:
             break;
     }
-
+    
     if (checksum == ((uint8_t*)(&dma0_space))[i]){
         is_dma_available = true;
-        info("Good packet");
-        debugArray((uint8_t*)(&dma0_space), sizeof(dma0_space));
     } else if (!empty_data){ //if we got a failed checksum with non-empty data, add to the error count
         dma_error_count++;
-        error("Error recieved:");
-        debugArray((uint8_t*)(&dma0_space), sizeof(dma0_space));
     }
     
     IFS0bits.DMA0IF = 0; //clear the interrupt flag

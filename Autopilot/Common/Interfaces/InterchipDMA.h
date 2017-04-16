@@ -74,6 +74,7 @@ typedef struct {
     float calibrationHeight;
     char command;
     char followPath;
+    char padding[17];
 } AMData;
 
 typedef union{
