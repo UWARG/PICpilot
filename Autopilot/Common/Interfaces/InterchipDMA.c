@@ -23,8 +23,8 @@ static uint8_t chip;
 static volatile uint16_t dma_error_count = 0;
 
 //allocate specific space that the DMA controller can write to. Add a byte for the checksum
-static uint8_t dma0_space[sizeof(DMADataBuffer) + 1] __attribute__((space(dma)));
-static uint8_t dma1_space[sizeof(DMADataBuffer) + 1] __attribute__((space(dma)));
+static volatile uint8_t dma0_space[sizeof(DMADataBuffer) + 1] __attribute__((space(dma)));
+static volatile uint8_t dma1_space[sizeof(DMADataBuffer) + 1] __attribute__((space(dma)));
 
 static void initDMA0(uint8_t chip_id);
 static void initDMA1(uint8_t chip_id);
@@ -84,6 +84,7 @@ void sendInterchipData(){
 
 // receiving data
 static void initDMA0(uint8_t chip_id){
+    DMA0CONbits.CHEN = 0; //disable the channel for now
     IFS0bits.DMA0IF = 0;
     IEC0bits.DMA0IE = 1;
     IPC1bits.DMA0IP = 7; //Highest Priority
@@ -105,6 +106,7 @@ static void initDMA0(uint8_t chip_id){
 
 // sending data
 static void initDMA1(uint8_t chip_id){
+    DMA1CONbits.CHEN = 0; //disable the channel for now
     IFS0bits.DMA1IF = 0;
     IEC0bits.DMA1IE = 1;
     IPC3bits.DMA1IP = 7;
@@ -143,7 +145,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
     bool empty_data = true;
     
     switch(chip){
-        case DMA_CHIP_ID_ATTITUDE_MANAGER:
+        case DMA_CHIP_ID_ATTITUDE_MANAGER:                
             for (i = 0; i < sizeof(PMData); i++){ //go through all the bytes, including the checksum
                 ((uint8_t*)(&interchip_receive_buffer.pm_data))[i] = ((uint8_t*)(&dma0_space))[i];
                 checksum += ((uint8_t*)(&dma0_space))[i] + i;
@@ -164,8 +166,6 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
             break;
     }
     
-    debug("Received");
-    debugArray((uint8_t*)(&dma0_space), sizeof(dma0_space));
     if (checksum == ((uint8_t*)(&dma0_space))[i]){
         is_dma_available = true;
     } else if (!empty_data){ //if we got a failed checksum with non-empty data, add to the error count
