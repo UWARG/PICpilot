@@ -159,15 +159,15 @@ void pathManagerRuntime(void) {
     }
     char buffer[40];
     if (newInterchipData()){
-        debugArray((uint8_t*)&interchip_receive_buffer,sizeof(interchip_receive_buffer));
         sprintf(buffer, "alt %f errors:%u", interchip_receive_buffer.am_data.waypoint.altitude, getInterchipErrorCount());
         debug(buffer);
+        
     }
-    //trigger the dma send here
+    
     counter++;
-    if (counter == 50){
-        sendInterchipData();
-        counter = 0;
+    if (counter == 250){
+       sendInterchipData();
+       counter = 0;
     }
 }
 
