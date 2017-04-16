@@ -53,7 +53,6 @@ uint16_t getInterchipErrorCount(){
 void sendInterchipData(){
     uint16_t i = 0;
     uint8_t checksum = 0;
-        
     switch(chip){
         case DMA_CHIP_ID_ATTITUDE_MANAGER:
             //copy all the bytes to the dma space to send over
@@ -67,7 +66,7 @@ void sendInterchipData(){
             for (i = 0; i < sizeof(PMData); i++){
                 ((uint8_t*)(&dma1_space))[i] = ((uint8_t*)(&interchip_send_buffer.pm_data))[i];
                 checksum += ((uint8_t*)(&interchip_send_buffer.pm_data))[i] + i;
-            }
+            }                                                                  
             break;
         default:
             break;
@@ -75,10 +74,12 @@ void sendInterchipData(){
     
     //add the checksum to the end of the payload
     ((uint8_t*)(&dma1_space))[i] = checksum;
-          
-    //trigger a DMA send
-    DMA1CONbits.CHEN = 1;
-    DMA1REQbits.FORCE = 1;
+    
+    if (chip == DMA_CHIP_ID_PATH_MANAGER){
+        //trigger a DMA send
+        DMA1CONbits.CHEN = 1;
+        DMA1REQbits.FORCE = 1;
+    }
 }
 
 // receiving data
@@ -112,7 +113,12 @@ static void initDMA1(uint8_t chip_id){
     DMA1CONbits.DIR = 1; //Transfer from DSPRAM to SPI
     DMA1CONbits.AMODE = 0b00; //With post increment mode
     
-    DMA1CONbits.MODE = 0b01; //One shot transfer, ping pong mode disabled
+    if (chip_id == DMA_CHIP_ID_PATH_MANAGER){
+        DMA1CONbits.MODE = 0b01; //One shot transfer, ping pong mode disabled
+    } else {
+        DMA1CONbits.MODE = 0b00; //continuous transfer mode, ping pong disabled
+    }
+    
     DMA1CONbits.SIZE = 1; //Transfer byte (8 bits)
     DMA0CONbits.HALF = 0; //Initiate dma interrupt when all of the data has been moved
     
@@ -158,6 +164,8 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
             break;
     }
     
+    debug("Received");
+    debugArray((uint8_t*)(&dma0_space), sizeof(dma0_space));
     if (checksum == ((uint8_t*)(&dma0_space))[i]){
         is_dma_available = true;
     } else if (!empty_data){ //if we got a failed checksum with non-empty data, add to the error count

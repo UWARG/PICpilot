@@ -160,7 +160,7 @@ void pathManagerRuntime(void) {
         lastKnownHeadingHome = calculateHeadingHome(home, (float*)position, heading);
     }
     
-    if (getTimeUs() - interchip_last_send_time >= INTERCHIP_SEND_INTERVAL_US){
+    if (getTimeUs() - interchip_last_send_time >= 5000000){
         interchip_last_send_time = getTimeUs();
         sendInterchipData();
     }
