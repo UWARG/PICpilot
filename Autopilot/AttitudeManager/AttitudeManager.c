@@ -22,6 +22,7 @@
 #include "Drivers/Radio.h"
 #include "Peripherals/UHF.h"
 #include "../Common/Interfaces/InterchipDMA.h"
+#include "../Common/Clock/Timer.h"
 #include <string.h>
 
 int input_RC_Flap; // Flaps need to finish being refactored.
@@ -176,7 +177,7 @@ void attitudeInit() {
     setProgramStatus(MAIN_EXECUTION);
 }
 
-char checkDMA(){   
+char checkDMA(){
         gps_Time = interchip_receive_buffer.pm_data.time;
         input_AP_Altitude = interchip_receive_buffer.pm_data.sp_Altitude;
         gps_Satellites = interchip_receive_buffer.pm_data.satellites;
@@ -458,10 +459,7 @@ int count = 0;
 
 void readDatalink(void){
     struct DatalinkCommand* cmd = popDatalinkCommand();
-    interchip_send_buffer.am_data.waypoint.altitude = 43.3424;
-    sendInterchipData();
-    
-    
+   
     //TODO: Add rudimentary input validation
     if ( cmd ) {
         if (lastCommandSentCode[lastCommandCounter]/100 == cmd->cmd){

@@ -14,6 +14,7 @@
 #include "../Common/Interfaces/InterchipDMA.h"
 #include "Drivers/Radio.h"
 #include "ProgramStatus.h"
+#include "../Common/Clock/Timer.h"
 
 //State Machine Triggers (Mostly Timers)
 static int dmaTimer = 0;
@@ -28,7 +29,14 @@ static int dTime = 0;
 static char AMUpdate = 0;
 static char flightUpdate = 0;
 
+static int last_time = 0;
+int counter = 0;
 void StateMachine(char entryLocation){
+    if (getTime() - last_time > 1000){
+        counter++;
+        debugInt("time", counter);
+        last_time = getTime();
+    }
     //Timers
     dTime = (int)(getTime() - stateMachineTimer);
     stateMachineTimer += dTime;

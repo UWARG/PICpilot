@@ -5,7 +5,7 @@
 #include "PWM.h"
 #include "OutputCompare.h"
 #include "InputCapture.h"
-#include "timer.h"
+#include "../Common/Clock/Timer.h"
 
 /**
  * Initial scale factors used for scaling the RC inputs to the MIN_PWM - MAX_PWM range,
