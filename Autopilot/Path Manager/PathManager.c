@@ -165,7 +165,7 @@ void pathManagerRuntime(void) {
     }
     //trigger the dma send here
     counter++;
-    if (counter == 2500){
+    if (counter == 50){
         sendInterchipData();
         counter = 0;
     }

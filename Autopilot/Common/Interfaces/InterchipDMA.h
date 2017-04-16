@@ -35,7 +35,7 @@
 /**
  * SPI frequency of the channel in khz
  */
-#define DMA_CLOCK_KHZ 2500
+#define DMA_CLOCK_KHZ 40000
 
 /**
  * Data that the path manager sends to the attitude manager. Note that its
