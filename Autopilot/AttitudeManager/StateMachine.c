@@ -29,14 +29,7 @@ static int dTime = 0;
 static char AMUpdate = 0;
 static char flightUpdate = 0;
 
-static int last_time = 0;
-int counter = 0;
 void StateMachine(char entryLocation){
-    if (getTime() - last_time > 1000){
-        counter++;
-        debugInt("time", counter);
-        last_time = getTime();
-    }
     //Timers
     dTime = (int)(getTime() - stateMachineTimer);
     stateMachineTimer += dTime;
