@@ -29,17 +29,7 @@ static int dTime = 0;
 static char AMUpdate = 0;
 static char flightUpdate = 0;
 
-static uint32_t dma_time = 0;
-
 void StateMachine(char entryLocation){
-    if (dma_time - getTime() > 1000){
-        interchip_send_buffer.am_data.waypoint.altitude = 434.343;
-        sendInterchipData();
-        dma_time = getTime();
-    }
-    
-    
-    //Timers
     dTime = (int)(getTime() - stateMachineTimer);
     stateMachineTimer += dTime;
     uplinkTimer += dTime;
