@@ -64,16 +64,6 @@ void pathManagerInit(void) {
     initMainBatterySensor();
     initAirspeedSensor();
 
-
-    //Interchip Communication
-    //Initialize Interchip Interrupts for Use in DMA Reset
-    //Set opposite Input / Output Configuration on the AttitudeManager
-    TRISAbits.TRISA12 = 0;  //Init RA12 as Output (0)
-    TRISAbits.TRISA13 = 0;  //Init RA13 as Output (0)
-
-    TRISBbits.TRISB4 = 1;   //Init RB4 as Input (1)
-    TRISBbits.TRISB5 = 1;   //Init RB5 as Input (1)
-
     initSPI(IC_DMA_PORT, DMA_CLOCK_KHZ, SPI_MODE1, SPI_BYTE, SPI_MASTER);
     initInterchip(DMA_CHIP_ID_PATH_MANAGER);
 
