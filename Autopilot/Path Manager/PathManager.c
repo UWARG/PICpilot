@@ -74,8 +74,8 @@ void pathManagerInit(void) {
     TRISBbits.TRISB4 = 1;   //Init RB4 as Input (1)
     TRISBbits.TRISB5 = 1;   //Init RB5 as Input (1)
 
-    initInterchip(DMA_CHIP_ID_PATH_MANAGER);
     initSPI(IC_DMA_PORT, DMA_CLOCK_KHZ, SPI_MODE1, SPI_BYTE, SPI_MASTER);
+    initInterchip(DMA_CHIP_ID_PATH_MANAGER);
 
     //Communication with Altimeter
     if (initAltimeter()){

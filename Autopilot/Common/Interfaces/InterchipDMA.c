@@ -30,6 +30,8 @@ static void initDMA0(uint8_t chip_id);
 static void initDMA1(uint8_t chip_id);
 
 void initInterchip(uint8_t chip_id){
+     debugInt("space dma0: ", (int64_t)sizeof(dma0_space));
+     debugInt("space dma1:", (int64_t)sizeof(dma1_space));
     //some input validation
     if (chip_id == DMA_CHIP_ID_ATTITUDE_MANAGER || chip_id == DMA_CHIP_ID_PATH_MANAGER){
         chip = chip_id;
@@ -79,6 +81,9 @@ void sendInterchipData(){
         //trigger a DMA send
         DMA1CONbits.CHEN = 1;
         DMA1REQbits.FORCE = 1;
+    } else {
+        debug("Sending");
+        debugArray((uint8_t*)(&dma1_space), sizeof(dma1_space));
     }
 }
 
@@ -170,6 +175,9 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
         is_dma_available = true;
     } else if (!empty_data){ //if we got a failed checksum with non-empty data, add to the error count
         dma_error_count++;
+        debugArray((uint8_t*)(&dma0_space), sizeof(dma0_space));
+    } else{
+        debug("empty");
     }
     
     IFS0bits.DMA0IF = 0; //clear the interrupt flag

@@ -130,8 +130,9 @@ void attitudeInit() {
     //Initialize Timer
     initTimer4();
     
-    initInterchip(DMA_CHIP_ID_ATTITUDE_MANAGER);
+    
     initSPI(IC_DMA_PORT, 0, SPI_MODE1, SPI_BYTE, SPI_SLAVE);
+    initInterchip(DMA_CHIP_ID_ATTITUDE_MANAGER);
     
     /* Initialize Input Capture and Output Compare Modules */
 #if DEBUG
