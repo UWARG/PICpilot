@@ -38,13 +38,13 @@ int main(int argc, char** argv) {
 
     useFRCPLLClock();
 
-    // Init intercom pins as digital pins
-    AD1PCFGHbits.PCFG20 = 1;
-    AD1PCFGHbits.PCFG21 = 1;
-    AD1PCFGLbits.PCFG4 = 1;
-    AD1PCFGLbits.PCFG5 = 1;
-    AD2PCFGLbits.PCFG4 = 1;
-    AD2PCFGLbits.PCFG5 = 1;
+//    // Init intercom pins as digital pins
+//    AD1PCFGHbits.PCFG20 = 1;
+//    AD1PCFGHbits.PCFG21 = 1;
+//    AD1PCFGLbits.PCFG4 = 1;
+//    AD1PCFGLbits.PCFG5 = 1;
+//    AD2PCFGLbits.PCFG4 = 1;
+//    AD2PCFGLbits.PCFG5 = 1;
     
 //Debug Mode initialize communication with the serial port (Computer)
 #if DEBUG

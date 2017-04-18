@@ -23,8 +23,8 @@ static uint8_t chip;
 static volatile uint16_t dma_error_count = 0;
 
 //allocate specific space that the DMA controller can write to. Add a byte for the checksum
-static volatile uint8_t dma0_space[sizeof(DMADataBuffer) + 1] __attribute__((space(dma)));
-static volatile uint8_t dma1_space[sizeof(DMADataBuffer) + 1] __attribute__((space(dma)));
+static volatile uint8_t dma0_space[sizeof(DMADataBuffer) + 2] __attribute__((space(dma)));
+static volatile uint8_t dma1_space[sizeof(DMADataBuffer) + 2] __attribute__((space(dma)));
 
 static void initDMA0(uint8_t chip_id);
 static void initDMA1(uint8_t chip_id);
@@ -35,8 +35,10 @@ void initInterchip(uint8_t chip_id){
     //some input validation
     if (chip_id == DMA_CHIP_ID_ATTITUDE_MANAGER || chip_id == DMA_CHIP_ID_PATH_MANAGER){
         chip = chip_id;
+   
         initDMA0(chip);
         initDMA1(chip);
+
     }
 }
 
@@ -82,7 +84,6 @@ void sendInterchipData(){
         DMA1CONbits.CHEN = 1;
         DMA1REQbits.FORCE = 1;
     } else {
-        debug("Sending");
         debugArray((uint8_t*)(&dma1_space), sizeof(dma1_space));
     }
 }
@@ -158,11 +159,11 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
             break;
         case DMA_CHIP_ID_PATH_MANAGER:
             for (i = 0; i < sizeof(AMData); i++){ //go through all the bytes, including the checksum
-                ((uint8_t*)(&interchip_receive_buffer.am_data))[i] = ((uint8_t*)(&dma0_space))[i];
-                checksum += ((uint8_t*)(&dma0_space))[i] + i;
+                ((uint8_t*)(&interchip_receive_buffer.am_data))[i] = ((uint8_t*)(&dma0_space))[i + 1];
+                checksum += ((uint8_t*)(&dma0_space))[i + 1] + i;
                 
                 //its only acceptable for the path manager to receive empty data
-                if (((uint8_t*)(&dma0_space))[i] != 0){
+                if (((uint8_t*)(&dma0_space))[i + 1] != 0){
                     empty_data = false;
                 }
             }
@@ -171,7 +172,7 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
             break;
     }
     
-    if (checksum == ((uint8_t*)(&dma0_space))[i]){
+    if (checksum == ((uint8_t*)(&dma0_space))[i + 1]){
         is_dma_available = true;
     } else if (!empty_data){ //if we got a failed checksum with non-empty data, add to the error count
         dma_error_count++;
