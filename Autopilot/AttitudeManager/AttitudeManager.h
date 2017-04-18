@@ -149,7 +149,7 @@ void readDatalink(void);
  * Output:  An error code indicating if the data was added to the queue successfully.
  *
  *****************************************************************************/
-bool writeDatalink(p_priority packet);
+bool writeDatalink(PacketType packet);
 
 void checkHeartbeat();
 void checkGPS();

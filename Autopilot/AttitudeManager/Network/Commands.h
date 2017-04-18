@@ -70,7 +70,7 @@ typedef const enum {
     SET_YAW_RATE_GAINS = 139,
     SET_ROLL_ANGLE_GAINS = 140,
     SET_PITCH_ANGLE_GAINS = 141,
-} COMMAND_TYPE;
+} CommandType;
 
 
 /**
