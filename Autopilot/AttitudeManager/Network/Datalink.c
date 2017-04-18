@@ -73,16 +73,6 @@ void freeDatalinkCommand(DatalinkCommand* to_destroy){
     free(to_destroy);
 }
 
-TelemetryBlock* createTelemetryBlock(p_priority packet) {
-    TelemetryBlock* telem = malloc(sizeof(TelemetryBlock));
-    
-    if (telem != NULL){
-        telem->type = (uint8_t)packet;
-    }
- 
-    return telem;
-}
-
 bool queueTelemetryBlock(TelemetryBlock* telem) {
     return queueDownlinkPacket((uint8_t*)(telem), sizeof(TelemetryBlock));
 }

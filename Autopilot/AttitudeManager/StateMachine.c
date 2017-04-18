@@ -19,9 +19,9 @@
 //State Machine Triggers (Mostly Timers)
 static int dmaTimer = 0;
 static int uplinkTimer = 0;
-static int downlinkP0Timer = 0;
-static int downlinkP1Timer = 0;
-static int downlinkP2Timer = 0;
+static int downlinkPositionTimer = 0;
+static int downlinkStatusTimer = 0;
+static int downlinkChannelsTimer = 0;
 static int imuTimer = 0;
 static long int stateMachineTimer = 0;
 static int dTime = 0;
@@ -33,9 +33,9 @@ void StateMachine(char entryLocation){
     dTime = (int)(getTime() - stateMachineTimer);
     stateMachineTimer += dTime;
     uplinkTimer += dTime;
-    downlinkP0Timer += dTime;
-    downlinkP1Timer += dTime;
-    downlinkP2Timer += dTime;
+    downlinkPositionTimer += dTime;
+    downlinkStatusTimer += dTime;
+    downlinkChannelsTimer += dTime;
     imuTimer += dTime;
     dmaTimer += dTime;
 
@@ -82,28 +82,21 @@ void StateMachine(char entryLocation){
         readDatalink();
     }
 
-    if(P0_SEND_FREQUENCY <= downlinkP0Timer){
-        //debug("P0");
-        //Compile and send data
-        downlinkP0Timer = 0;
-        writeDatalink(PRIORITY0);
+    if(POSITION_SEND_FREQUENCY <= downlinkPositionTimer){
+        downlinkPositionTimer = 0;
+        writeDatalink(PACKET_TYPE_POSITION);
     }
-    else if(P1_SEND_FREQUENCY <= downlinkP1Timer){
-        //debug("P1");
-        //Compile and send data
-        downlinkP1Timer = 0;
-        writeDatalink(PRIORITY1);
+    else if(STATUS_SEND_FREQUENCY <= downlinkStatusTimer){
+        downlinkStatusTimer = 0;
+        writeDatalink(PACKET_TYPE_STATUS);
     }
-    else if(P2_SEND_FREQUENCY <= downlinkP2Timer || areGainsUpdated()){
-        //debug("P2");
-        //Compile and send data
-        downlinkP2Timer = 0;
-        writeDatalink(PRIORITY2);
+    else if(CHANNELS_SEND_FREQUENCY <= downlinkChannelsTimer){
+        downlinkChannelsTimer = 0;
+        writeDatalink(PACKET_TYPE_CHANNELS);
+    } else if (areGainsUpdated()){
+        writeDatalink(PACKET_TYPE_GAINS);
     }
-    else{
-        //Then Sleep
-    }
-    //Loop it back again!
+    
     parseDatalinkBuffer(); //read any incoming data from the Xbee and put in buffer
     sendQueuedDownlinkPacket(); //send any outgoing info
     
