@@ -30,6 +30,10 @@ static char AMUpdate = 0;
 static char flightUpdate = 0;
 
 void StateMachine(char entryLocation){
+    
+    interchip_send_buffer.am_data.waypoint.altitude = 433;
+    sendInterchipData();
+    
     dTime = (int)(getTime() - stateMachineTimer);
     stateMachineTimer += dTime;
     uplinkTimer += dTime;
