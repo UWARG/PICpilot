@@ -62,14 +62,14 @@ void sendInterchipData()
     case DMA_CHIP_ID_ATTITUDE_MANAGER:
         //copy all the bytes to the dma space to send over
         for (i = 0; i < sizeof(AMData); i++) {
-            ((uint8_t*) (&dma1_space))[i] = ((uint8_t*) (&interchip_send_buffer.am_data))[i];
+            dma1_space[i] = ((uint8_t*) (&interchip_send_buffer.am_data))[i];
             checksum += ((uint8_t*) (&interchip_send_buffer.am_data))[i] + i;
         }
         break;
     case DMA_CHIP_ID_PATH_MANAGER:
         //copy all the bytes to the dma space to send over
         for (i = 0; i < sizeof(PMData); i++) {
-            ((uint8_t*) (&dma1_space))[i] = ((uint8_t*) (&interchip_send_buffer.pm_data))[i];
+            dma1_space[i] = ((uint8_t*) (&interchip_send_buffer.pm_data))[i];
             checksum += ((uint8_t*) (&interchip_send_buffer.pm_data))[i] + i;
         }
         break;
@@ -78,7 +78,7 @@ void sendInterchipData()
     }
 
     //add the checksum to the end of the payload
-    ((uint8_t*) (&dma1_space))[i] = checksum;
+    dma1_space[i] = checksum;
 
     if (chip == DMA_CHIP_ID_PATH_MANAGER) {
         //trigger a DMA send
@@ -157,11 +157,11 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void)
     switch (chip) {
     case DMA_CHIP_ID_ATTITUDE_MANAGER:
         for (i = 0; i < sizeof(PMData); i++) { //go through all the bytes, including the checksum
-            ((uint8_t*) (&interchip_receive_buffer.pm_data))[i] = ((uint8_t*) (&dma0_space))[i];
-            checksum += ((uint8_t*) (&dma0_space))[i] + i;
+            ((uint8_t*) (&interchip_receive_buffer.pm_data))[i] = dma0_space[i];
+            checksum += dma0_space[i] + i;
         }
 
-        if (checksum == ((uint8_t*) (&dma0_space))[i]) {
+        if (checksum == dma0_space[i]) {
             is_dma_available = true;
         } else {
             dma_error_count++;
@@ -170,16 +170,16 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void)
     case DMA_CHIP_ID_PATH_MANAGER:
         for (i = 0; i < sizeof(AMData); i++) { //go through all the bytes, including the checksum
             //we do i+1 here since the path manager gets a byte shift of 1 to the right when receiving data from path manager
-            ((uint8_t*) (&interchip_receive_buffer.am_data))[i] = ((uint8_t*) (&dma0_space))[i + 1];
-            checksum += ((uint8_t*) (&dma0_space))[i + 1] + i;
+            ((uint8_t*) (&interchip_receive_buffer.am_data))[i] = dma0_space[i + 1];
+            checksum += dma0_space[i + 1] + i;
 
             //its only acceptable for the path manager to receive empty data
-            if (((uint8_t*) (&dma0_space))[i + 1] != 0) {
+            if (dma0_space[i + 1] != 0) {
                 empty_data = false;
             }
         }
 
-        if (checksum == ((uint8_t*) (&dma0_space))[i + 1]) {
+        if (checksum == dma0_space[i + 1]) {
             is_dma_available = true;
         } else if (!empty_data) {
             dma_error_count++;
