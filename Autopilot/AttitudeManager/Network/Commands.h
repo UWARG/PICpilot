@@ -14,6 +14,7 @@ typedef const enum {
     SET_HEADING_GAIN = 1,
     SET_ALTITUDE_GAIN = 2,
     SET_GROUND_SPEED_GAIN = 3,
+    SHOW_GAINS = 4,
             
     //unused 15
             

@@ -116,6 +116,11 @@ int getFlapInput(char source);
 
 void imuCommunication();
 
+/**
+ * Whether the ground station operator has requested gains to be sent down
+ */
+bool showGains(void);
+
 int coordinatedTurn(float pitchRate, int rollAngle);
 
 uint8_t getControlValue(CtrlType type);
