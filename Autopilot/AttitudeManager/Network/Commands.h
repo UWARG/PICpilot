@@ -79,9 +79,9 @@ typedef const enum {
  * calling this or you'll get an OPCODE reset. ie. you cant cast a 3 byte array
  * into a 2 byte int if the starting index is 1
  */
-#define CMD_TO_INT(data) (*((int*)data))
-#define CMD_TO_FLOAT(data) (*((float*)data))
-#define CMD_TO_FLOAT_ARRAY(data) ((float*)data)
-#define CMD_TO_TYPE(data, type) (*((type*)data))
+#define CMD_TO_INT(data) (*((int*)(data)))
+#define CMD_TO_FLOAT(data) (*((float*)(data)))
+#define CMD_TO_FLOAT_ARRAY(data) ((float*)(data))
+#define CMD_TO_TYPE(data, type) (*((type*)(data)))
 
 #endif	/* COMMANDS_H */
