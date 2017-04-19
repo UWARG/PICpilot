@@ -93,7 +93,7 @@ void StateMachine(char entryLocation){
     else if(CHANNELS_SEND_FREQUENCY <= downlinkChannelsTimer){
         downlinkChannelsTimer = 0;
         writeDatalink(PACKET_TYPE_CHANNELS);
-    } else if (areGainsUpdated()){
+    } else if (areGainsUpdated() || showGains()){
         writeDatalink(PACKET_TYPE_GAINS);
     }
     

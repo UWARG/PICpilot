@@ -123,7 +123,8 @@ int controlLevel = 0;
 int lastCommandSentCode[COMMAND_HISTORY_SIZE];
 int lastCommandCounter = 0;
 
-char show_scaled_pwm = 1;
+static bool show_gains = false;
+static bool show_scaled_pwm = true;
 
 void attitudeInit() {
     setProgramStatus(INITIALIZATION);
@@ -452,13 +453,17 @@ uint8_t getControlValue(CtrlType type) {
     return (controlLevel & ctrl_mask[type]) >> type;
 }
 
+bool showGains(){
+    if (show_gains){
+        show_gains = false;
+        return true;
+    }
+    return show_gains;
+}
+
 void readDatalink(void){
     struct DatalinkCommand* cmd = popDatalinkCommand();
    
-    debugInt("position", sizeof(struct packet_type_position_block));
-    debugInt("status", sizeof(struct packet_type_status_block));
-    debugInt("gains", sizeof(struct packet_type_gain_block));
-    debugInt("channels", sizeof(struct packet_type_channels_block));
     //TODO: Add rudimentary input validation
     if ( cmd ) {
         if (lastCommandSentCode[lastCommandCounter]/100 == cmd->cmd){
@@ -483,6 +488,9 @@ void readDatalink(void){
                 break;
             case SET_GROUND_SPEED_GAIN:
                 setGain(GSPEED, KP, CMD_TO_FLOAT(cmd->data));
+                break;
+            case SHOW_GAINS:
+                show_gains = true;
                 break;
             case SET_PATH_GAIN:
                 interchip_send_buffer.am_data.pathGain = CMD_TO_FLOAT(cmd->data);
@@ -602,9 +610,9 @@ void readDatalink(void){
                 break;
             case SHOW_SCALED_PWM:
                 if (*cmd->data == 1){
-                    show_scaled_pwm = 1;
+                    show_scaled_pwm = true;
                 } else{
-                    show_scaled_pwm = 0;
+                    show_scaled_pwm = false;
                 }
                 break;
             case REMOVE_LIMITS:
