@@ -37,7 +37,7 @@ void initTimer4(){
     T4CONbits.TCKPS = 0b01; // Select 1:8 Prescaler
     T4CONbits.T32 = 0; //use as single 16-bit timer
     TMR4 = 0x00; // Clear timer register
-    PR4 = T4_TICKS_TO_MSEC; // Load the period value
+    PR4 = T4_TICKS_TO_USEC*1000; // Load the period value. Trigger every ms
     IPC6bits.T4IP = 0x01; // Set Timer 4 Interrupt Priority Level
     IFS1bits.T4IF = 0; // Clear Timer 4 Interrupt Flag
     IEC1bits.T4IE = 1; // Enable Timer 4 interrupt
@@ -57,5 +57,5 @@ uint32_t getTime(){
 }
 
 uint64_t getTimeUs(){
-    return ((uint64_t)time_ms)*1000 + TMR4;
+    return ((uint64_t)time_ms)*1000 + TMR4/T4_TICKS_TO_USEC;
 }
