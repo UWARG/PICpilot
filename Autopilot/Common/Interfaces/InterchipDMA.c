@@ -30,12 +30,9 @@ static void initDMA0(uint8_t chip_id);
 static void initDMA1(uint8_t chip_id);
 
 void initInterchip(uint8_t chip_id){
-     debugInt("space dma0: ", (int64_t)sizeof(dma0_space));
-     debugInt("space dma1:", (int64_t)sizeof(dma1_space));
     //some input validation
     if (chip_id == DMA_CHIP_ID_ATTITUDE_MANAGER || chip_id == DMA_CHIP_ID_PATH_MANAGER){
         chip = chip_id;
-   
         initDMA0(chip);
         initDMA1(chip);
 
@@ -83,8 +80,6 @@ void sendInterchipData(){
         //trigger a DMA send
         DMA1CONbits.CHEN = 1;
         DMA1REQbits.FORCE = 1;
-    } else {
-        debugArray((uint8_t*)(&dma1_space), sizeof(dma1_space));
     }
 }
 
@@ -151,15 +146,22 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
     bool empty_data = true;
     
     switch(chip){
-        case DMA_CHIP_ID_ATTITUDE_MANAGER:                
+        case DMA_CHIP_ID_ATTITUDE_MANAGER:
             for (i = 0; i < sizeof(PMData); i++){ //go through all the bytes, including the checksum
                 ((uint8_t*)(&interchip_receive_buffer.pm_data))[i] = ((uint8_t*)(&dma0_space))[i];
                 checksum += ((uint8_t*)(&dma0_space))[i] + i;
             }
+            
+            if (checksum == ((uint8_t*)(&dma0_space))[i]){
+                is_dma_available = true;
+            } else {
+                 dma_error_count++; 
+            }
             break;
         case DMA_CHIP_ID_PATH_MANAGER:
             for (i = 0; i < sizeof(AMData); i++){ //go through all the bytes, including the checksum
-                ((uint8_t*)(&interchip_receive_buffer.am_data))[i] = ((uint8_t*)(&dma0_space))[i + 1];
+                //we do i+1 here since the path manager gets a byte shift of 1 to the right when receiving data from path manager
+                ((uint8_t*)(&interchip_receive_buffer.am_data))[i] = ((uint8_t*)(&dma0_space))[i + 1]; 
                 checksum += ((uint8_t*)(&dma0_space))[i + 1] + i;
                 
                 //its only acceptable for the path manager to receive empty data
@@ -167,18 +169,15 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void){
                     empty_data = false;
                 }
             }
+            
+            if (checksum == ((uint8_t*)(&dma0_space))[i + 1]){
+                is_dma_available = true;
+            } else if (!empty_data){
+                dma_error_count++;
+            } //otherwise we received all zero's. Do nothing.
             break;
         default:
             break;
-    }
-    
-    if (checksum == ((uint8_t*)(&dma0_space))[i + 1]){
-        is_dma_available = true;
-    } else if (!empty_data){ //if we got a failed checksum with non-empty data, add to the error count
-        dma_error_count++;
-        debugArray((uint8_t*)(&dma0_space), sizeof(dma0_space));
-    } else{
-        debug("empty");
     }
     
     IFS0bits.DMA0IF = 0; //clear the interrupt flag
