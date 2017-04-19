@@ -8,23 +8,15 @@
 #ifndef AIRSPEEDSENSOR_H
 #define	AIRSPEEDSENSOR_H
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
-
 #define AIRSPEED_HISTORY 20
-
 
 //Function Prototypes
 //TODO: Add descriptions for each function
+void calibrateAirspeed();
 void initAirspeedSensor();
-//float timeRemaining();
+static float ADCConvert(float signal);
 float getCurrentAirspeed();
 void initAirspeedADC();
-
-#ifdef	__cplusplus
-}
-#endif
 
 #endif	/* AIRSPEEDSENSOR_H */
 
