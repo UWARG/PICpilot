@@ -4,7 +4,8 @@
  * @created February 2, 2014, 2:10 PM
  * @description
  * This file manages the initialization of the interchip DMA channel that piggy backs
- * off of the SPI1 interface. Default operation mode is one-shot mode. The path manager
+ * off of the SPI1 interface. Default operation mode is one-shot mode for the path manager
+ * transmit, and continuous mode for receival and attitude manager transmit. The path manager
  * is the master and attitude manager is the slave in the SPI bus.
  * 
  * DMA channel 0 is designated to receival of SPI messages, and DMA channel 1 is
@@ -42,22 +43,22 @@
  * vital that the last byte be the checksum byte!
  */
 typedef struct { // 60 Bytes
-    long double latitude;  // 8 Bytes - ddd.mmmmmm
+    long double latitude; // 8 Bytes - ddd.mmmmmm
     long double longitude; // 8 Bytes - ddd.mmmmmm
-    float time;     // 4 Bytes   -  hhmmss.ssss
-    float speed;    //KM/H
+    float time; // 4 Bytes   -  hhmmss.ssss
+    float speed; //KM/H
     float altitude;
     float airspeed;
     float pmPathGain;
     float pmOrbitGain;
     float waypointChecksum;
     int sp_Altitude; // Meters
-    int heading;  //Degrees
+    int heading; //Degrees
     int sp_Heading; //Degrees
     int batteryLevel1;
     int batteryLevel2;
-    char satellites;    //1 Byte
-    char positionFix;   //0 = No GPS, 1 = GPS fix, 2 = DGSP Fix
+    char satellites; //1 Byte
+    char positionFix; //0 = No GPS, 1 = GPS fix, 2 = DGSP Fix
     char targetWaypoint;
     char waypointCount;
     char pathFollowing;
@@ -76,7 +77,7 @@ typedef struct {
     char followPath;
 } AMData;
 
-typedef union{
+typedef union {
     PMData pm_data;
     AMData am_data;
 } InterchipDataBuffer;
@@ -122,4 +123,3 @@ void sendInterchipData(void);
 uint16_t getInterchipErrorCount(void);
 
 #endif
-

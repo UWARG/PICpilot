@@ -17,7 +17,7 @@
  * Whether to enable the logger. Disabling it will cause all the functions defined
  * in the module to do nothing
  */
-#define DEBUG 1
+#define DEBUG 0
 
 //Defines the usage of this chip. It may be one or multiple of the following roles:
 //  Path Manager - Communicates with the GPS in order to provide a constant
