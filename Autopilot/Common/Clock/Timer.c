@@ -5,7 +5,7 @@
  * Created on July 19, 2015, 8:07 PM
  */
 
-#include "./Timer.h"
+#include "Timer.h"
 #include <p33FJ256GP710A.h>
 
 static volatile uint32_t time_ms = 0;
