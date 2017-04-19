@@ -22,7 +22,8 @@ static uint8_t chip;
 /** To keep track of how many communication errors we get */
 static volatile uint16_t dma_error_count = 0;
 
-//allocate specific space that the DMA controller can write to. Add a byte for the checksum
+//allocate specific space that the DMA controller can write to. Add a byte for the checksum, 
+//and another to take into account the 1 byte shift that the path manager receives
 static volatile uint8_t dma0_space[sizeof(InterchipDataBuffer) + 2] __attribute__((space(dma)));
 static volatile uint8_t dma1_space[sizeof(InterchipDataBuffer) + 2] __attribute__((space(dma)));
 
