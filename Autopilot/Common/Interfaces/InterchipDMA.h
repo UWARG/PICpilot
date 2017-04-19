@@ -80,20 +80,20 @@ typedef struct {
 typedef union{
     PMData pm_data;
     AMData am_data;
-} DMADataBuffer;
+} InterchipDataBuffer;
 
 /**
  * Global send buffer. Attitude manager should write to the am_data field,
  * path manager should write to the pm_data field
  */
-extern volatile DMADataBuffer interchip_send_buffer;
+extern volatile InterchipDataBuffer interchip_send_buffer;
 
 /**
  * Global receive buffer. Attitude manager should read the pm_data field, path
  * manager should read the am_data field. Note that reads should only happen if
  * the isDMADataAvailable function returns true!
  */
-extern volatile DMADataBuffer interchip_receive_buffer;
+extern volatile InterchipDataBuffer interchip_receive_buffer;
 
 /**
  * Initializes all the DMA channels

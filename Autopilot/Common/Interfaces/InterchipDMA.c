@@ -10,8 +10,8 @@
 #include "../Common.h"
 #include <stdbool.h>
 
-volatile DMADataBuffer interchip_send_buffer;
-volatile DMADataBuffer interchip_receive_buffer;
+volatile InterchipDataBuffer interchip_send_buffer;
+volatile InterchipDataBuffer interchip_receive_buffer;
 
 /** To indicate to users that new data is available to read from */
 static volatile bool is_dma_available = 0;
@@ -23,8 +23,8 @@ static uint8_t chip;
 static volatile uint16_t dma_error_count = 0;
 
 //allocate specific space that the DMA controller can write to. Add a byte for the checksum
-static volatile uint8_t dma0_space[sizeof(DMADataBuffer) + 2] __attribute__((space(dma)));
-static volatile uint8_t dma1_space[sizeof(DMADataBuffer) + 2] __attribute__((space(dma)));
+static volatile uint8_t dma0_space[sizeof(InterchipDataBuffer) + 2] __attribute__((space(dma)));
+static volatile uint8_t dma1_space[sizeof(InterchipDataBuffer) + 2] __attribute__((space(dma)));
 
 static void initDMA0(uint8_t chip_id);
 static void initDMA1(uint8_t chip_id);
