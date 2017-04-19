@@ -677,7 +677,6 @@ void checkAMData(){
     if (!newInterchipData()){
         return;
     }
-    debugInt("error count", getInterchipErrorCount());
     switch (interchip_receive_buffer.am_data.command){
             case PM_DEBUG_TEST:
 //                UART1_SendString("Test");

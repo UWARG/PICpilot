@@ -56,8 +56,7 @@ void initSPI(uint8_t interface, uint16_t clock, spiMode mode, spiWidth width, sp
                 
         IFS0bits.SPI1IF = 0; //Clear interrupt flag
         IEC0bits.SPI1IE = 0; //Disable interrupt (so it doesnt mess with this initialization)
-        
-        SPI1BUF = 0; // clear buffer
+
 
         SPI1STATbits.SPISIDL = 0; // Continue module operation in idle mode
         SPI1STATbits.SPIROV = 0; // Clear receive overflow
@@ -115,8 +114,6 @@ void initSPI(uint8_t interface, uint16_t clock, spiMode mode, spiWidth width, sp
         
         IFS2bits.SPI2IF = 0; //Clear interrupt flag
         IEC2bits.SPI2IE = 0; //Disable interrupt (so it doesn't mess with initialization)
-        
-        SPI2BUF = 0; // clear buffer
         
         SPI2STATbits.SPISIDL = 0; //Continue module operation in idle mode
         SPI2STATbits.SPIROV = 0; // Clear receive overflow
