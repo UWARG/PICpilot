@@ -97,7 +97,7 @@ struct packet_type_status_block {
     uint8_t waypoint_count;
 };
 
-//80 bytes
+//92 bytes
 struct packet_type_gain_block{
     float roll_rate_kp, roll_rate_kd, roll_rate_ki;
     float pitch_rate_kp, pitch_rate_kd, pitch_rate_ki;
