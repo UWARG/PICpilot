@@ -730,6 +730,7 @@ bool writeDatalink(PacketType packet){
        
             statusData.data.status_block.program_state = getProgramStatus(); //TODO: modify this
             statusData.data.status_block.waypoint_index = waypointIndex;
+            statusData.data.status_block.waypoint_count = 0; //TODO: change this later
             break;
         case PACKET_TYPE_GAINS:
             statusData.data.gain_block.roll_rate_kp = getGain(ROLL_RATE, KP);
