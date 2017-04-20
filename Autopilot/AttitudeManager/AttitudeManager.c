@@ -463,6 +463,16 @@ bool showGains(){
     return show_gains;
 }
 
+/**
+ * @param channel
+ * @param gains Order in KP, KI, KD
+ */
+static void setGains(ControlChannel channel, float* gains){
+    setGain(channel, KP, gains[0]);
+    setGain(channel, KI, gains[1]);
+    setGain(channel, KD, gains[2]);    
+}
+
 void readDatalink(void){
     struct DatalinkCommand* cmd = popDatalinkCommand();
    
@@ -481,15 +491,6 @@ void readDatalink(void){
 #if DEBUG
                 debug( (char*) cmd->data);
 #endif
-                break;
-            case SET_HEADING_GAIN:
-                setGain(HEADING, KP, CMD_TO_FLOAT(cmd->data));
-                break;
-            case SET_ALTITUDE_GAIN:
-                setGain(ALTITUDE, KP, CMD_TO_FLOAT(cmd->data));
-                break;
-            case SET_GROUND_SPEED_GAIN:
-                setGain(GSPEED, KP, CMD_TO_FLOAT(cmd->data));
                 break;
             case SHOW_GAINS:
                 show_gains = true;
@@ -646,29 +647,28 @@ void readDatalink(void){
                 setVNOrientationMatrix(CMD_TO_FLOAT_ARRAY(cmd->data));
                 break;    
             case SET_ROLL_RATE_GAINS:
-                setGain(ROLL_RATE, KP, CMD_TO_FLOAT(cmd->data));
-                setGain(ROLL_RATE, KD, CMD_TO_FLOAT(cmd->data + 4));
-                setGain(ROLL_RATE, KI, CMD_TO_FLOAT(cmd->data + 8));
+                setGains(ROLL_RATE, CMD_TO_FLOAT_ARRAY(cmd->data));
                 break;
             case SET_PITCH_RATE_GAINS:
-                setGain(PITCH_RATE, KP, CMD_TO_FLOAT(cmd->data));
-                setGain(PITCH_RATE, KD, CMD_TO_FLOAT(cmd->data + 4));
-                setGain(PITCH_RATE, KI, CMD_TO_FLOAT(cmd->data + 8));
+                setGains(PITCH_RATE, CMD_TO_FLOAT_ARRAY(cmd->data));
                 break;
             case SET_YAW_RATE_GAINS:
-                setGain(YAW_RATE, KP, CMD_TO_FLOAT(cmd->data));
-                setGain(YAW_RATE, KD, CMD_TO_FLOAT(cmd->data + 4));
-                setGain(YAW_RATE, KI, CMD_TO_FLOAT(cmd->data + 8));
+                setGains(YAW_RATE, CMD_TO_FLOAT_ARRAY(cmd->data));
                 break;
             case SET_ROLL_ANGLE_GAINS:
-                setGain(ROLL_ANGLE, KP, CMD_TO_FLOAT(cmd->data));
-                setGain(ROLL_ANGLE, KD, CMD_TO_FLOAT(cmd->data + 4));
-                setGain(ROLL_ANGLE, KI, CMD_TO_FLOAT(cmd->data + 8));
+                setGains(ROLL_ANGLE, CMD_TO_FLOAT_ARRAY(cmd->data));
                 break;
             case SET_PITCH_ANGLE_GAINS:
-                setGain(PITCH_ANGLE, KP, CMD_TO_FLOAT(cmd->data));
-                setGain(PITCH_ANGLE, KD, CMD_TO_FLOAT(cmd->data + 4));
-                setGain(PITCH_ANGLE, KI, CMD_TO_FLOAT(cmd->data + 8));
+                setGains(PITCH_ANGLE, CMD_TO_FLOAT_ARRAY(cmd->data));
+                break;
+            case SET_HEADING_GAINS:
+                setGains(HEADING, CMD_TO_FLOAT_ARRAY(cmd->data));
+                break;
+            case SET_ALTITUDE_GAINS:
+                setGains(ALTITUDE, CMD_TO_FLOAT_ARRAY(cmd->data));
+                break;
+            case SET_GROUND_SPEED_GAINS:
+                setGains(GSPEED, CMD_TO_FLOAT_ARRAY(cmd->data));
                 break;
             default:
                 break;

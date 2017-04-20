@@ -11,10 +11,7 @@
 #define DEBUG_TEST 0
 
 typedef const enum {
-    SET_HEADING_GAIN = 1,
-    SET_ALTITUDE_GAIN = 2,
-    SET_GROUND_SPEED_GAIN = 3,
-    SHOW_GAINS = 4,
+    SHOW_GAINS = 1,
             
     //unused 15
             
@@ -71,6 +68,9 @@ typedef const enum {
     SET_YAW_RATE_GAINS = 139,
     SET_ROLL_ANGLE_GAINS = 140,
     SET_PITCH_ANGLE_GAINS = 141,
+    SET_HEADING_GAINS = 142,
+    SET_ALTITUDE_GAINS = 143,
+    SET_GROUND_SPEED_GAINS = 144
 } CommandType;
 
 
