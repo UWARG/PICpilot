@@ -123,6 +123,9 @@ int controlLevel = 0;
 int lastCommandSentCode[COMMAND_HISTORY_SIZE];
 int lastCommandCounter = 0;
 
+
+static uint16_t pm_interchip_error_count = 0;
+static uint16_t gps_communication_error_count = 0;
 static bool show_gains = false;
 static bool show_scaled_pwm = true;
 
@@ -168,9 +171,6 @@ void attitudeInit() {
     else{
         setSensorStatus(VECTORNAV, SENSOR_CONNECTED & FALSE);
     }
-#if DEBUG
-    debug("Datalink Initialized");
-#endif
     
     orientationInit();
     initDatalink();
@@ -208,6 +208,8 @@ char checkDMA(){
         gps_Longitude = interchip_receive_buffer.pm_data.longitude;
         gps_Latitude = interchip_receive_buffer.pm_data.latitude;
         gps_Altitude = interchip_receive_buffer.pm_data.altitude;
+        pm_interchip_error_count = interchip_receive_buffer.pm_data.interchip_error_count;
+        gps_communication_error_count = interchip_receive_buffer.pm_data.gps_communication_error_count;
 
         if (gps_PositionFix){
             input_AP_Heading = interchip_receive_buffer.pm_data.sp_Heading;
@@ -686,43 +688,48 @@ bool writeDatalink(PacketType packet){
         case PACKET_TYPE_POSITION:
             statusData.data.position_block.lat = getLatitude();
             statusData.data.position_block.lon = getLongitude();
-            statusData.data.position_block.sysTime = getTime();
-            statusData.data.position_block.UTC = gps_Time;
+            statusData.data.position_block.sys_time = getTime();
+            statusData.data.position_block.gps_time = gps_Time; //the utc time
             statusData.data.position_block.pitch = getPitch();
             statusData.data.position_block.roll = getRoll();
             statusData.data.position_block.yaw = getYaw();
-            statusData.data.position_block.pitchRate = getPitchRate();
-            statusData.data.position_block.rollRate = getRollRate();
-            statusData.data.position_block.yawRate = getYawRate();
+            statusData.data.position_block.pitch_rate = getPitchRate();
+            statusData.data.position_block.roll_rate = getRollRate();
+            statusData.data.position_block.yaw_rate = getYawRate();
             statusData.data.position_block.airspeed = airspeed;
-            statusData.data.position_block.alt = getAltitude();
-            statusData.data.position_block.gSpeed = gps_GroundSpeed;
+            statusData.data.position_block.altitude = getAltitude();
+            statusData.data.position_block.ground_speed = gps_GroundSpeed;
             statusData.data.position_block.heading = getHeading();
             break;
         case PACKET_TYPE_STATUS:
-            statusData.data.status_block.rollRateSetpoint = getRollRateSetpoint();
-            statusData.data.status_block.rollSetpoint = getRollAngleSetpoint();
-            statusData.data.status_block.pitchRateSetpoint = getPitchRateSetpoint();
-            statusData.data.status_block.pitchSetpoint = getPitchAngleSetpoint();
-            statusData.data.status_block.throttleSetpoint = getThrottleSetpoint();
-            statusData.data.status_block.yawRateSetpoint = getYawRateSetpoint();
-            statusData.data.status_block.headingSetpoint = getHeadingSetpoint();
-            statusData.data.status_block.altitudeSetpoint = getAltitudeSetpoint();
+            statusData.data.status_block.roll_rate_setpoint = getRollRateSetpoint();
+            statusData.data.status_block.pitch_rate_setpoint = getPitchRateSetpoint();
+            statusData.data.status_block.yaw_rate_setpoint = getYawRateSetpoint();
+            statusData.data.status_block.roll_setpoint = getRollAngleSetpoint();
+            statusData.data.status_block.pitch_setpoint = getPitchAngleSetpoint();
+            statusData.data.status_block.heading_setpoint = getHeadingSetpoint();
+            statusData.data.status_block.altitude_setpoint = getAltitudeSetpoint();
+            statusData.data.status_block.throttle_setpoint = getThrottleSetpoint();
             
-            statusData.data.status_block.batteryLevel1 = 50;//batteryLevel1;
-            statusData.data.status_block.batteryLevel2 = 50;//batteryLevel2;
-            statusData.data.status_block.autopilotActive = getProgramStatus();
-            statusData.data.status_block.gpsStatus = gps_Satellites + (gps_PositionFix << 4);
-            statusData.data.status_block.numWaypoints = waypointCount;
-            statusData.data.status_block.waypointIndex = waypointIndex;
-            statusData.data.status_block.pathFollowing = pathFollowing; //True or false
-            statusData.data.status_block.autonomousLevel = controlLevel;
-            statusData.data.status_block.startupErrorCodes = getStartupErrorCodes();
-            statusData.data.status_block.ul_rssi = getRadioRSSI();
+            statusData.data.status_block.internal_battery_voltage = 50; //TODO: Make these actual values
+            statusData.data.status_block.external_battery_voltage = 50;
+            
+            statusData.data.status_block.autonomous_level = controlLevel;
+            statusData.data.status_block.startup_errors = getStartupErrorCodes();
+            statusData.data.status_block.am_interchip_errors = getInterchipErrorCount();
+            statusData.data.status_block.pm_interchip_errors = pm_interchip_error_count;
+            statusData.data.status_block.gps_communication_errors = gps_communication_error_count;
+            
             statusData.data.status_block.ul_receive_errors = getRadioReceiveErrors();
             statusData.data.status_block.dl_transmission_errors = getRadioTransmissionErrors();
-            statusData.data.status_block.uhf_link_quality = getUHFLinkQuality(getTime());
+            statusData.data.status_block.peripheral_status = gps_Satellites + (gps_PositionFix << 4);; //TODO: implement this
+            statusData.data.status_block.uhf_channel_status = getPWMInputStatus();
+            statusData.data.status_block.ul_rssi = getRadioRSSI();
             statusData.data.status_block.uhf_rssi = getUHFRSSI(getTime());
+            statusData.data.status_block.uhf_link_quality = getUHFLinkQuality(getTime());
+       
+            statusData.data.status_block.program_state = getProgramStatus(); //TODO: modify this
+            statusData.data.status_block.waypoint_index = waypointIndex;
             break;
         case PACKET_TYPE_GAINS:
             statusData.data.gain_block.roll_rate_kp = getGain(ROLL_RATE, KP);
@@ -754,9 +761,11 @@ bool writeDatalink(PacketType packet){
         case PACKET_TYPE_CHANNELS:
             if (show_scaled_pwm){
                 input = getPWMArray(getTime());
+                output = getPWMOutputs();
                 statusData.data.channels_block.channels_scaled = true;
             } else {
                 input = (int*)getICValues(getTime());
+                output = (int*)getOCValues();
                 statusData.data.channels_block.channels_scaled = false;
             }
             statusData.data.channels_block.ch1_in = input[0];
@@ -767,8 +776,6 @@ bool writeDatalink(PacketType packet){
             statusData.data.channels_block.ch6_in = input[5];
             statusData.data.channels_block.ch7_in = input[6];
             statusData.data.channels_block.ch8_in = input[7];
-            
-            output = getPWMOutputs();
             
             statusData.data.channels_block.ch1_out = output[0];
             statusData.data.channels_block.ch2_out = output[1];

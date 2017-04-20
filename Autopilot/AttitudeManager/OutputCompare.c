@@ -7,8 +7,19 @@
 #include "OutputCompare.h"
 #include "InputCapture.h"
 
+static uint16_t oc_values[8];
+
+uint16_t* getOCValues(){
+    return oc_values;
+}
+
 void setOCValue(unsigned int channel, unsigned int duty)
 {
+    if (channel < 0 || channel > 7){ //input validation
+        return;
+    }
+    oc_values[channel] = duty;
+
     switch(channel){
     case 0:
         OC1RS = duty;
