@@ -55,33 +55,34 @@ typedef enum _p_priority {
 //62 bytes. High Frequency - Multiple times per second
 struct packet_type_position_block { //
     long double lat, lon;
-    uint32_t sysTime;
-    float UTC;
+    uint32_t sys_time;
+    float gps_time;
     float pitch, roll, yaw;
-    float pitchRate, rollRate, yawRate;
+    float pitch_rate, roll_rate, yaw_rate;
     float airspeed;
-    float alt;
-    float gSpeed;
-    uint16_t heading;
-    
+    float altitude;
+    float ground_speed;
+    int16_t heading;
 };
 
-//36 bytes. Medium frequency. About once every second
+//44 bytes. Medium frequency. About once every second
 struct packet_type_status_block {
-    int16_t rollRateSetpoint, pitchRateSetpoint, yawRateSetpoint; 
-    int16_t rollSetpoint, pitchSetpoint;
-    int16_t headingSetpoint, altitudeSetpoint, throttleSetpoint;
+    int16_t roll_rate_setpoint, pitch_rate_setpoint, yaw_rate_setpoint; 
+    int16_t roll_setpoint, pitch_setpoint;
+    int16_t heading_setpoint, altitude_setpoint, throttle_setpoint;
     
-    int16_t batteryLevel1, batteryLevel2;
-    uint16_t autonomousLevel;
-    uint16_t startupErrorCodes; //2 bytes
-    uint16_t dl_transmission_errors, ul_receive_errors;
-    uint8_t ul_rssi, uhf_rssi, uhf_link_quality;
-    uint8_t pathFollowing;
-    uint8_t waypointIndex;
-    uint8_t gpsStatus;
-    uint8_t numWaypoints;
-    uint8_t autopilotActive;
+    int16_t internal_battery_voltage, external_battery_voltage;
+
+    uint16_t program_state; //state of autopilot. vehicle type, armed, unarmed, kill mode. Heartbeat status
+    uint16_t autonomous_level; //rate, angle control sources, etc
+    uint16_t startup_errors;
+    uint16_t am_interchip_errors, pm_interchip_errors, gps_communication_errors; //error counts for dma communications
+    uint16_t dl_transmission_errors, ul_receive_errors; //xbee specific transmission errors
+    uint16_t peripheral_status; //sensor and radio statuses
+    uint16_t uhf_channel_status; //which channels are connected and disconnected
+    uint8_t ul_rssi, uhf_rssi, uhf_link_quality; //ul_rssi is for telemetry receival rssi
+    
+    uint8_t waypoint_index;
 };
 
 //80 bytes
@@ -100,11 +101,12 @@ struct packet_type_gain_block{
     float orbit_kp;
 };
 
-//32 bytes
+//34 bytes
 struct packet_type_channels_block {
     int16_t ch1_in, ch2_in, ch3_in, ch4_in, ch5_in, ch6_in, ch7_in, ch8_in;
     int16_t ch1_out, ch2_out, ch3_out, ch4_out, ch5_out, ch6_out, ch7_out, ch8_out;
     bool channels_scaled; //whether the following values are scaled, or raw
+    uint8_t padding; //padding byte not necessary but will be added either way due to struct packing
 };
 
 typedef union {
@@ -114,8 +116,8 @@ typedef union {
     struct packet_type_channels_block channels_block;
 } PacketPayload;
 
-typedef struct TelemetryBlock {
-    uint8_t type;
+typedef struct {
+    uint16_t type; // 2 bytes to avoid weird padding issues
     PacketPayload data;
 } TelemetryBlock;
 
