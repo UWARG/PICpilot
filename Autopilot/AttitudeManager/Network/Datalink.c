@@ -8,12 +8,17 @@
 
 #include "Datalink.h"
 #include "../Drivers/Radio.h"
+#include "../../Common/Utilities/ByteQueue.h"
 #include "../../Common/Utilities/Logger.h"
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+
+/** Index position in the DEFAULT_PACKET_ORDER array */
+static uint8_t continuous_packet_order_index = 0;
+static ByteQueue requested_packet_type_queue; //used to store the intermittent packets
 
 static void pushDatalinkCommand(DatalinkCommand* command);
 
@@ -26,6 +31,9 @@ void initDatalink(void){
     initRadio();
     datalinkCommandQueue.tail = NULL;
     datalinkCommandQueue.head = NULL;
+
+    //allocate 16 bytes for the special packet type requests. Should be more than sufficient
+    initBQueue(&requested_packet_type_queue, 16, 16);
 
     info("Datalink Initialized");
     //print out some debug info. Useful for debugging datalink
@@ -86,6 +94,20 @@ bool queueTelemetryBlock(TelemetryBlock* telem) {
     return queueDownlinkPacket((uint8_t*)(telem), sizeof(TelemetryBlock));
 }
 
+PacketType getNextPacketType(){
+    if (getBQueueSize(&requested_packet_type_queue) != 0){ //if the queue isnt empty
+        return popBQueue(&requested_packet_type_queue);
+    }
+
+    uint8_t to_return = DEFAULT_PACKET_ORDER[continuous_packet_order_index];
+    continuous_packet_order_index = (continuous_packet_order_index + 1)%sizeof(DEFAULT_PACKET_ORDER);
+    return to_return;
+}
+
+void queuePacketType(PacketType type){
+    pushBQueue(&requested_packet_type_queue, type);
+}
+
 /**
  * Adds a command to the command queue
  * @param command
@@ -106,3 +128,4 @@ static void pushDatalinkCommand(DatalinkCommand* command)
         datalinkCommandQueue.tail = command;
     }
 }
+

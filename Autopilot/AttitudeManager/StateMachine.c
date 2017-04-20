@@ -19,9 +19,7 @@
 //State Machine Triggers (Mostly Timers)
 static int dmaTimer = 0;
 static int uplinkTimer = 0;
-static int downlinkPositionTimer = 0;
-static int downlinkStatusTimer = 0;
-static int downlinkChannelsTimer = 0;
+static int downlinkTimer = 0;
 static int imuTimer = 0;
 static long int stateMachineTimer = 0;
 static int dTime = 0;
@@ -33,9 +31,7 @@ void StateMachine(char entryLocation){
     dTime = (int)(getTime() - stateMachineTimer);
     stateMachineTimer += dTime;
     uplinkTimer += dTime;
-    downlinkPositionTimer += dTime;
-    downlinkStatusTimer += dTime;
-    downlinkChannelsTimer += dTime;
+    downlinkTimer += dTime;
     imuTimer += dTime;
     dmaTimer += dTime;
 
@@ -82,19 +78,13 @@ void StateMachine(char entryLocation){
         readDatalink();
     }
 
-    if(POSITION_SEND_FREQUENCY <= downlinkPositionTimer){
-        downlinkPositionTimer = 0;
-        writeDatalink(PACKET_TYPE_POSITION);
+    if(downlinkTimer >= DOWNLINK_SEND_INTERVAL){
+        downlinkTimer = 0;
+        writeDatalink(getNextPacketType());
     }
-    else if(STATUS_SEND_FREQUENCY <= downlinkStatusTimer){
-        downlinkStatusTimer = 0;
-        writeDatalink(PACKET_TYPE_STATUS);
-    }
-    else if(CHANNELS_SEND_FREQUENCY <= downlinkChannelsTimer){
-        downlinkChannelsTimer = 0;
-        writeDatalink(PACKET_TYPE_CHANNELS);
-    } else if (areGainsUpdated() || showGains()){
-        writeDatalink(PACKET_TYPE_GAINS);
+
+    if (areGainsUpdated() || showGains()){
+        queuePacketType(PACKET_TYPE_GAINS);
     }
     
     parseDatalinkBuffer(); //read any incoming data from the Xbee and put in buffer

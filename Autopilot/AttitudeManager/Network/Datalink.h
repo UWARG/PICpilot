@@ -14,16 +14,10 @@
 #include <stdbool.h>
 #include "Commands.h"
 
-/** Time in ms of how often a packet containing aircraft positional information will be sent*/
-#define POSITION_SEND_FREQUENCY 250
+/** Time in ms on how often to send down a packet. Packets will not be send to the radio faster than this */
+#define DOWNLINK_SEND_INTERVAL 150
 
-/** Time in ms of how often a packet containing autopilot status information will be sent*/
-#define STATUS_SEND_FREQUENCY 1000
-
-/** Time in ms of how often a packet containing channel information will be sent*/
-#define CHANNELS_SEND_FREQUENCY 2000
-
-/** Time in miliseconds for how often to check for new messages from the uplink. Default=100 **/
+/** Time in miliseconds for how often to check for new messages from the uplink **/
 #define UPLINK_CHECK_FREQUENCY 500
 
 // TODO: Put these headers in the new kill mode implementation
@@ -35,13 +29,30 @@
 
 #define UHF_KILL_TIMEOUT 10000
 
-typedef enum _p_priority {
+/**
+ * Different packet types that we can send over via the downlink
+ */
+typedef enum {
     PACKET_TYPE_POSITION = 0,
     PACKET_TYPE_STATUS = 1,
     PACKET_TYPE_GAINS = 2,
     PACKET_TYPE_CHANNELS = 3
 } PacketType;
 
+/**
+ * Defines the normal order that packets will be send down.  Note that this list contains packet types that should continually
+ * be sent down. It should NOT contain packets types that should be sent down from
+ * an event, ie gains. For these types of packets, the queuePacketType() method should
+ * be called to move the packet type to the front of the queue
+ */
+static const uint8_t DEFAULT_PACKET_ORDER[] = {
+    PACKET_TYPE_POSITION,
+    PACKET_TYPE_POSITION,
+    PACKET_TYPE_POSITION,
+    PACKET_TYPE_STATUS,
+    PACKET_TYPE_POSITION,
+    PACKET_TYPE_CHANNELS
+};
 
 /* For reference: 
  In MPLAB XC 16 compiler:
@@ -157,11 +168,16 @@ DatalinkCommand* popDatalinkCommand(void);
 void freeDatalinkCommand(DatalinkCommand* to_destroy);
 
 /**
- * Create a telemetry block
- * @param packet Priority of the packet
- * @return NULL if malloc failed
+ * @return The packet type that should be sent down in the next transmission
  */
-TelemetryBlock* createTelemetryBlock(PacketType packet);
+PacketType getNextPacketType(void);
+
+/**
+ * Call this method to request a specific packet type to be queued down in the downlink.
+ * This call will make this packet type take priority over the continous/default packets
+ * @param type
+ */
+void queuePacketType(PacketType type);
 
 /**
  * Queues a telemetry block to be sent down the data link
