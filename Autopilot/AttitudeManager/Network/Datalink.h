@@ -76,7 +76,7 @@ struct packet_type_position_block { //
     int16_t heading;
 };
 
-//44 bytes. Medium frequency. About once every second
+//46 bytes. Medium frequency. About once every second
 struct packet_type_status_block {
     int16_t roll_rate_setpoint, pitch_rate_setpoint, yaw_rate_setpoint; 
     int16_t roll_setpoint, pitch_setpoint;
@@ -92,8 +92,9 @@ struct packet_type_status_block {
     uint16_t peripheral_status; //sensor and radio statuses
     uint16_t uhf_channel_status; //which channels are connected and disconnected
     uint8_t ul_rssi, uhf_rssi, uhf_link_quality; //ul_rssi is for telemetry receival rssi
-    
+
     uint8_t waypoint_index;
+    uint8_t waypoint_count;
 };
 
 //80 bytes
