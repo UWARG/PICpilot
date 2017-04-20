@@ -117,7 +117,6 @@ struct packet_type_channels_block {
     int16_t ch1_in, ch2_in, ch3_in, ch4_in, ch5_in, ch6_in, ch7_in, ch8_in;
     int16_t ch1_out, ch2_out, ch3_out, ch4_out, ch5_out, ch6_out, ch7_out, ch8_out;
     bool channels_scaled; //whether the following values are scaled, or raw
-    uint8_t padding; //padding byte not necessary but will be added either way due to struct packing
 };
 
 typedef union {

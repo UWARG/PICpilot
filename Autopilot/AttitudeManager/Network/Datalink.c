@@ -91,7 +91,23 @@ void freeDatalinkCommand(DatalinkCommand* to_destroy){
 }
 
 bool queueTelemetryBlock(TelemetryBlock* telem) {
-    return queueDownlinkPacket((uint8_t*)(telem), sizeof(TelemetryBlock));
+    uint16_t size = 0;
+    switch (telem->type){
+        case PACKET_TYPE_POSITION:
+            size = sizeof(struct packet_type_position_block);
+            break;
+        case PACKET_TYPE_GAINS:
+            size = sizeof(struct packet_type_gain_block);
+            break;
+        case PACKET_TYPE_STATUS:
+            size = sizeof(struct packet_type_status_block);
+            break;
+        case PACKET_TYPE_CHANNELS:
+            size = sizeof(struct packet_type_channels_block);
+            break;
+    }
+    
+    return queueDownlinkPacket((uint8_t*)(telem), size + 2); //2 bytes for the packet type
 }
 
 PacketType getNextPacketType(){
