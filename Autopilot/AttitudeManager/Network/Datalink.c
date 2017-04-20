@@ -8,6 +8,7 @@
 
 #include "Datalink.h"
 #include "../Drivers/Radio.h"
+#include "../../Common/Utilities/Logger.h"
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -25,6 +26,14 @@ void initDatalink(void){
     initRadio();
     datalinkCommandQueue.tail = NULL;
     datalinkCommandQueue.head = NULL;
+
+    info("Datalink Initialized");
+    //print out some debug info. Useful for debugging datalink
+    debugInt("Position Block Size", sizeof(struct packet_type_position_block));
+    debugInt("Status Block Size", sizeof(struct packet_type_status_block));
+    debugInt("Gains Block Size", sizeof(struct packet_type_gain_block));
+    debugInt("Channels Block Size", sizeof(struct packet_type_channels_block));
+    debugInt("Telemetry Block Size", sizeof(TelemetryBlock));
 }
 
 void parseDatalinkBuffer(void) {
