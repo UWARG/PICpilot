@@ -127,7 +127,7 @@ typedef union {
 } PacketPayload;
 
 typedef struct {
-    uint16_t type; // 2 bytes to avoid weird padding issues
+    uint16_t type; // 2 bytes as this is what the data relay expects the size to be
     PacketPayload data;
 } TelemetryBlock;
 
