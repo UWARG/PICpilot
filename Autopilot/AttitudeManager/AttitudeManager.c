@@ -754,8 +754,11 @@ bool writeDatalink(PacketType packet){
             statusData.data.gain_block.pitch_angle_ki = getGain(PITCH_ANGLE, KI);
             
             statusData.data.gain_block.heading_kp = getGain(HEADING, KP);
+            statusData.data.gain_block.heading_ki = getGain(HEADING, KI);
             statusData.data.gain_block.altitude_kp = getGain(ALTITUDE, KP);
+            statusData.data.gain_block.altitude_ki = getGain(ALTITUDE, KI);
             statusData.data.gain_block.ground_speed_kp = getGain(GSPEED, KP);
+            statusData.data.gain_block.ground_speed_ki = getGain(GSPEED, KI);
             statusData.data.gain_block.path_kp = pmPathGain;
             statusData.data.gain_block.orbit_kp = pmOrbitGain;
             break;

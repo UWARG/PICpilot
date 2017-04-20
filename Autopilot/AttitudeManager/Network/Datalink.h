@@ -48,8 +48,8 @@ typedef enum {
 static const uint8_t DEFAULT_PACKET_ORDER[] = {
     PACKET_TYPE_POSITION,
     PACKET_TYPE_POSITION,
-    PACKET_TYPE_POSITION,
     PACKET_TYPE_STATUS,
+    PACKET_TYPE_POSITION,
     PACKET_TYPE_POSITION,
     PACKET_TYPE_CHANNELS
 };
@@ -105,9 +105,9 @@ struct packet_type_gain_block{
     float roll_angle_kp, roll_angle_kd, roll_angle_ki;
     float pitch_angle_kp, pitch_angle_kd, pitch_angle_ki;
     
-    float heading_kp;
-    float altitude_kp;
-    float ground_speed_kp;
+    float heading_kp, heading_ki;
+    float altitude_kp, altitude_ki;
+    float ground_speed_kp, ground_speed_ki;
     
     float path_kp;
     float orbit_kp;
