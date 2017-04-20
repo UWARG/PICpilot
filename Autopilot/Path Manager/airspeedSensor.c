@@ -7,11 +7,12 @@
 #include "main.h"
 #include "../Common/Common.h"
 #include "airspeedSensor.h"
+#include "../Common/Utilities/Logger.h"
 
 // Internal analog reference voltage
 #define AREF 3.3f
 // Source voltage for the airspeed sensor
-#define VSOURCE 4.8f
+#define VSOURCE 4.0f
 
 const static float v_sc = (AREF / 4096) / VSOURCE; // ADC -> voltage -> percentage
 
@@ -23,7 +24,6 @@ static float offset = 0;
 void __attribute__((interrupt, no_auto_psv)) _ADC1Interrupt(void) {
     airspeedHistory[historyCounter++] = ADC1BUF0;
     historyCounter %= AIRSPEED_HISTORY;
-    
     IFS0bits.AD1IF = 0; // Clear the ADC1 Interrupt Flag
 }
 
@@ -36,7 +36,7 @@ void calibrateAirspeed() {
         offset = 0;
         done = true;
         for (i = 0; i < AIRSPEED_HISTORY; i++) {
-            if (airspeedHistory[i] = 0.0) {
+            if (airspeedHistory[i] == 0.0) {
                 done = false;
                 break;
             }
@@ -51,7 +51,7 @@ void initAirspeedSensor(){
     //RA11/AN11 is the pin to get the airspeed information
     TRISBbits.TRISB11 = 1;
     initAirspeedADC();
-    calibrateAirspeed();
+    //calibrateAirspeed();
 }
 
 static float ADCConvert(float signal) {
@@ -66,7 +66,7 @@ float getCurrentAirspeed(){
         aspd_filtered += (float)airspeedHistory[i];
     }
     aspd_filtered /= AIRSPEED_HISTORY;
-    return ADCConvert(aspd_filtered - offset);
+    return ADCConvert(aspd_filtered);
 }
 
 void initAirspeedADC(){

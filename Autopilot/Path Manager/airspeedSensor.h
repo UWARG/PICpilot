@@ -14,7 +14,6 @@
 //TODO: Add descriptions for each function
 void calibrateAirspeed();
 void initAirspeedSensor();
-static float ADCConvert(float signal);
 float getCurrentAirspeed();
 void initAirspeedADC();
 

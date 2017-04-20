@@ -28,6 +28,7 @@
       <itemPath>airspeedSensor.h</itemPath>
       <itemPath>MainBatterySensor.h</itemPath>
       <itemPath>GPSDMA.h</itemPath>
+      <itemPath>../AttitudeManager/ADC.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"

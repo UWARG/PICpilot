@@ -10,7 +10,7 @@
 #include "../Common/Common.h"
 #include "Dubins.h"
 #include "MPL3115A2.h"
-#include "MainBatterySensor.h"
+#include "BatterySensor.h"
 #include "airspeedSensor.h"
 #include "StartupErrorCodes.h"
 #include "../Common/Interfaces/SPI.h"
