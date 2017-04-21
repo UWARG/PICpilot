@@ -12,17 +12,12 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "Commands.h"
 
-/** Time in miliseconds for how often a P0(high priority) packet gets sent down. Default=300 **/
-#define P0_SEND_FREQUENCY 250 
+/** Time in ms on how often to send down a packet. Packets will not be send to the radio faster than this */
+#define DOWNLINK_SEND_INTERVAL 150
 
-/** Time in miliseconds for how often a P1(medium priority) packet gets sent down. Default=1000 **/
-#define P1_SEND_FREQUENCY 1000
-
-/** Time in miliseconds for how often a P2(low priority) packet gets sent down. Default=20000 **/
-#define P2_SEND_FREQUENCY 5000
-
-/** Time in miliseconds for how often to check for new messages from the uplink. Default=100 **/
+/** Time in miliseconds for how often to check for new messages from the uplink **/
 #define UPLINK_CHECK_FREQUENCY 500
 
 // TODO: Put these headers in the new kill mode implementation
@@ -34,12 +29,30 @@
 
 #define UHF_KILL_TIMEOUT 10000
 
-typedef enum _p_priority {
-    PRIORITY0 = 0,
-    PRIORITY1 = 1,
-    PRIORITY2 = 2,
-} p_priority;
+/**
+ * Different packet types that we can send over via the downlink
+ */
+typedef enum {
+    PACKET_TYPE_POSITION = 0,
+    PACKET_TYPE_STATUS = 1,
+    PACKET_TYPE_GAINS = 2,
+    PACKET_TYPE_CHANNELS = 3
+} PacketType;
 
+/**
+ * Defines the normal order that packets will be send down.  Note that this list contains packet types that should continually
+ * be sent down. It should NOT contain packets types that should be sent down from
+ * an event, ie gains. For these types of packets, the queuePacketType() method should
+ * be called to move the packet type to the front of the queue
+ */
+static const uint8_t DEFAULT_PACKET_ORDER[] = {
+    PACKET_TYPE_POSITION,
+    PACKET_TYPE_POSITION,
+    PACKET_TYPE_STATUS,
+    PACKET_TYPE_POSITION,
+    PACKET_TYPE_POSITION,
+    PACKET_TYPE_CHANNELS
+};
 
 /* For reference: 
  In MPLAB XC 16 compiler:
@@ -50,67 +63,72 @@ typedef enum _p_priority {
  long double    : 8 bytes
  */
 
-// 72 bytes
-struct priority1_block { //High Frequency - Multiple times per second
-    long double lat, lon; // Latitude and longitude from gps    // 2x8 Byte
-    long int sysTime; // 4 bytes
-    float UTC; //4 Byte
+//62 bytes. High Frequency - Multiple times per second
+struct packet_type_position_block { //
+    long double lat, lon;
+    uint32_t sys_time;
+    float gps_time;
     float pitch, roll, yaw;
-    float pitchRate, rollRate, yawRate;
+    float pitch_rate, roll_rate, yaw_rate;
     float airspeed;
-    float alt; //4 Byte
-    float gSpeed;
-    int heading; //2 Byte
-    int rollRateSetpoint, rollSetpoint;
-    int pitchRateSetpoint, pitchSetpoint;
-    int throttleSetpoint;
+    float altitude;
+    float ground_speed;
+    int16_t heading;
 };
 
-// 88 bytes
-struct priority2_block { //Medium Frequency - Once every second
-    float rollKD, rollKP;
-    float pitchKD, pitchKP;
-    float yawKD, yawKP;
-    float pathChecksum; // 4 bytes
-    int lastCommandsSent[4]; //4*2 bytes
-    int batteryLevel1, batteryLevel2; // 2*2 bytes
-    int ch1In,ch2In,ch3In,ch4In,ch5In,ch6In,ch7In,ch8In;
-    int ch1Out,ch2Out,ch3Out,ch4Out,ch5Out,ch6Out,ch7Out,ch8Out;
-    int cameraStatus;
-    int yawRateSetpoint, headingSetpoint, altitudeSetpoint, flapSetpoint;
-    char wirelessConnection; //1 byte
-    char autopilotActive; //1 byte  
-    char gpsStatus; //1 Byte
-    char numWaypoints; //1 bytes
-    char waypointIndex; //1 byte
-    char pathFollowing; // 1 byte
+//46 bytes. Medium frequency. About once every second
+struct packet_type_status_block {
+    int16_t roll_rate_setpoint, pitch_rate_setpoint, yaw_rate_setpoint; 
+    int16_t roll_setpoint, pitch_setpoint;
+    int16_t heading_setpoint, altitude_setpoint, throttle_setpoint;
+    
+    int16_t internal_battery_voltage, external_battery_voltage;
+
+    uint16_t program_state; //state of autopilot. vehicle type, armed, unarmed, kill mode. Heartbeat status
+    uint16_t autonomous_level; //rate, angle control sources, etc
+    uint16_t startup_errors;
+    uint16_t am_interchip_errors, pm_interchip_errors, gps_communication_errors; //error counts for dma communications
+    uint16_t dl_transmission_errors, ul_receive_errors; //xbee specific transmission errors
+    uint16_t peripheral_status; //sensor and radio statuses
+    uint16_t uhf_channel_status; //which channels are connected and disconnected
+    uint8_t ul_rssi, uhf_rssi, uhf_link_quality; //ul_rssi is for telemetry receival rssi
+
+    uint8_t waypoint_index;
+    uint8_t waypoint_count;
 };
 
-// 74 bytes
-struct priority3_block { //Low Frequency - On update...
-    float rollKI; //4 Bytes
-    float pitchKI;
-    float yawKI;
-    float headingKD, headingKP, headingKI;
-    float altitudeKD, altitudeKP, altitudeKI;
-    float throttleKD, throttleKP, throttleKI;
-    float flapKD, flapKP, flapKI;
-    float pathGain, orbitGain;
-    int autonomousLevel;
-    unsigned int startupErrorCodes; //2 bytes
-    int startupSettings;
-    uint16_t dl_transmission_errors, ul_receive_errors;
-    uint8_t ul_rssi, uhf_rssi, uhf_link_quality;
+//92 bytes
+struct packet_type_gain_block{
+    float roll_rate_kp, roll_rate_kd, roll_rate_ki;
+    float pitch_rate_kp, pitch_rate_kd, pitch_rate_ki;
+    float yaw_rate_kp, yaw_rate_kd, yaw_rate_ki;
+    float roll_angle_kp, roll_angle_kd, roll_angle_ki;
+    float pitch_angle_kp, pitch_angle_kd, pitch_angle_ki;
+    
+    float heading_kp, heading_ki;
+    float altitude_kp, altitude_ki;
+    float ground_speed_kp, ground_speed_ki;
+    
+    float path_kp;
+    float orbit_kp;
+};
+
+//34 bytes
+struct packet_type_channels_block {
+    int16_t ch1_in, ch2_in, ch3_in, ch4_in, ch5_in, ch6_in, ch7_in, ch8_in;
+    int16_t ch1_out, ch2_out, ch3_out, ch4_out, ch5_out, ch6_out, ch7_out, ch8_out;
+    bool channels_scaled; //whether the following values are scaled, or raw
 };
 
 typedef union {
-    struct priority1_block p1_block;
-    struct priority2_block p2_block;
-    struct priority3_block p3_block;
+    struct packet_type_position_block position_block;
+    struct packet_type_status_block status_block;
+    struct packet_type_gain_block gain_block;
+    struct packet_type_channels_block channels_block;
 } PacketPayload;
 
-typedef struct TelemetryBlock {
-    uint8_t type;
+typedef struct {
+    uint16_t type; // 2 bytes as this is what the data relay expects the size to be
     PacketPayload data;
 } TelemetryBlock;
 
@@ -150,11 +168,16 @@ DatalinkCommand* popDatalinkCommand(void);
 void freeDatalinkCommand(DatalinkCommand* to_destroy);
 
 /**
- * Create a telemetry block
- * @param packet Priority of the packet
- * @return NULL if malloc failed
+ * @return The packet type that should be sent down in the next transmission
  */
-TelemetryBlock* createTelemetryBlock(p_priority packet);
+PacketType getNextPacketType(void);
+
+/**
+ * Call this method to request a specific packet type to be queued down in the downlink.
+ * This call will make this packet type take priority over the continous/default packets
+ * @param type
+ */
+void queuePacketType(PacketType type);
 
 /**
  * Queues a telemetry block to be sent down the data link

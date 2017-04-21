@@ -8,11 +8,17 @@
 
 #include "Datalink.h"
 #include "../Drivers/Radio.h"
+#include "../../Common/Utilities/ByteQueue.h"
+#include "../../Common/Utilities/Logger.h"
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+
+/** Index position in the DEFAULT_PACKET_ORDER array */
+static uint8_t continuous_packet_order_index = 0;
+static ByteQueue requested_packet_type_queue; //used to store the intermittent packets
 
 static void pushDatalinkCommand(DatalinkCommand* command);
 
@@ -25,6 +31,17 @@ void initDatalink(void){
     initRadio();
     datalinkCommandQueue.tail = NULL;
     datalinkCommandQueue.head = NULL;
+
+    //allocate 16 bytes for the special packet type requests. Should be more than sufficient
+    initBQueue(&requested_packet_type_queue, 16, 16);
+
+    info("Datalink Initialized");
+    //print out some debug info. Useful for debugging datalink
+    debugInt("Position Block Size", sizeof(struct packet_type_position_block));
+    debugInt("Status Block Size", sizeof(struct packet_type_status_block));
+    debugInt("Gains Block Size", sizeof(struct packet_type_gain_block));
+    debugInt("Channels Block Size", sizeof(struct packet_type_channels_block));
+    debugInt("Telemetry Block Size", sizeof(TelemetryBlock));
 }
 
 void parseDatalinkBuffer(void) {
@@ -73,18 +90,38 @@ void freeDatalinkCommand(DatalinkCommand* to_destroy){
     free(to_destroy);
 }
 
-TelemetryBlock* createTelemetryBlock(p_priority packet) {
-    TelemetryBlock* telem = malloc(sizeof(TelemetryBlock));
-    
-    if (telem != NULL){
-        telem->type = (uint8_t)packet;
+bool queueTelemetryBlock(TelemetryBlock* telem) {
+    uint16_t size = 0;
+    switch (telem->type){
+        case PACKET_TYPE_POSITION:
+            size = sizeof(struct packet_type_position_block);
+            break;
+        case PACKET_TYPE_GAINS:
+            size = sizeof(struct packet_type_gain_block);
+            break;
+        case PACKET_TYPE_STATUS:
+            size = sizeof(struct packet_type_status_block);
+            break;
+        case PACKET_TYPE_CHANNELS:
+            size = sizeof(struct packet_type_channels_block);
+            break;
     }
- 
-    return telem;
+    
+    return queueDownlinkPacket((uint8_t*)(telem), size + 2); //2 bytes for the packet type
 }
 
-bool queueTelemetryBlock(TelemetryBlock* telem) {
-    return queueDownlinkPacket((uint8_t*)(telem), sizeof(TelemetryBlock));
+PacketType getNextPacketType(){
+    if (getBQueueSize(&requested_packet_type_queue) != 0){ //if the queue isnt empty
+        return popBQueue(&requested_packet_type_queue);
+    }
+
+    uint8_t to_return = DEFAULT_PACKET_ORDER[continuous_packet_order_index];
+    continuous_packet_order_index = (continuous_packet_order_index + 1)%sizeof(DEFAULT_PACKET_ORDER);
+    return to_return;
+}
+
+void queuePacketType(PacketType type){
+    pushBQueue(&requested_packet_type_queue, type);
 }
 
 /**
@@ -107,3 +144,4 @@ static void pushDatalinkCommand(DatalinkCommand* command)
         datalinkCommandQueue.tail = command;
     }
 }
+

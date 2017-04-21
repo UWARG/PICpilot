@@ -123,7 +123,11 @@ int controlLevel = 0;
 int lastCommandSentCode[COMMAND_HISTORY_SIZE];
 int lastCommandCounter = 0;
 
-char show_scaled_pwm = 1;
+
+static uint16_t pm_interchip_error_count = 0;
+static uint16_t gps_communication_error_count = 0;
+static bool show_gains = false;
+static bool show_scaled_pwm = true;
 
 void attitudeInit() {
     setProgramStatus(INITIALIZATION);
@@ -167,9 +171,6 @@ void attitudeInit() {
     else{
         setSensorStatus(VECTORNAV, SENSOR_CONNECTED & FALSE);
     }
-#if DEBUG
-    debug("Datalink Initialized");
-#endif
     
     orientationInit();
     initDatalink();
@@ -207,6 +208,8 @@ char checkDMA(){
         gps_Longitude = interchip_receive_buffer.pm_data.longitude;
         gps_Latitude = interchip_receive_buffer.pm_data.latitude;
         gps_Altitude = interchip_receive_buffer.pm_data.altitude;
+        pm_interchip_error_count = interchip_receive_buffer.pm_data.interchip_error_count;
+        gps_communication_error_count = interchip_receive_buffer.pm_data.gps_communication_error_count;
 
         if (gps_PositionFix){
             input_AP_Heading = interchip_receive_buffer.pm_data.sp_Heading;
@@ -421,20 +424,6 @@ int getHeadingInput(char source){
         return 0;
 }
 
-void setKValues(int type,float* values){
-    int i = 0;
-    for(; i<CONTROL_CHANNELS; i++){
-       setGain(i, type, values[i]);
-    }
-}
-
-void setGains(int channel, float* values){
-    // values are found at index 1 to 3 in the data array
-    setGain(channel,KP,values[0]);
-    setGain(channel,KI,values[1]);
-    setGain(channel,KD,values[2]);
-}
-
 void imuCommunication(){
     /*****************************************************************************
      *****************************************************************************
@@ -466,6 +455,24 @@ uint8_t getControlValue(CtrlType type) {
     return (controlLevel & ctrl_mask[type]) >> type;
 }
 
+bool showGains(){
+    if (show_gains){
+        show_gains = false;
+        return true;
+    }
+    return show_gains;
+}
+
+/**
+ * @param channel
+ * @param gains Order in KP, KI, KD
+ */
+static void setGains(ControlChannel channel, float* gains){
+    setGain(channel, KP, gains[0]);
+    setGain(channel, KI, gains[1]);
+    setGain(channel, KD, gains[2]);    
+}
+
 void readDatalink(void){
     struct DatalinkCommand* cmd = popDatalinkCommand();
    
@@ -485,61 +492,9 @@ void readDatalink(void){
                 debug( (char*) cmd->data);
 #endif
                 break;
-            case SET_PITCH_KD_GAIN:
-                setGain(PITCH_RATE, KD, CMD_TO_FLOAT(cmd->data));
+            case SHOW_GAINS:
+                show_gains = true;
                 break;
-            case SET_ROLL_KD_GAIN:
-                setGain(ROLL_RATE, KD, CMD_TO_FLOAT(cmd->data));
-                break;
-            case SET_YAW_KD_GAIN:
-                setGain(YAW_RATE, KD, CMD_TO_FLOAT(cmd->data));
-                break;
-            case SET_PITCH_KP_GAIN:
-                setGain(PITCH_RATE, KP, CMD_TO_FLOAT(cmd->data));
-                break;
-            case SET_ROLL_KP_GAIN:
-                setGain(ROLL_RATE, KP, CMD_TO_FLOAT(cmd->data));
-                break;
-            case SET_YAW_KP_GAIN:
-                setGain(YAW_RATE, KP, CMD_TO_FLOAT(cmd->data));
-                break;
-            case SET_PITCH_KI_GAIN:
-                setGain(PITCH_RATE, KI, CMD_TO_FLOAT(cmd->data));
-                break;
-            case SET_ROLL_KI_GAIN:
-                setGain(ROLL_RATE, KI, CMD_TO_FLOAT(cmd->data));
-                break;
-            case SET_YAW_KI_GAIN:
-                setGain(YAW_RATE, KI, CMD_TO_FLOAT(cmd->data));
-                break;
-            case SET_HEADING_KD_GAIN:
-                setGain(HEADING, KD, CMD_TO_FLOAT(cmd->data));
-                break;
-            case SET_HEADING_KP_GAIN:
-                setGain(HEADING, KP, CMD_TO_FLOAT(cmd->data));
-                break;
-            case SET_HEADING_KI_GAIN:
-                setGain(HEADING, KI, CMD_TO_FLOAT(cmd->data));
-                break;
-            case SET_ALTITUDE_KD_GAIN:
-                setGain(ALTITUDE, KD, CMD_TO_FLOAT(cmd->data));
-                break;
-            case SET_ALTITUDE_KP_GAIN:
-                setGain(ALTITUDE, KP, CMD_TO_FLOAT(cmd->data));
-                break;
-            case SET_ALTITUDE_KI_GAIN:
-                setGain(ALTITUDE, KI, CMD_TO_FLOAT(cmd->data));
-                break;
-            case SET_THROTTLE_KD_GAIN:
-                //setGain(THROTTLE, KD, *(float*)(&cmd->data));
-                break;
-            case SET_THROTTLE_KP_GAIN:
-                //setGain(THROTTLE, KP, *(float*)(&cmd->data));
-                break;
-            case SET_THROTTLE_KI_GAIN:
-                //setGain(THROTTLE, KI, *(float*)(&cmd->data));
-                break;
-
             case SET_PATH_GAIN:
                 interchip_send_buffer.am_data.pathGain = CMD_TO_FLOAT(cmd->data);
                 interchip_send_buffer.am_data.command = PM_SET_PATH_GAIN;
@@ -549,9 +504,6 @@ void readDatalink(void){
                 interchip_send_buffer.am_data.orbitGain = CMD_TO_FLOAT(cmd->data);
                 interchip_send_buffer.am_data.command = PM_SET_ORBIT_GAIN;
                 sendInterchipData();
-                break;
-            case SHOW_GAIN:
-                displayGain = *cmd->data;
                 break;
             case SET_PITCH_RATE:
                 input_GS_PitchRate = CMD_TO_INT(cmd->data);
@@ -661,9 +613,9 @@ void readDatalink(void){
                 break;
             case SHOW_SCALED_PWM:
                 if (*cmd->data == 1){
-                    show_scaled_pwm = 1;
+                    show_scaled_pwm = true;
                 } else{
-                    show_scaled_pwm = 0;
+                    show_scaled_pwm = false;
                 }
                 break;
             case REMOVE_LIMITS:
@@ -693,24 +645,31 @@ void readDatalink(void){
                 break;
             case SET_IMU:
                 setVNOrientationMatrix(CMD_TO_FLOAT_ARRAY(cmd->data));
+                break;    
+            case SET_ROLL_RATE_GAINS:
+                setGains(ROLL_RATE, CMD_TO_FLOAT_ARRAY(cmd->data));
                 break;
-            case SET_KDVALUES:
-                setKValues(KD, CMD_TO_FLOAT_ARRAY(cmd->data));
+            case SET_PITCH_RATE_GAINS:
+                setGains(PITCH_RATE, CMD_TO_FLOAT_ARRAY(cmd->data));
                 break;
-            case SET_KPVALUES:
-                setKValues(KP, CMD_TO_FLOAT_ARRAY(cmd->data));
+            case SET_YAW_RATE_GAINS:
+                setGains(YAW_RATE, CMD_TO_FLOAT_ARRAY(cmd->data));
                 break;
-            case SET_KIVALUES:
-                setKValues(KI, CMD_TO_FLOAT_ARRAY(cmd->data));
+            case SET_ROLL_ANGLE_GAINS:
+                setGains(ROLL_ANGLE, CMD_TO_FLOAT_ARRAY(cmd->data));
                 break;
-            case SET_GAINS:
-            {
-                char channel = cmd->data[0];
-                //We're making the rest of the data word aligned here, which is required for casting it to floats
-                memcpy(cmd->data, cmd->data + 1, cmd->data_length - 1);
-                setGains(channel, CMD_TO_FLOAT_ARRAY(cmd->data));
+            case SET_PITCH_ANGLE_GAINS:
+                setGains(PITCH_ANGLE, CMD_TO_FLOAT_ARRAY(cmd->data));
                 break;
-            }
+            case SET_HEADING_GAINS:
+                setGains(HEADING, CMD_TO_FLOAT_ARRAY(cmd->data));
+                break;
+            case SET_ALTITUDE_GAINS:
+                setGains(ALTITUDE, CMD_TO_FLOAT_ARRAY(cmd->data));
+                break;
+            case SET_GROUND_SPEED_GAINS:
+                setGains(GSPEED, CMD_TO_FLOAT_ARRAY(cmd->data));
+                break;
             default:
                 break;
         }
@@ -718,7 +677,7 @@ void readDatalink(void){
     }
 }
 
-bool writeDatalink(p_priority packet){
+bool writeDatalink(PacketType packet){
     static TelemetryBlock statusData;
 
     int* input;
@@ -726,104 +685,111 @@ bool writeDatalink(p_priority packet){
     statusData.type = packet;
     
     switch(packet){
-        case PRIORITY0:
-            statusData.data.p1_block.lat = getLatitude();
-            statusData.data.p1_block.lon = getLongitude();
-            statusData.data.p1_block.sysTime = getTime();
-            statusData.data.p1_block.UTC = gps_Time;
-            statusData.data.p1_block.pitch = getPitch();
-            statusData.data.p1_block.roll = getRoll();
-            statusData.data.p1_block.yaw = getYaw();
-            statusData.data.p1_block.pitchRate = getPitchRate();
-            statusData.data.p1_block.rollRate = getRollRate();
-            statusData.data.p1_block.yawRate = getYawRate();
-            statusData.data.p1_block.airspeed = airspeed;
-            statusData.data.p1_block.alt = getAltitude();
-            statusData.data.p1_block.gSpeed = gps_GroundSpeed;
-            statusData.data.p1_block.heading = getHeading();
-            statusData.data.p1_block.rollRateSetpoint = getRollRateSetpoint();
-            statusData.data.p1_block.rollSetpoint = getRollAngleSetpoint();
-            statusData.data.p1_block.pitchRateSetpoint = getPitchRateSetpoint();
-            statusData.data.p1_block.pitchSetpoint = getPitchAngleSetpoint();
-            statusData.data.p1_block.throttleSetpoint = getThrottleSetpoint();
+        case PACKET_TYPE_POSITION:
+            statusData.data.position_block.lat = getLatitude();
+            statusData.data.position_block.lon = getLongitude();
+            statusData.data.position_block.sys_time = getTime();
+            statusData.data.position_block.gps_time = gps_Time; //the utc time
+            statusData.data.position_block.pitch = getPitch();
+            statusData.data.position_block.roll = getRoll();
+            statusData.data.position_block.yaw = getYaw();
+            statusData.data.position_block.pitch_rate = getPitchRate();
+            statusData.data.position_block.roll_rate = getRollRate();
+            statusData.data.position_block.yaw_rate = getYawRate();
+            statusData.data.position_block.airspeed = airspeed;
+            statusData.data.position_block.altitude = getAltitude();
+            statusData.data.position_block.ground_speed = gps_GroundSpeed;
+            statusData.data.position_block.heading = getHeading();
             break;
-        case PRIORITY1:
-            statusData.data.p2_block.rollKD = getGain(ROLL_RATE,KD);
-            statusData.data.p2_block.rollKP = getGain(ROLL_RATE,KP);
-            statusData.data.p2_block.pitchKD = getGain(PITCH_RATE,KD);
-            statusData.data.p2_block.pitchKP = getGain(PITCH_RATE,KP);
-            statusData.data.p2_block.yawKD = getGain(YAW_RATE,KD);
-            statusData.data.p2_block.yawKP = getGain(YAW_RATE,KP);
-            statusData.data.p2_block.lastCommandsSent[0] = lastCommandSentCode[lastCommandCounter];
-            statusData.data.p2_block.lastCommandsSent[1] = lastCommandSentCode[(lastCommandCounter + (COMMAND_HISTORY_SIZE - 1))%COMMAND_HISTORY_SIZE];
-            statusData.data.p2_block.lastCommandsSent[2] = lastCommandSentCode[(lastCommandCounter + (COMMAND_HISTORY_SIZE - 2))%COMMAND_HISTORY_SIZE];
-            statusData.data.p2_block.lastCommandsSent[3] = lastCommandSentCode[(lastCommandCounter + (COMMAND_HISTORY_SIZE - 3))%COMMAND_HISTORY_SIZE];
-            statusData.data.p2_block.batteryLevel1 = 50;//batteryLevel1;
-            statusData.data.p2_block.batteryLevel2 = 50;//batteryLevel2;
-//            debug("SW3");
+        case PACKET_TYPE_STATUS:
+            statusData.data.status_block.roll_rate_setpoint = getRollRateSetpoint();
+            statusData.data.status_block.pitch_rate_setpoint = getPitchRateSetpoint();
+            statusData.data.status_block.yaw_rate_setpoint = getYawRateSetpoint();
+            statusData.data.status_block.roll_setpoint = getRollAngleSetpoint();
+            statusData.data.status_block.pitch_setpoint = getPitchAngleSetpoint();
+            statusData.data.status_block.heading_setpoint = getHeadingSetpoint();
+            statusData.data.status_block.altitude_setpoint = getAltitudeSetpoint();
+            statusData.data.status_block.throttle_setpoint = getThrottleSetpoint();
+            
+            statusData.data.status_block.internal_battery_voltage = 50; //TODO: Make these actual values
+            statusData.data.status_block.external_battery_voltage = 50;
+            
+            statusData.data.status_block.autonomous_level = controlLevel;
+            statusData.data.status_block.startup_errors = getStartupErrorCodes();
+            statusData.data.status_block.am_interchip_errors = getInterchipErrorCount();
+            statusData.data.status_block.pm_interchip_errors = pm_interchip_error_count;
+            statusData.data.status_block.gps_communication_errors = gps_communication_error_count;
+            
+            statusData.data.status_block.ul_receive_errors = getRadioReceiveErrors();
+            statusData.data.status_block.dl_transmission_errors = getRadioTransmissionErrors();
+            statusData.data.status_block.peripheral_status = gps_Satellites + (gps_PositionFix << 4);; //TODO: implement this
+            statusData.data.status_block.uhf_channel_status = getPWMInputStatus();
+            statusData.data.status_block.ul_rssi = getRadioRSSI();
+            statusData.data.status_block.uhf_rssi = getUHFRSSI(getTime());
+            statusData.data.status_block.uhf_link_quality = getUHFLinkQuality(getTime());
+       
+            statusData.data.status_block.program_state = getProgramStatus(); //TODO: modify this
+            statusData.data.status_block.waypoint_index = waypointIndex;
+            statusData.data.status_block.waypoint_count = 0; //TODO: change this later
+            break;
+        case PACKET_TYPE_GAINS:
+            statusData.data.gain_block.roll_rate_kp = getGain(ROLL_RATE, KP);
+            statusData.data.gain_block.roll_rate_kd = getGain(ROLL_RATE, KD);
+            statusData.data.gain_block.roll_rate_ki = getGain(ROLL_RATE, KI);
+            
+            statusData.data.gain_block.pitch_rate_kp = getGain(PITCH_RATE, KP);
+            statusData.data.gain_block.pitch_rate_kd = getGain(PITCH_RATE, KD);
+            statusData.data.gain_block.pitch_rate_ki = getGain(PITCH_RATE, KI);
+            
+            statusData.data.gain_block.yaw_rate_kp = getGain(YAW_RATE, KP);
+            statusData.data.gain_block.yaw_rate_kd = getGain(YAW_RATE, KD);
+            statusData.data.gain_block.yaw_rate_ki = getGain(YAW_RATE, KI);
+            
+            statusData.data.gain_block.roll_angle_kp = getGain(ROLL_ANGLE, KP);
+            statusData.data.gain_block.roll_angle_kd = getGain(ROLL_ANGLE, KD);
+            statusData.data.gain_block.roll_angle_ki = getGain(ROLL_ANGLE, KI);
+            
+            statusData.data.gain_block.pitch_angle_kp = getGain(PITCH_ANGLE, KP);
+            statusData.data.gain_block.pitch_angle_kd = getGain(PITCH_ANGLE, KD);
+            statusData.data.gain_block.pitch_angle_ki = getGain(PITCH_ANGLE, KI);
+            
+            statusData.data.gain_block.heading_kp = getGain(HEADING, KP);
+            statusData.data.gain_block.heading_ki = getGain(HEADING, KI);
+            statusData.data.gain_block.altitude_kp = getGain(ALTITUDE, KP);
+            statusData.data.gain_block.altitude_ki = getGain(ALTITUDE, KI);
+            statusData.data.gain_block.ground_speed_kp = getGain(GSPEED, KP);
+            statusData.data.gain_block.ground_speed_ki = getGain(GSPEED, KI);
+            statusData.data.gain_block.path_kp = pmPathGain;
+            statusData.data.gain_block.orbit_kp = pmOrbitGain;
+            break;
+        case PACKET_TYPE_CHANNELS:
             if (show_scaled_pwm){
                 input = getPWMArray(getTime());
+                output = getPWMOutputs();
+                statusData.data.channels_block.channels_scaled = true;
             } else {
                 input = (int*)getICValues(getTime());
+                output = (int*)getOCValues();
+                statusData.data.channels_block.channels_scaled = false;
             }
-            statusData.data.p2_block.ch1In = input[0];
-            statusData.data.p2_block.ch2In = input[1];
-            statusData.data.p2_block.ch3In = input[2];
-            statusData.data.p2_block.ch4In = input[3];
-            statusData.data.p2_block.ch5In = input[4];
-            statusData.data.p2_block.ch6In = input[5];
-            statusData.data.p2_block.ch7In = input[6];
-            statusData.data.p2_block.ch8In = input[7];
-            output = getPWMOutputs();
-            statusData.data.p2_block.ch1Out = output[0];
-            statusData.data.p2_block.ch2Out = output[1];
-            statusData.data.p2_block.ch3Out = output[2];
-            statusData.data.p2_block.ch4Out = output[3];
-            statusData.data.p2_block.ch5Out = output[4];
-            statusData.data.p2_block.ch6Out = output[5];
-            statusData.data.p2_block.ch7Out = output[6];
-            statusData.data.p2_block.ch8Out = output[7];
-//            debug("SW4");
-            statusData.data.p2_block.yawRateSetpoint = getYawRateSetpoint();
-            statusData.data.p2_block.headingSetpoint = getHeadingSetpoint();
-            statusData.data.p2_block.altitudeSetpoint = getAltitudeSetpoint();
-            statusData.data.p2_block.flapSetpoint = 0;
-            statusData.data.p2_block.wirelessConnection = ((input[5] < 180) << 1) + (input[7] > 0);//+ RSSI;
-            statusData.data.p2_block.autopilotActive = getProgramStatus();
-            statusData.data.p2_block.gpsStatus = gps_Satellites + (gps_PositionFix << 4);
-            statusData.data.p2_block.pathChecksum = waypointChecksum;
-            statusData.data.p2_block.numWaypoints = waypointCount;
-            statusData.data.p2_block.waypointIndex = waypointIndex;
-            statusData.data.p2_block.pathFollowing = pathFollowing; //True or false
+            statusData.data.channels_block.ch1_in = input[0];
+            statusData.data.channels_block.ch2_in = input[1];
+            statusData.data.channels_block.ch3_in = input[2];
+            statusData.data.channels_block.ch4_in = input[3];
+            statusData.data.channels_block.ch5_in = input[4];
+            statusData.data.channels_block.ch6_in = input[5];
+            statusData.data.channels_block.ch7_in = input[6];
+            statusData.data.channels_block.ch8_in = input[7];
+            
+            statusData.data.channels_block.ch1_out = output[0];
+            statusData.data.channels_block.ch2_out = output[1];
+            statusData.data.channels_block.ch3_out = output[2];
+            statusData.data.channels_block.ch4_out = output[3];
+            statusData.data.channels_block.ch5_out = output[4];
+            statusData.data.channels_block.ch6_out = output[5];
+            statusData.data.channels_block.ch7_out = output[6];
+            statusData.data.channels_block.ch8_out = output[7];
             break;
-        case PRIORITY2:
-            statusData.data.p3_block.rollKI = getGain(ROLL_RATE,KI);
-            statusData.data.p3_block.pitchKI = getGain(PITCH_RATE,KI);
-            statusData.data.p3_block.yawKI = getGain(YAW_RATE, KI);
-            statusData.data.p3_block.headingKD = getGain(HEADING, KD);
-            statusData.data.p3_block.headingKP = getGain(HEADING, KP);
-            statusData.data.p3_block.headingKI = getGain(HEADING, KI);
-            statusData.data.p3_block.altitudeKD = getGain(ALTITUDE, KD);
-            statusData.data.p3_block.altitudeKP = getGain(ALTITUDE, KP);
-            statusData.data.p3_block.altitudeKI = getGain(ALTITUDE, KI);
-            statusData.data.p3_block.throttleKD = 0;//getGain(THROTTLE, KD);
-            statusData.data.p3_block.throttleKP = 0;//getGain(THROTTLE, KP);
-            statusData.data.p3_block.throttleKI = 0;//getGain(THROTTLE, KI);
-            statusData.data.p3_block.flapKD = 0;//getGain(FLAP, KD);
-            statusData.data.p3_block.flapKP = 0;//getGain(FLAP, KP);
-            statusData.data.p3_block.flapKI = 0;//getGain(FLAP, KI);
-            statusData.data.p3_block.pathGain = pmPathGain;
-            statusData.data.p3_block.orbitGain = pmOrbitGain;
-            statusData.data.p3_block.autonomousLevel = controlLevel;
-            statusData.data.p3_block.startupErrorCodes = getStartupErrorCodes();
-            statusData.data.p3_block.startupSettings = DEBUG + (VEHICLE_TYPE << 1); //TODO: put this in the startuperrorCode file
-            statusData.data.p3_block.ul_rssi = getRadioRSSI();
-            statusData.data.p3_block.ul_receive_errors = getRadioReceiveErrors();
-            statusData.data.p3_block.dl_transmission_errors = getRadioTransmissionErrors();
-            statusData.data.p3_block.uhf_link_quality = getUHFLinkQuality(getTime());
-            statusData.data.p3_block.uhf_rssi = getUHFRSSI(getTime());
-            break;
-
         default:
             break;
     }

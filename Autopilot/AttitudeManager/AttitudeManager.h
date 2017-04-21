@@ -116,6 +116,11 @@ int getFlapInput(char source);
 
 void imuCommunication();
 
+/**
+ * Whether the ground station operator has requested gains to be sent down
+ */
+bool showGains(void);
+
 int coordinatedTurn(float pitchRate, int rollAngle);
 
 uint8_t getControlValue(CtrlType type);
@@ -149,7 +154,7 @@ void readDatalink(void);
  * Output:  An error code indicating if the data was added to the queue successfully.
  *
  *****************************************************************************/
-bool writeDatalink(p_priority packet);
+bool writeDatalink(PacketType packet);
 
 void checkHeartbeat();
 void checkGPS();

@@ -9,6 +9,8 @@
 #ifndef OUTPUTCAPTURE_H
 #define	OUTPUTCAPTURE_H
 
+#include <stdint.h>
+
 /**
  * Initializes the output compare registers and pins for PWM output. Writes a 1.5 ms
  * duty cycle on the selected channels to start off with
@@ -22,5 +24,12 @@ void initOC(char OC);
  * @param time Time/duty cycle in Timer2 ticks, not ms
  */
 void setOCValue(unsigned int channel, unsigned int duty);
+
+
+/**
+ * Retrieve the set values for the output compare
+ * @return ms output of all the channels in Timer2 ticks. Returned array will be of size 8
+ */
+uint16_t* getOCValues(void);
 
 #endif
