@@ -8,8 +8,9 @@
 
 #include "UART.h"
 #include <p33FJ256GP710A.h>
-#include "../clock.h"
+#include "../Clock/Clock.h"
 #include "../Utilities/ByteQueue.h"
+#include <stdint.h>
 
 /**
  * The chip requires the baud rate register to be set to a value that corresponds
@@ -26,7 +27,7 @@ static ByteQueue uart1_tx_queue;
 static ByteQueue uart2_rx_queue;
 static ByteQueue uart2_tx_queue;
 
-void initUART(unsigned char interface, unsigned long int baudrate, unsigned int initial_buffer_size, unsigned int max_buffer_size, unsigned char tx_rx)
+void initUART(uint8_t interface, uint32_t baudrate, uint16_t initial_buffer_size, uint16_t max_buffer_size, uint8_t tx_rx)
 {
     //we don't initialize twice or don't initialize if the interface is disabled
     if (interface == 1) {
@@ -145,10 +146,12 @@ void initUART(unsigned char interface, unsigned long int baudrate, unsigned int 
     }
 }
 
-void queueTXData(unsigned char interface, unsigned char* data, unsigned int data_length)
+void queueTXData(uint8_t interface, uint8_t* data, uint16_t data_length)
 {
     unsigned int i;
     if (interface == 1 && (uart1_status & UART_TX_ENABLE)) {
+        IEC0bits.U1TXIE = 0;	//Disable transmit interrupts for now
+        
         for (i = 0; i < data_length; i++) {
             pushBQueue(&uart1_tx_queue, data[i]);
         }
@@ -156,7 +159,11 @@ void queueTXData(unsigned char interface, unsigned char* data, unsigned int data
         if (U1STAbits.TRMT) { //if the transmit buffer is empty and register (no sending)
             U1TXREG = popBQueue(&uart1_tx_queue); //trigger a send
         }
+        
+        IEC0bits.U1TXIE = 1;	//Re-enable transmit interrupts
     } else if (interface == 2 && (uart2_status & UART_TX_ENABLE)) {
+        IEC1bits.U2TXIE = 0;	//Disable transmit interrupts for now
+        
         for (i = 0; i < data_length; i++) {
             pushBQueue(&uart2_tx_queue, data[i]);
         }
@@ -164,20 +171,28 @@ void queueTXData(unsigned char interface, unsigned char* data, unsigned int data
         if (U2STAbits.TRMT) { //if the transmit buffer is empty and register (no sending)
             U2TXREG = popBQueue(&uart2_tx_queue); //trigger a send
         }
+        
+        IEC1bits.U2TXIE = 1;	//Re-enable transmit interrupts
     }
 }
 
-unsigned char readRXData(unsigned char interface)
+uint8_t readRXData(uint8_t interface)
 {
     if (interface == 1 && (uart1_status & UART_RX_ENABLE)) {
-        return popBQueue(&uart1_rx_queue);
+        IEC0bits.U1RXIE = 0; //disable RX interrupt for now
+        uint8_t byte = popBQueue(&uart1_rx_queue);
+        IEC0bits.U1RXIE = 1; //re-enable RX interrupts
+        return byte;
     } else if (interface == 2 && (uart2_status & UART_RX_ENABLE)) {
-        return popBQueue(&uart2_rx_queue);
+        IEC1bits.U2RXIE = 0; //disable RX interrupt for now
+        uint8_t byte = popBQueue(&uart2_rx_queue);
+        IEC1bits.U2RXIE = 1; //re-enable RX interrupts
+        return byte;
     }
     return -1;
 }
 
-unsigned int getTXSpace(unsigned char interface)
+uint16_t getTXSpace(uint8_t interface)
 {
     if (interface == 1 && (uart1_status & UART_TX_ENABLE)) {
         return getBQueueSpace(&uart1_tx_queue);
@@ -187,7 +202,7 @@ unsigned int getTXSpace(unsigned char interface)
     return 0;
 }
 
-unsigned int getRXSize(unsigned char interface){
+uint16_t getRXSize(uint8_t interface){
     if (interface == 1 && (uart1_status & UART_RX_ENABLE)) {
         return getBQueueSize(&uart1_rx_queue);
     } else if (interface == 2 && (uart2_status & UART_RX_ENABLE)) {
@@ -199,25 +214,26 @@ unsigned int getRXSize(unsigned char interface){
 /**
  * Interrupt called whenever the TX buffer becomes empty
  */
-//void __attribute__((__interrupt__, no_auto_psv)) _U2TXInterrupt(void)
-//{
-//    //while the TX buffer isn't full and we have data to send 
-//    while (!U2STAbits.UTXBF && getBQueueSize(&uart2_tx_queue) != 0) {
-//        U2TXREG = popBQueue(&uart2_tx_queue);
-//    }
-//    IFS1bits.U2TXIF = 0;
-//}
+void __attribute__((__interrupt__, no_auto_psv)) _U2TXInterrupt(void)
+{
+    //while the TX buffer isn't full and we have data to send 
+    while (!U2STAbits.UTXBF && getBQueueSize(&uart2_tx_queue) != 0) {
+        U2TXREG = popBQueue(&uart2_tx_queue);
+    }
+    IFS1bits.U2TXIF = 0;
+}
 
 /**
  * Interrupt called when there is at least 1 character available to read from the rx buffer
  */
-//void __attribute__((__interrupt__, no_auto_psv)) _U2RXInterrupt(void)
-//{
-//    //while the rx buffer has characters available to read
-//    while (U2STAbits.URXDA) {
-//        pushBQueue(&uart2_rx_queue, U2RXREG);
-//    }
-//}
+void __attribute__((__interrupt__, no_auto_psv)) _U2RXInterrupt(void)
+{
+    //while the rx buffer has characters available to read
+    while (U2STAbits.URXDA) {
+        pushBQueue(&uart2_rx_queue, U2RXREG);
+    }
+    IFS1bits.U2RXIF = 0;
+}
 
 /**
  * Interrupt called whenever the TX buffer becomes empty
@@ -237,4 +253,6 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void)
     while (U1STAbits.URXDA) {
         pushBQueue(&uart1_rx_queue, U1RXREG);
     }
+    
+    IFS0bits.U1RXIF = 0;
 }

@@ -94,6 +94,7 @@ static bool queueATCommand(char* at_command_id);
 static void queueApiFrame(XbeeApiFrame* frame);
 static uint8_t* parseReceivedApiFrame(uint8_t* data, uint16_t data_length, uint16_t* length);
 static void parseReceivedATResponse(uint8_t* data, uint16_t data_length);
+static XbeeApiFrame* popApiFrame(void);
 
 void initRadio()
 {
@@ -106,10 +107,13 @@ void initRadio()
 
     XbeeFrameQueue.head = NULL;
     XbeeFrameQueue.tail = NULL;
-
+    
+    initUART(XBEE_UART_INTERFACE, XBEE_UART_BAUD_RATE, XBEE_UART_BUFFER_INITIAL_SIZE, XBEE_UART_BUFFER_MAX_SIZE, UART_TX_RX_ENABLE);
+    
     //request destination address
     queueATCommand(XBEE_AT_COMMAND_DESTINATION_ADDRESS_HIGH);
     queueATCommand(XBEE_AT_COMMAND_DESTINATION_ADDRESS_LOW);
+    
     info("Xbee Radio Initialized");
 }
 
@@ -139,14 +143,12 @@ void queueRadioStatusPacket()
 
 void clearRadioDownlinkQueue()
 {
-    XbeeApiFrame* packet = XbeeFrameQueue.head;
+    XbeeApiFrame* packet = popApiFrame();
     while (packet != NULL) {
-        XbeeFrameQueue.head = packet->next_frame;
         free(packet->data);
         free(packet);
-        packet = XbeeFrameQueue.head;
+        packet = popApiFrame();
     }
-    XbeeFrameQueue.tail = NULL;
     current_frame_id = 1; //also reset the current frame id
 }
 
@@ -154,9 +156,11 @@ bool sendQueuedDownlinkPacket()
 {
     //to temporarily store the api messages to send over the uart line
     static uint8_t send_buffer[XBEE_TX_BUFFER_LENGTH];
+    
+    uint8_t checksum = 0;
 
     send_buffer[0] = XBEE_START_DELIMITER;
-    XbeeApiFrame* to_send = XbeeFrameQueue.head; //to save on typing
+    XbeeApiFrame* to_send = XbeeFrameQueue.head; //to save on typing. We're only peeking at the value here, not popping!
 
     if (to_send != NULL) {
         //the 5 comes from the start delimiter, 2 bytes for length, 1 for frame type, 1 for checksum
@@ -169,20 +173,25 @@ bool sendQueuedDownlinkPacket()
         if (getTXSpace(XBEE_UART_INTERFACE) < total_frame_length) {
             return false;
         }
+        //weve got enough space for the packet. Pop it from the queue
+        popApiFrame();
+        
         send_buffer[1] = total_payload_length >> 8; //upper 8 bits of the length
         send_buffer[2] = total_payload_length & 0xFF; //lower 8 bits of the length
         send_buffer[3] = to_send->frame_type;
+        
+        checksum += to_send->frame_type;
 
         uint16_t i;
         for (i = 0; i < to_send->data_length; i++) {
             send_buffer[i + 4] = to_send->data[i];
+            checksum += to_send->data[i];
         }
         //add the checksum
-        send_buffer[total_frame_length - 1] = total_payload_length % 0xFF;
-
+        send_buffer[total_frame_length - 1] = 0xFF - checksum;
+        
         queueTXData(XBEE_UART_INTERFACE, send_buffer, total_frame_length); //queue the data for tranmission over UART
 
-        XbeeFrameQueue.head = to_send->next_frame;
         free(to_send->data);
         free(to_send);
         return true;
@@ -268,6 +277,9 @@ uint8_t* parseUplinkPacket(uint16_t* length)
 
     //the parsed length of the packet we're parsing. Used to tell when the packet is complete
     static uint16_t rx_packet_length;
+    
+    //current calculated checksum of the in-progress packet
+    static uint8_t checksum;
 
     uint8_t byte; //bytes after the start delimiter
 
@@ -304,12 +316,14 @@ uint8_t* parseUplinkPacket(uint16_t* length)
             } else if (rx_packet_pos == 2) {
                 //second byte is the LSB of the length of the upcoming packet
                 rx_packet_length += (uint16_t) byte;
+                checksum = 0;
             } else if (rx_packet_pos >= 3) {
                 //copy over the payload (not including checksum). 2 because of the 2 length bytes
                 if (rx_packet_pos <= rx_packet_length + 2) {
                     receive_buffer[rx_packet_pos - 3] = byte;
+                    checksum += byte;
                 } else { //we've finished copying the payload, check the checksum byte
-                    if (byte % 0xFF != rx_packet_length % 0xFF) {
+                    if ((checksum + byte) != 0xFF) {
                         parsing_rx_packet = false;
                         return NULL;
                     } else {
@@ -476,18 +490,40 @@ static void parseReceivedATResponse(uint8_t* data, uint16_t data_length)
 }
 
 /**
+ * Pops an element from the xbee frame queue
+ * @return Null if nothing to pop
+ */
+static XbeeApiFrame* popApiFrame(){
+    XbeeApiFrame* packet = XbeeFrameQueue.head;
+    
+    if (packet == XbeeFrameQueue.tail){
+        XbeeFrameQueue.tail = NULL;
+        XbeeFrameQueue.head = NULL;
+    } else {
+        XbeeFrameQueue.head = packet->next_frame;
+    }
+    return packet;
+}
+
+/**
  * Queues an API frame for transmission, however does not send it yet
  * @param frame
  */
 static void queueApiFrame(XbeeApiFrame* frame)
 {
-    //append this frame to the queue of frames to send
-    if (XbeeFrameQueue.tail == NULL) {
+    if (frame == NULL){
+        return;
+    }
+    
+    frame->next_frame = NULL;
+    
+    if (XbeeFrameQueue.head == NULL){
         XbeeFrameQueue.head = frame;
+        XbeeFrameQueue.tail = frame;
     } else {
         XbeeFrameQueue.tail->next_frame = frame;
+        XbeeFrameQueue.tail = frame;
     }
-    XbeeFrameQueue.tail = frame;
 }
 
 #endif

@@ -1,146 +1,66 @@
-/*
- * File:   OrientationControl.c
- * Author: Chris Hajduk
- *
- * Created on October 29, 2013, 9:41 PM
+/**
+ * @file OrientationControl.c
+ * @author Ian Frosst
+ * @date March 2, 2017
+ * @copyright Waterloo Aerial Robotics Group 2017 \n
+ *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE 
  */
-#include "OutputCompare.h"
+
 #include "OrientationControl.h"
 #include "main.h"
-#include "AttitudeManager.h"
-#include "VN100.h"
 
-//float constmax = 2.7188;
+// PID control values for the basic loops
+static PIDVal pids[CONTROL_CHANNELS];
 
+static bool gainsUpdated = 0; // updated gain flag
 
-//TODO: Change these variable names to more generic names for inclusion of heading
-//25.2125988006591
-float kd_gain[7] = {3.5, 3.5, 3, 5, 0, 0, 0};
-float kp_gain[7] = {1, 1.6, 4.8, 2, 1.5, 1, 1};//{1, 0.5, 2.5, 1.5, 1.25, 0.05};
-float ki_gain[7]= {0, 0, 0, 0, 0, 0,0};
-//Interal Values
-float sum_gain[6] = {0, 0, 0, 0, 0, 0};
-long int lastControlTime[6] = {0, 0, 0, 0, 0, 0};
-//Derivative Values
-int lastError[6] = {0, 0, 0, 0, 0, 0}; //[0],[1],[2] are currently unused
+// Initial PID gains. These are only used to keep sane values on startup.
+const static float init_kp[CONTROL_CHANNELS] = {1, 1, 1, 1, 1, 1, 1, 1};
+const static float init_ki[CONTROL_CHANNELS] = {0, 0, 0, 0, 0, 0, 0, 0};
+const static float init_kd[CONTROL_CHANNELS] = {0, 0, 0, 0, 0, 0, 0, 0};
 
-char integralFreeze = 0;
-char gainsUpdated = 0;
+/*
+ * Orientation-controller functions begin below here
+ */
 
-int controlSignalThrottle(int setpoint, int output){
-    int error = setpoint - output;
-    if (integralFreeze == 0){
-        sum_gain[THROTTLE] += (float)error;
+void orientationInit() {
+    uint8_t i;
+    for (i = 0; i < CONTROL_CHANNELS; i++) {
+        initPID(&pids[i], init_kp[i], init_ki[i], init_kd[i], 1000);
     }
-    int controlSignal = (int)(THROTTLE_SCALE_FACTOR * (error * kp_gain[THROTTLE] + sum_gain[THROTTLE] * ki_gain[THROTTLE]));
-    return controlSignal;
 }
 
-int controlSignalFlap(int setpoint, int output){
-    int error = setpoint - output;
-    if (integralFreeze == 0){
-        sum_gain[FLAP] += (float)error;
+PIDVal* getPID(ControlChannel channel) {
+    return &pids[channel];
+}
+
+float getGain(ControlChannel channel, GainType type){
+    if (channel < CONTROL_CHANNELS) {
+        if (type == KP){
+            return pids[channel].kp;
+        } else if (type == KI){
+            return pids[channel].ki;
+        } else if (type == KD){
+            return pids[channel].kd;
+        }
     }
-    int controlSignal = (int)(FLAP_SCALE_FACTOR * (error * kp_gain[FLAP] + sum_gain[FLAP] * ki_gain[FLAP]));
-    return controlSignal;
+    return -1; // TODO: return something better than a wrong value
 }
 
-int controlSignalAltitude(int setpoint, int output){
-    int error = setpoint - output;
-    if (integralFreeze == 0){
-        sum_gain[ALTITUDE] += (float)error;
-    }
-
-    //Derivative Calculations ---Not necessarily needed for altitude
-    int dValue = error - lastError[ALTITUDE];
-    lastError[ALTITUDE] = error;
-
-
-    int controlSignal = (int)(ALTITUDE_PITCH_SCALE_FACTOR * ((dValue * kd_gain[ALTITUDE]) + (error * kp_gain[ALTITUDE]) + (sum_gain[ALTITUDE] * ki_gain[ALTITUDE])));
-    return controlSignal;
-}
-
-int controlSignalHeading(int setpoint, int output) { // function to find output based on gyro acceleration and PWM input
-    //Take into account Heading overflow (330 degrees and 30 degrees is a 60 degree difference)
-    if (setpoint - output > 180){
-        output += 360;
-    }
-    else if (setpoint - output < -180){
-        output -= 360;
-    }
-    
-    int error = setpoint - output;
-    if (integralFreeze == 0){
-        sum_gain[HEADING] += (float)error;
-    }
-    
-    //Derivative Calculations
-    int dValue = error - lastError[HEADING];
-    lastError[HEADING] = error;
-
-    int controlSignal = (int)(HEADING_ROLL_SCALE_FACTOR * ((dValue * kd_gain[HEADING]) + (error * kp_gain[HEADING]) + (sum_gain[HEADING] * ki_gain[HEADING])));
-    return controlSignal;
-}
-int controlSignalAngles(float setpoint, float output, unsigned char type, float SERVO_SCALE_FACTOR_ANGLES) { // function to find output based on gyro acceleration and PWM input
-
-    float error = setpoint - output;
-    if (integralFreeze == 0){
-        sum_gain[type] += error;
-    }
-
-    int controlSignal = (int)(SERVO_SCALE_FACTOR_ANGLES * (error * kp_gain[type] + (sum_gain[type] * ki_gain[type])));
-    return controlSignal;
-}
-int controlSignal(float setpoint, float output, unsigned char type) { // function to find output based on gyro acceleration and PWM input
-    int controlSignal = (int)(SERVO_SCALE_FACTOR * (setpoint - output * kd_gain[type]));
-    return controlSignal;
-}
-
-void freezeIntegral() {
-    integralFreeze = 1;
-}
-
-void unfreezeIntegral() {
-    integralFreeze = 0;
-}
-
-void setIntegralSum(unsigned char YPRH, float value) {
-    sum_gain[YPRH] = value;
-}
-float getIntegralSum(unsigned char YPRH){
-    return sum_gain[YPRH];
-}
-
-float getGain(unsigned char YPRH, unsigned char type){
-    if (type == GAIN_KD){
-        return kd_gain[YPRH];
-    }
-    else if (type == GAIN_KP){
-        return kp_gain[YPRH];
-    }
-    else if (type == GAIN_KI){
-        return ki_gain[YPRH];
-    }
-    else
-        return -1;
-}
-void setGain(unsigned char channel, unsigned char type, float value){
+void setGain(ControlChannel channel, GainType type, float value){
     gainsUpdated = 1;
-    if (channel < GAIN_CHANNELS)
-    {
-        if (type == GAIN_KD){
-            kd_gain[channel] = value;
-        }
-        else if (type == GAIN_KP){
-            kp_gain[channel] = value;
-        }
-        else if (type == GAIN_KI){
-            ki_gain[channel] = value;
+    if (channel < CONTROL_CHANNELS) {
+        if (type == KP){
+            pids[channel].kp = value;
+        } else if (type == KI){
+            pids[channel].ki = value;
+        } else if (type == KD){
+            pids[channel].kd = value;
         }
     }
 }
 
-char areGainsUpdated(){
+bool areGainsUpdated(){
     if (gainsUpdated){
         gainsUpdated = 0;
         return 1;

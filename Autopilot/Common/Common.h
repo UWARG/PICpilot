@@ -29,7 +29,6 @@
 //used for error checking to see if GPS coordinates make sense
 #define GPS_ERROR 3 
 
-
 //Define constants for global use in the code
 #define TRUE	0xFF
 #define FALSE	0x00
@@ -41,7 +40,7 @@
 #define deg2rad(DEG) ((DEG) * PI/180.0)
 #define rad2deg(RAD) ((RAD) * 180.0/PI)
 
-//Waypoint Management Commands
+// Datalink --> Path Manager commands
 #define PM_DEBUG_TEST 0
 #define PM_NEW_WAYPOINT 1
 #define PM_CLEAR_WAYPOINTS 2
@@ -81,7 +80,7 @@ typedef struct _waypointWrapper{ // 28 bytes
     char previousId; //For use with insertNode() or operations that require reference to another node
     char nextId; //For use with insertNode() or operations that require reference to another node
     char id;    //Array ID
-}WaypointWrapper;
+} WaypointWrapper;
 
 typedef struct _PathData{
     struct _PathData* next;
@@ -95,43 +94,6 @@ typedef struct _PathData{
     char index;
 } PathData;
 
-typedef struct _PMData { // 62 Bytes
-    float time;     // 4 Bytes   -  hhmmss.ssss
-    long double latitude;  // 8 Bytes - ddd.mmmmmm
-    long double longitude; // 8 Bytes - ddd.mmmmmm
-    float speed;    //KM/H
-    float altitude;
-    float airspeed;
-    float pmPathGain;
-    float pmOrbitGain;
-    float waypointChecksum;
-    int sp_Altitude; // Meters
-    int heading;  //Degrees
-    int sp_Heading; //Degrees
-    int batteryLevel1;
-    int batteryLevel2;
-    char satellites;    //1 Byte
-    char positionFix;   //0 = No GPS, 1 = GPS fix, 2 = DGSP Fix
-    char targetWaypoint;
-    char waypointCount;
-    char pathFollowing;
-    char padding;
-    char checkbyteDMA1;
-    char checkbyteDMA2;
-} PMData;
-
-typedef struct _AMData { // 60 Bytes
-    WaypointWrapper waypoint; //28 bytes
-    float pathGain;
-    float orbitGain;
-    float calibrationHeight;
-    char command;
-    char followPath;
-    char padding[16];
-    char checksum;
-    char checkbyteDMA;
-} AMData;
-
 /* Typing guidelines:
  * When dealing with C-style strings or raw characters, use char
  * When you need an integer no larger than 8 bits (i.e. +127/-128 or 0-255), use (u)int8_t
@@ -140,12 +102,15 @@ typedef struct _AMData { // 60 Bytes
 typedef uint8_t byte;
 typedef uint16_t word;
 
-char generatePMDataDMAChecksum1(void);
-char generatePMDataDMAChecksum2(void);
-char generateAMDataDMACheckbyte(void);
-char generateAMDataChecksum(AMData* data);
 float getDistance(long double lat1, long double lon1, long double lat2, long double lon2);
 
+/**
+ * Limits an input value to a specified range.
+ * @param input Pointer to the input value
+ * @param min Minimum value of input
+ * @param max Maximum value of input
+ */
+void constrain(int16_t* input, int16_t min, int16_t max);
 
 #endif	/* COMMON_H */
 

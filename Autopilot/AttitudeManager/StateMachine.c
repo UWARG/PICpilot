@@ -6,21 +6,20 @@
  */
 
 #include "StateMachine.h"
+#include "./Network/Datalink.h"
+#include "./AttitudeManager.h"
 #include "../Common/Utilities/Logger.h"
 #include "../Common/Common.h"
 #include "main.h"
+#include "../Common/Interfaces/InterchipDMA.h"
+#include "Drivers/Radio.h"
 #include "ProgramStatus.h"
-
-/*
- *
- */
+#include "../Common/Clock/Timer.h"
 
 //State Machine Triggers (Mostly Timers)
 static int dmaTimer = 0;
 static int uplinkTimer = 0;
-static int downlinkP0Timer = 0;
-static int downlinkP1Timer = 0;
-static int downlinkP2Timer = 0;
+static int downlinkTimer = 0;
 static int imuTimer = 0;
 static long int stateMachineTimer = 0;
 static int dTime = 0;
@@ -29,16 +28,12 @@ static char AMUpdate = 0;
 static char flightUpdate = 0;
 
 void StateMachine(char entryLocation){
-    //Timers
     dTime = (int)(getTime() - stateMachineTimer);
-    stateMachineTimer = getTime();
+    stateMachineTimer += dTime;
     uplinkTimer += dTime;
-    downlinkP0Timer += dTime;
-    downlinkP1Timer += dTime;
-    downlinkP2Timer += dTime;
+    downlinkTimer += dTime;
     imuTimer += dTime;
     dmaTimer += dTime;
-
 
     //Clear Watchdog timer
     asm("CLRWDT");
@@ -57,7 +52,7 @@ void StateMachine(char entryLocation){
 
         flightUpdate = 1;
     }
-    else if(isDMADataAvailable() && checkDMA()){
+    else if(newInterchipData() && checkDMA()){
         //Input from Controller
         flightUpdate = 1;
     }
@@ -83,30 +78,18 @@ void StateMachine(char entryLocation){
         readDatalink();
     }
 
-    if(P0_SEND_FREQUENCY <= downlinkP0Timer){
-        //debug("P0");
-        //Compile and send data
-        downlinkP0Timer = 0;
-        writeDatalink(PRIORITY0);
+    if(downlinkTimer >= DOWNLINK_SEND_INTERVAL){
+        downlinkTimer = 0;
+        writeDatalink(getNextPacketType());
     }
-    else if(P1_SEND_FREQUENCY <= downlinkP1Timer){
-        //debug("P1");
-        //Compile and send data
-        downlinkP1Timer = 0;
-        writeDatalink(PRIORITY1);
+
+    if (areGainsUpdated() || showGains()){
+        queuePacketType(PACKET_TYPE_GAINS);
     }
-    else if(P2_SEND_FREQUENCY <= downlinkP2Timer || areGainsUpdated()){
-        //debug("P2");
-        //Compile and send data
-        downlinkP2Timer = 0;
-        writeDatalink(PRIORITY2);
-    }
-    else{
-        //Then Sleep
-    }
-    //Loop it back again!
-    inboundBufferMaintenance();
-    outboundBufferMaintenance();
+    
+    parseDatalinkBuffer(); //read any incoming data from the Xbee and put in buffer
+    sendQueuedDownlinkPacket(); //send any outgoing info
+    
     asm("CLRWDT");
 }
 

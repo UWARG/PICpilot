@@ -29,7 +29,7 @@ void lowLevelControl();
 #define HEX_P 3
 
 // Set multirotor type
-#define ROTOR_TYPE QUAD_X
+#define ROTOR_TYPE QUAD_P
 
 // Inputs
 #define THROTTLE_IN_CHANNEL 1
@@ -37,12 +37,18 @@ void lowLevelControl();
 #define PITCH_IN_CHANNEL 3
 #define YAW_IN_CHANNEL 4
 
-#if ROTOR_TYPE == QUAD_X
 // Outputs
+#if ROTOR_TYPE == QUAD_X
 #define FRONT_LEFT_MOTOR 1
 #define FRONT_RIGHT_MOTOR 2
 #define BACK_RIGHT_MOTOR 3
 #define BACK_LEFT_MOTOR 4
+
+#elif ROTOR_TYPE == QUAD_P
+#define FRONT_MOTOR 1
+#define RIGHT_MOTOR 2
+#define BACK_MOTOR 3
+#define LEFT_MOTOR 4
 
 #endif
 // TODO: implement channel/motor mixing for other multirotor types

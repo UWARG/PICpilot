@@ -4,22 +4,25 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
+      <logicalFolder name="f3" displayName="Clock" projectFiles="true">
+        <itemPath>../Common/Clock/Clock.h</itemPath>
+        <itemPath>../Common/Clock/Timer.h</itemPath>
+      </logicalFolder>
       <logicalFolder name="f2" displayName="Interfaces" projectFiles="true">
         <itemPath>../Common/Interfaces/UART.h</itemPath>
         <itemPath>../Common/Interfaces/I2C.h</itemPath>
         <itemPath>../Common/Interfaces/SPI.h</itemPath>
+        <itemPath>../Common/Interfaces/InterchipDMA.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="Utilities" projectFiles="true">
         <itemPath>../Common/Utilities/Logger.h</itemPath>
         <itemPath>../Common/Utilities/ByteQueue.h</itemPath>
-        <itemPath>../Common/Utilities/InterchipDMA.h</itemPath>
       </logicalFolder>
       <itemPath>Dubins.h</itemPath>
       <itemPath>main.h</itemPath>
       <itemPath>MPL3115A2.h</itemPath>
       <itemPath>NMEAparser.h</itemPath>
       <itemPath>PathManager.h</itemPath>
-      <itemPath>../Common/clock.h</itemPath>
       <itemPath>../Common/Common.h</itemPath>
       <itemPath>StartupErrorCodes.h</itemPath>
       <itemPath>airspeedSensor.h</itemPath>
@@ -33,22 +36,25 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
+      <logicalFolder name="f4" displayName="Clock" projectFiles="true">
+        <itemPath>../Common/Clock/Clock.c</itemPath>
+        <itemPath>../Common/Clock/Timer.c</itemPath>
+      </logicalFolder>
       <logicalFolder name="f1" displayName="Interfaces" projectFiles="true">
         <itemPath>../Common/Interfaces/UART.c</itemPath>
         <itemPath>../Common/Interfaces/I2C.c</itemPath>
         <itemPath>../Common/Interfaces/SPI.c</itemPath>
+        <itemPath>../Common/Interfaces/InterchipDMA.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f2" displayName="Utilities" projectFiles="true">
         <itemPath>../Common/Utilities/ByteQueue.c</itemPath>
         <itemPath>../Common/Utilities/Logger.c</itemPath>
-        <itemPath>../Common/Utilities/InterchipDMA.c</itemPath>
       </logicalFolder>
       <itemPath>Dubins.c</itemPath>
       <itemPath>main.c</itemPath>
       <itemPath>MPL3115A2.c</itemPath>
       <itemPath>NMEAparser.c</itemPath>
       <itemPath>PathManager.c</itemPath>
-      <itemPath>../Common/clock.c</itemPath>
       <itemPath>../Common/Common.c</itemPath>
       <itemPath>StartupErrorCodes.c</itemPath>
       <itemPath>airspeedSensor.c</itemPath>
@@ -78,7 +84,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>ICD3PlatformTool</platformTool>
         <languageToolchain>XC16</languageToolchain>
-        <languageToolchainVersion>1.31</languageToolchainVersion>
+        <languageToolchainVersion>1.26</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -93,8 +99,6 @@
           <parseOnProdLoad>false</parseOnProdLoad>
           <alternateLoadableFile></alternateLoadableFile>
         </loading>
-        <subordinates>
-        </subordinates>
       </compileType>
       <makeCustomizationType>
         <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
@@ -274,21 +278,22 @@
         <property key="memories.eeprom" value="true"/>
         <property key="memories.flashdata" value="true"/>
         <property key="memories.id" value="true"/>
-        <property key="memories.instruction.ram" value="true"/>
-        <property key="memories.instruction.ram.ranges"
-                  value="${memories.instruction.ram.ranges}"/>
         <property key="memories.programmemory" value="true"/>
-        <property key="memories.programmemory.ranges"
-                  value="${memories.programmemory.ranges.default}"/>
+        <property key="memories.programmemory.end" value="0x2abff"/>
+        <property key="memories.programmemory.partition2" value="true"/>
+        <property key="memories.programmemory.partition2.end"
+                  value="${memories.programmemory.partition2.end.value}"/>
+        <property key="memories.programmemory.partition2.start"
+                  value="${memories.programmemory.partition2.start.value}"/>
+        <property key="memories.programmemory.start" value="0x0"/>
         <property key="poweroptions.powerenable" value="false"/>
         <property key="programoptions.donoteraseauxmem" value="false"/>
         <property key="programoptions.eraseb4program" value="true"/>
         <property key="programoptions.preservedataflash" value="false"/>
-        <property key="programoptions.preservedataflash.ranges" value=""/>
         <property key="programoptions.preserveeeprom" value="false"/>
-        <property key="programoptions.preserveeeprom.ranges" value=""/>
-        <property key="programoptions.preserveprogram.ranges" value=""/>
         <property key="programoptions.preserveprogramrange" value="false"/>
+        <property key="programoptions.preserveprogramrange.end" value="0x2abff"/>
+        <property key="programoptions.preserveprogramrange.start" value="0x0"/>
         <property key="programoptions.preserveuserid" value="false"/>
         <property key="programoptions.programcalmem" value="false"/>
         <property key="programoptions.programuserotp" value="false"/>

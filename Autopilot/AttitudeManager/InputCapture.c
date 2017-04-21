@@ -5,7 +5,7 @@
 
 #include <p33Fxxxx.h>
 #include "InputCapture.h"
-#include "timer.h"
+#include "../Common/Clock/Timer.h"
 
 /**
  * Number of timer ticks that indicate a sync pulse

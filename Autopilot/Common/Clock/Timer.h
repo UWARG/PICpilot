@@ -9,6 +9,8 @@
 #ifndef TIMER_H
 #define	TIMER_H
 
+#include <stdint.h>
+
 /**
  * Number of Timer2 ticks in a millisecond. To calculate this, take:
  * 1/(frequencyCPU/Timer2PreScaler)*TICKS_TO_MSEC should equal close to 0.001 or 1 ms
@@ -30,7 +32,7 @@
  * Timer4 Period in ticks. This value depends of the pre-scaler used.
  * Length of one tick is 1/(frequencyCPU/Timer4PreScaler)
  */
-#define T4_TICKS_TO_MSEC 625
+#define T4_TICKS_TO_USEC 5 //5 ticks per us with 1:8 prescaler
 
 /**
  * Initializes Timer2. Its used as a 16-bit timer. Used for PWM input and output management
@@ -46,6 +48,12 @@ void initTimer4(void);
  * Get current time in ms
  * @return ms
  */
-long unsigned int getTime();
+uint32_t getTime(void);
+
+/**
+ * Get current system time in us
+ * @return us
+ */
+uint64_t getTimeUs(void);
 
 #endif

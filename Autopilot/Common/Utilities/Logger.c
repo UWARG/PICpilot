@@ -8,13 +8,20 @@
 
 #include "./Logger.h"
 #include "../Interfaces/UART.h"
+#include <stddef.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 static char logger_initialized = 0;
+
+//general buffer. used for sprintf when printing out integers and such
+static char* buffer;
 
 void initLogger(void)
 {
     initUART(LOGGER_UART_INTERFACE, LOGGER_UART_BAUD_RATE, LOGGER_BUFFER_INITIAL_LENGTH, LOGGER_BUFFER_MAX_LENGTH, UART_TX_ENABLE);
     logger_initialized = 1;
+    buffer = malloc(100); //allocate 100 bytes for the buffer
 }
 
 static void writeMessage(char* message, char* label, unsigned int label_length)
@@ -52,6 +59,31 @@ void debug(char* message)
 {
     if (logger_initialized) {
         writeMessage(message, DEBUG_TAG_STRING, DEBUG_TAG_STRING_LENGTH);
+    }
+}
+
+void debugArray(uint8_t* array, uint16_t length)
+{
+    if (logger_initialized) {
+        char* to_print = malloc(length*3 + 1);
+        if (to_print == NULL){
+            return;
+        }
+        int i;
+        for (i = 0; i < length; i++) {
+            sprintf(&to_print[i*3],"%02x ", array[i]);
+        }
+        to_print[length*3] = 0;
+
+        writeMessage(to_print, DEBUG_TAG_STRING, DEBUG_TAG_STRING_LENGTH);
+        free(to_print);
+    }
+}
+
+void debugInt(char* message, int64_t number){
+    if (logger_initialized){
+        sprintf(buffer, "%s: %lld", message, number);
+        writeMessage(buffer, DEBUG_TAG_STRING, DEBUG_TAG_STRING_LENGTH);
     }
 }
 
