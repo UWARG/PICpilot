@@ -13,8 +13,10 @@
 #define AREF 3.3f
 // Source voltage for the airspeed sensor
 #define VSOURCE 4.0f
+// Voltage divider ratio
+#define ASPD_RATIO 0.677f
 
-const static float v_sc = (AREF / 4096) / VSOURCE; // ADC -> voltage -> percentage
+const static float v_sc = ((AREF / 4096) * ASPD_RATIO) / VSOURCE; // ADC -> voltage -> percentage
 
 static int airspeedHistory[AIRSPEED_HISTORY] = {0};
 static int historyCounter = 0;
