@@ -711,8 +711,8 @@ bool writeDatalink(PacketType packet){
             statusData.data.status_block.altitude_setpoint = getAltitudeSetpoint();
             statusData.data.status_block.throttle_setpoint = getThrottleSetpoint();
             
-            statusData.data.status_block.internal_battery_voltage = 50; //TODO: Make these actual values
-            statusData.data.status_block.external_battery_voltage = 50;
+            statusData.data.status_block.internal_battery_voltage = batteryLevel1;
+            statusData.data.status_block.external_battery_voltage = batteryLevel2;
             
             statusData.data.status_block.autonomous_level = controlLevel;
             statusData.data.status_block.startup_errors = getStartupErrorCodes();
