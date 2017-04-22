@@ -47,6 +47,7 @@
         <itemPath>fmath.h</itemPath>
         <itemPath>../Common/Utilities/ByteQueue.h</itemPath>
         <itemPath>../Common/Utilities/Logger.h</itemPath>
+        <itemPath>../Common/Utilities/LED.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f7" displayName="VectorNav" projectFiles="true">
         <itemPath>VN100.h</itemPath>
@@ -109,6 +110,7 @@
         <itemPath>delay.c</itemPath>
         <itemPath>../Common/Utilities/ByteQueue.c</itemPath>
         <itemPath>../Common/Utilities/Logger.c</itemPath>
+        <itemPath>../Common/Utilities/LED.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f6" displayName="VectorNav" projectFiles="true">
         <itemPath>VN100.c</itemPath>
@@ -150,7 +152,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>ICD3PlatformTool</platformTool>
         <languageToolchain>XC16</languageToolchain>
-        <languageToolchainVersion>1.26</languageToolchainVersion>
+        <languageToolchainVersion>1.31</languageToolchainVersion>
         <platform>2</platform>
       </toolsSet>
       <compileType>
@@ -165,6 +167,8 @@
           <parseOnProdLoad>false</parseOnProdLoad>
           <alternateLoadableFile></alternateLoadableFile>
         </loading>
+        <subordinates>
+        </subordinates>
       </compileType>
       <makeCustomizationType>
         <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>

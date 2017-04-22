@@ -12,7 +12,6 @@
 #include "InputCapture.h"
 #include "OutputCompare.h"
 #include "PWM.h"
-#include "AttitudeManager.h"
 #include "Network/Commands.h"
 #include "StartupErrorCodes.h"
 #include "main.h"
@@ -23,6 +22,7 @@
 #include "Peripherals/UHF.h"
 #include "../Common/Interfaces/InterchipDMA.h"
 #include "../Common/Clock/Timer.h"
+#include "../Common/Utilities/LED.h"
 #include <string.h>
 
 int input_RC_Flap; // Flaps need to finish being refactored.
@@ -134,6 +134,7 @@ void attitudeInit() {
     //Initialize Timer
     initTimer4();
     
+    initLED(1);
     
     initSPI(IC_DMA_PORT, 0, SPI_MODE1, SPI_BYTE, SPI_SLAVE);
     initInterchip(DMA_CHIP_ID_ATTITUDE_MANAGER);

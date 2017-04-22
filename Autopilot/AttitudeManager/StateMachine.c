@@ -15,12 +15,14 @@
 #include "Drivers/Radio.h"
 #include "ProgramStatus.h"
 #include "../Common/Clock/Timer.h"
+#include "../Common/Utilities/LED.h"
 
 //State Machine Triggers (Mostly Timers)
 static int dmaTimer = 0;
 static int uplinkTimer = 0;
 static int downlinkTimer = 0;
 static int imuTimer = 0;
+static int ledTimer = 0;
 static long int stateMachineTimer = 0;
 static int dTime = 0;
 
@@ -33,6 +35,7 @@ void StateMachine(char entryLocation){
     uplinkTimer += dTime;
     downlinkTimer += dTime;
     imuTimer += dTime;
+    ledTimer += dTime;
     dmaTimer += dTime;
 
     //Clear Watchdog timer
@@ -85,6 +88,16 @@ void StateMachine(char entryLocation){
 
     if (areGainsUpdated() || showGains()){
         queuePacketType(PACKET_TYPE_GAINS);
+    }
+    
+    // Update status LED
+    if (ledTimer >= LED_BLINK_LONG) {
+        toggleLEDState();
+        if (getProgramStatus() == UNARMED) {
+            ledTimer -= LED_BLINK_LONG;
+        } else if (getProgramStatus() == MAIN_EXECUTION) {
+            ledTimer -= LED_BLINK_SHORT;
+        }
     }
     
     parseDatalinkBuffer(); //read any incoming data from the Xbee and put in buffer
