@@ -23,7 +23,6 @@
       </logicalFolder>
       <logicalFolder name="f12" displayName="Drivers" projectFiles="true">
         <itemPath>Drivers/RadioXbee.h</itemPath>
-        <itemPath>Drivers/Radio.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f8" displayName="Interfaces" projectFiles="true">
         <itemPath>../Common/Interfaces/UART.h</itemPath>
@@ -36,6 +35,7 @@
       </logicalFolder>
       <logicalFolder name="f2" displayName="Peripherals" projectFiles="true">
         <itemPath>Peripherals/UHF.h</itemPath>
+        <itemPath>Peripherals/Radio.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f4" displayName="PWM Management" projectFiles="true">
         <itemPath>OutputCompare.h</itemPath>
@@ -222,6 +222,8 @@
       <C30-AR>
         <property key="additional-options-chop-files" value="false"/>
       </C30-AR>
+      <C30-AS>
+      </C30-AS>
       <C30-LD>
         <property key="additional-options-use-response-files" value="false"/>
         <property key="boot-eeprom" value="no_eeprom"/>
@@ -324,6 +326,7 @@
         <property key="UART 1" value="true"/>
         <property key="UART 2" value="true"/>
         <property key="debugoptions.useswbreakpoints" value="false"/>
+        <property key="firmware.download.all" value="false"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="false"/>
