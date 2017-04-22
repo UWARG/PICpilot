@@ -9,14 +9,15 @@
 #include "airspeedSensor.h"
 #include "../Common/Utilities/Logger.h"
 
-// Internal analog reference voltage
-#define AREF 3.3f
+// Internal analog reference voltage ratio
+#define AREF_RATIO (3.3f / 4096)
 // Source voltage for the airspeed sensor
-#define VSOURCE 4.0f
+#define VSOURCE 5.0f
 // Voltage divider ratio
 #define ASPD_RATIO 0.677f
 
-const static float v_sc = ((AREF / 4096) * ASPD_RATIO) / VSOURCE; // ADC -> voltage -> percentage
+// ADC -> voltage -> percentage -> pressure
+const static float v_sc = ((AREF_RATIO / ASPD_RATIO) / VSOURCE) * 0.2f; // derived from the internal ADC conversions and the airspeed sensor datasheet
 
 static int airspeedHistory[AIRSPEED_HISTORY] = {0};
 static int historyCounter = 0;
@@ -46,19 +47,20 @@ void calibrateAirspeed() {
         }
     }
     offset /= AIRSPEED_HISTORY;
-    debugInt("Airspeed Offset", (int)offset); // hopefully will be close to 0. if this is > 2000, something might be wrong.
+    debugInt("Airspeed Offset", (int32_t)offset); // should be pretty close to 2000 (+/- 200)
 }
 
 void initAirspeedSensor(){
     //RA11/AN11 is the pin to get the airspeed information
     TRISBbits.TRISB11 = 1;
     initAirspeedADC();
-    //calibrateAirspeed();
+    calibrateAirspeed();
 }
 
 static float ADCConvert(float signal) {
-    // converts an ADC value (0-4095) to an airspeed (m/s)
-    return sqrtf(((signal*v_sc) - 0.5f) * 333.33f);
+    // converts an ADC signal (0-4095) to an airspeed (m/s)
+    // derived from the equation for flow velocity given impact pressure (for fluids)
+    return sqrtf(signal * v_sc * 1666.67f);
 }
 
 float getCurrentAirspeed(){
@@ -68,7 +70,7 @@ float getCurrentAirspeed(){
         aspd_filtered += (float)airspeedHistory[i];
     }
     aspd_filtered /= AIRSPEED_HISTORY;
-    return ADCConvert(aspd_filtered);
+    return ADCConvert(fabsf(aspd_filtered - offset));
 }
 
 void initAirspeedADC(){

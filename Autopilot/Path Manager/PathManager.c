@@ -637,8 +637,7 @@ void copyGPSData(){
         interchip_send_buffer.pm_data.positionFix = (char)gpsData.positionFix;
         checkForFirstGPSLock();
     }
-    int batt2 = getExtBatteryLevel();
-    debugInt("Battery2", batt2);
+    
     interchip_send_buffer.pm_data.batteryLevel1 = getMainBatteryLevel();
     interchip_send_buffer.pm_data.batteryLevel2 = getExtBatteryLevel();
     interchip_send_buffer.pm_data.airspeed = getCurrentAirspeed();
