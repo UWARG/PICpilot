@@ -55,8 +55,8 @@ typedef struct { // 60 Bytes
     int sp_Altitude; // Meters
     int heading; //Degrees
     int sp_Heading; //Degrees
-    int batteryLevel1;
-    int batteryLevel2;
+    uint16_t batteryLevel1; // 100x voltage level for the main & external batteries, respectively
+    uint16_t batteryLevel2;
     uint16_t interchip_error_count; //how many dma errors the path manager has received from the attitude manager
     uint16_t gps_communication_error_count; //number of dma errors between gps and path manager, if applicable
     char satellites; //1 Byte
