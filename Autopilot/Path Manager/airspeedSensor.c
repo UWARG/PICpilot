@@ -82,15 +82,15 @@ void initAirspeedADC(){
 
     AD1CON2bits.SMPI = 0;		// Interrupt address every sample/conversion
     AD1CON2bits.BUFM = 0;
-    AD1CON2bits.CHPS = 0;       //Converts channel 0
-    AD1CON2bits.VCFG = 0;       //Voltage Reference is 3.3V and Ground Reference is Ground
+    AD1CON2bits.CHPS = 0;       // Converts channel 0
+    AD1CON2bits.VCFG = 0;       // Voltage Reference is 3.3V and Ground Reference is Ground
 
     AD1CON3bits.ADRC=0;			// ADC Clock is derived from Systems Clock
     AD1CON3bits.SAMC=0; 		// Auto Sample Time = 0*Tad
     AD1CON3bits.ADCS=6;			// ADC Conversion Clock Tad=Tcy*(ADCS+1)= (1/40M)*7 = 175nS
 
-    AD1CHS0bits.CH0SA = 11;     //Channel 0 positive input on AN11 (Sample A)
-    AD1CHS0bits.CH0SB = 11;     //Channel 0 positive input on AN11 (Sample B)
+    AD1CHS0bits.CH0SA = 11;     // Channel 0 positive input on AN11 (Sample A)
+    AD1CHS0bits.CH0SB = 11;     // Channel 0 positive input on AN11 (Sample B)
 
     AD1PCFGL = 0;               // Set all pins to analog input
     AD1PCFGH = 0;
@@ -98,5 +98,4 @@ void initAirspeedADC(){
     IFS0bits.AD1IF = 0;			// Clear the A/D interrupt flag bit
     IEC0bits.AD1IE = 1;			// Enable A/D interrupt
     AD1CON1bits.ADON = 1;		// Turn on the A/D converter
-
 }

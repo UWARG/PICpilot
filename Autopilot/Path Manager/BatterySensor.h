@@ -8,17 +8,11 @@
 #ifndef VOLTAGESENSOR_H
 #define	VOLTAGESENSOR_H
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+void initBatterySensor();
 
-//Function Prototypes
-void initMainBatterySensor();
-int getMainBatteryLevel();
+uint16_t getMainBatteryLevel();
 
-#ifdef	__cplusplus
-}
-#endif
+uint16_t getExtBatteryLevel();
 
 #endif	/* VOLTAGESENSOR_H */
 

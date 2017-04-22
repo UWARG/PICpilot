@@ -61,7 +61,7 @@ void pathManagerInit(void) {
     init_DMA2();
     initSPI(GPS_SPI_PORT, 0, SPI_MODE1, SPI_WORD, SPI_SLAVE);
     
-    initMainBatterySensor();
+    initBatterySensor();
     initAirspeedSensor();
 
     initSPI(IC_DMA_PORT, DMA_CLOCK_KHZ, SPI_MODE1, SPI_BYTE, SPI_MASTER);
@@ -637,8 +637,10 @@ void copyGPSData(){
         interchip_send_buffer.pm_data.positionFix = (char)gpsData.positionFix;
         checkForFirstGPSLock();
     }
+    int batt2 = getExtBatteryLevel();
+    debugInt("Battery2", batt2);
     interchip_send_buffer.pm_data.batteryLevel1 = getMainBatteryLevel();
-    interchip_send_buffer.pm_data.batteryLevel2 = 5;
+    interchip_send_buffer.pm_data.batteryLevel2 = getExtBatteryLevel();
     interchip_send_buffer.pm_data.airspeed = getCurrentAirspeed();
     interchip_send_buffer.pm_data.altitude = getAltitude(); //want to get altitude regardless of if there is new GPS data
     interchip_send_buffer.pm_data.pmOrbitGain = k_gain[ORBIT];
