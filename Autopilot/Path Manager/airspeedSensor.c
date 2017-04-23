@@ -70,6 +70,9 @@ float getCurrentAirspeed(){
         aspd_filtered += (float)airspeedHistory[i];
     }
     aspd_filtered /= AIRSPEED_HISTORY;
+    if (offset < 500) {
+        return 0;
+    }
     return ADCConvert(fabsf(aspd_filtered - offset));
 }
 

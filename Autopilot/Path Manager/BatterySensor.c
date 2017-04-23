@@ -112,6 +112,6 @@ uint16_t getMainBatteryLevel() {
 }
 
 uint16_t getExtBatteryLevel() {
-    return (uint16_t)((100.f * (float)ext_battery_adc) * (ANALOG_RATIO / EXT_BATT_RATIO)) - 50; // fuck it
+    return (uint16_t)((100.f * (float)ext_battery_adc) * (ANALOG_RATIO / EXT_BATT_RATIO)) - 40; // fuck it
 }
 
