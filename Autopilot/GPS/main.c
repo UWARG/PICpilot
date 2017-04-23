@@ -5,7 +5,7 @@
 #include <xc.h>
 #include <math.h>
 #include "Config.h"
-
+#include <stdint.h>
 /**
  * Frequency of the oscillator attached to the chip. Should be 8Mhz
  */
@@ -67,8 +67,7 @@
 
 unsigned char data = 0x00;
 unsigned char newDataFlag = 0x00;
-unsigned int byteCount = 0;
-unsigned char stringType = 0; //0 = Unknown, 1 = GGA, 2 = VTG
+
 unsigned char headerData[6];
 unsigned char bufferData[NMEA_MAX_PACKET_LENGTH];
 unsigned char gga[NMEA_MAX_PACKET_LENGTH];
@@ -112,50 +111,6 @@ char CharConvert(unsigned int checkSumHalf);
 int Delay_ms(unsigned int millisec);
 int Delay_half_us(unsigned int microsec);
 
-struct GPSData {
-    long double latitude;  //8 Bytes
-    long double longitude; //8 Bytes
-    float time;     //4 Bytes
-    float speed;
-    int altitude;
-    int heading;
-    char satellites;    //1 Byte
-    char positionFix;
-};
-struct GPSData gpsData;
-
-/**
- * Initializes Timer4 as a 1ms, 16-bit timer
- */
-void initTimer4(){
-    T1CONbits.TON = 0; // Disable Timer
-    T1CONbits.TCS = 0; // Select internal instruction cycle clock
-    T1CONbits.TGATE = 0; // Disable Gated Timer mode
-    T1CONbits.TCKPS = 0b10; // Select 1:8 Prescaler
-    TMR1 = 0x00; // Clear timer register
-    PR1 = 250; // Load the period value. Trigger every ms
-    IPC0bits.T1IP = 0x01; // Set Timer 4 Interrupt Priority Level
-    IFS0bits.T1IF = 0; // Clear Timer 4 Interrupt Flag
-    IEC0bits.T1IE = 1; // Enable Timer 4 interrupt
-    T1CONbits.TON = 1; // Start Timer
-}
-
-volatile uint32_t time_ms = 0;
-/**
- * Timer4 interrupt. Executed every ms
- */
-void __attribute__((__interrupt__, no_auto_psv)) _T1Interrupt(void){
-    time_ms += 1;
-    IFS0bits.T1IF = 0;
-}
-
-
-void delay(uint32_t ms) {
-    uint32_t start_time = time_ms;
-    while(time_ms - start_time < ms){
-
-    };
-}
 
 /******************************* Interrupts ************************************/
 void __attribute__((__interrupt__, no_auto_psv)) _SPI1Interrupt(void) {
@@ -167,9 +122,12 @@ void __attribute__((__interrupt__, no_auto_psv)) _SPI1Interrupt(void) {
 }
 
 void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
+    static uint16_t byteCount = 0;
+    static uint8_t stringType = 0; //0 = Unknown, 1 = GGA, 2 = VTG
+
     while (U1STAbits.URXDA) {
         data = U1RXREG;
-
+        U2TXREG = U1RXREG;
         if (data == '$') {
             //Beginning of Packet
             stringType = 0;
@@ -236,75 +194,6 @@ void initSPI(){
     IEC0bits.SPI1IE = 1; // Enable the Interrupt
 }
 
-int configGPS(void) {
-    //check baud rate first
-    debug("Checking to see if GPS has to be reconfigured..");
-//    int j;
-//    int at_9600 = 0;
-//    for (j = 0; j <= 4; j++) {
-//        while (U1STAbits.URXDA != 1) {
-//            ;
-//        }
-//        data = U1RXREG;
-//        if (U1STAbits.FERR == 1) {
-//            at_9600 = 1;
-//            //			PORTAbits.RA6 = 1;
-//            Delay_ms(2000);
-//
-//        }
-//    }
-    
-    if ( 1) {
-        debug("Reconfiguring GPS..");
-        U1BRG = 103;
-        int i;
-        char changeBaud[] = {'$', 'P', 'M', 'T', 'K', '2', '5', '1', ',', '1', '1', '5', '2', '0', '0', '*', '1', 'F', 13, 10}; // changes UART speed to 115200 - for loop (0 <=19)
-        char changeStrings[] = {'$', 'P', 'M', 'T', 'K', '3', '1', '4', ',', '0', ',', '0', ',', '1', ',', '1', ',', '0', ',', '0', ',', '0', ',', '0', ',', '0', ',', '0', ',', '0', ',', '0', ',', '0', ',', '0', ',', '0', ',', '0', ',', '0', ',', '0', ',', '0', '*', '2', 'C', 13, 10}; //instructs gps to only send proper two strings - for loop (0 <=50)
-        char changeFreeze[] = {'$', 'P', 'M', 'T', 'K', '3', '9', '7', ',', '0', '*', '2', '3', 13, 10}; // (0 <=16) removes freezing of speed
-        char changeRate[] = {'$', 'P', 'M', 'T', 'K', '2', '2', '0', ',', '1', '0', '0', '*', '2', 'F', 13, 10}; // changes update rate(0 <=16)
-        char changeDGPS[] = {'$', 'P', 'M', 'T', 'K', '3', '0', '1', ',', '2', '*', '2', 'E', 13, 10}; //Enables WAAS(Wide Area Augmentation System) DGPS
-
-//        for (i = 0; i <= 19; i++) {
-//            while (U1STAbits.UTXBF == 1) {;}
-//            U1TXREG = changeBaud[i];
-//        }
-        delay(200);
-        U1BRG = 8;
-
-        for (i = 0; i <= 50; i++) {
-            while (U1STAbits.UTXBF == 1) {;}
-            U1TXREG = changeStrings[i];
-        }
-        delay(200);
-
-
-        for (i = 0; i <= 14; i++) {
-            while (U1STAbits.UTXBF == 1) {;}
-            U1TXREG = changeFreeze[i];
-        }
-
-        delay(200);
-
-        for (i = 0; i <= 16; i++) {
-            while (U1STAbits.UTXBF == 1) {;}
-            U1TXREG = changeRate[i];
-        }
-        delay(200);
-
-        for (i = 0; i <= 14; i++) {
-            while (U1STAbits.UTXBF == 1) {;}
-            U1TXREG = changeDGPS[i];
-        }
-        delay(200);
-
-        U1STAbits.OERR = 0;
-        debug("GPS configured");
-    } else{
-        debug("No gps configuration required as battery was plugged in..");
-    }
-
-    return 0;
-}
 
 int identifyString(char *stringArray) {
     headerCheckSum = 0x00;
@@ -635,9 +524,6 @@ void convertData(void) {
         rawAltitude[i] = 0;
         rawGroundSpeed[i] = 0;
     }
-
-
-
 }
 
 void transmitData(void) {
@@ -719,42 +605,23 @@ int Delay_half_us(unsigned int microsec) {
 uint32_t start_time = 0;
 bool toggle = true;
 int main(void) {
-    initTimer4();
+    initTimer1();
 
     delay(200); //wait a bit to make sure we're getting consistent power
     
     initLogger();
     initLED();
-     debug("Letting GPS module start up for 2 sec..");
-     setLED(1);
-     while(1);
-    delay(2000);
-    
     initSPI(); //initialize SPI bus
-    
-   
-    while(1);
-//
-//    while(1){
-//        if (time_ms - start_time > 1000){
-//            start_time = time_ms;
-//            setLED(toggle);
-//            toggle = !toggle;
-//            debug("hello how are you today!");
-//        }
-//    }
+    debug("Letting GPS module start up for 2 sec..");
+    setLED(1);
+    delay(2000);
 
-    initUART(1, 9600);
-    while(1){
-        if (U1STAbits.URXDA){
-            U2TXREG = U1RXREG;
-        }
-    }
+    initUART(1, 9600); //by default gps starts up at 9600 baud
+
     configGPS(); //configure gps if battery was removed
     
     while (1) {
         if (newData){
-            debug("receiv new data");
             if (readGPSData()) {
                 convertData();
             }

@@ -44,7 +44,7 @@ void initUART(uint8_t interface, uint32_t baudrate)
         } else {
             U1BRG = BRGVAL(baudrate);
         }
-
+        
         //generate a TX interrupt when the transmit buffer becomes empty
         U1STAbits.UTXISEL1 = 1;
         U1STAbits.UTXISEL0 = 0;
