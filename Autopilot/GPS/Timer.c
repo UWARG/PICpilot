@@ -8,7 +8,7 @@
  */
 
 #include <stdint.h>
-#include "p24F16KA101.h"
+#include <xc.h>
 
 static volatile uint32_t time_ms = 0;
 

@@ -8,7 +8,7 @@
 #include "Timer.h"
 #include "Utilities.h"
 #include "MTK33x9.h"
-#include "p24F16KA101.h"
+#include <xc.h>
 #include <stdbool.h>
 #include <string.h>
 
@@ -34,7 +34,6 @@ void initGPS(){
 void configureGPS(){
     debug("Setting GPS to output only desired NMEA sentences");
     sendCommand(PMTK_SET_NMEA_OUTPUT_GGAVTG);
-    debug("done");
     delay(300);
     
     debug("Setting GPS NMEA update rate to 10Hz");
@@ -64,19 +63,25 @@ void parseIncomingGPSData(){
     if (new_gga_data){
         new_gga_data = false;
         if (isNMEAChecksumValid(gga_buffer)){
+            
             data_available = false;
             parseGGA(gga_buffer);
             data_available = true;
+        } else {
+            debug("gga checksum failed!");
         }
     }
 
     if (new_vtg_data){
         new_vtg_data = false;
         if (isNMEAChecksumValid(vtg_buffer)){
+            
             data_available = false;
             parseVTG(gga_buffer);
             data_available = true;
-        }
+        }else {
+            debug("vtg checksum failed!");
+         }
     }
 }
 
@@ -104,9 +109,11 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
             currently_parsing = true;
         } else if (data == 0x0A) { //End of Packet
              if (strncmp(GPS_GGA_MESSAGE, uart_buffer, 6) == 0){
+                 debug("sgga packett");
                  memcpy(gga_buffer, uart_buffer, GPS_UART_BUFFER_SIZE);
                  new_gga_data = true;
              } else if (strncmp(GPS_VTG_MESSAGE, uart_buffer, 6) == 0){
+                 debug("wefpackett");
                 memcpy(vtg_buffer, uart_buffer, GPS_UART_BUFFER_SIZE);
                 new_vtg_data = true;
              }
