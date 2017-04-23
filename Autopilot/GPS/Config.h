@@ -17,6 +17,6 @@
  * Tells the module to bypass the parsing functionality and just output the
  * received strings from the GPS module to the TX buffer
  */
-#define DEBUG_TX_GPS 1
+#define DEBUG_TX_GPS 0
 
 #endif
