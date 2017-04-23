@@ -37,6 +37,7 @@ void initGPS(){
 }
 
 void requestGPSInfo(){
+    SPI_SS(2, 1);
     //trigger a DMA send
     DMA3CONbits.CHEN = 1;
     DMA3REQbits.FORCE = 1;
@@ -73,7 +74,7 @@ static void initDMA2()
     DMA2CNT = (sizeof(dma2_space) - 1); //count is 0-indexed, so -1
 
     DMA2PAD = (volatile unsigned int) &SPI2BUF; //Peripheral Address
-    DMA2REQ = 0x000A; //0b0100001; //IRQ code for SPI1
+    DMA2REQ = 0b0100001; ////IRQ code for SPI2
     DMA2CONbits.CHEN = 1; //Enable the channel
 }
 
@@ -99,7 +100,7 @@ static void initDMA3()
     DMA3CNT = (sizeof(dma3_space) - 1); //count is 0-indexed, so -1
 
     DMA3PAD = (volatile unsigned int) &SPI2BUF; //Peripheral Address
-    DMA3REQ = 0x000A; //0b0100001; //IRQ code for SPI1
+    DMA3REQ = 0b0100001; ////IRQ code for SPI2
 
     //first byte should always be the synchronization byte
     dma3_space[0] = WARG_GPS_SPI_SYNCHRONIZATION_BYTE;
@@ -112,6 +113,7 @@ static void initDMA3()
  */
 void __attribute__((__interrupt__, no_auto_psv)) _DMA2Interrupt(void)
 {
+    debug("received dma data");
     uint8_t checksum = 0;
     uint16_t i = 0;
 
@@ -128,7 +130,13 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA2Interrupt(void)
         data_available = true;
     } else {
         debug("checksum failed!");
+        debugArray(dma2_space, sizeof(dma2_space));
     }
 
-    IFS0bits.DMA0IF = 0; //clear the interrupt flag
+    IFS1bits.DMA2IF = 0; //clear the interrupt flag
+}
+
+void __attribute__((__interrupt__, no_auto_psv)) _DMA3Interrupt(void)
+{
+    IFS2bits.DMA3IF = 0; //clear the interrupt flag
 }

@@ -31,7 +31,6 @@ void initSPI(SPIMode mode){
     SPI1CON1bits.DISSCK = 0; //SPI clock controlled by this module (internal clock)
     SPI1CON1bits.DISSDO = 0; //Output pins are controlled by this module (SDOx pin)
     SPI1CON1bits.MODE16 = 1; // Communication is byte-wide (8 bits)
-    SPI1CON1bits.SMP = 0; // Input data is sampled at the middle of data
     
     SPI1CON2bits.FRMEN = 0; // disable framed mode
 
@@ -58,7 +57,7 @@ void initSPI(SPIMode mode){
     SPI1CON1bits.SMP = 0; // sample input in middle of wave
     SPI1CON1bits.SSEN = 0; // disable SS?
 
-    IPC2bits.SPI1IP = 4; // Set interrupt priority
+    IPC2bits.SPI1IP = 7; // Set interrupt priority
     IFS0bits.SPI1IF = 0; //Clear interrupt flag
     IEC0bits.SPI1IE = 1; //Enable interrupt
     SPI1STATbits.SPIEN = 1; //Enable SPI
