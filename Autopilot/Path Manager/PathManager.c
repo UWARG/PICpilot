@@ -17,7 +17,7 @@
 #include "../Common/Interfaces/InterchipDMA.h"
 #include "../Common/Clock/Timer.h"
 #include "../Common/Utilities/LED.h"
-#include "GPSDMA.h"
+#include "Peripherals/GPS.h"
 
 #if DEBUG
 #include <stdio.h>
@@ -27,10 +27,6 @@
 
 
 static void checkForFirstGPSLock(); // function prototype for static function at line 679
-
-extern GPSData gpsData;
-
-extern char newGPSDataAvailable;
 
 PathData home;
 
@@ -64,8 +60,7 @@ void pathManagerInit(void) {
     initLED(0);
     
     //Communication with GPS
-    init_DMA2();
-    initSPI(GPS_SPI_PORT, 0, SPI_MODE1, SPI_WORD, SPI_SLAVE);
+    initGPS();
     
     initBatterySensor();
     initAirspeedSensor();
@@ -152,9 +147,9 @@ void pathManagerRuntime(void) {
     float position[3];
     float heading;
     //Get the position of the plane (in meters)
-    getCoordinates(gpsData.longitude,gpsData.latitude,(float*)&position);
-    position[2] = gpsData.altitude;
-    heading = (float)gpsData.heading;
+    getCoordinates(gps_data.longitude,gps_data.latitude,(float*)&position);
+    position[2] = gps_data.altitude;
+    heading = (float)gps_data.heading;
 
     if (returnHome || (pathCount - currentIndex < 1 && pathCount >= 0)){
         interchip_send_buffer.pm_data.sp_Heading = lastKnownHeadingHome;
@@ -466,7 +461,7 @@ float followStraightPath(float* waypointDirection, float* targetWaypoint, float*
 float maintainAltitude(PathData* cPath){
     float dAltitude = cPath->next->altitude - cPath->altitude;
     float dDistance = getDistance(cPath->longitude, cPath->latitude, cPath->next->longitude, cPath->next->latitude);
-    return getDistance(cPath->next->longitude, cPath->next->latitude, gpsData.longitude, gpsData.latitude)/dDistance * dAltitude + cPath->altitude;
+    return getDistance(cPath->next->longitude, cPath->next->latitude, gps_data.longitude, gps_data.latitude)/dDistance * dAltitude + cPath->altitude;
 }
 
 void getCoordinates(long double longitude, long double latitude, float* xyCoordinates){
@@ -640,19 +635,14 @@ unsigned int insertPathNode(PathData* node, unsigned int previousID, unsigned in
 }
 
 void copyGPSData(){
-    char buffer[200];
-    if (newGPSDataAvailable && gpsErrorCheck(gpsData.latitude, gpsData.longitude)){
-        newGPSDataAvailable = 0;
-        debug("gps data available!");
-        sprintf(buffer, "time %f, lon %f, lat %f, head: %f, speed %f sat: %d", gpsData.time, gpsData.longitude, gpsData.latitude, gpsData.heading, gpsData.speed, gpsData.satellites);
-        debug(buffer);
-        interchip_send_buffer.pm_data.time = gpsData.time;
-        interchip_send_buffer.pm_data.longitude = gpsData.longitude;
-        interchip_send_buffer.pm_data.latitude = gpsData.latitude;
-        interchip_send_buffer.pm_data.heading = gpsData.heading;
-        interchip_send_buffer.pm_data.speed = gpsData.speed;
-        interchip_send_buffer.pm_data.satellites = (char)gpsData.satellites;
-        interchip_send_buffer.pm_data.positionFix = (char)gpsData.positionFix;
+    if (isNewGPSDataAvailable() && gpsErrorCheck(gps_data.latitude, gps_data.longitude)){
+        interchip_send_buffer.pm_data.time = gps_data.utc_time;
+        interchip_send_buffer.pm_data.longitude = gps_data.longitude;
+        interchip_send_buffer.pm_data.latitude = gps_data.latitude;
+        interchip_send_buffer.pm_data.heading = gps_data.heading;
+        interchip_send_buffer.pm_data.speed = gps_data.ground_speed;
+        interchip_send_buffer.pm_data.satellites = (char)gps_data.num_satellites;
+        interchip_send_buffer.pm_data.positionFix = (char)gps_data.fix_status;
         checkForFirstGPSLock();
     }
     
@@ -674,9 +664,9 @@ static void checkForFirstGPSLock(){
         unsigned int error_codes = getErrorCodes();
         
         if((error_codes & STARTUP_ERROR_BROWN_OUT_RESET) || (error_codes & STARTUP_ERROR_POWER_ON_RESET)){
-		home.latitude = gpsData.latitude;
-		home.longitude = gpsData.longitude;
-		home.altitude = gpsData.altitude;
+		home.latitude = gps_data.latitude;
+		home.longitude = gps_data.longitude;
+		home.altitude = gps_data.altitude;
 			
 		gpsLockFlag = 0;
         }
