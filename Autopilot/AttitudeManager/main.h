@@ -19,15 +19,6 @@
  */
 #define DEBUG 0
 
-//Defines the usage of this chip. It may be one or multiple of the following roles:
-//  Path Manager - Communicates with the GPS in order to provide a constant
-//                  heading for the aircraft to follow.
-//  Attitude Manager - Communicates with a IMU (kinematics sensor) in order to
-//                     the desires Pitch, Roll, Yaw on the aircraft.
-//TODO References to these should be stripped out, as they are now in seperate code bases - Serge Sept 2016
-#define PATH_MANAGER 0
-#define ATTITUDE_MANAGER !PATH_MANAGER
-
 //Define this for competition, includes higher restrictions for safety
 #define COMP_MODE 0
 

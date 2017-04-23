@@ -17,6 +17,7 @@
       <logicalFolder name="f1" displayName="Utilities" projectFiles="true">
         <itemPath>../Common/Utilities/Logger.h</itemPath>
         <itemPath>../Common/Utilities/ByteQueue.h</itemPath>
+        <itemPath>../Common/Utilities/LED.h</itemPath>
       </logicalFolder>
       <itemPath>Dubins.h</itemPath>
       <itemPath>main.h</itemPath>
@@ -26,8 +27,8 @@
       <itemPath>../Common/Common.h</itemPath>
       <itemPath>StartupErrorCodes.h</itemPath>
       <itemPath>airspeedSensor.h</itemPath>
-      <itemPath>MainBatterySensor.h</itemPath>
       <itemPath>GPSDMA.h</itemPath>
+      <itemPath>BatterySensor.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -49,6 +50,7 @@
       <logicalFolder name="f2" displayName="Utilities" projectFiles="true">
         <itemPath>../Common/Utilities/ByteQueue.c</itemPath>
         <itemPath>../Common/Utilities/Logger.c</itemPath>
+        <itemPath>../Common/Utilities/LED.c</itemPath>
       </logicalFolder>
       <itemPath>Dubins.c</itemPath>
       <itemPath>main.c</itemPath>
@@ -58,8 +60,8 @@
       <itemPath>../Common/Common.c</itemPath>
       <itemPath>StartupErrorCodes.c</itemPath>
       <itemPath>airspeedSensor.c</itemPath>
-      <itemPath>MainBatterySensor.c</itemPath>
       <itemPath>GPSDMA.c</itemPath>
+      <itemPath>BatterySensor.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -84,7 +86,7 @@
         <targetPluginBoard></targetPluginBoard>
         <platformTool>ICD3PlatformTool</platformTool>
         <languageToolchain>XC16</languageToolchain>
-        <languageToolchainVersion>1.26</languageToolchainVersion>
+        <languageToolchainVersion>1.31</languageToolchainVersion>
         <platform>3</platform>
       </toolsSet>
       <compileType>
@@ -99,6 +101,8 @@
           <parseOnProdLoad>false</parseOnProdLoad>
           <alternateLoadableFile></alternateLoadableFile>
         </loading>
+        <subordinates>
+        </subordinates>
       </compileType>
       <makeCustomizationType>
         <makeCustomizationPreStepEnabled>false</makeCustomizationPreStepEnabled>
