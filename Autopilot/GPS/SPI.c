@@ -1,4 +1,4 @@
-
+#include "p24F16KA101.h"
 
 void initSPI(){
     //initialize intercom SPI port

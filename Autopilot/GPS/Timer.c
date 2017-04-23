@@ -7,6 +7,9 @@
  *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE
  */
 
+#include <stdint.h>
+#include "p24F16KA101.h"
+
 static volatile uint32_t time_ms = 0;
 
 /**

@@ -8,6 +8,11 @@
 #ifndef GPS_H
 #define	GPS_H
 
+#include <stdbool.h>
+
+#define GPS_GGA_MESSAGE "GPGGA"
+#define GPS_VTG_MESSAGE "GPVTG"
+
 /**
  * This is the struct that will be transmitted over the SPI and I2C busses
  */
@@ -41,7 +46,7 @@ void parseIncomingGPSData(void);
 /**
  * If new gps data is available to read
  */
-void isNewDataAvailable(void);
+bool isNewDataAvailable(void);
 
 #endif
 
