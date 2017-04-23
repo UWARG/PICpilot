@@ -81,7 +81,8 @@ VN100_SPI_Packet* VN100_SPI_ReadRegister(unsigned char sensorID, unsigned char r
 
   /* Get response over SPI */
   unsigned long i;
-  for(i=0;i<regWidth;i++){
+  // +1 for packet response DWord
+  for(i=0; i < (1 + regWidth); i++){
     *(((unsigned long*)&VN_SPI_LastReceivedPacket) + i) = VN_SPI_SendReceive(0);
   }
 //

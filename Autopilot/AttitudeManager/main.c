@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
     //as we plug in the picpilot, there may be intermittent power from the initial contact of the
     //power plug which the sensor drivers don't like. This delay is meant to stop communication of sensors 
     //until we know we're getting constant power
-    __delay_ms(100);
+    __delay_ms(200);
     
 //Debug Mode initialize communication with the serial port (Computer)
 #if DEBUG
