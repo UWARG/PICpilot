@@ -7,7 +7,7 @@
  */
 
 #include "UART.h"
-#include "p24F16KA101.h"
+#include <xc.h>
 #include "../Common/Utilities/ByteQueue.h"
 #include <stdint.h>
 

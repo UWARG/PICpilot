@@ -32,6 +32,12 @@ typedef struct{
 extern GPSData gps_data;
 
 /**
+ * Initializes the GPS module. Will setup UART1 with a baudrate of 9600 to communicate
+ * with the device. Configure should be called right after this
+ */
+void initGPS(void);
+
+/**
  * Configures the GPS module for proper hz settings and dgps
  */
 void configureGPS(void);

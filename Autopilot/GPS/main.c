@@ -40,13 +40,13 @@ int main(void) {
     
     initLogger();
     initLED();
-    initSPI(); //initialize SPI bus
+//    initSPI(); //initialize SPI bus
+    initGPS();
     debug("Letting GPS module start up for 2 sec..");
     setLED(1);
     delay(2000);
-
-    initUART(1, 9600); //by default gps starts up at 9600 baud
-
+    
+    
     configureGPS(); //configure gps if battery was removed
     
     while (1) {

@@ -1,4 +1,4 @@
-#include "p24F16KA101.h"
+#include <xc.h>
 #include <stdbool.h>
 
 void initLED(){
