@@ -119,6 +119,8 @@ void pathManagerInit(void) {
 #endif
 }
 
+
+uint32_t gps_start_time = 0;
 void pathManagerRuntime(void) {
 #if DEBUG
 //    char str[16];
@@ -135,6 +137,12 @@ void pathManagerRuntime(void) {
     else led_bright--;
     
     setLEDBrightness(led_bright);
+
+    if (getTime() - gps_start_time> 5000){
+        gps_start_time = getTime();
+        debug("Requesting GPS info");
+        requestGPSInfo();
+    }
     
     if (returnHome){
         interchip_send_buffer.pm_data.targetWaypoint = -1;
@@ -163,7 +171,7 @@ void pathManagerRuntime(void) {
     if (getTimeUs() - interchip_last_send_time >= INTERCHIP_SEND_INTERVAL_US){
         interchip_last_send_time = getTimeUs();
         interchip_send_buffer.pm_data.interchip_error_count = getInterchipErrorCount();
-        sendInterchipData();
+//        sendInterchipData();
     }
 }
 
