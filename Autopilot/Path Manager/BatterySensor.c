@@ -70,7 +70,7 @@ void __attribute__((interrupt, no_auto_psv)) _ADC2Interrupt(void){
     IFS1bits.AD2IF = 0;		// Clear the ADC Interrupt Flag
 }
 
-void initBatteryADC() {
+static void initBatteryADC() {
     AD2CON1bits.FORM = 0;	 	// Data Output Format: Unsigned integer
     AD2CON1bits.SSRC = 7;		// Internal Counter (SAMC) ends sampling and starts conversion
     AD2CON1bits.ASAM = 1;		// Sampling begins automatically

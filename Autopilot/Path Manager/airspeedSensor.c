@@ -9,6 +9,9 @@
 #include "airspeedSensor.h"
 #include "../Common/Utilities/Logger.h"
 
+// Number of ADC readings to average
+#define AIRSPEED_HISTORY 20
+
 // Internal analog reference voltage ratio
 #define AREF_RATIO (3.3f / 4096)
 // Source voltage for the airspeed sensor
@@ -24,10 +27,43 @@ static int historyCounter = 0;
 
 static float offset = 0;
 
-void __attribute__((interrupt, no_auto_psv)) _ADC1Interrupt(void) {
-    airspeedHistory[historyCounter++] = ADC1BUF0;
-    historyCounter %= AIRSPEED_HISTORY;
-    IFS0bits.AD1IF = 0; // Clear the ADC1 Interrupt Flag
+static void initAirspeedADC(){
+    AD1CON1bits.FORM = 0;		// Data Output Format: Unsigned integer
+    AD1CON1bits.SSRC = 7;		// Internal Counter (SAMC) ends sampling and starts conversion
+    AD1CON1bits.ASAM = 1;		// Sampling begins when SAMP bit is set (for now)
+    AD1CON1bits.SIMSAM = 0;		// Sequential Sampling/conversion
+    AD1CON1bits.AD12B = 1;		// 12-bit 2/4-channel operation
+    AD1CON1bits.ADDMABM = 0;    // DMA buffers are built in conversion order mode
+    AD1CON1bits.SAMP = 1;       // Enable ADC sampling
+
+    AD1CON2bits.SMPI = 0;		// Interrupt address every sample/conversion
+    AD1CON2bits.BUFM = 0;
+    AD1CON2bits.CHPS = 0;       // Converts channel 0
+    AD1CON2bits.VCFG = 0;       // Voltage Reference is 3.3V and Ground Reference is Ground
+
+    AD1CON3bits.ADRC=0;			// ADC Clock is derived from Systems Clock
+    AD1CON3bits.SAMC=0; 		// Auto Sample Time = 0*Tad
+    AD1CON3bits.ADCS=6;			// ADC Conversion Clock Tad=Tcy*(ADCS+1)= (1/40M)*7 = 175nS
+
+    AD1CHS0bits.CH0SA = 11;     // Channel 0 positive input on AN11 (Sample A)
+    AD1CHS0bits.CH0SB = 11;     // Channel 0 positive input on AN11 (Sample B)
+
+    AD1PCFGL = 0;               // Set all pins to analog input
+    AD1PCFGH = 0;
+
+    IFS0bits.AD1IF = 0;			// Clear the A/D interrupt flag bit
+    IEC0bits.AD1IE = 1;			// Enable A/D interrupt
+    AD1CON1bits.ADON = 1;		// Turn on the A/D converter
+}
+
+/**
+ * Converts an ADC signal (0-4095) to an airspeed (m/s).
+ * Derived from the equation for flow velocity given impact pressure (for fluids)
+ * @param signal Signal from ADC, in 0-4095
+ * @return Airspeed, in m/s
+ */
+static float ADCConvert(float signal) {
+    return sqrtf(signal * v_sc * 1666.67f);
 }
 
 // run on startup to get a zero value for airspeed. 
@@ -57,12 +93,6 @@ void initAirspeedSensor(){
     calibrateAirspeed();
 }
 
-static float ADCConvert(float signal) {
-    // converts an ADC signal (0-4095) to an airspeed (m/s)
-    // derived from the equation for flow velocity given impact pressure (for fluids)
-    return sqrtf(signal * v_sc * 1666.67f);
-}
-
 float getCurrentAirspeed(){
     int i;
     float aspd_filtered = 0;
@@ -76,31 +106,8 @@ float getCurrentAirspeed(){
     return ADCConvert(fabsf(aspd_filtered - offset));
 }
 
-void initAirspeedADC(){
-    AD1CON1bits.FORM = 0;		// Data Output Format: Unsigned integer
-    AD1CON1bits.SSRC = 7;		// Internal Counter (SAMC) ends sampling and starts conversion
-    AD1CON1bits.ASAM = 1;		// Sampling begins when SAMP bit is set (for now)
-    AD1CON1bits.SIMSAM = 0;		// Sequential Sampling/conversion
-    AD1CON1bits.AD12B = 1;		// 12-bit 2/4-channel operation
-    AD1CON1bits.ADDMABM = 0;    // DMA buffers are built in conversion order mode
-    AD1CON1bits.SAMP = 1;       // Enable ADC sampling
-
-    AD1CON2bits.SMPI = 0;		// Interrupt address every sample/conversion
-    AD1CON2bits.BUFM = 0;
-    AD1CON2bits.CHPS = 0;       // Converts channel 0
-    AD1CON2bits.VCFG = 0;       // Voltage Reference is 3.3V and Ground Reference is Ground
-
-    AD1CON3bits.ADRC=0;			// ADC Clock is derived from Systems Clock
-    AD1CON3bits.SAMC=0; 		// Auto Sample Time = 0*Tad
-    AD1CON3bits.ADCS=6;			// ADC Conversion Clock Tad=Tcy*(ADCS+1)= (1/40M)*7 = 175nS
-
-    AD1CHS0bits.CH0SA = 11;     // Channel 0 positive input on AN11 (Sample A)
-    AD1CHS0bits.CH0SB = 11;     // Channel 0 positive input on AN11 (Sample B)
-
-    AD1PCFGL = 0;               // Set all pins to analog input
-    AD1PCFGH = 0;
-
-    IFS0bits.AD1IF = 0;			// Clear the A/D interrupt flag bit
-    IEC0bits.AD1IE = 1;			// Enable A/D interrupt
-    AD1CON1bits.ADON = 1;		// Turn on the A/D converter
+void __attribute__((interrupt, no_auto_psv)) _ADC1Interrupt(void) {
+    airspeedHistory[historyCounter++] = ADC1BUF0;
+    historyCounter %= AIRSPEED_HISTORY;
+    IFS0bits.AD1IF = 0; // Clear the ADC1 Interrupt Flag
 }
