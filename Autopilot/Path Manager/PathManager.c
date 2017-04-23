@@ -16,6 +16,7 @@
 #include "../Common/Interfaces/SPI.h"
 #include "../Common/Interfaces/InterchipDMA.h"
 #include "../Common/Clock/Timer.h"
+#include "../Common/Utilities/LED.h"
 #include "GPSDMA.h"
 
 #if DEBUG
@@ -54,9 +55,14 @@ char inHold = 0;
 
 static uint64_t interchip_last_send_time = 0;
 
+static uint8_t led_bright = 0;
+static bool going_up = true;
+
 void pathManagerInit(void) {
     initTimer4();
- 
+    
+    initLED(0);
+    
     //Communication with GPS
     init_DMA2();
     initSPI(GPS_SPI_PORT, 0, SPI_MODE1, SPI_WORD, SPI_SLAVE);
@@ -126,6 +132,15 @@ void pathManagerRuntime(void) {
 #endif
     copyGPSData();
 
+    // Update status LED
+    if (led_bright == 0) going_up = true;
+    else if (led_bright == 255) going_up = false;
+    
+    if (going_up) led_bright++;
+    else led_bright--;
+    
+    setLEDBrightness(led_bright);
+    
     if (returnHome){
         interchip_send_buffer.pm_data.targetWaypoint = -1;
     } else {
