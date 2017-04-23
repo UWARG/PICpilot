@@ -159,9 +159,9 @@ void attitudeInit() {
         setSensorStatus(VECTORNAV, SENSOR_CONNECTED & TRUE);
         //IMU position matrix
         // offset = {x, y, z}
-        float cal_x = -90;
-        float cal_y = -90;
-        float cal_z = 0.0;
+        float cal_x = 0.0;
+        float cal_y = 0.0;
+        float cal_z = -90;
         float offset[3] = {cal_x,cal_y,cal_z};
 
         setVNOrientationMatrix((float*)&offset);
@@ -638,7 +638,10 @@ void readDatalink(void){
                 sendInterchipData();
                 break;
             case TARE_IMU:
-                adjustVNOrientationMatrix(CMD_TO_FLOAT_ARRAY(cmd->data));
+                VN100_SPI_Tare(0);
+                VN100_SPI_WriteSettings(0);
+                VN100_SPI_Reset(0);
+                //adjustVNOrientationMatrix(CMD_TO_FLOAT_ARRAY(cmd->data));
                 break;
             case SET_IMU:
                 setVNOrientationMatrix(CMD_TO_FLOAT_ARRAY(cmd->data));
