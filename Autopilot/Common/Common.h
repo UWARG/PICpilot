@@ -8,8 +8,11 @@
 #ifndef COMMON_H
 #define	COMMON_H
 
+#define FCY 40000000
+
 //Includes
-#include <p33FJ256GP710A.h>
+#include <xc.h>
+#include <libpic30.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>

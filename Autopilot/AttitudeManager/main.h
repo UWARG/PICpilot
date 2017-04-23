@@ -11,13 +11,12 @@
 
 //Include Libraries
 #include "../Common/Common.h"
-#include "delay.h"
 
 /**
  * Whether to enable the logger. Disabling it will cause all the functions defined
  * in the module to do nothing
  */
-#define DEBUG 0
+#define DEBUG 1
 
 //Define this for competition, includes higher restrictions for safety
 #define COMP_MODE 0

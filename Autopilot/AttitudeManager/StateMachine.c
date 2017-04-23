@@ -59,9 +59,6 @@ void StateMachine(char entryLocation){
         //Input from Controller
         flightUpdate = 1;
     }
-    else{
-
-    }
 
     if (entryLocation == STATEMACHINE_IDLE) {
         // If we're waiting to be armed, don't run the flight control

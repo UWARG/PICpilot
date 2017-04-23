@@ -8,7 +8,6 @@
 
 #include "PWM.h"
 #include "AttitudeManager.h"
-#include "delay.h"
 #include "FixedWing.h"
 #include "ProgramStatus.h"
 
@@ -39,7 +38,7 @@ void initialization(){
 void armVehicle(int delayTime){
     setProgramStatus(ARMING);
     asm("CLRWDT");
-    Delay(delayTime);
+    __delay_ms(delayTime);
     asm("CLRWDT");
     setPWM(THROTTLE_OUT_CHANNEL, MIN_PWM);
     setPWM(ROLL_OUT_CHANNEL, 0);
@@ -47,7 +46,7 @@ void armVehicle(int delayTime){
     setPWM(R_TAIL_OUT_CHANNEL, 0);
     setPWM(FLAP_OUT_CHANNEL, MIN_PWM);
     asm("CLRWDT");
-    Delay(delayTime);
+    __delay_ms(delayTime);
     asm("CLRWDT");
 }
 

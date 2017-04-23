@@ -1,7 +1,7 @@
 #ifndef LED_H
 #define LED_H
 
-#include <p33FJ256GP710A.h>
+#include <xc.h>
 #include "../Common.h"
 
 #define LED_BLINK_LONG 1000

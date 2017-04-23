@@ -7,7 +7,6 @@
 
 //Include Header Files
 #include "AttitudeManager.h"
-#include "delay.h"
 #include "VN100.h"
 #include "InputCapture.h"
 #include "OutputCompare.h"
@@ -436,9 +435,6 @@ void imuCommunication(){
     VN100_SPI_GetYPR(0, &imu_YawAngle, &imu_PitchAngle, &imu_RollAngle);
     VN100_SPI_GetRates(0, imuData);
 
-    /* TODO: This is a reminder for me to figure out a more elegant way to fix improper derivative control
-     * (based on configuration of the sensor), adding this negative is a temporary fix. Some kind of calibration command or something.
-     */
     //Outputs in order: Roll,Pitch,Yaw
     imu_RollRate = rad2deg(imuData[IMU_ROLL_RATE]);
     imu_PitchRate = rad2deg(imuData[IMU_PITCH_RATE]);

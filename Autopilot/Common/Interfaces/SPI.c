@@ -6,7 +6,7 @@
  *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE 
  */
 
-#include <p33FJ256GP710A.h>
+#include <xc.h>
 #include "SPI.h"
 #include "../Clock/Clock.h"
 
