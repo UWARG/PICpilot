@@ -21,14 +21,7 @@
 /**
  * Baud rate for the interface
  */
-#define LOGGER_UART_BAUD_RATE 9600
-
-/**
- * How long to make the string buffer. This should be the maximum length of the string
- * that can be logged, in bytes
- */
-#define LOGGER_BUFFER_INITIAL_LENGTH 100
-#define LOGGER_BUFFER_MAX_LENGTH 100
+#define LOGGER_UART_BAUD_RATE 115200
 
 /**
  * Initializes the logger module by initializing the specified UART channel

@@ -16,19 +16,12 @@
  * to the processor frequency. The formula can be found on the data sheet. This
  * takes an ordinary baud rate value in and returns that
  */
-#define BRGVAL(bd) (((16000000/bd)/16)-1)
+#define BRGVAL(bd) (((16000000/bd)/16) - 1)
 
-static char uart1_status = 0;
-static char uart2_status = 0;
-
-static ByteQueue uart1_rx_queue;
-static ByteQueue uart2_rx_queue;
-
-void initUART(uint8_t interface, uint32_t baudrate, uint16_t initial_buffer_size, uint16_t max_buffer_size, uint8_t tx_rx)
+void initUART(uint8_t interface, uint32_t baudrate)
 {
     //we don't initialize twice or don't initialize if the interface is disabled
     if (interface == 1) {
-        uart1_status = tx_rx;
 
         U1MODEbits.UARTEN = 0; //Disable UART while we're configuring it
         U1MODEbits.USIDL = 0; //Keep interface on in idle mode
@@ -45,7 +38,12 @@ void initUART(uint8_t interface, uint32_t baudrate, uint16_t initial_buffer_size
         U1MODEbits.STSEL = 0; // 1 Stop bit
 
         //set the baud rate
-        U1BRG = BRGVAL(baudrate);
+        
+        if (baudrate == 115200){
+            U1BRG = BRGVAL(baudrate) + 1;
+        } else {
+            U1BRG = BRGVAL(baudrate);
+        }
 
         //generate a TX interrupt when the transmit buffer becomes empty
         U1STAbits.UTXISEL1 = 1;
@@ -71,16 +69,10 @@ void initUART(uint8_t interface, uint32_t baudrate, uint16_t initial_buffer_size
         IFS0bits.U1TXIF = 0; // Clear the Transmit Interrupt Flag
         IFS0bits.U1RXIF = 0; // Clear the receive Interrupt Flag
 
-        if (uart1_status & UART_RX_ENABLE) {
-            initBQueue(&uart1_rx_queue, initial_buffer_size, max_buffer_size);
-            IEC0bits.U1RXIE = 1; // Enable receive Interrupts 
-        }
-
+        IEC0bits.U1RXIE = 1; // Enable receive Interrupts
         U1MODEbits.UARTEN = 1; // And turn the peripheral on
         U1STAbits.UTXEN = 1; //enable transmit operations (must come after the uart enable)
-    } else if (interface == 2) {
-        uart2_status = tx_rx;
-
+    } else if (interface == 2) { //we dont enable receive interrupts here as we dont need them
         U2MODEbits.UARTEN = 0; //Disable UART while we're configuring it
         U2MODEbits.USIDL = 0; //Keep interface on in idle mode
         U2MODEbits.IREN = 0; //No IR translation
@@ -95,8 +87,11 @@ void initUART(uint8_t interface, uint32_t baudrate, uint16_t initial_buffer_size
         U2MODEbits.PDSEL = 0b00; //No parity
         U2MODEbits.STSEL = 0; // 1 Stop bit
 
-        //set the baud rate
-        U2BRG = BRGVAL(baudrate);
+        if (baudrate == 115200){
+            U2BRG = BRGVAL(baudrate) + 1;
+        } else {
+            U2BRG = BRGVAL(baudrate);
+        }
 
         //generate a TX interrupt when the transmit buffer becomes empty
         U2STAbits.UTXISEL1 = 1;
@@ -121,11 +116,6 @@ void initUART(uint8_t interface, uint32_t baudrate, uint16_t initial_buffer_size
         IFS1bits.U2TXIF = 0; // Clear the Transmit Interrupt Flag
         IFS1bits.U2RXIF = 0; // Clear the receive Interrupt Flag
 
-        if (uart2_status & UART_RX_ENABLE) {
-            initBQueue(&uart2_rx_queue, initial_buffer_size, max_buffer_size);
-            IEC1bits.U2RXIE = 1; // Enable receive Interrupts
-        }
-
         U2MODEbits.UARTEN = 1; // And turn the peripheral on
         U2STAbits.UTXEN = 1; //enable transmit operations (must be called after uart enable)
     }
@@ -133,16 +123,16 @@ void initUART(uint8_t interface, uint32_t baudrate, uint16_t initial_buffer_size
 
 void sendTXData(uint8_t interface, uint8_t* data, uint16_t data_length)
 {
-    uint16_t i;
+    uint16_t i = 0;
     
-    if (interface == 1 && (uart1_status & UART_TX_ENABLE)) {
+    if (interface == 1) {
         while(i < data_length){
             if (!U1STAbits.UTXBF){
                 U1TXREG = data[i];
                 i++;
             }
         }
-    } else if (interface == 2 && (uart2_status & UART_TX_ENABLE)) {
+    } else if (interface == 2) {
          while(i < data_length){
             if (!U2STAbits.UTXBF){
                 U2TXREG = data[i];
@@ -150,52 +140,4 @@ void sendTXData(uint8_t interface, uint8_t* data, uint16_t data_length)
             }
         }
     }
-}
-
-uint8_t readRXData(uint8_t interface)
-{
-    if (interface == 1 && (uart1_status & UART_RX_ENABLE)) {
-        IEC0bits.U1RXIE = 0; //disable RX interrupt for now
-        uint8_t byte = popBQueue(&uart1_rx_queue);
-        IEC0bits.U1RXIE = 1; //re-enable RX interrupts
-        return byte;
-    } else if (interface == 2 && (uart2_status & UART_RX_ENABLE)) {
-        IEC1bits.U2RXIE = 0; //disable RX interrupt for now
-        uint8_t byte = popBQueue(&uart2_rx_queue);
-        IEC1bits.U2RXIE = 1; //re-enable RX interrupts
-        return byte;
-    }
-    return -1;
-}
-
-uint16_t getRXSize(uint8_t interface){
-    if (interface == 1 && (uart1_status & UART_RX_ENABLE)) {
-        return getBQueueSize(&uart1_rx_queue);
-    } else if (interface == 2 && (uart2_status & UART_RX_ENABLE)) {
-        return getBQueueSize(&uart2_rx_queue);
-    }
-    return 0;
-}
-
-
-/**
- * Interrupt called when there is at least 1 character available to read from the rx buffer
- */
-void __attribute__((__interrupt__, no_auto_psv)) _U2RXInterrupt(void)
-{
-    //while the rx buffer has characters available to read
-    while (U2STAbits.URXDA) {
-        pushBQueue(&uart2_rx_queue, U2RXREG);
-    }
-    IFS1bits.U2RXIF = 0;
-}
-
-void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void)
-{
-    //while the rx buffer has characters available to read
-    while (U1STAbits.URXDA) {
-        pushBQueue(&uart1_rx_queue, U1RXREG);
-    }
-    
-    IFS0bits.U1RXIF = 0;
 }

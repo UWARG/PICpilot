@@ -16,7 +16,7 @@ static char logger_initialized = 0;
 
 void initLogger(void)
 {
-    initUART(LOGGER_UART_INTERFACE, LOGGER_UART_BAUD_RATE, LOGGER_BUFFER_INITIAL_LENGTH, LOGGER_BUFFER_MAX_LENGTH, UART_TX_ENABLE);
+    initUART(LOGGER_UART_INTERFACE, LOGGER_UART_BAUD_RATE);
     logger_initialized = 1;
 }
 

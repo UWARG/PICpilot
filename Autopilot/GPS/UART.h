@@ -34,7 +34,7 @@
  * This is because of the underlying bytequeue implementation that doubles and halves
  * the queue, which works better with even multiples.
  */
-void initUART(uint8_t interface, uint32_t baudrate, uint16_t initial_buffer_size, uint16_t max_buffer_size, uint8_t tx_rx);
+void initUART(uint8_t interface, uint32_t baudrate);
 
 /**
  * Read a byte from the uart RX buffer
