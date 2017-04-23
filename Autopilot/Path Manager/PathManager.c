@@ -640,9 +640,12 @@ unsigned int insertPathNode(PathData* node, unsigned int previousID, unsigned in
 }
 
 void copyGPSData(){
+    char buffer[200];
     if (newGPSDataAvailable && gpsErrorCheck(gpsData.latitude, gpsData.longitude)){
         newGPSDataAvailable = 0;
-        
+        debug("gps data available!");
+        sprintf(buffer, "time %f, lon %f, lat %f, head: %f, speed %f sat: %d", gpsData.time, gpsData.longitude, gpsData.latitude, gpsData.heading, gpsData.speed, gpsData.satellites);
+        debug(buffer);
         interchip_send_buffer.pm_data.time = gpsData.time;
         interchip_send_buffer.pm_data.longitude = gpsData.longitude;
         interchip_send_buffer.pm_data.latitude = gpsData.latitude;
