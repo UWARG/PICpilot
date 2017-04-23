@@ -104,7 +104,7 @@ void initUART(uint8_t interface, uint32_t baudrate)
 
         U2STAbits.UTXEN = 0; //Disable transmit operations for now
 
-        U2STAbits.URXISEL = 0; //Create an RX interrupt on every bit received
+        U2STAbits.URXISEL = 0b10; //Create an RX interrupt when the buffer is 3/4 full
 
         U2STAbits.ADDEN = 0; //Address Detect Disabled (not useful unless 9-bit mode)
 

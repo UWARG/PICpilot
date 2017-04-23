@@ -33,6 +33,10 @@ void delay(uint32_t ms){
     while(time_ms - start_time < ms);
 }
 
+uint32_t getTime(){
+    return time_ms;
+}
+
 /**
  * Timer1 interrupt. Executed every ms
  */

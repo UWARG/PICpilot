@@ -17,6 +17,7 @@ GPSData gps_data;
 static bool data_available = false;
 static bool new_vtg_data = false;
 static bool new_gga_data = false;
+static bool configured = false; //if the gps module has been initialized and configured
 
 static char gga_buffer[GPS_UART_BUFFER_SIZE]; //buffer for pasing gga (positional packets)
 static char vtg_buffer[GPS_UART_BUFFER_SIZE]; //buffer for parsing vtg packets (velocity packets)
@@ -49,10 +50,15 @@ void configureGPS(){
     delay(300);
 
     debug("GPS has been configured");
+    configured = true;
 };
 
 bool isNewDataAvailable(){
-    return data_available;
+    if (data_available){
+        data_available = false;
+        return true;
+    }
+    return false;
 }
 
 void parseIncomingGPSData(){
@@ -63,24 +69,24 @@ void parseIncomingGPSData(){
     if (new_gga_data){
         new_gga_data = false;
         if (isNMEAChecksumValid(gga_buffer)){
-            
             data_available = false;
             parseGGA(gga_buffer);
             data_available = true;
         } else {
-            debug("gga checksum failed!");
+            debug("Failed checksum when parsing a GPGGA (positional) packet!");
+            debug(gga_buffer);
         }
     }
 
     if (new_vtg_data){
         new_vtg_data = false;
         if (isNMEAChecksumValid(vtg_buffer)){
-            
             data_available = false;
             parseVTG(gga_buffer);
             data_available = true;
-        }else {
-            debug("vtg checksum failed!");
+        } else {
+            debug("Failed checksum when parsing a GPVTG (velocity) packet!");
+            debug(vtg_buffer);
          }
     }
 }
@@ -94,10 +100,19 @@ static void sendCommand(const char* msg){
     sendTXData(GPS_UART_INTERFACE, (uint8_t*)msg, i);
 }
 
+char temp[50];
 /**
  * Called when we get RX data from the GPS module
  */
 void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
+    if (!configured){
+        while (U1STAbits.URXDA){
+            U1RXREG; //clear the rx buffer
+        }
+        IFS0bits.U1RXIF = 0; // Clear the Interrupt Flag
+        return;
+    }
+
     static bool currently_parsing = false;
     static uint16_t buffer_index = 0;
     static uint8_t data;
@@ -105,17 +120,20 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
     while (U1STAbits.URXDA) { //while the receive register has data available
         data = U1RXREG;
         
+//        U2TXREG = data;
+//        return;
         if (data == '$') { //Beginning of Packet
             currently_parsing = true;
-        } else if (data == 0x0A) { //End of Packet
-             if (strncmp(GPS_GGA_MESSAGE, uart_buffer, 6) == 0){
-                 debug("sgga packett");
+            buffer_index = 0;
+        } else if (data == '\r') { //End of Packet
+             if (strncmp(GPS_GGA_MESSAGE, uart_buffer, 5) == 0){
                  memcpy(gga_buffer, uart_buffer, GPS_UART_BUFFER_SIZE);
                  new_gga_data = true;
-             } else if (strncmp(GPS_VTG_MESSAGE, uart_buffer, 6) == 0){
-                 debug("wefpackett");
+             } else if (strncmp(GPS_VTG_MESSAGE, uart_buffer, 5) == 0){
                 memcpy(vtg_buffer, uart_buffer, GPS_UART_BUFFER_SIZE);
                 new_vtg_data = true;
+             } else {
+                 debug("Received NMEA that was neither GPVTG or GPGGA!");
              }
              currently_parsing = false;
         } else if (currently_parsing){
@@ -135,19 +153,14 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
 static bool isNMEAChecksumValid(char* string){
     uint16_t i = 0;
     uint8_t checksum = 0;
-
+    
     while(string[i] != '*'){
-        if (string[i] != ','){
-            checksum ^= string[i];
-        }
+        checksum ^= string[i];
         i++;
     }
     i++;
-    
-    if (byteToHexString((checksum & 0xF0) >> 4) == string[i] && byteToHexString(checksum & 0x0F) == string[i+1]){
-        return 1;
-    }
-    return 0;
+
+    return byteToHexString((checksum & 0xF0) >> 4) == string[i] &&  byteToHexString(checksum & 0x0F) == string[i+1];
 }
 
 static void parseVTG(char* data){

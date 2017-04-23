@@ -8,6 +8,7 @@
 #ifndef GPS_H
 #define	GPS_H
 
+#include <stdint.h>
 #include <stdbool.h>
 
 #define GPS_GGA_MESSAGE "GPGGA"
@@ -25,7 +26,6 @@ typedef struct{
     int16_t heading; //in degrees. Should be between 0-360 at all times, but using integer just in case
     uint8_t num_satellites;    //1 Byte
     uint8_t fix_status; //0 = no fix, 1 = gps fix, 2 = differential gps fix (DGPS)
-    uint8_t connected; //will always output 1 to indicate that the module is in fact connected
 } GPSData;
 
 /** Global reference to the GPS data that will be updated once new data is parsed */
