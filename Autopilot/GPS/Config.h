@@ -4,10 +4,22 @@
  * Contains config settings to set various parts of the operation of the chip,
  * such as its clock speed. This sets the processor to use the external chip
  * in 4x PLL, having it run at 32Mhz, or at 16MIPS
+ *
+ * This file should only be included once in a single instance
  */
 
 #ifndef CONFIG_H
 #define	CONFIG_H
+
+#include <xc.h>
+
+/**
+ * List of defines that the pic library uses to setup things like delay functions
+ */
+#define Fosc	(8000000) 	// crystal
+#define Fcy		(Fosc*4/2)	// w.PLL (Instruction Per Second)
+#define Fsck	100000		// 400kHz I2C
+#define I2C_BRG	((Fcy/2/Fsck)-1)
 
 // FBS
 #pragma config BWRP = OFF               // Table Write Protect Boot (Boot segment may be written)

@@ -35,3 +35,13 @@ void debug(char* message)
     sendTXData(LOGGER_UART_INTERFACE, (unsigned char*) message, length);
     sendTXData(LOGGER_UART_INTERFACE, (unsigned char*) "\r\n", 2);
 }
+
+void debugN(char* message, uint16_t length)
+{
+     if (!logger_initialized) {
+         return;
+    }
+     
+    sendTXData(LOGGER_UART_INTERFACE, (unsigned char*) message, length);
+    sendTXData(LOGGER_UART_INTERFACE, (unsigned char*) "\r\n", 2);
+}

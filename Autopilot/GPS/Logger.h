@@ -34,4 +34,11 @@ void initLogger(void);
  */
 void debug(char* message);
 
+/**
+ * Outputs a debug message, but only outputs N characters in the message string
+ * @param message
+ * @param length
+ */
+void debugN(char* message, uint16_t length);
+
 #endif

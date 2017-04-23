@@ -1,65 +1,51 @@
+#include "Config.h"
 #include "UART.h"
 #include "Logger.h"
 #include "Timer.h"
 #include "SPI.h"
 #include "Peripherals.h"
-#include "p24F16KA101.h"
-#include <xc.h>
-#include <math.h>
-#include "Config.h"
 #include "GPS.h"
 #include <stdint.h>
+#include <xc.h>
+#include <math.h>
 
-void transmitData(void) {
-//    int i;
-//    char *dataGPS = &gpsData;
-//    char spiChecksum = 0;
-//
-//
-//    PORTBbits.RB15 = 0; //slave enabled
-//    for (i = 0; i < sizeof(struct GPSData); i++)
-//    {
-//
-//        while (SPI1STATbits.SPITBF != 0) {;}
-//        SPI1BUF = dataGPS[0];
-////        spiChecksum ^= dataGPS[0];
-//        dataGPS++;
-//    }
-////    while (SPI1STATbits.SPITBF != 0) {;}
-////    SPI1BUF = spiChecksum;
-//    //Delay_half_us(110);
-//    PORTBbits.RB15 = 1; //slave disabled
+/**
+ * What SPI mode to transfer the gps data over
+ */
+#define SPI_MODE SPI_MODE3
 
-}
-uint32_t start_time = 0;
-bool toggle = true;
+uint32_t led_timer = 0;
 int main(void) {
+    uint32_t sys_time = 0;
+    
     initTimer1();
 
     delay(200); //wait a bit to make sure we're getting consistent power
     
     initLogger();
     initLED();
-//    initSPI(); //initialize SPI bus
+    initSPI(SPI_MODE); //initialize SPI bus
     initGPS();
-    debug("Letting GPS module start up for 2 sec..");
     setLED(1);
-    delay(2000);
+    debug("Letting GPS module start up for 1 sec..");
+    delay(1000);
     
-    
-    configureGPS(); //configure gps if battery was removed
+    configureGPS(); //configure gps
     
     while (1) {
+        sys_time = getTime();
+        
         parseIncomingGPSData();
-        if(isNewDataAvailable()){
-            debug("new data available!");
+        if(isNewDataAvailable()){ //if we received new information from the gps
+            led_timer = sys_time;
+            queueTransmitData();
         }
 
+        //Behavior: LED will flash if it successfully receiving and parsing valid NMEA packets from the gps module
+        if (sys_time - led_timer < 50){
+            setLED(1);
+        } else {
+            setLED(0);
+        }
     }
 }
-
-
-
-
-
-
