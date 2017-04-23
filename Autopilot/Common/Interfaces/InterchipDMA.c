@@ -132,7 +132,7 @@ static void initDMA1(uint8_t chip_id)
     }
 
     DMA1CONbits.SIZE = 1; //Transfer byte (8 bits)
-    DMA0CONbits.HALF = 0; //Initiate dma interrupt when all of the data has been moved
+    DMA1CONbits.HALF = 0; //Initiate dma interrupt when all of the data has been moved
 
     DMA1STA = __builtin_dmaoffset(&dma1_space); //Primary Transfer Buffer
     DMA1CNT = (sizeof(dma1_space) - 1); //count is 0-indexed, so -1

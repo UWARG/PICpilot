@@ -8,11 +8,17 @@
         <itemPath>../Common/Clock/Clock.h</itemPath>
         <itemPath>../Common/Clock/Timer.h</itemPath>
       </logicalFolder>
+      <logicalFolder name="f5" displayName="Drivers" projectFiles="true">
+        <itemPath>Drivers/WARG_GPS.h</itemPath>
+      </logicalFolder>
       <logicalFolder name="f2" displayName="Interfaces" projectFiles="true">
         <itemPath>../Common/Interfaces/UART.h</itemPath>
         <itemPath>../Common/Interfaces/I2C.h</itemPath>
         <itemPath>../Common/Interfaces/SPI.h</itemPath>
         <itemPath>../Common/Interfaces/InterchipDMA.h</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f4" displayName="Peripherals" projectFiles="true">
+        <itemPath>Peripherals/GPS.h</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="Utilities" projectFiles="true">
         <itemPath>../Common/Utilities/Logger.h</itemPath>
@@ -22,12 +28,10 @@
       <itemPath>Dubins.h</itemPath>
       <itemPath>main.h</itemPath>
       <itemPath>MPL3115A2.h</itemPath>
-      <itemPath>NMEAparser.h</itemPath>
       <itemPath>PathManager.h</itemPath>
       <itemPath>../Common/Common.h</itemPath>
       <itemPath>StartupErrorCodes.h</itemPath>
       <itemPath>airspeedSensor.h</itemPath>
-      <itemPath>GPSDMA.h</itemPath>
       <itemPath>BatterySensor.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
@@ -40,6 +44,9 @@
       <logicalFolder name="f4" displayName="Clock" projectFiles="true">
         <itemPath>../Common/Clock/Clock.c</itemPath>
         <itemPath>../Common/Clock/Timer.c</itemPath>
+      </logicalFolder>
+      <logicalFolder name="f5" displayName="Drivers" projectFiles="true">
+        <itemPath>Drivers/WARG_GPS.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f1" displayName="Interfaces" projectFiles="true">
         <itemPath>../Common/Interfaces/UART.c</itemPath>
@@ -55,12 +62,10 @@
       <itemPath>Dubins.c</itemPath>
       <itemPath>main.c</itemPath>
       <itemPath>MPL3115A2.c</itemPath>
-      <itemPath>NMEAparser.c</itemPath>
       <itemPath>PathManager.c</itemPath>
       <itemPath>../Common/Common.c</itemPath>
       <itemPath>StartupErrorCodes.c</itemPath>
       <itemPath>airspeedSensor.c</itemPath>
-      <itemPath>GPSDMA.c</itemPath>
       <itemPath>BatterySensor.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"

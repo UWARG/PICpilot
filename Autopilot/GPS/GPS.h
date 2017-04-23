@@ -20,9 +20,9 @@
 typedef struct{
     long double latitude;  //8 Bytes
     long double longitude; //8 Bytes
-    uint32_t utc_time;     //4 Bytes. Time in seconds since 00:00 (midnight)
+    float utc_time;     //4 Bytes. Time in seconds since 00:00 (midnight)
     float ground_speed; //in m/s
-    float altitude; //in m
+    int altitude; //in m
     int16_t heading; //in degrees. Should be between 0-360 at all times, but using integer just in case
     uint8_t num_satellites;    //1 Byte
     uint8_t fix_status; //0 = no fix, 1 = gps fix, 2 = differential gps fix (DGPS)
