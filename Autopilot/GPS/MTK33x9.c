@@ -6,6 +6,7 @@
 #include "GPS.h"
 #include "Logger.h"
 #include "Timer.h"
+#include "Config.h"
 #include "Utilities.h"
 #include "MTK33x9.h"
 #include <xc.h>
@@ -119,9 +120,12 @@ void __attribute__((__interrupt__, no_auto_psv)) _U1RXInterrupt(void) {
 
     while (U1STAbits.URXDA) { //while the receive register has data available
         data = U1RXREG;
-        
-//        U2TXREG = data;
-//        return;
+
+        if (DEBUG_TX_GPS){
+            U2TXREG = data;
+            return;
+        }
+
         if (data == '$') { //Beginning of Packet
             currently_parsing = true;
             buffer_index = 0;
@@ -373,5 +377,4 @@ static void parseGGA(char* data){
         decimalPoint--;
     }
     gps_data.altitude = (int)(tAltitude / multiplier);
-
 }

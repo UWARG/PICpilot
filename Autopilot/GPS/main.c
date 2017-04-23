@@ -1,3 +1,4 @@
+#include "ClockConfig.h"
 #include "Config.h"
 #include "UART.h"
 #include "Logger.h"
@@ -8,11 +9,6 @@
 #include <stdint.h>
 #include <xc.h>
 #include <math.h>
-
-/**
- * What SPI mode to transfer the gps data over
- */
-#define SPI_MODE SPI_MODE3
 
 uint32_t led_timer = 0;
 int main(void) {
