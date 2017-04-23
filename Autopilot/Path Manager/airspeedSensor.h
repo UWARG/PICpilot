@@ -8,23 +8,22 @@
 #ifndef AIRSPEEDSENSOR_H
 #define	AIRSPEEDSENSOR_H
 
-#ifdef	__cplusplus
-extern "C" {
-#endif
+/**
+ * Calibrates the airspeed sensor. Samples the sensor and 
+ * averages them to get an offset for the reading.
+ */
+void calibrateAirspeed();
 
-#define AIRSPEED_HISTORY 20
-
-
-//Function Prototypes
-//TODO: Add descriptions for each function
+/**
+ * Initializes the airspeed sensor
+ */
 void initAirspeedSensor();
-//float timeRemaining();
-float getCurrentAirspeed();
-void initAirspeedADC();
 
-#ifdef	__cplusplus
-}
-#endif
+/**
+ * Reads the sensor history, averages it, and applies a transfer function
+ * @return The current airspeed, in m/s
+ */
+float getCurrentAirspeed();
 
 #endif	/* AIRSPEEDSENSOR_H */
 

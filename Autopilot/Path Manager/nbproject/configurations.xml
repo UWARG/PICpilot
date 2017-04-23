@@ -27,8 +27,8 @@
       <itemPath>../Common/Common.h</itemPath>
       <itemPath>StartupErrorCodes.h</itemPath>
       <itemPath>airspeedSensor.h</itemPath>
-      <itemPath>MainBatterySensor.h</itemPath>
       <itemPath>GPSDMA.h</itemPath>
+      <itemPath>BatterySensor.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -60,8 +60,8 @@
       <itemPath>../Common/Common.c</itemPath>
       <itemPath>StartupErrorCodes.c</itemPath>
       <itemPath>airspeedSensor.c</itemPath>
-      <itemPath>MainBatterySensor.c</itemPath>
       <itemPath>GPSDMA.c</itemPath>
+      <itemPath>BatterySensor.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
