@@ -19,13 +19,16 @@
 // Voltage divider ratio
 #define ASPD_RATIO 0.677f
 
-// ADC -> voltage -> percentage -> pressure
-const static float v_sc = ((AREF_RATIO / ASPD_RATIO) / VSOURCE) * 0.2f; // derived from the internal ADC conversions and the airspeed sensor datasheet
+// ADC -> voltage -> percentage -> pressure, then multiplied by some factors for Bernoulli
+static float v_sc = ((AREF_RATIO / ASPD_RATIO) / VSOURCE) * 0.2f  * 1666.67f; // derived from the internal ADC conversions and the airspeed sensor datasheet
 
 static int airspeedHistory[AIRSPEED_HISTORY] = {0};
 static int historyCounter = 0;
 
 static float offset = 0;
+
+static bool new_data = false;
+static float last_speed = 0;
 
 static void initAirspeedADC(){
     AD1CON1bits.FORM = 0;		// Data Output Format: Unsigned integer
@@ -62,8 +65,8 @@ static void initAirspeedADC(){
  * @param signal Signal from ADC, in 0-4095
  * @return Airspeed, in m/s
  */
-static float ADCConvert(float signal) {
-    return sqrtf(signal * v_sc * 1666.67f);
+static float ADCConvert(uint16_t signal) {
+    return sqrtf(signal * v_sc);
 }
 
 // run on startup to get a zero value for airspeed. 
@@ -94,19 +97,21 @@ void initAirspeedSensor(){
 }
 
 float getCurrentAirspeed(){
-    int i;
-    float aspd_filtered = 0;
-    for (i = 0; i < AIRSPEED_HISTORY; i++){
-        aspd_filtered += (float)airspeedHistory[i];
+    if (new_data) {
+        new_data = false;
+        int i;
+        uint16_t aspd_filtered = 0;
+        for (i = 0; i < AIRSPEED_HISTORY; i++){
+            aspd_filtered += airspeedHistory[i];
+        }
+        aspd_filtered /= AIRSPEED_HISTORY;
+        last_speed = ADCConvert(abs(aspd_filtered - offset));
     }
-    aspd_filtered /= AIRSPEED_HISTORY;
-    if (offset < 500) {
-        return 0;
-    }
-    return ADCConvert(fabsf(aspd_filtered - offset));
+    return last_speed;
 }
 
 void __attribute__((interrupt, no_auto_psv)) _ADC1Interrupt(void) {
+    new_data = true;
     airspeedHistory[historyCounter++] = ADC1BUF0;
     historyCounter %= AIRSPEED_HISTORY;
     IFS0bits.AD1IF = 0; // Clear the ADC1 Interrupt Flag

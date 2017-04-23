@@ -56,4 +56,13 @@ uint32_t getTime(void);
  */
 uint64_t getTimeUs(void);
 
+/*
+ * Macros for timing various operations.
+ * Usage: put TST (time start) before the block, and 
+ * TND(msg) at the end, where msg is info about what you're timing.
+ * Prints time in us over debug.
+ */
+#define TST uint64_t time = getTimeUs();
+#define TND(msg) debugInt("Time " msg, getTimeUs() - time);
+
 #endif

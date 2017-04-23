@@ -180,12 +180,10 @@ void SPI_SS(uint8_t interface, pinState state) {
 byte SPI_TX_RX(uint8_t interface, byte data) {
     if (interface == 1) {
         SPI1BUF = data;
-        while (SPI1STATbits.SPITBF){}
         while (!SPI1STATbits.SPIRBF){}
         return SPI1BUF;
     } else if (interface == 2) {
         SPI2BUF = data;
-        while (SPI2STATbits.SPITBF){}
         while (!SPI2STATbits.SPIRBF){}
         return SPI2BUF;
     }
