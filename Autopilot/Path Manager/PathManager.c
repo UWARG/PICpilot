@@ -164,7 +164,7 @@ void pathManagerRuntime(void) {
     if (interchip_send_buffer.pm_data.positionFix >= 1){
         lastKnownHeadingHome = calculateHeadingHome(home, (float*)position, heading);
     }
-    
+
     if (getTimeUs() - interchip_last_send_time >= INTERCHIP_SEND_INTERVAL_US){
         interchip_last_send_time = getTimeUs();
         interchip_send_buffer.pm_data.interchip_error_count = getInterchipErrorCount();
@@ -335,7 +335,7 @@ char followWaypoints(PathData* currentWaypoint, float* position, float heading, 
                 orbitPathStatus = ORBIT;
                 if (targetWaypoint->type == HOLD_WAYPOINT)
                 {
-                    inHold = TRUE;
+                    inHold = true;
                 }
             }
 
@@ -357,8 +357,8 @@ char followWaypoints(PathData* currentWaypoint, float* position, float heading, 
             turnCenter[2] = targetCoordinates[2] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[2] - waypointDirection[2])/euclideanWaypointDirection);
             
             // if target waypoint is a hold waypoint the plane will follow the orbit until the break hold method is called
-            if (inHold == TRUE) {
-                *sp_Heading = (int)orbitWaypoint((float*) &turnCenter, targetWaypoint->radius, turnDirection, (float*)position, heading); //float OrbitWaypoint (float* center, float radius, char direction, float* position, float heading){
+            if (inHold == true) {
+                *sp_Heading = (int)followOrbit((float*) &turnCenter, targetWaypoint->radius, turnDirection, (float*)position, heading);
                 return currentWaypoint->index;
             }
 
@@ -424,10 +424,6 @@ int followLastLineSegment(PathData* currentWaypoint, float* position, float head
     }
 
     return (int)followStraightPath((float*)&waypointDirection, (float*)targetCoordinates, (float*)position, heading);
-}
-
-float OrbitWaypoint (float* center, float radius, char direction, float* position, float heading){
-    return (int)followOrbit(center, radius, direction, position, heading);
 }
 
 // direction: ccw = 1, cw = -1
@@ -767,7 +763,7 @@ void checkAMData(){
                 followPath = interchip_receive_buffer.am_data.followPath;
                 break;
            case PM_EXIT_HOLD_ORBIT:
-               inHold = FALSE;
+               inHold = false;
                break;
             case PM_CALIBRATE_ALTIMETER:
                 calibrateAltimeter(interchip_receive_buffer.am_data.calibrationHeight);
