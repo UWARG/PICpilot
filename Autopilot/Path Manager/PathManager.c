@@ -293,101 +293,101 @@ char followWaypoints(PathData* current, float* position, float heading, int* set
 }
 #else
 char followWaypoints(PathData* currentWaypoint, float* position, float heading, int* sp_Heading){
-    float waypointPosition[3];
-    getCoordinates(currentWaypoint->longitude, currentWaypoint->latitude, (float*)&waypointPosition);
-    waypointPosition[2] = currentWaypoint->altitude;
-    
-    
-    if(currentWaypoint->next == NULL){
-        //Case for this being the last/only way point in the queue, avoid null pointers
-        *sp_Heading = followLastLineSegment(currentWaypoint, position, heading);
-        return currentWaypoint->index;
-    }
-    if(currentWaypoint->next->next == NULL){
-        //Case for only 2 way points remaining in queue
-        *sp_Heading = followLineSegment(currentWaypoint, position, heading);
-        return currentWaypoint->index;
-    }
-    
-    PathData* targetWaypoint = currentWaypoint->next;
-    float targetCoordinates[3];
-    getCoordinates(targetWaypoint->longitude, targetWaypoint->latitude, (float*)&targetCoordinates);
-    targetCoordinates[2] = targetWaypoint->altitude;
-    
-    PathData* nextWaypoint = targetWaypoint->next;
-    float nextCoordinates[3];
-    getCoordinates(nextWaypoint->longitude, nextWaypoint->latitude, (float*)&nextCoordinates);
-    nextCoordinates[2] = nextWaypoint->altitude;
+        float waypointPosition[3];
+        getCoordinates(currentWaypoint->longitude, currentWaypoint->latitude, (float*)&waypointPosition);
+        waypointPosition[2] = currentWaypoint->altitude;
 
-    float waypointDirection[3];
-    float norm = sqrt(pow(targetCoordinates[0] - waypointPosition[0],2) + pow(targetCoordinates[1] - waypointPosition[1],2) + pow(targetCoordinates[2] - waypointPosition[2],2));
-    waypointDirection[0] = (targetCoordinates[0] - waypointPosition[0])/norm;
-    waypointDirection[1] = (targetCoordinates[1] - waypointPosition[1])/norm;
-    waypointDirection[2] = (targetCoordinates[2] - waypointPosition[2])/norm;
 
-    float nextWaypointDirection[3];
-    float norm2 = sqrt(pow(nextCoordinates[0] - targetCoordinates[0],2) + pow(nextCoordinates[1] - targetCoordinates[1],2) + pow(nextCoordinates[2] - targetCoordinates[2],2));
-    nextWaypointDirection[0] = (nextCoordinates[0] - targetCoordinates[0])/norm2;
-    nextWaypointDirection[1] = (nextCoordinates[1] - targetCoordinates[1])/norm2;
-    nextWaypointDirection[2] = (nextCoordinates[2] - targetCoordinates[2])/norm2;
-
-    float turningAngle = acos(-deg2rad(waypointDirection[0] * nextWaypointDirection[0] + waypointDirection[1] * nextWaypointDirection[1] + waypointDirection[2] * nextWaypointDirection[2]));
-
-    if (orbitPathStatus == PATH){
-
-        float halfPlane[3];
-        halfPlane[0] = targetCoordinates[0] - (targetWaypoint->radius/tan(turningAngle/2)) * waypointDirection[0];
-        halfPlane[1] = targetCoordinates[1] - (targetWaypoint->radius/tan(turningAngle/2)) * waypointDirection[1];
-        halfPlane[2] = targetCoordinates[2] - (targetWaypoint->radius/tan(turningAngle/2)) * waypointDirection[2];
-
-        float dotProduct = waypointDirection[0] * (position[0] - halfPlane[0]) + waypointDirection[1] * (position[1] - halfPlane[1]) + waypointDirection[2] * (position[2] - halfPlane[2]);
-        if (dotProduct > 0){
-            orbitPathStatus = ORBIT;
-            if (targetWaypoint->type == HOLD_WAYPOINT)
-            {
-                inHold = TRUE;
-            }
+        if(currentWaypoint->next == NULL){
+            //Case for this being the last/only way point in the queue, avoid null pointers
+            *sp_Heading = followLastLineSegment(currentWaypoint, position, heading);
+            return currentWaypoint->index;
         }
-
-        *sp_Heading = (int)followStraightPath((float*)&waypointDirection, (float*)targetCoordinates, (float*)position, heading);
-    }
-    else{            
-
-        float halfPlane[3];
-        halfPlane[0] = targetCoordinates[0] + (targetWaypoint->radius/tan(turningAngle/2)) * nextWaypointDirection[0];
-        halfPlane[1] = targetCoordinates[1] + (targetWaypoint->radius/tan(turningAngle/2)) * nextWaypointDirection[1];
-        halfPlane[2] = targetCoordinates[2] + (targetWaypoint->radius/tan(turningAngle/2)) * nextWaypointDirection[2];
-
-        char turnDirection = waypointDirection[0] * nextWaypointDirection[1] - waypointDirection[1] * nextWaypointDirection[0]>0?1:-1;
-        float euclideanWaypointDirection = sqrt(pow(nextWaypointDirection[0] - waypointDirection[0],2) + pow(nextWaypointDirection[1] - waypointDirection[1],2) + pow(nextWaypointDirection[2] - waypointDirection[2],2)) * ((nextWaypointDirection[0] - waypointDirection[0]) < 0?-1:1) * ((nextWaypointDirection[1] - waypointDirection[1]) < 0?-1:1) * ((nextWaypointDirection[2] - waypointDirection[2]) < 0?-1:1);
-
-        float turnCenter[3];
-        turnCenter[0] = targetCoordinates[0] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[0] - waypointDirection[0])/euclideanWaypointDirection);
-        turnCenter[1] = targetCoordinates[1] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[1] - waypointDirection[1])/euclideanWaypointDirection);
-        turnCenter[2] = targetCoordinates[2] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[2] - waypointDirection[2])/euclideanWaypointDirection);
-
-        // if target waypoint is a hold waypoint the plane will follow the orbit until the break hold method is called
-        if (inHold == TRUE) {
-            *sp_Heading = (int)orbitWaypoint((float*) &turnCenter, targetWaypoint->radius, turnDirection, (float*)position, heading); //float OrbitWaypoint (float* center, float radius, char direction, float* position, float heading){
+        if(currentWaypoint->next->next == NULL){
+            //Case for only 2 way points remaining in queue
+            *sp_Heading = followLineSegment(currentWaypoint, position, heading);
             return currentWaypoint->index;
         }
 
-        float dotProduct = nextWaypointDirection[0] * (position[0] - halfPlane[0]) + nextWaypointDirection[1] * (position[1] - halfPlane[1]) + nextWaypointDirection[2] * (position[2] - halfPlane[2]);
-        if (dotProduct > 0){
-            orbitPathStatus = PATH;
-            return targetWaypoint->index;
+        PathData* targetWaypoint = currentWaypoint->next;
+        float targetCoordinates[3];
+        getCoordinates(targetWaypoint->longitude, targetWaypoint->latitude, (float*)&targetCoordinates);
+        targetCoordinates[2] = targetWaypoint->altitude;
+
+        PathData* nextWaypoint = targetWaypoint->next;
+        float nextCoordinates[3];
+        getCoordinates(nextWaypoint->longitude, nextWaypoint->latitude, (float*)&nextCoordinates);
+        nextCoordinates[2] = nextWaypoint->altitude;
+
+        float waypointDirection[3];
+        float norm = sqrt(pow(targetCoordinates[0] - waypointPosition[0],2) + pow(targetCoordinates[1] - waypointPosition[1],2) + pow(targetCoordinates[2] - waypointPosition[2],2));
+        waypointDirection[0] = (targetCoordinates[0] - waypointPosition[0])/norm;
+        waypointDirection[1] = (targetCoordinates[1] - waypointPosition[1])/norm;
+        waypointDirection[2] = (targetCoordinates[2] - waypointPosition[2])/norm;
+
+        float nextWaypointDirection[3];
+        float norm2 = sqrt(pow(nextCoordinates[0] - targetCoordinates[0],2) + pow(nextCoordinates[1] - targetCoordinates[1],2) + pow(nextCoordinates[2] - targetCoordinates[2],2));
+        nextWaypointDirection[0] = (nextCoordinates[0] - targetCoordinates[0])/norm2;
+        nextWaypointDirection[1] = (nextCoordinates[1] - targetCoordinates[1])/norm2;
+        nextWaypointDirection[2] = (nextCoordinates[2] - targetCoordinates[2])/norm2;
+
+        float turningAngle = acos(-deg2rad(waypointDirection[0] * nextWaypointDirection[0] + waypointDirection[1] * nextWaypointDirection[1] + waypointDirection[2] * nextWaypointDirection[2]));
+
+        if (orbitPathStatus == PATH){
+
+            float halfPlane[3];
+            halfPlane[0] = targetCoordinates[0] - (targetWaypoint->radius/tan(turningAngle/2)) * waypointDirection[0];
+            halfPlane[1] = targetCoordinates[1] - (targetWaypoint->radius/tan(turningAngle/2)) * waypointDirection[1];
+            halfPlane[2] = targetCoordinates[2] - (targetWaypoint->radius/tan(turningAngle/2)) * waypointDirection[2];
+
+            float dotProduct = waypointDirection[0] * (position[0] - halfPlane[0]) + waypointDirection[1] * (position[1] - halfPlane[1]) + waypointDirection[2] * (position[2] - halfPlane[2]);
+            if (dotProduct > 0){
+                orbitPathStatus = ORBIT;
+                if (targetWaypoint->type == HOLD_WAYPOINT)
+                {
+                    inHold = TRUE;
+                }
+            }
+
+            *sp_Heading = (int)followStraightPath((float*)&waypointDirection, (float*)targetCoordinates, (float*)position, heading);
+        }
+        else{            
+
+            float halfPlane[3];
+            halfPlane[0] = targetCoordinates[0] + (targetWaypoint->radius/tan(turningAngle/2)) * nextWaypointDirection[0];
+            halfPlane[1] = targetCoordinates[1] + (targetWaypoint->radius/tan(turningAngle/2)) * nextWaypointDirection[1];
+            halfPlane[2] = targetCoordinates[2] + (targetWaypoint->radius/tan(turningAngle/2)) * nextWaypointDirection[2];
+
+            char turnDirection = waypointDirection[0] * nextWaypointDirection[1] - waypointDirection[1] * nextWaypointDirection[0]>0?1:-1;
+            float euclideanWaypointDirection = sqrt(pow(nextWaypointDirection[0] - waypointDirection[0],2) + pow(nextWaypointDirection[1] - waypointDirection[1],2) + pow(nextWaypointDirection[2] - waypointDirection[2],2)) * ((nextWaypointDirection[0] - waypointDirection[0]) < 0?-1:1) * ((nextWaypointDirection[1] - waypointDirection[1]) < 0?-1:1) * ((nextWaypointDirection[2] - waypointDirection[2]) < 0?-1:1);
+
+            float turnCenter[3];
+            turnCenter[0] = targetCoordinates[0] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[0] - waypointDirection[0])/euclideanWaypointDirection);
+            turnCenter[1] = targetCoordinates[1] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[1] - waypointDirection[1])/euclideanWaypointDirection);
+            turnCenter[2] = targetCoordinates[2] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[2] - waypointDirection[2])/euclideanWaypointDirection);
+
+            // if target waypoint is a hold waypoint the plane will follow the orbit until the break hold method is called
+            if (inHold == TRUE) {
+                *sp_Heading = (int)orbitWaypoint((float*) &turnCenter, targetWaypoint->radius, turnDirection, (float*)position, heading); //float OrbitWaypoint (float* center, float radius, char direction, float* position, float heading){
+                return currentWaypoint->index;
+            }
+
+            float dotProduct = nextWaypointDirection[0] * (position[0] - halfPlane[0]) + nextWaypointDirection[1] * (position[1] - halfPlane[1]) + nextWaypointDirection[2] * (position[2] - halfPlane[2]);
+            if (dotProduct > 0){
+                orbitPathStatus = PATH;
+                return targetWaypoint->index;
+            }
+
+            //If two waypoints are parallel to each other (no turns)
+            if (euclideanWaypointDirection == 0){
+                orbitPathStatus = PATH;
+                return targetWaypoint->index;
+            }
+
+            *sp_Heading = (int)followOrbit((float*) &turnCenter,targetWaypoint->radius, turnDirection, (float*)position, heading);
         }
 
-        //If two waypoints are parallel to each other (no turns)
-        if (euclideanWaypointDirection == 0){
-            orbitPathStatus = PATH;
-            return targetWaypoint->index;
-        }
-
-        *sp_Heading = (int)followOrbit((float*) &turnCenter,targetWaypoint->radius, turnDirection, (float*)position, heading);
-    }
-
-    return currentWaypoint->index;
+        return currentWaypoint->index;
 
 }
 #endif
