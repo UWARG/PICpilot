@@ -296,16 +296,24 @@ char followWaypoints(PathData* currentWaypoint, float* position, float heading, 
     float waypointPosition[3];
     getCoordinates(currentWaypoint->longitude, currentWaypoint->latitude, (float*)&waypointPosition);
     waypointPosition[2] = currentWaypoint->altitude;
+    
+    
     if(currentWaypoint->next == NULL){
-        //Case for this being the last way point in the queue
-        *sp_Heading = followLastLineSegment(currentWaypoint, (float*)waypointPosition, heading);
+        //Case for this being the last/only way point in the queue, avoid null pointers
+        *sp_Heading = followLastLineSegment(currentWaypoint, position, heading);
         return currentWaypoint->index;
     }
+    if(currentWaypoint->next->next == NULL){
+        //Case for only 2 way points remaining in queue
+        *sp_Heading = followLineSegment(currentWaypoint, position, heading);
+        return currentWaypoint->index;
+    }
+    
     PathData* targetWaypoint = currentWaypoint->next;
     float targetCoordinates[3];
     getCoordinates(targetWaypoint->longitude, targetWaypoint->latitude, (float*)&targetCoordinates);
     targetCoordinates[2] = targetWaypoint->altitude;
-
+    
     PathData* nextWaypoint = targetWaypoint->next;
     float nextCoordinates[3];
     getCoordinates(nextWaypoint->longitude, nextWaypoint->latitude, (float*)&nextCoordinates);
