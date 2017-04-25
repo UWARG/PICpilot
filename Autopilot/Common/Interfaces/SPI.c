@@ -128,7 +128,7 @@ void initSPI(uint8_t interface, uint16_t clock, spiMode mode, spiWidth width, sp
             SPI2CON1bits.SMP = 1; // sample input ad end of wave
             SPI2CON1bits.SSEN = 0; // clear SS mode            
             TRISGbits.TRISG9 = 0; // set SS pin as output
-            PORTGbits.RG9 = 0;
+            
             // clock pre-scale bits
             uint8_t ppre, spre;
             getPrescale(clock, &ppre, &spre);
