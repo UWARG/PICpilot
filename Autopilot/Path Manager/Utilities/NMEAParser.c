@@ -6,6 +6,7 @@
  *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE
  */
 
+#include "../../Common/Common.h"
 #include <stdbool.h>
 #include <ctype.h>
 #include <stdio.h>
@@ -13,6 +14,7 @@
 #include <stdlib.h>
 
 static long double convertLatLong(char* lat_lon_string);
+static byte asciiToHex(unsigned char asciiSymbol);
 
 bool isValidNMEAString(char* string, uint16_t max_length){
     uint16_t i = 0;
@@ -38,12 +40,12 @@ bool isValidNMEAString(char* string, uint16_t max_length){
     i++;
 
     //check to make sure the checksums are digits
-    if (!isdigit(string[i]) || !isdigit(string[i+1])){
+    if (!isxdigit(string[i]) || !isxdigit(string[i+1])){
         return false;
     }
     
     //make sure the actual checksum is valid
-    if (((checksum & 0xF0) >> 4) == (string[i] - '0') && (checksum & 0x0F) == (string[i + 1] - '0')){
+    if (((checksum & 0xF0) >> 4) == asciiToHex(string[i]) && (checksum & 0x0F) == asciiToHex(string[i + 1])){
         return true;
     }
     
@@ -125,4 +127,23 @@ static long double convertLatLong(char* lat_lon_string){
 
 	// Return degree value + fractional value of coordinate.
 	return ((int)input + minutes);
+}
+
+/**
+ * Converts a character string that respresents a hexadecimal into the corresponding
+ * byte
+ * @param asciiSymbol
+ * @return
+ */
+static byte asciiToHex(unsigned char asciiSymbol) {
+    char hexOut = 0;
+    if (asciiSymbol == 0x2E)
+        hexOut = 0x10;
+    else if (asciiSymbol >= 0x30 && asciiSymbol <= 0x39){
+        hexOut = asciiSymbol - 0x30;
+    }
+    else if (asciiSymbol >= 0x41 && asciiSymbol <= 0x46){
+        hexOut = asciiSymbol - 0x37; //Letter "F"(ASCII 0x46) becomes 0xF
+    }
+    return hexOut;
 }
