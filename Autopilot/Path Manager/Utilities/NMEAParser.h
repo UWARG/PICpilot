@@ -12,6 +12,7 @@
 #ifndef NMEA_PARSER_H
 #define	NMEA_PARSER
 
+#include <stdint.h>
 #include <stdbool.h>
 
 /** NMEA header for a GGA string, the packet that provides positional information */
@@ -69,6 +70,6 @@ void parseGGA(char* data, long double* latitude, long double* longitude, float* 
  * @param speed
  * @param heading
  */
-void parseVTG(char* data, int16_t* speed, int16_t* heading);
+void parseVTG(char* data, float* speed, int16_t* heading);
 
 #endif

@@ -41,13 +41,13 @@ bool isValidNMEAString(char* string, uint16_t max_length){
     if (!isdigit(string[i]) || !isdigit(string[i+1])){
         return false;
     }
-
+    
     //make sure the actual checksum is valid
-    if ((checksum & 0xF0) >> 4 == (string[i] - '0') && (checksum & 0x0F) == (string[i + 1] - '0')){
+    if (((checksum & 0xF0) >> 4) == (string[i] - '0') && (checksum & 0x0F) == (string[i + 1] - '0')){
         return true;
     }
+    
     return false;
-
 }
 
 void parseGGA(char* data, long double* latitude, long double* longitude, float* utc_time, int16_t* altitude, uint8_t* fix_status, uint8_t* num_satellites) {

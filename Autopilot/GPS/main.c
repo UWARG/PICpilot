@@ -22,6 +22,7 @@ int main(void) {
     initLED();
     initSPI(SPI_MODE); //initialize SPI bus
     initGPS();
+    
     setLED(1);
     debug("Letting GPS module start up for 1 sec..");
     delay(1000);
