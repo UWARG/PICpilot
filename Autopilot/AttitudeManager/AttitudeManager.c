@@ -634,10 +634,7 @@ void readDatalink(void){
                 sendInterchipData();
                 break;
             case TARE_IMU:
-                VN100_SPI_Tare(0);
-                VN100_SPI_WriteSettings(0);
-                VN100_SPI_Reset(0);
-                //adjustVNOrientationMatrix(CMD_TO_FLOAT_ARRAY(cmd->data));
+                adjustVNOrientationMatrix(CMD_TO_FLOAT_ARRAY(cmd->data));
                 break;
             case SET_IMU:
                 setVNOrientationMatrix(CMD_TO_FLOAT_ARRAY(cmd->data));
