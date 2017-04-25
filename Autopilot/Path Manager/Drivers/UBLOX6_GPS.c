@@ -1,5 +1,5 @@
 /*
- * @file WARG_GPS.h
+ * @file UBLOX6_GPS.h
  * @author Serj Babayan
  * @created April 23, 2017, 2:07 PM
  */
@@ -33,12 +33,6 @@ void initGPS(){
 }
 
 void requestGPSInfo(){
-//    while(1){
-//        while(getRXSize(2) != 0){
-//            U1TXREG = readRXData(2);
-//        }
-//    }
-    
     static bool currently_parsing_string = false;
     char data;
     

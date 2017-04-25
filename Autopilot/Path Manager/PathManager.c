@@ -61,11 +61,6 @@ void pathManagerInit(void) {
     
     //Communication with GPS
     initGPS();
-
-    while(1){
-        requestGPSInfo();
-    }
-    
     initBatterySensor();
     initAirspeedSensor();
 
@@ -123,16 +118,23 @@ void pathManagerInit(void) {
 #endif
 }
 
- char buffer[200];
-uint32_t gps_start_time = 0;
+char buffer[200];
+
 void pathManagerRuntime(void) {
 #if DEBUG
 //    char str[16];
 //    sprintf(&str,"%f",pmData.time);
 //    UART1_SendString(&str);
 #endif
-    copyGPSData();
+    requestGPSInfo();
 
+    if (isNewGPSDataAvailable()){
+        copyGPSData();
+         sprintf(buffer, "lat %f lon %f alt %f speed %f fix %d sat %d", (float)gps_data.latitude, (float)gps_data.longitude, (float)gps_data.altitude, (float)gps_data.ground_speed, (int)gps_data.fix_status, (int)gps_data.num_satellites);
+        debug(buffer);
+        copyGPSData();
+    }
+    
     // Update status LED
     if (led_bright == 0) going_up = true;
     else if (led_bright == 255) going_up = false;
@@ -141,25 +143,6 @@ void pathManagerRuntime(void) {
     else led_bright--;
     
     setLEDBrightness(led_bright);
-
-    if (getTime() - gps_start_time> 5000){
-        gps_start_time = getTime();
-        debug("Requesting GPS info");
-        requestGPSInfo();
-    }
-
-    if (isNewGPSDataAvailable()){
-        sprintf(buffer, "lat %f lon %f alt %f speed %f fix %d sat %d", (float)gps_data.latitude, (float)gps_data.longitude, (float)gps_data.altitude, (float)gps_data.ground_speed, (int)gps_data.fix_status, (int)gps_data.num_satellites);
-        debug(buffer);
-        copyGPSData();
-    }
-    
-
-    if (getTime() - gps_start_time> 5000){
-        gps_start_time = getTime();
-        debug("Requesting GPS info");
-        requestGPSInfo();
-    }
 
     if (returnHome){
         interchip_send_buffer.pm_data.targetWaypoint = -1;
@@ -188,7 +171,7 @@ void pathManagerRuntime(void) {
     if (getTimeUs() - interchip_last_send_time >= INTERCHIP_SEND_INTERVAL_US){
         interchip_last_send_time = getTimeUs();
         interchip_send_buffer.pm_data.interchip_error_count = getInterchipErrorCount();
-//        sendInterchipData();
+        sendInterchipData();
     }
 }
 
