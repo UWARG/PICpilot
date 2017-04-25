@@ -106,18 +106,7 @@ static void initDMA3()
 
     //first byte should always be the synchronization byte
     dma3_space[0] = WARG_GPS_SPI_SYNCHRONIZATION_BYTE;
-<<<<<<< HEAD
-    
-=======
-    dma3_space[1] = WARG_GPS_SPI_SYNCHRONIZATION_BYTE;
-    dma3_space[2] = WARG_GPS_SPI_SYNCHRONIZATION_BYTE;
-    dma3_space[3] = WARG_GPS_SPI_SYNCHRONIZATION_BYTE;
-    dma3_space[4] = WARG_GPS_SPI_SYNCHRONIZATION_BYTE;
-    dma3_space[5] = WARG_GPS_SPI_SYNCHRONIZATION_BYTE;
-    dma3_space[6] = WARG_GPS_SPI_SYNCHRONIZATION_BYTE;
 
-
->>>>>>> a5d9cf5... Debug stuff
     DMA3CONbits.CHEN = 1; //Enable the channel
 }
 
