@@ -3,6 +3,9 @@
  * @author Serj Babayan
  * @created April 23, 2017, 1:57 AM
  * Wrapper for the gps module. Contains the data struct that will be transmitted over
+ * 
+ * @copyright Waterloo Aerial Robotics Group 2017 \n
+ *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE
  */
 
 #ifndef GPS_H

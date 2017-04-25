@@ -1,7 +1,12 @@
 /**
  * @file MTK33x9.h
- * Contains implementation for parsing GPS
+ * @author Serj Babayan
+ * @created April 23, 2017, 1:45 AM
+ *
+ * @copyright Waterloo Aerial Robotics Group 2017 \n
+ *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE
  */
+
 #include "UART.h"
 #include "GPS.h"
 #include "Logger.h"

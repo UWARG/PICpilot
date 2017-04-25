@@ -6,6 +6,9 @@
  * in 4x PLL, having it run at 32Mhz, or at 16MIPS
  *
  * This file should only be included once in a single instance
+ *
+ * @copyright Waterloo Aerial Robotics Group 2017 \n
+ *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE
  */
 
 #ifndef CLOCKCONFIG_H

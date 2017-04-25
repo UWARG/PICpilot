@@ -3,6 +3,7 @@
  * @author Serge Babayan
  * @date February 14, 2017, 9:05 PM
  * @brief Contains implementation for using the UART functionality of the chip
+ * 
  * @copyright Waterloo Aerial Robotics Group 2017 \n
  *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE 
  */

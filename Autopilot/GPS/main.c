@@ -4,7 +4,7 @@
 #include "Logger.h"
 #include "Timer.h"
 #include "SPI.h"
-#include "Peripherals.h"
+#include "LED.h"
 #include "GPS.h"
 #include <stdint.h>
 #include <xc.h>
@@ -21,6 +21,7 @@ int main(void) {
     initLogger();
     initLED();
     initSPI(SPI_MODE); //initialize SPI bus
+<<<<<<< HEAD
 <<<<<<< HEAD
 =======
     debug("intiialized spi, running loop");
@@ -39,6 +40,8 @@ int main(void) {
         
     }
 >>>>>>> a5d9cf5... Debug stuff
+=======
+>>>>>>> 8e8ef58... General project fixes
     initGPS();
     
     setLED(1);

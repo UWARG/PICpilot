@@ -1,6 +1,9 @@
 /**
  * @file Config.h
  * @author Serj Babayan
+ *
+ * @copyright Waterloo Aerial Robotics Group 2017 \n
+ *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE
  */
 
 #ifndef CONFIG_H
@@ -17,6 +20,6 @@
  * Tells the module to bypass the parsing functionality and just output the
  * received strings from the GPS module to the TX buffer
  */
-#define DEBUG_TX_GPS 0
+#define DEBUG_TX_GPS 1
 
 #endif
