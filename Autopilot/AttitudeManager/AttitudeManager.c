@@ -24,8 +24,10 @@
 #include "../Common/Utilities/LED.h"
 #include <string.h>
 
-int input_RC_Flap; // Flaps need to finish being refactored.
-int input_GS_Flap;
+extern int input_RC_Flap; // Flaps need to finish being refactored.
+extern int input_GS_Flap;
+extern float roll_turn_mix; // temporary hacks for fixed-wing only parameters
+extern float adverse_yaw_mix;
 
 // Control level bit masks (indexed by CtrlType enum)
 static const uint16_t ctrl_mask[16] = {
@@ -114,8 +116,6 @@ int input_GS_Heading = 0;
 
 int input_AP_Altitude = 0;
 int input_AP_Heading = 0;
-
-float scaleFactor = 5; // Roll angle -> pitch rate scaling (for fixed-wing turns) 
 
 char displayGain = 0;
 int controlLevel = 0;
@@ -441,12 +441,6 @@ void imuCommunication(){
     imu_YawRate = rad2deg(imuData[IMU_YAW_RATE]);
 }
 
-int coordinatedTurn(float pitchRate, int rollAngle){
-    //Feed forward Term when turning
-    pitchRate += (int)(scaleFactor * abs(rollAngle)); //Linear Function
-    return pitchRate;
-}
-
 // Type is both bit shift value and index of bit mask array
 uint8_t getControlValue(CtrlType type) {
     return (controlLevel & ctrl_mask[type]) >> type;
@@ -549,7 +543,7 @@ void readDatalink(void){
                 setAccelVariance(CMD_TO_FLOAT(cmd->data));
                 break;
             case SET_SCALE_FACTOR:
-                scaleFactor = CMD_TO_FLOAT(cmd->data);
+                roll_turn_mix = CMD_TO_FLOAT(cmd->data);
                 break;
             case CALIBRATE_ALTIMETER:
                 interchip_send_buffer.am_data.calibrationHeight = CMD_TO_FLOAT(cmd->data);

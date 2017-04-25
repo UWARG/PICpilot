@@ -21,6 +21,7 @@
 
 // ADC -> voltage -> percentage -> pressure, then multiplied by some factors for Bernoulli
 static float v_sc = ((AREF_RATIO / ASPD_RATIO) / VSOURCE) * 0.2f  * 1666.67f; // derived from the internal ADC conversions and the airspeed sensor datasheet
+static float ardu = 1.9936f; // magic number via ardupilot.
 
 static int airspeedHistory[AIRSPEED_HISTORY] = {0};
 static int historyCounter = 0;
