@@ -33,6 +33,12 @@ void initGPS(){
 }
 
 void requestGPSInfo(){
+//    while(1){
+//        while(getRXSize(2) != 0){
+//            U1TXREG = readRXData(2);
+//        }
+//    }
+    
     static bool currently_parsing_string = false;
     char data;
     
