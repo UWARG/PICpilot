@@ -10,6 +10,11 @@
 
 #include <stdint.h>
 
+#define GPS_WARG_GPS 0
+#define GPS_UBLOX_6 1
+
+#define USE_GPS GPS_UBLOX_6
+
 /** This is the structure that will be transmitted over interchip to the attitude manager*/
 typedef struct{
     long double latitude;  //8 Bytes

@@ -61,6 +61,10 @@ void pathManagerInit(void) {
     
     //Communication with GPS
     initGPS();
+
+    while(1){
+        requestGPSInfo();
+    }
     
     initBatterySensor();
     initAirspeedSensor();

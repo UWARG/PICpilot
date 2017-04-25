@@ -13,6 +13,8 @@
 #include "../../Common/Utilities/Logger.h"
 #include <string.h>
 
+#if USE_GPS == GPS_WARG_GPS
+
 GPSData gps_data;
 
 static uint8_t gps_receive_buffer[sizeof(GPSData)];
@@ -140,3 +142,5 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA3Interrupt(void)
 {
     IFS2bits.DMA3IF = 0; //clear the interrupt flag
 }
+
+#endif
