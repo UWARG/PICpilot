@@ -13,10 +13,10 @@
 #define UBLOX6_UART_BAUD_RATE 9600
 
 /**
- * Number of invalid messages we have to recieve from the GPS before we consider it
- * disconnected
+ * Timeout between when we've received the last packet from the module before
+ * we consider it disconnected
  */
-#define WUBLOX6_DISCONNECT_COM_COUNT 5
+#define UBLOX6_DISCONNECT_TIMEOUT 500
 
 #endif
 

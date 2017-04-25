@@ -131,6 +131,7 @@ void pathManagerRuntime(void) {
 //    sprintf(&str,"%f",pmData.time);
 //    UART1_SendString(&str);
 #endif
+<<<<<<< HEAD
     copyGPSData();
 
     // Update status LED
@@ -148,6 +149,23 @@ void pathManagerRuntime(void) {
         requestGPSInfo();
     }
     
+=======
+    char buffer[200];
+    requestGPSInfo();
+    if (isNewGPSDataAvailable()){
+        sprintf(buffer, "lat %f lon %f alt %f speed %f fix %d sat %d", (float)gps_data.latitude, (float)gps_data.longitude, (float)gps_data.altitude, (float)gps_data.ground_speed, (int)gps_data.fix_status, (int)gps_data.num_satellites);
+        debug(buffer);
+        copyGPSData();
+    }
+    
+//
+//    if (getTime() - gps_start_time> 5000){
+//        gps_start_time = getTime();
+//        debug("Requesting GPS info");
+//        requestGPSInfo();
+//    }
+
+>>>>>>> 02dc393... Finished writing driver for new gps
     if (returnHome){
         interchip_send_buffer.pm_data.targetWaypoint = -1;
     } else {
