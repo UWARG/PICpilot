@@ -6,7 +6,6 @@
                    projectFiles="true">
       <itemPath>Logger.h</itemPath>
       <itemPath>UART.h</itemPath>
-      <itemPath>Peripherals.h</itemPath>
       <itemPath>Config.h</itemPath>
       <itemPath>MTK33x9.h</itemPath>
       <itemPath>GPS.h</itemPath>
@@ -14,6 +13,7 @@
       <itemPath>Utilities.h</itemPath>
       <itemPath>SPI.h</itemPath>
       <itemPath>ClockConfig.h</itemPath>
+      <itemPath>LED.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -24,12 +24,12 @@
                    projectFiles="true">
       <itemPath>Logger.c</itemPath>
       <itemPath>UART.c</itemPath>
-      <itemPath>Peripherals.c</itemPath>
       <itemPath>Timer.c</itemPath>
       <itemPath>MTK33x9.c</itemPath>
       <itemPath>main.c</itemPath>
       <itemPath>SPI.c</itemPath>
       <itemPath>Utilities.c</itemPath>
+      <itemPath>LED.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

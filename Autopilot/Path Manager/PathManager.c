@@ -161,7 +161,6 @@ void pathManagerRuntime(void) {
         requestGPSInfo();
     }
 
->>>>>>> 02dc393... Finished writing driver for new gps
     if (returnHome){
         interchip_send_buffer.pm_data.targetWaypoint = -1;
     } else {
