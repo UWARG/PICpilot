@@ -2,6 +2,7 @@
  * @file SPI.c
  * @author Serj Babayan
  * @date April 23, 2017
+ * 
  * @copyright Waterloo Aerial Robotics Group 2017 \n
  *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE
  */
@@ -20,9 +21,12 @@ static bool currently_transmitting = false;
 
 void initSPI(SPIMode mode){
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
     SPI1BUF = 0; //clear the buffer
     
+=======
+>>>>>>> 8e8ef58... General project fixes
     TRISBbits.TRISB12 = 1; //SPI CLK set as input
     TRISBbits.TRISB13 = 0; //SPI SDO set as output
     TRISBbits.TRISB14 = 1; //SPI SDI set as input
@@ -38,6 +42,7 @@ void initSPI(SPIMode mode){
     
     SPI1STATbits.SPISIDL = 0; //Continue module operation in idle mode
     SPI1STATbits.SPIROV = 0; // Clear receive overflow
+<<<<<<< HEAD
 <<<<<<< HEAD
     SPI1CON1bits.DISSCK = 0; //SPI clock controlled by this module (internal clock)
     SPI1CON1bits.DISSDO = 0; //Output pins are controlled by this module (SDOx pin)
@@ -69,6 +74,9 @@ void initSPI(SPIMode mode){
     SPI1CON1bits.SSEN = 0; // disable SS?
 =======
 //    SPI1CON1bits.DISSCK = 0; //SPI clock controlled by this module
+=======
+    SPI1CON1bits.DISSCK = 0; //SPI clock controlled by this module
+>>>>>>> 8e8ef58... General project fixes
     SPI1CON1bits.DISSDO = 0; //Output pins are controlled by this module
     SPI1CON2bits.SPIBEN = 0; //disable enchanced buffer mdoe
     
@@ -118,7 +126,6 @@ void queueTransmitData(void){
 }
 
 void __attribute__((__interrupt__, no_auto_psv)) _SPI1Interrupt(void) {
-    debug("received spi interrupt!");
     if (currently_transmitting){
         SPI1BUF = spi_buffer[spi_buffer_index];
         if (spi_buffer_index < spi_buffer_size){

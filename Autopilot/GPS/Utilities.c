@@ -2,6 +2,7 @@
  * @file Utilities.h
  * @author Serge Babayan
  * @date @date April 23, 2017, 3:38AM
+ * 
  * @copyright Waterloo Aerial Robotics Group 2017 \n
  *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE
  */

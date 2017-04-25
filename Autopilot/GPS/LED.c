@@ -1,3 +1,12 @@
+/**
+ * @file LED.c
+ * @author Serj Babayan
+ * @created April 21, 2017, 12:43 AM
+ *
+ * @copyright Waterloo Aerial Robotics Group 2017 \n
+ *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE
+ */
+
 #include <xc.h>
 #include <stdbool.h>
 

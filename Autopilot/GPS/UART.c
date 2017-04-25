@@ -2,6 +2,7 @@
  * @file UART.c
  * @author Serge Babayan
  * @date February 14, 2017
+ * 
  * @copyright Waterloo Aerial Robotics Group 2017 \n
  *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE 
  */

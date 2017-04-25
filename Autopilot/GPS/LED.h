@@ -1,11 +1,14 @@
 /**
- * @file Peripherals.h
+ * @file LED.h
  * @author Serj Babayan
  * @created April 21, 2017, 12:43 AM
+ *
+ * @copyright Waterloo Aerial Robotics Group 2017 \n
+ *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE
  */
 
-#ifndef PERIPHERALS_H
-#define	PERIPHERALS_H
+#ifndef LED_H
+#define	LED_H
 
 #include  <stdbool.h>
 
