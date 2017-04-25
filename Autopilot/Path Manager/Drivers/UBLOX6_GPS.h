@@ -10,7 +10,7 @@
 
 #define UBLOX6_UART_INTERFACE 2
 
-#define UBLOX6_UART_BAUD_RATE 9600
+#define UBLOX6_UART_BAUD_RATE 115200
 
 /**
  * Timeout between when we've received the last packet from the module before
