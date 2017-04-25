@@ -19,6 +19,16 @@ static uint16_t spi_buffer_index = 0; //index of the packet we're currently tran
 static bool currently_transmitting = false;
 
 void initSPI(SPIMode mode){
+<<<<<<< HEAD
+=======
+    SPI1BUF = 0; //clear the buffer
+    
+    TRISBbits.TRISB12 = 1; //SPI CLK set as input
+    TRISBbits.TRISB13 = 0; //SPI SDO set as output
+    TRISBbits.TRISB14 = 1; //SPI SDI set as input
+    TRISBbits.TRISB15 = 1; //SPI SS set as input
+     
+>>>>>>> a5d9cf5... Debug stuff
     SPI1STATbits.SPIEN = 0; // Disable for configuration
 
     IFS0bits.SPI1IF = 0; //Clear interrupt flag
@@ -28,6 +38,7 @@ void initSPI(SPIMode mode){
     
     SPI1STATbits.SPISIDL = 0; //Continue module operation in idle mode
     SPI1STATbits.SPIROV = 0; // Clear receive overflow
+<<<<<<< HEAD
     SPI1CON1bits.DISSCK = 0; //SPI clock controlled by this module (internal clock)
     SPI1CON1bits.DISSDO = 0; //Output pins are controlled by this module (SDOx pin)
     SPI1CON1bits.MODE16 = 1; // Communication is byte-wide (8 bits)
@@ -56,6 +67,38 @@ void initSPI(SPIMode mode){
     SPI1CON1bits.MSTEN = 0; // Slave mode
     SPI1CON1bits.SMP = 0; // sample input in middle of wave
     SPI1CON1bits.SSEN = 0; // disable SS?
+=======
+//    SPI1CON1bits.DISSCK = 0; //SPI clock controlled by this module
+    SPI1CON1bits.DISSDO = 0; //Output pins are controlled by this module
+    SPI1CON2bits.SPIBEN = 0; //disable enchanced buffer mdoe
+    
+    SPI1CON1bits.MODE16 = 0;//8-bit communication mode
+    SPI1CON2bits.FRMEN = 0; // Framed mode disabled
+        
+    SPI1CON1bits.MSTEN = 0; // Slave mode
+    SPI1CON1bits.SMP = 0; // SMP must be cleared when SPIx is used in Slave mode
+    SPI1CON1bits.SSEN = 1; //SS pin used for slave mode
+    // no need to set clock in slave mode
+
+    switch (mode) {
+        case SPI_MODE0:
+            SPI1CON1bits.CKE = 1;
+            SPI1CON1bits.CKP = 0;
+            break;
+        case SPI_MODE1:
+            SPI1CON1bits.CKE = 0;
+            SPI1CON1bits.CKP = 0;
+            break;
+        case SPI_MODE2:
+            SPI1CON1bits.CKE = 1;
+            SPI1CON1bits.CKP = 1;
+            break;
+        case SPI_MODE3:
+            SPI1CON1bits.CKE = 0;
+            SPI1CON1bits.CKP = 1;
+            break;
+    }
+>>>>>>> a5d9cf5... Debug stuff
 
     IPC2bits.SPI1IP = 7; // Set interrupt priority
     IFS0bits.SPI1IF = 0; //Clear interrupt flag
@@ -75,6 +118,7 @@ void queueTransmitData(void){
 }
 
 void __attribute__((__interrupt__, no_auto_psv)) _SPI1Interrupt(void) {
+    debug("received spi interrupt!");
     if (currently_transmitting){
         SPI1BUF = spi_buffer[spi_buffer_index];
         if (spi_buffer_index < spi_buffer_size){

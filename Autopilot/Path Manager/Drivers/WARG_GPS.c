@@ -106,7 +106,18 @@ static void initDMA3()
 
     //first byte should always be the synchronization byte
     dma3_space[0] = WARG_GPS_SPI_SYNCHRONIZATION_BYTE;
+<<<<<<< HEAD
     
+=======
+    dma3_space[1] = WARG_GPS_SPI_SYNCHRONIZATION_BYTE;
+    dma3_space[2] = WARG_GPS_SPI_SYNCHRONIZATION_BYTE;
+    dma3_space[3] = WARG_GPS_SPI_SYNCHRONIZATION_BYTE;
+    dma3_space[4] = WARG_GPS_SPI_SYNCHRONIZATION_BYTE;
+    dma3_space[5] = WARG_GPS_SPI_SYNCHRONIZATION_BYTE;
+    dma3_space[6] = WARG_GPS_SPI_SYNCHRONIZATION_BYTE;
+
+
+>>>>>>> a5d9cf5... Debug stuff
     DMA3CONbits.CHEN = 1; //Enable the channel
 }
 
@@ -134,6 +145,8 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA2Interrupt(void)
         debug("checksum failed!");
         debugArray(dma2_space, sizeof(dma2_space));
     }
+
+    debugArray(dma2_space, sizeof(dma2_space));
 
     IFS1bits.DMA2IF = 0; //clear the interrupt flag
 }

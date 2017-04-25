@@ -21,6 +21,24 @@ int main(void) {
     initLogger();
     initLED();
     initSPI(SPI_MODE); //initialize SPI bus
+<<<<<<< HEAD
+=======
+    debug("intiialized spi, running loop");
+    while(1){
+        SPI1BUF = 2;
+        if(SPI1STATbits.SPIROV){
+            debug("receive overlfow");
+        }
+
+        if(SPI1STATbits.SPIRBF){
+            debug("received data!");
+            U1TXREG = SPI1BUF;
+        }
+
+        
+        
+    }
+>>>>>>> a5d9cf5... Debug stuff
     initGPS();
     
     setLED(1);
