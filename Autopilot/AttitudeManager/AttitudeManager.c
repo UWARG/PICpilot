@@ -150,7 +150,7 @@ void attitudeInit() {
      *  *****************************************************************
      */
     //In order: Angular Walk, Angular Rate x 3, Magnetometer x 3, Acceleration x 3
-    float filterVariance[10] = {1e-9, 1e-9, 1e-9, 1e-9, 1, 1, 1, 1e-4, 1e-4, 1e-4}; //  {1e-10, 1e-6, 1e-6, 1e-6, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2};
+    float filterVariance[10] = {1e-9, 1e-9, 1e-9, 1e-9, 1e-2, 1e-2, 1e-2, 1e-4, 1e-4, 1e-4}; //  {1e-10, 1e-6, 1e-6, 1e-6, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2};
     VN100_initSPI();
 
     char model[12];
@@ -593,7 +593,7 @@ void readDatalink(void){
                 break;
             case ARM_VEHICLE:
                 if (CMD_TO_INT(cmd->data) == 1234)
-                    armVehicle(500);
+                    armVehicle();
                 break;
             case DEARM_VEHICLE:
                 if (CMD_TO_INT(cmd->data) == 1234)
@@ -609,11 +609,7 @@ void readDatalink(void){
                 sendInterchipData();
                 break;
             case SHOW_SCALED_PWM:
-                if (*cmd->data == 1){
-                    show_scaled_pwm = true;
-                } else{
-                    show_scaled_pwm = false;
-                }
+                show_scaled_pwm = *(bool*)cmd->data;
                 break;
             case REMOVE_LIMITS:
                 limitSetpoint = *(bool*)cmd->data;

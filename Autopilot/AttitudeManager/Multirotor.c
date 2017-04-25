@@ -33,24 +33,13 @@ void initialization(){
     }
 }
 
-void armVehicle(int delayTime){
+void armVehicle(){
     setProgramStatus(ARMING);
-#if DEBUG
-    debug("MOTOR STARTUP PROCEDURE STARTED");
-#endif
-    asm("CLRWDT");
-    __delay_ms(delayTime);
-    asm("CLRWDT");
+
     setPWM(1, MIN_PWM);
     setPWM(2, MIN_PWM);
     setPWM(3, MIN_PWM);
     setPWM(4, MIN_PWM);
-    asm("CLRWDT");
-    __delay_ms(delayTime);
-    asm("CLRWDT");
-#if DEBUG
-    debug("MOTOR STARTUP PROCEDURE COMPLETE");
-#endif
 }
 
 void dearmVehicle(){

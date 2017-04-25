@@ -72,9 +72,10 @@ static float ADCConvert(uint16_t signal) {
 // run on startup to get a zero value for airspeed. 
 // waits until the airspeed buffer is fully populated, then saves the offset 
 void calibrateAirspeed() {
-    int i;
+    int i, j;
     bool done = false;
-    while (!done) {
+    for (j = 0; j < 256; j++) {
+        if (done) break;
         offset = 0;
         done = true;
         for (i = 0; i < AIRSPEED_HISTORY; i++) {

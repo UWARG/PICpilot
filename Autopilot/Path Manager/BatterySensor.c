@@ -108,11 +108,10 @@ void initBatterySensor() {
 
 uint16_t getMainBatteryLevel() {
     // return voltage value * 100
-    return (uint16_t)((100 * main_battery_adc) * (ANALOG_RATIO / MAIN_BATT_RATIO));
+    return (uint16_t)((100.f * (float)main_battery_adc) * (ANALOG_RATIO / MAIN_BATT_RATIO));
 }
 
 uint16_t getExtBatteryLevel() {
-    return (uint16_t)((100 * ext_battery_adc) * (ANALOG_RATIO / EXT_BATT_RATIO)) - 40; // fuck it
-    // -40 pulls the calculation down closer to the real value. voltage sensor reads high by ~0.5 V
+    return (uint16_t)((100.f * (float)ext_battery_adc) * (ANALOG_RATIO / EXT_BATT_RATIO));
 }
 

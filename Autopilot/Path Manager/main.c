@@ -43,8 +43,8 @@ int main(int argc, char** argv) {
     initLogger();
 #endif
     
-checkErrorCodes();
-pathManagerInit();
+    checkErrorCodes();
+    pathManagerInit();
     while (1) {
         pathManagerRuntime();
         asm("CLRWDT");

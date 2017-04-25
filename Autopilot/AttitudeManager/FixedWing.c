@@ -35,19 +35,15 @@ void initialization(){
     }
 }
 
-void armVehicle(int delayTime){
+void armVehicle(){
     setProgramStatus(ARMING);
-    asm("CLRWDT");
-    __delay_ms(delayTime);
-    asm("CLRWDT");
+
     setPWM(THROTTLE_OUT_CHANNEL, MIN_PWM);
     setPWM(ROLL_OUT_CHANNEL, 0);
     setPWM(L_TAIL_OUT_CHANNEL, 0);
     setPWM(R_TAIL_OUT_CHANNEL, 0);
     setPWM(FLAP_OUT_CHANNEL, MIN_PWM);
-    asm("CLRWDT");
-    __delay_ms(delayTime);
-    asm("CLRWDT");
+
 }
 
 void dearmVehicle(){

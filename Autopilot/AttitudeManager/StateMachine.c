@@ -18,7 +18,6 @@
 #include "../Common/Utilities/LED.h"
 
 //State Machine Triggers (Mostly Timers)
-static int dmaTimer = 0;
 static int uplinkTimer = 0;
 static int downlinkTimer = 0;
 static int imuTimer = 0;
@@ -26,8 +25,7 @@ static int ledTimer = 0;
 static long int stateMachineTimer = 0;
 static int dTime = 0;
 
-static char AMUpdate = 0;
-static char flightUpdate = 0;
+static bool flightUpdate = false;
 
 void StateMachine(char entryLocation){
     dTime = (int)(getTime() - stateMachineTimer);
@@ -36,37 +34,31 @@ void StateMachine(char entryLocation){
     downlinkTimer += dTime;
     imuTimer += dTime;
     ledTimer += dTime;
-    dmaTimer += dTime;
 
     //Clear Watchdog timer
     asm("CLRWDT");
     //Feedback systems such as this autopilot are very sensitive to timing. In order to keep it consistent we should try to keep the timing between the calculation of error corrections and the output the same.
     //In other words, roll pitch and yaw control, mixing, and output should take place in the same step.
-    if(AMUpdate){
-        AMUpdate = 0;
-        //Run - Angle control, and angular rate control
-        flightUpdate = 1;
-    }
-    else if(IMU_UPDATE_FREQUENCY <= imuTimer && entryLocation != STATEMACHINE_IMU){
-//        debug("IMU");
+
+    if(IMU_UPDATE_FREQUENCY <= imuTimer){
         imuTimer = 0;
         //Poll Sensor
         imuCommunication();
-
-        flightUpdate = 1;
+        // If there's new IMU data, run flight control.
+        flightUpdate = true;
     }
     else if(newInterchipData() && checkDMA()){
-        //Input from Controller
-        flightUpdate = 1;
+        // if we have new interchip data (heading, etc), run flight control
+        flightUpdate = true;
     }
 
     if (entryLocation == STATEMACHINE_IDLE) {
-        // If we're waiting to be armed, don't run the flight control
-        flightUpdate = 0;
+        // If we're waiting to be armed, don't run the flight control regardless of other states.
+        flightUpdate = false;
     }
 
     if (flightUpdate) {
-        flightUpdate = 0;
+        flightUpdate = false;
         //Input from Controller
         inputCapture();
         highLevelControl();
@@ -99,12 +91,6 @@ void StateMachine(char entryLocation){
     
     parseDatalinkBuffer(); //read any incoming data from the Xbee and put in buffer
     sendQueuedDownlinkPacket(); //send any outgoing info
-    
-    asm("CLRWDT");
-}
-
-void forceStateMachineUpdate(){
-    AMUpdate = 1;
 }
 
 void killPlane(char action){
