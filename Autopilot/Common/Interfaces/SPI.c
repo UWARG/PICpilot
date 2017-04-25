@@ -79,7 +79,7 @@ void initSPI(uint8_t interface, uint16_t clock, spiMode mode, spiWidth width, sp
             SPI1CON1bits.SPRE = spre;
         } else if (mss == SPI_SLAVE) {
             SPI1CON1bits.MSTEN = 0; // Slave mode
-            SPI1CON1bits.SMP = 0; // sample input in middle of wave
+            SPI1CON1bits.SMP = 0; // sample input in middle of wave (for slaves, this must always be 0)
             SPI1CON1bits.SSEN = 0; // disable SS?
             // no need to set clock in slave mode
         }
@@ -128,7 +128,7 @@ void initSPI(uint8_t interface, uint16_t clock, spiMode mode, spiWidth width, sp
             SPI2CON1bits.SMP = 1; // sample input ad end of wave
             SPI2CON1bits.SSEN = 0; // clear SS mode            
             TRISGbits.TRISG9 = 0; // set SS pin as output
-
+            PORTGbits.RG9 = 0;
             // clock pre-scale bits
             uint8_t ppre, spre;
             getPrescale(clock, &ppre, &spre);

@@ -13,7 +13,7 @@
 #define GPS_WARG_GPS 0
 #define GPS_UBLOX_6 1
 
-#define USE_GPS GPS_UBLOX_6
+#define USE_GPS GPS_WARG_GPS
 
 /** This is the structure that will be transmitted over interchip to the attitude manager*/
 typedef struct{
