@@ -130,8 +130,6 @@ void pathManagerRuntime(void) {
 
     if (isNewGPSDataAvailable()){
         copyGPSData();
-        sprintf(buffer, "lat %f lon %f alt %f time %f speed %f heading %d fix %d sat %d errors: %d", (float)gps_data.latitude, (float)gps_data.longitude, (float)gps_data.altitude, (float)gps_data.utc_time, (float)gps_data.ground_speed, gps_data.heading, (int)gps_data.fix_status, (int)gps_data.num_satellites, getGPSCommunicationErrors());
-        debug(buffer);
     }
     
     // Update status LED
@@ -652,16 +650,15 @@ unsigned int insertPathNode(PathData* node, unsigned int previousID, unsigned in
 }
 
 void copyGPSData(){
-    if (isNewGPSDataAvailable() && gpsErrorCheck(gps_data.latitude, gps_data.longitude)){
-        interchip_send_buffer.pm_data.time = gps_data.utc_time;
-        interchip_send_buffer.pm_data.longitude = gps_data.longitude;
-        interchip_send_buffer.pm_data.latitude = gps_data.latitude;
-        interchip_send_buffer.pm_data.heading = gps_data.heading;
-        interchip_send_buffer.pm_data.speed = gps_data.ground_speed;
-        interchip_send_buffer.pm_data.satellites = (char)gps_data.num_satellites;
-        interchip_send_buffer.pm_data.positionFix = (char)gps_data.fix_status;
-        checkForFirstGPSLock();
-    }
+    interchip_send_buffer.pm_data.time = gps_data.utc_time;
+    interchip_send_buffer.pm_data.longitude = gps_data.longitude;
+    interchip_send_buffer.pm_data.latitude = gps_data.latitude;
+    interchip_send_buffer.pm_data.heading = gps_data.heading;
+    interchip_send_buffer.pm_data.speed = gps_data.ground_speed;
+    interchip_send_buffer.pm_data.satellites = (char)gps_data.num_satellites;
+    interchip_send_buffer.pm_data.positionFix = (char)gps_data.fix_status;
+    
+    checkForFirstGPSLock();
     
     interchip_send_buffer.pm_data.batteryLevel1 = getMainBatteryLevel();
     interchip_send_buffer.pm_data.batteryLevel2 = getExtBatteryLevel();
@@ -688,14 +685,6 @@ static void checkForFirstGPSLock(){
 		gpsLockFlag = 0;
         }
     }
-}
-
-//returns 1 if gps location makes sense, 0 if not
-char gpsErrorCheck(double lat, double lon){
-    if(abs(lon - RELATIVE_LONGITUDE)<GPS_ERROR && abs(lat - RELATIVE_LATITUDE)<GPS_ERROR){
-        return 1;
-    }
-        return 0;
 }
 
 uint8_t last_amdata_checksum = 0;
