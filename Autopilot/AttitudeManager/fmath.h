@@ -14,7 +14,7 @@ extern "C" {
 
 #include "main.h"
 
-#define SINE_TABLE_SIZE 256 ///Must be a power of 2
+#define SINE_TABLE_SIZE 2 ///Must be a power of 2
 
 void initTrigLookup();
 float lookup(int val);
