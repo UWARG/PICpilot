@@ -128,9 +128,7 @@ void pathManagerRuntime(void) {
 #endif
     requestGPSInfo();
 
-    if (isNewGPSDataAvailable()){
-        copyGPSData();
-    }
+    copyGPSData();
     
     // Update status LED
     if (led_bright == 0) going_up = true;
@@ -640,16 +638,20 @@ unsigned int insertPathNode(PathData* node, unsigned int previousID, unsigned in
 }
 
 void copyGPSData(){
-    interchip_send_buffer.pm_data.time = gps_data.utc_time;
-    interchip_send_buffer.pm_data.longitude = gps_data.longitude;
-    interchip_send_buffer.pm_data.latitude = gps_data.latitude;
-    interchip_send_buffer.pm_data.heading = gps_data.heading;
-    interchip_send_buffer.pm_data.speed = gps_data.ground_speed;
-    interchip_send_buffer.pm_data.satellites = (char)gps_data.num_satellites;
-    interchip_send_buffer.pm_data.positionFix = (char)gps_data.fix_status;
-    
-    checkForFirstGPSLock();
-    
+
+    if (isNewGPSDataAvailable()){
+        interchip_send_buffer.pm_data.time = gps_data.utc_time;
+        interchip_send_buffer.pm_data.longitude = gps_data.longitude;
+        interchip_send_buffer.pm_data.latitude = gps_data.latitude;
+        interchip_send_buffer.pm_data.heading = gps_data.heading;
+        interchip_send_buffer.pm_data.speed = gps_data.ground_speed;
+        interchip_send_buffer.pm_data.satellites = (char)gps_data.num_satellites;
+        interchip_send_buffer.pm_data.positionFix = (char)gps_data.fix_status;
+
+        checkForFirstGPSLock();
+    }
+
+    interchip_send_buffer.pm_data.gps_communication_error_count = getGPSCommunicationErrors();
     interchip_send_buffer.pm_data.batteryLevel1 = getMainBatteryLevel();
     interchip_send_buffer.pm_data.batteryLevel2 = getExtBatteryLevel();
     interchip_send_buffer.pm_data.airspeed = getCurrentAirspeed();

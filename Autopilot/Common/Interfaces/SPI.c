@@ -57,7 +57,6 @@ void initSPI(uint8_t interface, uint16_t clock, spiMode mode, spiWidth width, sp
         IFS0bits.SPI1IF = 0; //Clear interrupt flag
         IEC0bits.SPI1IE = 0; //Disable interrupt (so it doesnt mess with this initialization)
 
-
         SPI1STATbits.SPISIDL = 0; // Continue module operation in idle mode
         SPI1STATbits.SPIROV = 0; // Clear receive overflow
         SPI1CON1bits.DISSCK = 0; //SPI clock controlled by this module
@@ -128,7 +127,7 @@ void initSPI(uint8_t interface, uint16_t clock, spiMode mode, spiWidth width, sp
             SPI2CON1bits.SMP = 1; // sample input ad end of wave
             SPI2CON1bits.SSEN = 0; // clear SS mode            
             TRISGbits.TRISG9 = 0; // set SS pin as output
-            
+
             // clock pre-scale bits
             uint8_t ppre, spre;
             getPrescale(clock, &ppre, &spre);

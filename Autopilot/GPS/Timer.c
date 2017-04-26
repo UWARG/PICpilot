@@ -9,6 +9,7 @@
 
 #include <stdint.h>
 #include <xc.h>
+#include <libpic30.h>
 
 static volatile uint32_t time_ms = 0;
 
@@ -29,8 +30,7 @@ void initTimer1(){
 }
 
 void delay(uint32_t ms){
-    uint32_t start_time = time_ms;
-    while(time_ms - start_time < ms);
+    __delay_ms(ms);
 }
 
 uint32_t getTime(){
