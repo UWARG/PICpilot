@@ -10,6 +10,8 @@
 #ifndef TIMER_H
 #define TIMER_H
 
+#include <stdint.h>
+
 /** This is the MIPS count of the chip */
 #define CLOCK_FREQUENCY 16000000UL
 
