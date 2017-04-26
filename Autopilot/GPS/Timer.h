@@ -11,7 +11,12 @@
 #define TIMER_H
 
 /** This is the MIPS count of the chip */
-#define CLOCK_FREQUENCY 16000000
+#define CLOCK_FREQUENCY 16000000UL
+
+/**
+ * Required for the built-in __delay_ms functions
+ */
+#define FCY CLOCK_FREQUENCY
 
 /**
  * Initializes timer 1. Used as the system timer

@@ -10,14 +10,18 @@
 #include "UART.h"
 #include <xc.h>
 #include "../Common/Utilities/ByteQueue.h"
+#include "Timer.h"
 #include <stdint.h>
 
 /**
  * The chip requires the baud rate register to be set to a value that corresponds
  * to the processor frequency. The formula can be found on the data sheet. This
- * takes an ordinary baud rate value in and returns that
+ * takes an ordinary baud rate value in and returns that.
+ *
+ * We add 0.5 so that we round the number to the nearest integer, so as not to get
+ * large offsets in the actual vs expected baudrates
  */
-#define BRGVAL(bd) (((16000000/bd)/16) - 1)
+#define BRGVAL(bd) ((int)(((float)CLOCK_FREQUENCY)/bd/16 - 1 + 0.5))
 
 void initUART(uint8_t interface, uint32_t baudrate)
 {
@@ -39,12 +43,7 @@ void initUART(uint8_t interface, uint32_t baudrate)
         U1MODEbits.STSEL = 0; // 1 Stop bit
 
         //set the baud rate
-        
-        if (baudrate == 115200){
-            U1BRG = BRGVAL(baudrate) + 1;
-        } else {
-            U1BRG = BRGVAL(baudrate);
-        }
+        U1BRG = BRGVAL(baudrate);
         
         //generate a TX interrupt when the transmit buffer becomes empty
         U1STAbits.UTXISEL1 = 1;
@@ -88,11 +87,7 @@ void initUART(uint8_t interface, uint32_t baudrate)
         U2MODEbits.PDSEL = 0b00; //No parity
         U2MODEbits.STSEL = 0; // 1 Stop bit
 
-        if (baudrate == 115200){
-            U2BRG = BRGVAL(baudrate) + 1;
-        } else {
-            U2BRG = BRGVAL(baudrate);
-        }
+        U2BRG = BRGVAL(baudrate);
 
         //generate a TX interrupt when the transmit buffer becomes empty
         U2STAbits.UTXISEL1 = 1;

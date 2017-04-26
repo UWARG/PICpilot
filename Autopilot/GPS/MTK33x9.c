@@ -88,7 +88,7 @@ void parseIncomingGPSData(){
         new_vtg_data = false;
         if (isNMEAChecksumValid(vtg_buffer)){
             data_available = false;
-            parseVTG(gga_buffer);
+            parseVTG(vtg_buffer);
             data_available = true;
         } else {
             debug("Failed checksum when parsing a GPVTG (velocity) packet!");

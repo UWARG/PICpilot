@@ -7,6 +7,7 @@
  *   https://raw.githubusercontent.com/UWARG/PICpilot/master/LICENCE
  */
 
+#include "LED.h"
 #include <xc.h>
 #include <stdbool.h>
 
