@@ -33,6 +33,7 @@ bool isValidNMEAString(char* string, uint16_t max_length){
 
     //if we exited the while loop because we reached the max length (therefore end of stirng never detected)
     if (i + 1 == max_length){
+        error("reached length");
         return false;
     }
 
@@ -41,6 +42,7 @@ bool isValidNMEAString(char* string, uint16_t max_length){
 
     //check to make sure the checksums are digits
     if (!isxdigit(string[i]) || !isxdigit(string[i+1])){
+        error("not digits");
         return false;
     }
     
@@ -48,6 +50,7 @@ bool isValidNMEAString(char* string, uint16_t max_length){
     if (((checksum & 0xF0) >> 4) == asciiToHex(string[i]) && (checksum & 0x0F) == asciiToHex(string[i + 1])){
         return true;
     }
+    error("simply failed :(");
     
     return false;
 }

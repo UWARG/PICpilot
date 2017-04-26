@@ -130,7 +130,7 @@ void pathManagerRuntime(void) {
 
     if (isNewGPSDataAvailable()){
         copyGPSData();
-        sprintf(buffer, "lat %f lon %f alt %f time %f speed %f fix %d sat %d errors: %d", (float)gps_data.latitude, (float)gps_data.longitude, (float)gps_data.altitude, (float)gps_data.utc_time, (float)gps_data.ground_speed, (int)gps_data.fix_status, (int)gps_data.num_satellites, getGPSCommunicationErrors());
+        sprintf(buffer, "lat %f lon %f alt %f time %f speed %f heading %d fix %d sat %d errors: %d", (float)gps_data.latitude, (float)gps_data.longitude, (float)gps_data.altitude, (float)gps_data.utc_time, (float)gps_data.ground_speed, gps_data.heading, (int)gps_data.fix_status, (int)gps_data.num_satellites, getGPSCommunicationErrors());
         debug(buffer);
     }
     
