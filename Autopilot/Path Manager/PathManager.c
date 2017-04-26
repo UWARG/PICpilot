@@ -322,13 +322,13 @@ char followWaypoints(PathData* currentWaypoint, float* position, float heading, 
         nextWaypointDirection[2] = (nextCoordinates[2] - targetCoordinates[2])/norm2;
 
         float turningAngle = acos(-deg2rad(waypointDirection[0] * nextWaypointDirection[0] + waypointDirection[1] * nextWaypointDirection[1] + waypointDirection[2] * nextWaypointDirection[2]));
-
+        float tangentFactor = targetWaypoint->radius/tan(turningAngle/2);
         if (orbitPathStatus == PATH){
 
             float halfPlane[3];
-            halfPlane[0] = targetCoordinates[0] - (targetWaypoint->radius/tan(turningAngle/2)) * waypointDirection[0];
-            halfPlane[1] = targetCoordinates[1] - (targetWaypoint->radius/tan(turningAngle/2)) * waypointDirection[1];
-            halfPlane[2] = targetCoordinates[2] - (targetWaypoint->radius/tan(turningAngle/2)) * waypointDirection[2];
+            halfPlane[0] = targetCoordinates[0] - tangentFactor * waypointDirection[0];
+            halfPlane[1] = targetCoordinates[1] - tangentFactor * waypointDirection[1];
+            halfPlane[2] = targetCoordinates[2] - tangentFactor * waypointDirection[2];
 
             float dotProduct = waypointDirection[0] * (position[0] - halfPlane[0]) + waypointDirection[1] * (position[1] - halfPlane[1]) + waypointDirection[2] * (position[2] - halfPlane[2]);
             if (dotProduct > 0){
@@ -344,17 +344,17 @@ char followWaypoints(PathData* currentWaypoint, float* position, float heading, 
         else{            
             
             float halfPlane[3];
-            halfPlane[0] = targetCoordinates[0] + (targetWaypoint->radius/tan(turningAngle/2)) * nextWaypointDirection[0];
-            halfPlane[1] = targetCoordinates[1] + (targetWaypoint->radius/tan(turningAngle/2)) * nextWaypointDirection[1];
-            halfPlane[2] = targetCoordinates[2] + (targetWaypoint->radius/tan(turningAngle/2)) * nextWaypointDirection[2];
+            halfPlane[0] = targetCoordinates[0] + tangentFactor * nextWaypointDirection[0];
+            halfPlane[1] = targetCoordinates[1] + tangentFactor * nextWaypointDirection[1];
+            halfPlane[2] = targetCoordinates[2] + tangentFactor * nextWaypointDirection[2];
             
             char turnDirection = waypointDirection[0] * nextWaypointDirection[1] - waypointDirection[1] * nextWaypointDirection[0]>0?1:-1;
             float euclideanWaypointDirection = sqrt(pow(nextWaypointDirection[0] - waypointDirection[0],2) + pow(nextWaypointDirection[1] - waypointDirection[1],2) + pow(nextWaypointDirection[2] - waypointDirection[2],2)) * ((nextWaypointDirection[0] - waypointDirection[0]) < 0?-1:1) * ((nextWaypointDirection[1] - waypointDirection[1]) < 0?-1:1) * ((nextWaypointDirection[2] - waypointDirection[2]) < 0?-1:1);
 
             float turnCenter[3];
-            turnCenter[0] = targetCoordinates[0] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[0] - waypointDirection[0])/euclideanWaypointDirection);
-            turnCenter[1] = targetCoordinates[1] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[1] - waypointDirection[1])/euclideanWaypointDirection);
-            turnCenter[2] = targetCoordinates[2] + (targetWaypoint->radius/tan(turningAngle/2) * (nextWaypointDirection[2] - waypointDirection[2])/euclideanWaypointDirection);
+            turnCenter[0] = targetCoordinates[0] + (tangentFactor * (nextWaypointDirection[0] - waypointDirection[0])/euclideanWaypointDirection);
+            turnCenter[1] = targetCoordinates[1] + (tangentFactor * (nextWaypointDirection[1] - waypointDirection[1])/euclideanWaypointDirection);
+            turnCenter[2] = targetCoordinates[2] + (tangentFactor * (nextWaypointDirection[2] - waypointDirection[2])/euclideanWaypointDirection);
             
             // if target waypoint is a hold waypoint the plane will follow the orbit until the break hold method is called
             if (inHold == true) {
