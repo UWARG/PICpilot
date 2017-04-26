@@ -16,6 +16,9 @@
 
 #if USE_GPS == GPS_UBLOX_6
 
+/**
+ * We're not going to get NMEA packets that are more than 100 bytes long
+ */
 #define RECEIVE_BUFFER_LENGTH 100
 
 //should be enough to hold any length of nmea string
@@ -28,8 +31,8 @@ static bool data_available = false;
 GPSData gps_data;
 
 void initGPS(){
-    //setup a 400 byte buffer for transmissions
-    initUART(UBLOX6_UART_INTERFACE, UBLOX6_UART_BAUD_RATE, 400, 800, UART_TX_RX_ENABLE);
+    //setup a 200-800 byte buffer for transmissions
+    initUART(UBLOX6_UART_INTERFACE, UBLOX6_UART_BAUD_RATE, 200, 800, UART_TX_RX_ENABLE);
 }
 
 void requestGPSInfo(){
@@ -41,9 +44,10 @@ void requestGPSInfo(){
 
         if (data == '$'){ //we've just started parsing a packet
             currently_parsing_string = true;
+            receive_buffer_index = 0;
         } else if (data == '\n'){ //we've just finished parsing a packet
             currently_parsing_string = false;
-            receive_buffer_index = 0;
+            
             if (isValidNMEAString(receive_buffer, RECEIVE_BUFFER_LENGTH)){
                 if (strncmp(receive_buffer, GGA_HEADER, 5) == 0){ //if we received a gga string
                     last_receive_time = getTime();
@@ -58,13 +62,12 @@ void requestGPSInfo(){
                 //we'll break out of the loop here as we dont want this operation to take too long
                 //(we'll parse another packet, if available, in the next iteration)
                 break;
-                
             } else {
                 communication_errors++;
             }
         } else if (currently_parsing_string){
             receive_buffer[receive_buffer_index] = data;
-            receive_buffer_index = (receive_buffer_index + 1) % RECEIVE_BUFFER_LENGTH;
+            receive_buffer_index = (receive_buffer_index + 1) % RECEIVE_BUFFER_LENGTH; //avoid opcode errors if possible
         }
     }
 }

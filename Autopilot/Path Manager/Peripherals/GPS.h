@@ -53,5 +53,11 @@ bool isGPSConnected(void);
  */
 bool isNewGPSDataAvailable(void);
 
+/**
+ * Communication errors between gps and board due to invalid NMEA strings
+ * @return
+ */
+uint16_t getGPSCommunicationErrors(void);
+
 #endif
 

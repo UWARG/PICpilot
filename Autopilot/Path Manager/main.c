@@ -5,6 +5,9 @@
  * Created on January 26, 2014, 4:39 PM
  */
 
+#include "Utilities/NMEAParser.h"
+
+
 /*************************************************************************
  * PicPilot Software
  *
@@ -44,7 +47,10 @@ int main(int argc, char** argv) {
 #endif
     
 checkErrorCodes();
+
 pathManagerInit();
+
+
     while (1) {
         pathManagerRuntime();
         asm("CLRWDT");
