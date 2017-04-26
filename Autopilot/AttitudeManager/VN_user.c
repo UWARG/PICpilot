@@ -19,7 +19,6 @@
 #include "main.h"
 #include "VN_user.h"
 #include "VN_lib.h"
-#include "delay.h"
 #include "StateMachine.h"
 #include "ProgramStatus.h"
 #include "../Common/Interfaces/SPI.h"
@@ -121,7 +120,7 @@ void VN_Delay(unsigned long delay_uS){
    for your processor.  Many compilers will have their own delay routines
    so make sure you check your compiler documentation before attempting to
    write your own. */
-    Delay_Us(delay_uS);
+    __delay_us(delay_uS);
 
 }
 

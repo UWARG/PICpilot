@@ -121,7 +121,6 @@ void imuCommunication();
  */
 bool showGains(void);
 
-int coordinatedTurn(float pitchRate, int rollAngle);
 
 uint8_t getControlValue(CtrlType type);
 

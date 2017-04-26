@@ -15,7 +15,7 @@
 
 // Function Prototypes
 void initialization();
-void armVehicle(int delayTime);
+void armVehicle();
 void dearmVehicle();
 void inputMixing(int* channelIn, int* rollRate, int* pitchRate, int* throttle, int* yawRate);
 void outputMixing(int* channelOut, int* control_Roll, int* control_Pitch, int* control_Throttle, int* control_Yaw);

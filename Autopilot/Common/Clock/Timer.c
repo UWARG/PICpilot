@@ -6,7 +6,7 @@
  */
 
 #include "Timer.h"
-#include <p33FJ256GP710A.h>
+#include <xc.h>
 
 static volatile uint32_t time_ms = 0;
 

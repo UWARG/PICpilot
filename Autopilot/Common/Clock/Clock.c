@@ -6,7 +6,7 @@
  * Created on September 8, 2015, 11:16 PM
  */
 #include "Clock.h"
-#include <p33FJ256GP710A.h>
+#include <xc.h>
 
 void useFRCPLLClock(){
     // Configure PLL prescaler, PLL postscaler, PLL divisor
