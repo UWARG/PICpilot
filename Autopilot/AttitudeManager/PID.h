@@ -11,7 +11,7 @@
 
 #include "main.h"
 
-#define PID_RESET_TIME 1000 // timeout to reset I and D terms (ms)
+#define PID_RESET_TIME 500000 // timeout to reset I and D terms (us)
 
 /* 
  * Floating-point PID loops for attitude control. 
@@ -27,7 +27,7 @@ typedef struct { //holds values for a generic PID loop
     float ki;
     float kd;
 
-    uint32_t last_time; // for derivative control
+    uint64_t last_time; // for derivative control
     float last_err;
     float last_der; // last derivative, for filtering
     float integral;

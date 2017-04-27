@@ -21,7 +21,7 @@ static int control_Roll, control_Pitch, control_Yaw, control_Throttle;
 int input_RC_Flap;
 int input_GS_Flap;
 
-float adverse_yaw_mix = 0.25; // Roll rate -> yaw rate scaling (to counter adverse yaw)
+float adverse_yaw_mix = 0.5; // Roll rate -> yaw rate scaling (to counter adverse yaw)
 float roll_turn_mix = 5.0; // Roll angle -> pitch rate scaling (for fixed-wing turns) 
 
 void initialization(){
@@ -80,10 +80,10 @@ void inputMixing(int* channelIn, int* rollRate, int* pitchRate, int* throttle, i
     
 #elif TAIL_TYPE == INV_V_TAIL
     if (getControlValue(ROLL_CONTROL_SOURCE) == RC_SOURCE) {
-        *rollRate = -channelIn[ROLL_IN_CHANNEL - 1];
+        *rollRate = channelIn[ROLL_IN_CHANNEL - 1];
     }
     if (getControlValue(PITCH_CONTROL_SOURCE) == RC_SOURCE){
-        *pitchRate = (channelIn[L_TAIL_IN_CHANNEL - 1] - channelIn[R_TAIL_IN_CHANNEL - 1]) / (2 * ELEVATOR_PROPORTION);
+        *pitchRate = (channelIn[R_TAIL_IN_CHANNEL - 1] - channelIn[L_TAIL_IN_CHANNEL - 1]) / (2 * ELEVATOR_PROPORTION);
     }
     *yawRate = (channelIn[L_TAIL_IN_CHANNEL - 1] + channelIn[R_TAIL_IN_CHANNEL - 1] ) / (2 * RUDDER_PROPORTION);
 #endif
@@ -111,6 +111,8 @@ void inputMixing(int* channelIn, int* rollRate, int* pitchRate, int* throttle, i
  */
 
 void outputMixing(int* channelOut, int* control_Roll, int* control_Pitch, int* control_Throttle, int* control_Yaw){
+    *control_Yaw += *control_Roll * adverse_yaw_mix; // mix roll rate into rudder to counter adverse yaw
+
     //code for different tail configurations
     #if TAIL_TYPE == STANDARD_TAIL  //is a normal t-tail
     channelOut[PITCH_OUT_CHANNEL - 1] = (*control_Pitch);
@@ -172,7 +174,6 @@ void highLevelControl(){
 void lowLevelControl(){
     if (getControlValue(ROLL_CONTROL_TYPE) == ANGLE_CONTROL || getControlValue(HEADING_CONTROL) == CONTROL_ON) {
         setRollRateSetpoint(PIDcontrol(getPID(ROLL_ANGLE), getRollAngleSetpoint() - getRoll(), MAX_ROLL_RATE / MAX_ROLL_ANGLE));
-        setYawRateSetpoint(getRollRate() * adverse_yaw_mix); // mix roll rate into rudder to counter adverse yaw
     } else {
         setRollRateSetpoint(getRollRateInput(getControlValue(ROLL_CONTROL_SOURCE)));
         setYawRateSetpoint(getYawRateInput(getControlValue(ROLL_CONTROL_SOURCE))); // No bit for yaw. If they have roll, they probably need yaw too.
