@@ -57,7 +57,6 @@ void initSPI(uint8_t interface, uint16_t clock, spiMode mode, spiWidth width, sp
         IFS0bits.SPI1IF = 0; //Clear interrupt flag
         IEC0bits.SPI1IE = 0; //Disable interrupt (so it doesnt mess with this initialization)
 
-
         SPI1STATbits.SPISIDL = 0; // Continue module operation in idle mode
         SPI1STATbits.SPIROV = 0; // Clear receive overflow
         SPI1CON1bits.DISSCK = 0; //SPI clock controlled by this module
@@ -79,7 +78,7 @@ void initSPI(uint8_t interface, uint16_t clock, spiMode mode, spiWidth width, sp
             SPI1CON1bits.SPRE = spre;
         } else if (mss == SPI_SLAVE) {
             SPI1CON1bits.MSTEN = 0; // Slave mode
-            SPI1CON1bits.SMP = 0; // sample input in middle of wave
+            SPI1CON1bits.SMP = 0; // sample input in middle of wave (for slaves, this must always be 0)
             SPI1CON1bits.SSEN = 0; // disable SS?
             // no need to set clock in slave mode
         }

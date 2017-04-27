@@ -15,9 +15,12 @@
 /**
  * The chip requires the baud rate register to be set to a value that corresponds
  * to the processor frequency. The formula can be found on the data sheet. This
- * takes an ordinary baud rate value in and returns that
+ * takes an ordinary baud rate value in and returns that.
+ *
+ * We add 0.5 so that we round the number to the nearest integer, so as not to get
+ * large offsets in the actual vs expected baudrates
  */
-#define BRGVAL(bd) (((CLOCK_FREQUENCY/bd)/16)-1)
+#define BRGVAL(bd) ((int)(((float)CLOCK_FREQUENCY)/bd/16 - 1 + 0.5))
 
 static char uart1_status = 0;
 static char uart2_status = 0;
