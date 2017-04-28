@@ -62,6 +62,7 @@
         <itemPath>../Common/Utilities/Logger.c</itemPath>
         <itemPath>../Common/Utilities/LED.c</itemPath>
         <itemPath>Utilities/NMEAParser.c</itemPath>
+        <itemPath>../Common/Utilities/ErrorHandling.c</itemPath>
       </logicalFolder>
       <itemPath>Dubins.c</itemPath>
       <itemPath>main.c</itemPath>
@@ -71,7 +72,6 @@
       <itemPath>StartupErrorCodes.c</itemPath>
       <itemPath>airspeedSensor.c</itemPath>
       <itemPath>BatterySensor.c</itemPath>
-      <itemPath>../Common/Utilities/ErrorHandling.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

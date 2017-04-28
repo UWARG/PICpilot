@@ -109,6 +109,7 @@
         <itemPath>../Common/Utilities/ByteQueue.c</itemPath>
         <itemPath>../Common/Utilities/Logger.c</itemPath>
         <itemPath>../Common/Utilities/LED.c</itemPath>
+        <itemPath>../Common/Utilities/ErrorHandling.c</itemPath>
       </logicalFolder>
       <logicalFolder name="f6" displayName="VectorNav" projectFiles="true">
         <itemPath>VN100.c</itemPath>
