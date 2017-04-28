@@ -7,7 +7,6 @@
 
 //Include Header Files
 #include "AttitudeManager.h"
-#include "delay.h"
 #include "VN100.h"
 #include "InputCapture.h"
 #include "OutputCompare.h"
@@ -25,8 +24,10 @@
 #include "../Common/Utilities/LED.h"
 #include <string.h>
 
-int input_RC_Flap; // Flaps need to finish being refactored.
-int input_GS_Flap;
+extern int input_RC_Flap; // Flaps need to finish being refactored.
+extern int input_GS_Flap;
+extern float roll_turn_mix; // temporary hacks for fixed-wing only parameters
+extern float adverse_yaw_mix;
 
 // Control level bit masks (indexed by CtrlType enum)
 static const uint16_t ctrl_mask[16] = {
@@ -116,8 +117,6 @@ int input_GS_Heading = 0;
 int input_AP_Altitude = 0;
 int input_AP_Heading = 0;
 
-float scaleFactor = 5; // Roll angle -> pitch rate scaling (for fixed-wing turns) 
-
 char displayGain = 0;
 int controlLevel = 0;
 int lastCommandSentCode[COMMAND_HISTORY_SIZE];
@@ -151,7 +150,7 @@ void attitudeInit() {
      *  *****************************************************************
      */
     //In order: Angular Walk, Angular Rate x 3, Magnetometer x 3, Acceleration x 3
-    float filterVariance[10] = {1e-9, 1e-9, 1e-9, 1e-9, 1, 1, 1, 1e-4, 1e-4, 1e-4}; //  {1e-10, 1e-6, 1e-6, 1e-6, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2};
+    float filterVariance[10] = {1e-9, 1e-9, 1e-9, 1e-9, 1e-2, 1e-2, 1e-2, 1e-4, 1e-4, 1e-4}; //  {1e-10, 1e-6, 1e-6, 1e-6, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2};
     VN100_initSPI();
 
     char model[12];
@@ -160,9 +159,9 @@ void attitudeInit() {
         setSensorStatus(VECTORNAV, SENSOR_CONNECTED & TRUE);
         //IMU position matrix
         // offset = {x, y, z}
-        float cal_x = -90;
-        float cal_y = -90;
-        float cal_z = 0.0;
+        float cal_x = 0.0;
+        float cal_y = 0.0;
+        float cal_z = -90;
         float offset[3] = {cal_x,cal_y,cal_z};
 
         setVNOrientationMatrix((float*)&offset);
@@ -436,19 +435,10 @@ void imuCommunication(){
     VN100_SPI_GetYPR(0, &imu_YawAngle, &imu_PitchAngle, &imu_RollAngle);
     VN100_SPI_GetRates(0, imuData);
 
-    /* TODO: This is a reminder for me to figure out a more elegant way to fix improper derivative control
-     * (based on configuration of the sensor), adding this negative is a temporary fix. Some kind of calibration command or something.
-     */
     //Outputs in order: Roll,Pitch,Yaw
     imu_RollRate = rad2deg(imuData[IMU_ROLL_RATE]);
     imu_PitchRate = rad2deg(imuData[IMU_PITCH_RATE]);
     imu_YawRate = rad2deg(imuData[IMU_YAW_RATE]);
-}
-
-int coordinatedTurn(float pitchRate, int rollAngle){
-    //Feed forward Term when turning
-    pitchRate += (int)(scaleFactor * abs(rollAngle)); //Linear Function
-    return pitchRate;
 }
 
 // Type is both bit shift value and index of bit mask array
@@ -552,8 +542,8 @@ void readDatalink(void){
             case SET_ACCEL_VARIANCE:
                 setAccelVariance(CMD_TO_FLOAT(cmd->data));
                 break;
-            case SET_SCALE_FACTOR:
-                scaleFactor = CMD_TO_FLOAT(cmd->data);
+            case SET_TURN_FACTOR:
+                roll_turn_mix = CMD_TO_FLOAT(cmd->data);
                 break;
             case CALIBRATE_ALTIMETER:
                 interchip_send_buffer.am_data.calibrationHeight = CMD_TO_FLOAT(cmd->data);
@@ -587,6 +577,13 @@ void readDatalink(void){
                 heartbeatTimer = getTime();
                 queueRadioStatusPacket();
                 break;
+            case CALIBRATE_AIRSPEED:
+                interchip_send_buffer.am_data.command = PM_CALIBRATE_AIRSPEED;
+                sendInterchipData();
+                break;
+            case SET_ADVERSE_YAW_MIX:
+                adverse_yaw_mix = CMD_TO_FLOAT(cmd->data);
+                break;
             case KILL_PLANE:
                 if (CMD_TO_INT(cmd->data) == 1234)
                     killPlane(TRUE);
@@ -597,7 +594,7 @@ void readDatalink(void){
                 break;
             case ARM_VEHICLE:
                 if (CMD_TO_INT(cmd->data) == 1234)
-                    armVehicle(500);
+                    armVehicle();
                 break;
             case DEARM_VEHICLE:
                 if (CMD_TO_INT(cmd->data) == 1234)
@@ -613,11 +610,7 @@ void readDatalink(void){
                 sendInterchipData();
                 break;
             case SHOW_SCALED_PWM:
-                if (*cmd->data == 1){
-                    show_scaled_pwm = true;
-                } else{
-                    show_scaled_pwm = false;
-                }
+                show_scaled_pwm = *(bool*)cmd->data;
                 break;
             case REMOVE_LIMITS:
                 limitSetpoint = *(bool*)cmd->data;

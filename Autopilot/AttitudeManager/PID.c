@@ -33,12 +33,12 @@ void initPID(PIDVal* pid, float kp, float ki, float kd, int16_t i_max) {
 float PIDcontrol(PIDVal* pid, float error, float scale) {
     float output = 0;
         
-    uint32_t now = getTime();
-    uint16_t delta_msec = (now - pid->last_time);
+    uint64_t now = getTimeUs();
+    uint32_t delta_usec = (now - pid->last_time);
     
     // check if we've gone too long without updating (keeps the I and D from freaking out)
-    if (delta_msec > PID_RESET_TIME || pid->last_time == 0) {
-        delta_msec = 0;
+    if (delta_usec > PID_RESET_TIME || pid->last_time == 0) {
+        delta_usec = 0;
         pid->integral = 0;
         pid->last_err = error;
     }
@@ -47,8 +47,8 @@ float PIDcontrol(PIDVal* pid, float error, float scale) {
 
     output += pid->kp * error; // Proportional control
     
-    if (delta_msec > 0) { // only compute time-sensitive control if time has elapsed
-        float dTime = delta_msec / 1000.0f; // elapsed time in seconds
+    if (delta_usec > 500) { // only compute time-sensitive control if time has elapsed (more then 500 us)
+        float dTime = delta_usec / 1e6f; // elapsed time in seconds
         
         if (fabsf(pid->ki) > 0) { // Integral control
             pid->integral += (pid->ki * error) * dTime;

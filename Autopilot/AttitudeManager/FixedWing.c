@@ -8,16 +8,21 @@
 
 #include "PWM.h"
 #include "AttitudeManager.h"
-#include "delay.h"
 #include "FixedWing.h"
 #include "ProgramStatus.h"
 
 #if VEHICLE_TYPE == FIXED_WING
 
+#define AIRSPEED 0
+
 static int outputSignal[NUM_CHANNELS];
 static int control_Roll, control_Pitch, control_Yaw, control_Throttle;
 
-extern int input_RC_Flap;
+int input_RC_Flap;
+int input_GS_Flap;
+
+float adverse_yaw_mix = 0.5; // Roll rate -> yaw rate scaling (to counter adverse yaw)
+float roll_turn_mix = 5.0; // Roll angle -> pitch rate scaling (for fixed-wing turns) 
 
 void initialization(){
     setPWM(THROTTLE_OUT_CHANNEL, MIN_PWM);
@@ -28,27 +33,20 @@ void initialization(){
     }
     setProgramStatus(UNARMED);
 
-//    char str[20];
-//    sprintf(str,"AM:%d, PM:%d",sizeof(AMData), sizeof(PMData));
-//    debug(str);
     while (getProgramStatus() == UNARMED){
         StateMachine(STATEMACHINE_IDLE);
     }
 }
 
-void armVehicle(int delayTime){
+void armVehicle(){
     setProgramStatus(ARMING);
-    asm("CLRWDT");
-    Delay(delayTime);
-    asm("CLRWDT");
+
     setPWM(THROTTLE_OUT_CHANNEL, MIN_PWM);
     setPWM(ROLL_OUT_CHANNEL, 0);
     setPWM(L_TAIL_OUT_CHANNEL, 0);
     setPWM(R_TAIL_OUT_CHANNEL, 0);
     setPWM(FLAP_OUT_CHANNEL, MIN_PWM);
-    asm("CLRWDT");
-    Delay(delayTime);
-    asm("CLRWDT");
+
 }
 
 void dearmVehicle(){
@@ -82,10 +80,10 @@ void inputMixing(int* channelIn, int* rollRate, int* pitchRate, int* throttle, i
     
 #elif TAIL_TYPE == INV_V_TAIL
     if (getControlValue(ROLL_CONTROL_SOURCE) == RC_SOURCE) {
-        *rollRate = -channelIn[ROLL_IN_CHANNEL - 1];
+        *rollRate = channelIn[ROLL_IN_CHANNEL - 1];
     }
     if (getControlValue(PITCH_CONTROL_SOURCE) == RC_SOURCE){
-        *pitchRate = (channelIn[L_TAIL_IN_CHANNEL - 1] - channelIn[R_TAIL_IN_CHANNEL - 1]) / (2 * ELEVATOR_PROPORTION);
+        *pitchRate = (channelIn[R_TAIL_IN_CHANNEL - 1] - channelIn[L_TAIL_IN_CHANNEL - 1]) / (2 * ELEVATOR_PROPORTION);
     }
     *yawRate = (channelIn[L_TAIL_IN_CHANNEL - 1] + channelIn[R_TAIL_IN_CHANNEL - 1] ) / (2 * RUDDER_PROPORTION);
 #endif
@@ -113,6 +111,8 @@ void inputMixing(int* channelIn, int* rollRate, int* pitchRate, int* throttle, i
  */
 
 void outputMixing(int* channelOut, int* control_Roll, int* control_Pitch, int* control_Throttle, int* control_Yaw){
+    *control_Yaw += *control_Roll * adverse_yaw_mix; // mix roll rate into rudder to counter adverse yaw
+
     //code for different tail configurations
     #if TAIL_TYPE == STANDARD_TAIL  //is a normal t-tail
     channelOut[PITCH_OUT_CHANNEL - 1] = (*control_Pitch);
@@ -147,11 +147,21 @@ void highLevelControl(){
     if (getControlValue(ALTITUDE_CONTROL) == CONTROL_ON) {
         setAltitudeSetpoint(getAltitudeInput(getControlValue(ALTITUDE_CONTROL_SOURCE)));
         setPitchAngleSetpoint(PIDcontrol(getPID(ALTITUDE), getAltitudeSetpoint() - getAltitude(), 1));
+#if !AIRSPEED
         setThrottleSetpoint(PIDcontrol(getPID(ALTITUDE), getAltitudeSetpoint() - getAltitude(), HALF_PWM_RANGE / 2) + getThrottleSetpoint());
+#endif
     } else {
         setPitchAngleSetpoint(getPitchAngleInput(getControlValue(PITCH_CONTROL_SOURCE)));
         setThrottleSetpoint(getThrottleInput(getControlValue(THROTTLE_CONTROL_SOURCE)));
     }
+
+#if AIRSPEED // TODO: airspeed control. Need to verify sensor values.
+    if (getControlValue(AIRSPEED_CONTROL) == CONTROL_ON) {
+        setAirspeedSetpoint(gs_airspeed); // let the ground station always determine airspeed
+        setThrottleSetpoint(PIDcontrol(getPID(AIRSPEED), getAirspeedSetpoint() - getAirspeed()), HALF_PWM_RANGE / 20);
+        setFlaps(flaps_scale / getAirspeed()); // low speed -> more flaps
+    }
+#endif
 
     if (getControlValue(HEADING_CONTROL) == CONTROL_ON) {
         setHeadingSetpoint(getHeadingInput(getControlValue(HEADING_CONTROL_SOURCE)));
@@ -166,6 +176,7 @@ void lowLevelControl(){
         setRollRateSetpoint(PIDcontrol(getPID(ROLL_ANGLE), getRollAngleSetpoint() - getRoll(), MAX_ROLL_RATE / MAX_ROLL_ANGLE));
     } else {
         setRollRateSetpoint(getRollRateInput(getControlValue(ROLL_CONTROL_SOURCE)));
+        setYawRateSetpoint(getYawRateInput(getControlValue(ROLL_CONTROL_SOURCE))); // No bit for yaw. If they have roll, they probably need yaw too.
     }
 
     if (getControlValue(PITCH_CONTROL_TYPE) == ANGLE_CONTROL || getControlValue(ALTITUDE_CONTROL) == CONTROL_ON){
@@ -173,9 +184,7 @@ void lowLevelControl(){
     } else {
         setPitchRateSetpoint(getPitchRateInput(getControlValue(PITCH_CONTROL_SOURCE)));
     }
-    setPitchRateSetpoint(coordinatedTurn(getPitchRateSetpoint(), getRoll())); //Apply Coordinated Turn
-
-    setYawRateSetpoint(getYawRateInput(RC_SOURCE));
+    setPitchRateSetpoint(getPitchRateSetpoint() + (fabsf(getRoll()) * roll_turn_mix)); //Apply Coordinated Turn //Linear Function
 
     control_Roll = PIDcontrol(getPID(ROLL_RATE), getRollRateSetpoint() - getRollRate(), HALF_PWM_RANGE / MAX_ROLL_RATE);
     control_Pitch = PIDcontrol(getPID(PITCH_RATE), getPitchRateSetpoint() - getPitchRate(), HALF_PWM_RANGE / MAX_PITCH_RATE);

@@ -8,8 +8,12 @@
 #ifndef COMMON_H
 #define	COMMON_H
 
+#include "Clock/Clock.h" // include Clock.h for CLOCK_FREQUENCY
+#define FCY CLOCK_FREQUENCY // FCY is used by libpic30.h, for delay functions
+
 //Includes
-#include <p33FJ256GP710A.h>
+#include <xc.h>
+#include <libpic30.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -54,6 +58,7 @@
 #define PM_FOLLOW_PATH 10
 #define PM_EXIT_HOLD_ORBIT 11
 #define PM_CALIBRATE_ALTIMETER 32
+#define PM_CALIBRATE_AIRSPEED 33
 #define PM_SET_PATH_GAIN 64
 #define PM_SET_ORBIT_GAIN 65
 

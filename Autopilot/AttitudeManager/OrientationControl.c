@@ -54,6 +54,7 @@ void setGain(ControlChannel channel, GainType type, float value){
             pids[channel].kp = value;
         } else if (type == KI){
             pids[channel].ki = value;
+            pids[channel].integral = 0; // if we change the Ki (tuning), reset the integrator.
         } else if (type == KD){
             pids[channel].kd = value;
         }

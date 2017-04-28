@@ -46,10 +46,9 @@ int main(int argc, char** argv) {
     initLogger();
 #endif
     
-checkErrorCodes();
+    checkErrorCodes();
 
-pathManagerInit();
-
+    pathManagerInit();
 
     while (1) {
         pathManagerRuntime();

@@ -13,7 +13,7 @@
 typedef const enum {
     SHOW_GAINS = 1,
             
-    //unused 15
+    //unused 17
             
     SET_PATH_GAIN = 19,
     SET_ORBIT_GAIN = 20,
@@ -31,7 +31,7 @@ typedef const enum {
     SET_GYRO_VARIANCE = 33,
     SET_MAGNETIC_VARIANCE = 34,
     SET_ACCEL_VARIANCE = 35,
-    SET_SCALE_FACTOR = 36,
+    SET_TURN_FACTOR = 36,
     CALIBRATE_ALTIMETER = 37,
     CLEAR_WAYPOINTS = 38,
     REMOVE_WAYPOINT = 39,
@@ -39,8 +39,10 @@ typedef const enum {
     RETURN_HOME = 41,
     CANCEL_RETURN_HOME = 42,
     SEND_HEARTBEAT = 43,
+    CALIBRATE_AIRSPEED = 44,
+    SET_ADVERSE_YAW_MIX = 45,
     
-    //unused 3
+    //unused 46
             
     KILL_PLANE = 47,
     UNKILL_PLANE = 48,

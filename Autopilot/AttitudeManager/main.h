@@ -11,7 +11,6 @@
 
 //Include Libraries
 #include "../Common/Common.h"
-#include "delay.h"
 
 /**
  * Whether to enable the logger. Disabling it will cause all the functions defined

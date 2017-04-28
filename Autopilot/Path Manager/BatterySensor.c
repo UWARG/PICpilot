@@ -9,7 +9,7 @@
 #include "BatterySensor.h"
 #include "../Common/Utilities/Logger.h"
 
-#define V_SAMPLE_COUNT 50
+#define V_SAMPLE_COUNT 20
 
 #define ANALOG_RATIO (3.3f / 4096)
 
@@ -85,7 +85,7 @@ static void initBatteryADC() {
     AD2CON2bits.VCFG = 0;       // Voltage Reference is 3.3V and Ground Reference is Ground
 
     AD2CON3bits.ADRC=0;			// ADC Clock is derived from Systems Clock
-    AD2CON3bits.SAMC=0; 		// Auto Sample Time = 0*Tad
+    AD2CON3bits.SAMC=31; 		// Auto Sample Time = 31*Tad
     AD2CON3bits.ADCS=6;			// ADC Conversion Clock Tad=Tcy*(ADCS+1)= (1/40M)*7 = 175nS
 
     AD2CHS0bits.CH0SA = 12;     // Channel 0 positive input on AN12 (Sample A)
@@ -112,6 +112,6 @@ uint16_t getMainBatteryLevel() {
 }
 
 uint16_t getExtBatteryLevel() {
-    return (uint16_t)((100.f * (float)ext_battery_adc) * (ANALOG_RATIO / EXT_BATT_RATIO)) - 40; // fuck it
+    return (uint16_t)((100.f * (float)ext_battery_adc) * (ANALOG_RATIO / EXT_BATT_RATIO));
 }
 

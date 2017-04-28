@@ -66,12 +66,10 @@ void VN100_initSPI(){
 *******************************************************************************/
 VN100_SPI_Packet* VN100_SPI_ReadRegister(unsigned char sensorID, unsigned char regID, unsigned char regWidth){
 
-
   /* Pull SS line low to start transaction*/
   VN_SPI_SetSS(sensorID, VN_PIN_LOW);
   /* Send request */
   VN_SPI_SendReceive(VN_BYTES2WORD(0, 0, regID, VN100_CmdID_ReadRegister));
-  VN_SPI_SendReceive(0);
   /* Pull SS line high to end SPI transaction */
   VN_SPI_SetSS(sensorID, VN_PIN_HIGH);
   /* Delay for 50us */
@@ -82,14 +80,14 @@ VN100_SPI_Packet* VN100_SPI_ReadRegister(unsigned char sensorID, unsigned char r
 
   /* Get response over SPI */
   unsigned long i;
-  for(i=0;i<=regWidth;i++){
+  // +1 for packet response DWord
+  for(i=0; i < (1 + regWidth); i++){
     *(((unsigned long*)&VN_SPI_LastReceivedPacket) + i) = VN_SPI_SendReceive(0);
   }
-//
-//  /* Pull SS line high to end SPI transaction */
+
+  /* Pull SS line high to end SPI transaction */
   VN_SPI_SetSS(sensorID, VN_PIN_HIGH);
-  VN_Delay(50);
-//  /* Return Error code */
+  /* Return Error code */
   return &VN_SPI_LastReceivedPacket;
 }
 

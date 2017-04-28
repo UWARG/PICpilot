@@ -9,17 +9,13 @@
 #define	STATEMACHINE_H
 
 #define STATEMACHINE_MAINLOOP 0
-#define STATEMACHINE_IMU 1
-#define STATEMACHINE_IDLE 2
-
-#define DMA_UPDATE_FREQUENCY 10
+#define STATEMACHINE_IDLE 1
 
 #include "main.h"
 #include "AttitudeManager.h"
 #include "VN100.h"
 
 void StateMachine(char entryLocation);
-void forceStateMachineUpdate();
 void killPlane(char action);
 
 #endif	/* STATEMACHINE_H */
