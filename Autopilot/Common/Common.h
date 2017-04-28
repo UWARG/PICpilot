@@ -8,7 +8,8 @@
 #ifndef COMMON_H
 #define	COMMON_H
 
-#define FCY 40000000
+#include "Clock/Clock.h" // include Clock.h for CLOCK_FREQUENCY
+#define FCY CLOCK_FREQUENCY // FCY is used by libpic30.h, for delay functions
 
 //Includes
 #include <xc.h>
