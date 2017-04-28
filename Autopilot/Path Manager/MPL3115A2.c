@@ -25,13 +25,14 @@ char initAltimeter() {
         int csb = sendMessage(I2C_SLAVE_ADDRESS, ALTITUDE_CSB_REGISTER, 0, 0, READ);
         int lsb = sendMessage(I2C_SLAVE_ADDRESS, ALTITUDE_LSB_REGISTER, 0, 0, READ);
         
-        long int pressureWhole = (long)msb<<16 | (long)csb<<8 | (long)lsb;
-        pressure whole >>=6;
+        long int pressure_whole = (long)msb<<16 | (long)csb<<8 | (long)lsb;
+        pressure_whole >>=6;
         
-        lsb &= B00110000;
+        lsb &= 0b00110000;
         lsb >>= 4;
         
         float pressure_decimal = (float)lsb/4.0;
+        
         
         float pressure = (float)pressure_whole + pressure_decimal;
         
