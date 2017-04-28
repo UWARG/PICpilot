@@ -22,6 +22,7 @@
 #include "../Common/Interfaces/InterchipDMA.h"
 #include "../Common/Clock/Timer.h"
 #include "../Common/Utilities/LED.h"
+#include "../Common/Utilities/Logger.h"
 #include "StatusManager.h"
 #include <string.h>
 
@@ -585,14 +586,18 @@ void readDatalink(void){
             case KILL_PLANE:
                 if (CMD_TO_INT(cmd->data) == 1234){
                     killPlane(TRUE);
+#if DEBUG
                     debug("killing plane due to command");
+#endif
                 }
                     
                 break;
             case UNKILL_PLANE:
                 if (CMD_TO_INT(cmd->data) == 1234){
                     killPlane(FALSE);
+#if DEBUG
                     debug("unkilling plane due to command");
+#endif
                 }
                     
                 break;
