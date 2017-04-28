@@ -29,12 +29,14 @@ extern "C" {
 #define BAR_IN_LSB 0x15
 #define CONTROL_REGISTER1 0x26
 #define OFF_P 0x2B              //Internal Pressure Offset
+    
+#define CURRENT_PRESSURE 100700  //Ambient Pressure in Pa
 
 
 
 //TODO: ADD BETTER FORMATTING TO THIS HEADER FILE
 char initAltimeter();
-void calibrateAltimeter(float altitude);
+void calibrateAltimeter();
 float getAltitude();
 
 

@@ -69,12 +69,10 @@ void pathManagerInit(void) {
 
     //Communication with Altimeter
     if (initAltimeter()){
-        float initialValue = 0;
-        while (initialValue == 0) initialValue = getAltitude();
-        calibrateAltimeter(initialValue);
+        calibrateAltimeter();
     }
     //Initialize Home Location
-    home.altitude = 400;
+    home.altitude = 400;    
     home.latitude = RELATIVE_LATITUDE;
     home.longitude = RELATIVE_LONGITUDE;
     home.radius = 1;
