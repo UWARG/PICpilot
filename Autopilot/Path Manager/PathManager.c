@@ -771,6 +771,9 @@ void checkAMData(){
             case PM_CALIBRATE_ALTIMETER:
                 calibrateAltimeter(interchip_receive_buffer.am_data.calibrationHeight);
                 break;
+            case PM_CALIBRATE_AIRSPEED:
+                calibrateAirspeed();
+                break;
             case PM_SET_PATH_GAIN:
                 k_gain[PATH] = interchip_receive_buffer.am_data.pathGain;
                 break;

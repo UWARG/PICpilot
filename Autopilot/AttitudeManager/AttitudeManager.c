@@ -542,7 +542,7 @@ void readDatalink(void){
             case SET_ACCEL_VARIANCE:
                 setAccelVariance(CMD_TO_FLOAT(cmd->data));
                 break;
-            case SET_SCALE_FACTOR:
+            case SET_TURN_FACTOR:
                 roll_turn_mix = CMD_TO_FLOAT(cmd->data);
                 break;
             case CALIBRATE_ALTIMETER:
@@ -576,6 +576,13 @@ void readDatalink(void){
             case SEND_HEARTBEAT:
                 heartbeatTimer = getTime();
                 queueRadioStatusPacket();
+                break;
+            case CALIBRATE_AIRSPEED:
+                interchip_send_buffer.am_data.command = PM_CALIBRATE_AIRSPEED;
+                sendInterchipData();
+                break;
+            case SET_ADVERSE_YAW_MIX:
+                adverse_yaw_mix = CMD_TO_FLOAT(cmd->data);
                 break;
             case KILL_PLANE:
                 if (CMD_TO_INT(cmd->data) == 1234)
