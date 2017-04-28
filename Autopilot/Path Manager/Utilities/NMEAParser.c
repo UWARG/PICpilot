@@ -84,7 +84,7 @@ void parseGGA(char* data, long double* latitude, long double* longitude, float* 
 }
 
 void parseVTG(char* data, float* speed, int16_t* heading) {
-	char values[20][7]; //store the value of the 10 components of this message (overkill, only 2 are needed)
+	char values[20][7]; //store the value of the 20 components of this message (overkill, only 2 are needed)
 	int i = 0;
 	int j = 0;
 	int n = 0;
