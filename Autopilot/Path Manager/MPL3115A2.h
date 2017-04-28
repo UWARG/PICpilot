@@ -28,6 +28,7 @@ extern "C" {
 #define BAR_IN_MSB 0x14
 #define BAR_IN_LSB 0x15
 #define CONTROL_REGISTER1 0x26
+#define OFF_P 0x2B              //Internal Pressure Offset
 
 
 
