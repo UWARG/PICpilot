@@ -31,6 +31,17 @@
 #define HOLD_WAYPOINT 2
 
 //Structs and typedefs
+typedef struct _PathData{
+    struct _PathData* next;
+    struct _PathData* previous;
+    long double longitude;  //TODO: Longitude and Latitude is bulky. Use cartesian 2D approximations
+    long double latitude;
+    float altitude;
+    float radius; //Radius of turn
+    char type;
+    char id;    //Array ID
+    char index;
+} PathData;
 
 //Function Prototypes
 //TODO:Add descriptions to all the function prototypes
