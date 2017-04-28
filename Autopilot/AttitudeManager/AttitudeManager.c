@@ -22,6 +22,7 @@
 #include "../Common/Interfaces/InterchipDMA.h"
 #include "../Common/Clock/Timer.h"
 #include "../Common/Utilities/LED.h"
+#include "StatusManager.h"
 #include <string.h>
 
 extern int input_RC_Flap; // Flaps need to finish being refactored.
@@ -43,10 +44,6 @@ static const uint16_t ctrl_mask[16] = {
     0b0000001000000000, // Heading Off(0) or On(1)
     0b0000110000000000  // Flaps from Controller(0) or Ground Station(1) or Autopilot(2) // TODO:remove
 };
-
-long int heartbeatTimer = 0;
-long int UHFTimer = 0;
-long int gpsTimer = 0;
 
 // Setpoints
 int sp_Throttle = MIN_PWM;
@@ -469,6 +466,8 @@ void readDatalink(void){
    
     //TODO: Add rudimentary input validation
     if ( cmd ) {
+        resetHeartbeatTimer();
+        
         if (lastCommandSentCode[lastCommandCounter]/100 == cmd->cmd){
             lastCommandSentCode[lastCommandCounter]++;
         }
@@ -574,7 +573,6 @@ void readDatalink(void){
                 sendInterchipData();
                 break;
             case SEND_HEARTBEAT:
-                heartbeatTimer = getTime();
                 queueRadioStatusPacket();
                 break;
             case CALIBRATE_AIRSPEED:
@@ -585,12 +583,18 @@ void readDatalink(void){
                 adverse_yaw_mix = CMD_TO_FLOAT(cmd->data);
                 break;
             case KILL_PLANE:
-                if (CMD_TO_INT(cmd->data) == 1234)
+                if (CMD_TO_INT(cmd->data) == 1234){
                     killPlane(TRUE);
+                    debug("killing plane due to command");
+                }
+                    
                 break;
             case UNKILL_PLANE:
-                if (CMD_TO_INT(cmd->data) == 1234)
+                if (CMD_TO_INT(cmd->data) == 1234){
                     killPlane(FALSE);
+                    debug("unkilling plane due to command");
+                }
+                    
                 break;
             case ARM_VEHICLE:
                 if (CMD_TO_INT(cmd->data) == 1234)
@@ -790,49 +794,6 @@ bool writeDatalink(PacketType packet){
     }
     return queueTelemetryBlock(&statusData);
 }
-
-void checkUHFStatus(){
-    uint32_t time = getTime();
-
-    if (getPWMInputStatus() == PWM_STATUS_UHF_LOST){
-        if (UHFTimer == 0){ //0 indicates that this is the first time we lost UHF
-            UHFTimer = time;
-            setProgramStatus(KILL_MODE_WARNING);
-        } else { //otherwise check if we're over the threshold
-            if (time - UHFTimer > UHF_KILL_TIMEOUT){
-                killPlane(TRUE);
-            }
-        }
-    } else {
-        UHFTimer = 0; //set it back to 0 otherwise to reset state
-    }
-}
-
-void checkHeartbeat(){
-    if (getTime() - heartbeatTimer > HEARTBEAT_TIMEOUT){
-        setProgramStatus(KILL_MODE_WARNING);
-        interchip_send_buffer.am_data.command = PM_RETURN_HOME;
-        sendInterchipData();
-    }
-    else if (getTime() - heartbeatTimer > HEARTBEAT_KILL_TIMEOUT){
-        killPlane(TRUE);
-    }
-}
-
-//TODO: Should check the connection status of the GPS module. If disconnected
-//or no lock, should attempt to fly by yaw back towards the home destination
-void checkGPS(){
-//    if (gps_PositionFix == 0){
-//        setProgramStatus(KILL_MODE_WARNING);
-//        if (getTime() - gpsTimer > GPS_TIMEOUT){
-//            killPlane(TRUE);
-//        }
-//    }
-//    else{
-//        gpsTimer = getTime();
-//    }
-}
-
 
 void adjustVNOrientationMatrix(float* adjustment){
 

@@ -20,15 +20,6 @@
 /** Time in miliseconds for how often to check for new messages from the uplink **/
 #define UPLINK_CHECK_FREQUENCY 500
 
-// TODO: Put these headers in the new kill mode implementation
-#define HEARTBEAT_TIMEOUT 10000 //In Milliseconds
-    
-#define GPS_TIMEOUT 30000 //In Milliseconds
-
-#define HEARTBEAT_KILL_TIMEOUT 20000 //In Milliseconds
-
-#define UHF_KILL_TIMEOUT 10000
-
 /**
  * Different packet types that we can send over via the downlink
  */
