@@ -7,7 +7,6 @@
  */
 
 #include "../../Common/Common.h"
-#include "../../Common/Utilities/Logger.h"
 #include <stdbool.h>
 #include <ctype.h>
 #include <stdio.h>
