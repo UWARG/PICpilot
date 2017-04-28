@@ -78,7 +78,7 @@ struct packet_type_position_block { //
 
 //50 bytes. Medium frequency. About once every second
 struct packet_type_status_block {
-    float path_checksum; // largest, so it goes first
+    float path_checksum;
     int16_t roll_rate_setpoint, pitch_rate_setpoint, yaw_rate_setpoint; 
     int16_t roll_setpoint, pitch_setpoint;
     int16_t heading_setpoint, altitude_setpoint, throttle_setpoint;
