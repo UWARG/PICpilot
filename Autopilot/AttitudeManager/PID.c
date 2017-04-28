@@ -59,8 +59,6 @@ float PIDcontrol(PIDVal* pid, float error, float scale) {
                 pid->integral = pid->i_max;
             }
             output += pid->integral;
-        } else {
-            pid->integral = 0; // if there's no Ki, reset the integrator (makes tuning easier)
         }
 
         if (fabsf(pid->kd) > 0) { // Derivative control
