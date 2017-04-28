@@ -10,6 +10,8 @@
 #include "AttitudeManager.h"
 #include "FixedWing.h"
 #include "ProgramStatus.h"
+#include "StatusManager.h"
+#include "../Common/Interfaces/InterchipDMA.h"
 
 #if VEHICLE_TYPE == FIXED_WING
 
@@ -40,6 +42,8 @@ void initialization(){
 
 void armVehicle(){
     setProgramStatus(ARMING);
+    
+    resetHeartbeatTimer();
 
     setPWM(THROTTLE_OUT_CHANNEL, MIN_PWM);
     setPWM(ROLL_OUT_CHANNEL, 0);
@@ -202,7 +206,7 @@ void lowLevelControl(){
 
     if (getProgramStatus() != KILL_MODE) {
         setAllPWM(outputSignal);
-    } else{
+    } else{ //if in kill mode, full deflection of all control surfaces
         setPWM(THROTTLE_OUT_CHANNEL, MIN_PWM);  //Throttle
         setPWM(ROLL_OUT_CHANNEL, MIN_PWM);      //Roll
         setPWM(L_TAIL_OUT_CHANNEL, MIN_PWM);    //Pitch
@@ -211,9 +215,23 @@ void lowLevelControl(){
 
     //Check for kill mode
 #if COMP_MODE
-    checkGPS();
-    checkHeartbeat();
-    checkUHFStatus();
+    if (getUHFStatus() == CONNECTION_WARN && getProgramStatus() != KILL_MODE_WARNING && getProgramStatus() != KILL_MODE){
+        info("Setting kill mode warning due to UHF disconnect");
+        setProgramStatus(KILL_MODE_WARNING);
+    } else if (getUHFStatus() == CONNECTION_EXPIRED && getProgramStatus() != KILL_MODE){
+        info("Setting  kill mode due to UHF disconnect");
+        setProgramStatus(KILL_MODE);
+    }
+
+    if (getHeartbeatStatus() == CONNECTION_WARN && getProgramStatus() != KILL_MODE_WARNING && getProgramStatus() != KILL_MODE){
+        interchip_send_buffer.am_data.command = PM_RETURN_HOME;
+        sendInterchipData();
+        info("Setting kill mode warning due to HEARTBEAT");
+        setProgramStatus(KILL_MODE_WARNING);
+    } else if (getHeartbeatStatus() == CONNECTION_EXPIRED && getProgramStatus() != KILL_MODE){
+        info("Setting  kill mode due to HEARTBEAT");
+        setProgramStatus(KILL_MODE);
+    }
 #endif
 
 }

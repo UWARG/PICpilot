@@ -16,6 +16,7 @@
 #include "ProgramStatus.h"
 #include "../Common/Clock/Timer.h"
 #include "../Common/Utilities/LED.h"
+#include "StatusManager.h"
 
 //State Machine Triggers (Mostly Timers)
 static int uplinkTimer = 0;
@@ -88,6 +89,8 @@ void StateMachine(char entryLocation){
             ledTimer -= LED_BLINK_SHORT;
         }
     }
+
+    checkUHFStatus(); //for kill mode. Need to determine if we still have uhf
     
     parseDatalinkBuffer(); //read any incoming data from the Xbee and put in buffer
     sendQueuedDownlinkPacket(); //send any outgoing info
@@ -96,6 +99,7 @@ void StateMachine(char entryLocation){
 void killPlane(char action){
     if (action){
         setProgramStatus(KILL_MODE);
+        debug("killing plane!");
     }
     else{
         setProgramStatus(MAIN_EXECUTION);

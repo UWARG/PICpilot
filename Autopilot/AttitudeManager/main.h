@@ -19,7 +19,7 @@
 #define DEBUG 0
 
 //Define this for competition, includes higher restrictions for safety
-#define COMP_MODE 0
+#define COMP_MODE 1
 
 #define FIXED_WING 0
 #define MULTIROTOR 1
