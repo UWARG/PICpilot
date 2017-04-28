@@ -792,7 +792,7 @@ bool writeDatalink(PacketType packet){
 }
 
 void checkUHFStatus(){
-    unsigned long int time = getTime();
+    uint32_t time = getTime();
 
     if (getPWMInputStatus() == PWM_STATUS_UHF_LOST){
         if (UHFTimer == 0){ //0 indicates that this is the first time we lost UHF
@@ -819,6 +819,8 @@ void checkHeartbeat(){
     }
 }
 
+//TODO: Should check the connection status of the GPS module. If disconnected
+//or no lock, should attempt to fly by yaw back towards the home destination
 void checkGPS(){
 //    if (gps_PositionFix == 0){
 //        setProgramStatus(KILL_MODE_WARNING);

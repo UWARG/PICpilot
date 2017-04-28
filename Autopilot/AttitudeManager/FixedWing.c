@@ -202,7 +202,7 @@ void lowLevelControl(){
 
     if (getProgramStatus() != KILL_MODE) {
         setAllPWM(outputSignal);
-    } else{
+    } else{ //if in kill mode, full deflection of all control surfaces
         setPWM(THROTTLE_OUT_CHANNEL, MIN_PWM);  //Throttle
         setPWM(ROLL_OUT_CHANNEL, MIN_PWM);      //Roll
         setPWM(L_TAIL_OUT_CHANNEL, MIN_PWM);    //Pitch
