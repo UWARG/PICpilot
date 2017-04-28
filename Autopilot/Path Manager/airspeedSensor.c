@@ -73,21 +73,15 @@ static float ADCConvert(uint16_t signal) {
 // run on startup to get a zero value for airspeed. 
 // waits until the airspeed buffer is fully populated, then saves the offset 
 void calibrateAirspeed() {
-    int i, j;
-    bool done = false;
-    for (j = 0; j < 256; j++) {
-        if (done) break;
-        offset = 0;
-        done = true;
-        for (i = 0; i < AIRSPEED_HISTORY; i++) {
-            if (airspeedHistory[i] == 0.0) {
-                done = false;
-                break;
-            }
+    int i;
+    int adc_counts = 0;
+    for (i = 0; i < AIRSPEED_HISTORY; i++) {
+        if (airspeedHistory[i] != 0.0) {
             offset += airspeedHistory[i];
+            adc_counts += 1;
         }
     }
-    offset /= AIRSPEED_HISTORY;
+    offset /= adc_counts;
     debugInt("Airspeed Offset", (int32_t)offset); // should be pretty close to 2000 (+/- 200)
 }
 
@@ -95,6 +89,7 @@ void initAirspeedSensor(){
     //RA11/AN11 is the pin to get the airspeed information
     TRISBbits.TRISB11 = 1;
     initAirspeedADC();
+    __delay_ms(200); // delay while the sensor populates the buffer
     calibrateAirspeed();
 }
 
