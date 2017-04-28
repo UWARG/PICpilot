@@ -731,7 +731,7 @@ bool writeDatalink(PacketType packet){
        
             statusData.data.status_block.program_state = getProgramStatus(); //TODO: modify this
             statusData.data.status_block.waypoint_index = waypointIndex;
-            statusData.data.status_block.waypoint_count = waypointCount; //TODO: change this later
+            statusData.data.status_block.waypoint_count = waypointCount;
             statusData.data.status_block.path_checksum = waypointChecksum;
             break;
         case PACKET_TYPE_GAINS:
