@@ -687,8 +687,6 @@ static void checkForFirstGPSLock(){
     }
 }
 
-uint8_t last_amdata_checksum = 0;
-
 void checkAMData(){
     if (!newInterchipData()){
         return;

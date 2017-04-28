@@ -12,6 +12,7 @@
 #include "ProgramStatus.h"
 #include "StatusManager.h"
 #include "../Common/Interfaces/InterchipDMA.h"
+#include "../Common/Utilities/Logger.h"
 
 #if VEHICLE_TYPE == FIXED_WING
 

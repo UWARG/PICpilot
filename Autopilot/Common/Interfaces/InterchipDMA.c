@@ -145,6 +145,8 @@ static void initDMA1(uint8_t chip_id)
 /*
  * Called when we've just received data from our SPI buffers
  */
+static uint8_t last_checksum = 0;
+
 void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void)
 {
     is_dma_available = false;
@@ -162,8 +164,9 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void)
             checksum += dma0_space[i] + i;
         }
 
-        if (checksum == dma0_space[i]) {
+        if (checksum == dma0_space[i] && checksum != last_checksum) {
             is_dma_available = true;
+            last_checksum = checksum;
         } else {
             dma_error_count++;
         }
@@ -180,8 +183,9 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void)
             }
         }
 
-        if (checksum == dma0_space[i + 1]) {
+        if (checksum == dma0_space[i + 1] && checksum != last_checksum) {
             is_dma_available = true;
+            last_checksum = checksum;
         } else if (!empty_data) {
             dma_error_count++;
         } //otherwise we received all zero's. Do nothing.
