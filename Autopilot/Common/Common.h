@@ -82,17 +82,6 @@ typedef struct _waypointWrapper{ // 28 bytes
     char id;    //Array ID
 } WaypointWrapper;
 
-typedef struct _PathData{
-    struct _PathData* next;
-    struct _PathData* previous;
-    long double longitude;  //TODO: Longitude and Latitude is bulky. Use cartesian 2D approximations
-    long double latitude;
-    float altitude;
-    float radius; //Radius of turn
-    char type;
-    char id;    //Array ID
-    char index;
-} PathData;
 
 /* Typing guidelines:
  * When dealing with C-style strings or raw characters, use char

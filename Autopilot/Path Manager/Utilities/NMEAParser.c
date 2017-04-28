@@ -53,7 +53,7 @@ bool isValidNMEAString(char* string, uint16_t max_length){
 }
 
 void parseGGA(char* data, long double* latitude, long double* longitude, float* utc_time, int16_t* altitude, uint8_t* fix_status, uint8_t* num_satellites) {
-    char values[15][12]; //store the value of the 15 components of this message (overkill, only 8 are needed)
+    char values[15][20]; //store the value of the 15 components of this message (overkill, only 8 are needed)
     int i = 0;
     int j = 0;
     int n = 0;
@@ -84,7 +84,7 @@ void parseGGA(char* data, long double* latitude, long double* longitude, float* 
 }
 
 void parseVTG(char* data, float* speed, int16_t* heading) {
-	char values[10][7]; //store the value of the 10 components of this message (overkill, only 2 are needed)
+	char values[10][20]; //store the value of the 10 components of this message (overkill, only 2 are needed)
 	int i = 0;
 	int j = 0;
 	int n = 0;
@@ -99,12 +99,11 @@ void parseVTG(char* data, float* speed, int16_t* heading) {
 		}
 		j++;
 	}
-
 	// fill the GPSData struct with info from values[]
 	sscanf(values[7], "%f", speed);
-        if(values[1] != 0) sscanf(values[1], "%d", heading);
-
-	*speed = *speed / 3.6;
+    if(values[1] != 0) sscanf(values[1], "%d", heading);
+    
+    *speed = *speed / 3.6;
 }
 
 /**

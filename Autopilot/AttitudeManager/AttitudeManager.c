@@ -198,14 +198,14 @@ char checkDMA(){
          //Check if this data is new and requires action or if it is old and redundant
         if (gps_Altitude == interchip_receive_buffer.pm_data.altitude 
                 && gps_Heading == interchip_receive_buffer.pm_data.heading 
-                && gps_GroundSpeed == interchip_receive_buffer.pm_data.speed / 3.6f 
+                && gps_GroundSpeed == interchip_receive_buffer.pm_data.speed 
                 && gps_Latitude == interchip_receive_buffer.pm_data.latitude 
                 && gps_Longitude == interchip_receive_buffer.pm_data.longitude){    
             return FALSE;		
         }
 
         gps_Heading = interchip_receive_buffer.pm_data.heading;
-        gps_GroundSpeed = interchip_receive_buffer.pm_data.speed / 3.6f; //Convert from km/h to m/s
+        gps_GroundSpeed = interchip_receive_buffer.pm_data.speed;
         gps_Longitude = interchip_receive_buffer.pm_data.longitude;
         gps_Latitude = interchip_receive_buffer.pm_data.latitude;
         gps_Altitude = interchip_receive_buffer.pm_data.altitude;
