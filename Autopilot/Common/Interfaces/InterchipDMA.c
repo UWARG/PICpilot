@@ -8,6 +8,7 @@
 
 #include "InterchipDMA.h"
 #include "../Common.h"
+#include "../Utilities/Logger.h"
 #include <stdbool.h>
 
 volatile InterchipDataBuffer interchip_send_buffer;
@@ -163,10 +164,9 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void)
             ((uint8_t*) (&interchip_receive_buffer.pm_data))[i] = dma0_space[i];
             checksum += dma0_space[i] + i;
         }
-
-        if (checksum == dma0_space[i] && checksum != last_checksum) {
+        
+        if (checksum == dma0_space[i]) {
             is_dma_available = true;
-            last_checksum = checksum;
         } else {
             dma_error_count++;
         }
@@ -182,9 +182,11 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void)
                 empty_data = false;
             }
         }
-
-        if (checksum == dma0_space[i + 1] && checksum != last_checksum) {
-            is_dma_available = true;
+        
+        if (checksum == dma0_space[i + 1]) {
+            if(checksum != last_checksum){
+                is_dma_available = true;
+            }
             last_checksum = checksum;
         } else if (!empty_data) {
             dma_error_count++;
