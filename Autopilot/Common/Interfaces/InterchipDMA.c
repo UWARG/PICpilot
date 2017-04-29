@@ -150,7 +150,6 @@ static uint8_t last_checksum = 0;
 
 void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void)
 {
-    debug("get data");
     is_dma_available = false;
     uint8_t checksum = 0;
     uint16_t i = 0;
@@ -189,10 +188,8 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void)
             if(checksum != last_checksum){
                 is_dma_available = true;
             }
-            //debug("checksum passed");
             last_checksum = checksum;
         } else if (!empty_data) {
-            //debugInt("checksum failed", checksum);
             dma_error_count++;
         } //otherwise we received all zero's. Do nothing.
         break;
