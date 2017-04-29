@@ -87,6 +87,7 @@ struct packet_type_status_block {
 
     uint8_t waypoint_index;
     uint8_t waypoint_count;
+    uint8_t following_path;
 };
 
 //92 bytes
