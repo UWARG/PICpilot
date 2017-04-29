@@ -167,7 +167,6 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void)
         
         if (checksum == dma0_space[i]) {
             is_dma_available = true;
-            last_checksum = checksum;
         } else {
             dma_error_count++;
         }
