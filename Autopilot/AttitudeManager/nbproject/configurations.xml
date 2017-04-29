@@ -60,6 +60,7 @@
         <itemPath>FixedWing.h</itemPath>
       </logicalFolder>
       <itemPath>main.h</itemPath>
+      <itemPath>StatusManager.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -122,6 +123,7 @@
         <itemPath>FixedWing.c</itemPath>
       </logicalFolder>
       <itemPath>main.c</itemPath>
+      <itemPath>StatusManager.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -132,14 +134,15 @@
   <sourceRootList>
     <Elem>../Common/Utilities</Elem>
     <Elem>../Common/Interfaces</Elem>
-    <Elem>Drivers</Elem>
     <Elem>../PathManager</Elem>
+    <Elem>../Common/Clock</Elem>
+    <Elem>.</Elem>
+    <Elem>Drivers</Elem>
     <Elem>Interfaces</Elem>
     <Elem>Utilities</Elem>
     <Elem>test/test</Elem>
     <Elem>Network</Elem>
     <Elem>Peripherals</Elem>
-    <Elem>../Common/Clock</Elem>
   </sourceRootList>
   <projectmakefile>Makefile</projectmakefile>
   <confs>

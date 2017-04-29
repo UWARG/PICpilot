@@ -8,6 +8,7 @@
 
 #include "InterchipDMA.h"
 #include "../Common.h"
+#include "../Utilities/Logger.h"
 #include <stdbool.h>
 
 volatile InterchipDataBuffer interchip_send_buffer;
@@ -149,6 +150,7 @@ static uint8_t last_checksum = 0;
 
 void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void)
 {
+    debug("get data");
     is_dma_available = false;
     uint8_t checksum = 0;
     uint16_t i = 0;
@@ -163,8 +165,8 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void)
             ((uint8_t*) (&interchip_receive_buffer.pm_data))[i] = dma0_space[i];
             checksum += dma0_space[i] + i;
         }
-
-        if (checksum == dma0_space[i] && checksum != last_checksum) {
+        
+        if (checksum == dma0_space[i]) {
             is_dma_available = true;
             last_checksum = checksum;
         } else {
@@ -182,11 +184,15 @@ void __attribute__((__interrupt__, no_auto_psv)) _DMA0Interrupt(void)
                 empty_data = false;
             }
         }
-
-        if (checksum == dma0_space[i + 1] && checksum != last_checksum) {
-            is_dma_available = true;
+        
+        if (checksum == dma0_space[i + 1]) {
+            if(checksum != last_checksum){
+                is_dma_available = true;
+            }
+            //debug("checksum passed");
             last_checksum = checksum;
         } else if (!empty_data) {
+            //debugInt("checksum failed", checksum);
             dma_error_count++;
         } //otherwise we received all zero's. Do nothing.
         break;

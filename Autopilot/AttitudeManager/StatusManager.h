@@ -24,13 +24,13 @@
 /**
  * Timeout in ms before we consider the uhf in a warn state
  */
-#define UHF_WARN_TIMEOUT 5000
+#define UHF_WARN_TIMEOUT 2500
 
 /**
  * Time in ms before we consider the uhf in a expired, and thus completely
  * disconnected state (should cause aircraft to kill)
  */
-#define UHF_EXPIRED_TIMEOUT 10000
+#define UHF_EXPIRED_TIMEOUT 5000
 
 typedef const enum {
     CONNECTION_OK,
