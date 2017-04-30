@@ -16,7 +16,7 @@
 //In Radians or (90 degrees)
 #define MAX_PATH_APPROACH_ANGLE PI/2 
 
-#define PATH_BUFFER_SIZE 50
+#define PATH_BUFFER_SIZE 100
 #define PATH_FREE 0
 #define PATH_FULL 1
 
