@@ -25,7 +25,7 @@ int input_RC_Flap;
 int input_GS_Flap;
 
 float adverse_yaw_mix = 0.5; // Roll rate -> yaw rate scaling (to counter adverse yaw)
-float roll_turn_mix = 5.0; // Roll angle -> pitch rate scaling (for fixed-wing turns) 
+float roll_turn_mix = 1.0; // Roll angle -> pitch rate scaling (for banked turns) 
 
 void initialization(){
     setPWM(THROTTLE_OUT_CHANNEL, MIN_PWM);
