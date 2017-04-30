@@ -48,7 +48,7 @@ void StateMachine(char entryLocation){
         // If there's new IMU data, run flight control.
         flightUpdate = true;
     }
-    else if(newInterchipData() && checkDMA()){
+    if(newInterchipData() && checkDMA()){
         // if we have new interchip data (heading, etc), run flight control
         flightUpdate = true;
     }
