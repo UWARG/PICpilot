@@ -10,16 +10,16 @@
 
 float lastKnownAltitude = 0;
 char altimeterConnected = 0;
-float altimeterOffset = 0;
+//float altimeterOffset = 0;
 
 char initAltimeter() {
     initI2C();
     altimeterConnected = checkDevicePresence(I2C_SLAVE_ADDRESS,WHO_AM_I_REG);
     if (altimeterConnected){
-        char data[3] = {0xB8, 0x07, 0xB9};
+        char data[3] = {0xB8, 0x07,0xB9};                                        //Data to set registers
         sendMessage(I2C_SLAVE_ADDRESS, CONTROL_REGISTER1, &data[0], 1, WRITE);
         sendMessage(I2C_SLAVE_ADDRESS, DATA_READY_EVENT_REGISTER, &data[1], 1, WRITE);
-        sendMessage(I2C_SLAVE_ADDRESS, CONTROL_REGISTER1, &data[2], 1, WRITE);
+        sendMessage(I2C_SLAVE_ADDRESS, CONTROL_REGISTER1, &data[2], 1, WRITE);          //Set in Altimeter mode
     }
     else{
 #if DEBUG
@@ -29,8 +29,8 @@ char initAltimeter() {
     return altimeterConnected;
 }
 
-void calibrateAltimeter(float altitude){
-    altimeterOffset = altitude;
+void calibrateAltimeter(){
+    sendMessage(I2C_SLAVE_ADDRESS, OFF_P, CURRENT_PRESSURE - 101326, 1, WRITE);     //Set Offset as difference between measured value and sea level
 }
 
 float getAltitude() {
@@ -38,7 +38,7 @@ float getAltitude() {
         int msb = sendMessage(I2C_SLAVE_ADDRESS, ALTITUDE_MSB_REGISTER, 0, 0, READ) << 8;
         unsigned char csb = sendMessage(I2C_SLAVE_ADDRESS, ALTITUDE_CSB_REGISTER, 0, 0, READ);
         float lsb = (sendMessage(I2C_SLAVE_ADDRESS, ALTITUDE_LSB_REGISTER, 0, 0, READ) >> 4)/16.0;
-        lastKnownAltitude = (float) (msb | csb) + lsb - altimeterOffset;
+        lastKnownAltitude = (float) (msb | csb) + lsb;                                                  //No altitude offset
     }
     return lastKnownAltitude;
 }
