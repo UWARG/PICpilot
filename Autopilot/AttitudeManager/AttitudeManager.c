@@ -673,6 +673,12 @@ void readDatalink(void){
             case SET_GROUND_SPEED_GAINS:
                 setGains(GSPEED, CMD_TO_FLOAT_ARRAY(cmd->data));
                 break;
+	    case CALIBRATE_PWM_INPUTS:
+	        unsigned int chn_numb = CMD_TO_INT(cmd->data);
+	        unsigned int offset = CMD_TO_INT(cmd->data + 2);
+	        float scale = CMD_TO_FLOAT(cmd->data + 4);
+	        calibratePWMInputs(channel, scale, offset);
+	        break;
             default:
                 break;
         }
