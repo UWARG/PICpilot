@@ -25,6 +25,8 @@
 #include "../Common/Utilities/Logger.h"
 #include "StatusManager.h"
 #include <string.h>
+// for test only
+#include <stdio.h>
 
 extern int input_RC_Flap; // Flaps need to finish being refactored.
 extern int input_GS_Flap;
@@ -672,6 +674,14 @@ void readDatalink(void){
                 break;
             case SET_GROUND_SPEED_GAINS:
                 setGains(GSPEED, CMD_TO_FLOAT_ARRAY(cmd->data));
+                break;
+            case CALIBRATE_PWM_INPUTS:
+                uint16_t chn_numb = CMD_TO_INT(cmd->data);
+                uint16_t offset = CMD_TO_INT(cmd->data + 2);
+                float scale = CMD_TO_FLOAT(cmd->data + 4);
+                calibratePWMInputs(chn_numb, scale, offset);
+                // for testing only
+                printf("%d, %f, %d",chn_numb, scale, offset);
                 break;
             default:
                 break;
