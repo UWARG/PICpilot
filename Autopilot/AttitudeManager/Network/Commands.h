@@ -6,7 +6,7 @@
  */
 
 #ifndef COMMANDS_H
-#define	COMMANDS_H
+#define COMMANDS_H
 
 #define DEBUG_TEST 0
 
@@ -72,7 +72,8 @@ typedef const enum {
     SET_PITCH_ANGLE_GAINS = 141,
     SET_HEADING_GAINS = 142,
     SET_ALTITUDE_GAINS = 143,
-    SET_GROUND_SPEED_GAINS = 144
+    SET_GROUND_SPEED_GAINS = 144,
+    CALIBRATE_PWM_INPUTS = 145,
 } CommandType;
 
 
@@ -86,4 +87,4 @@ typedef const enum {
 #define CMD_TO_FLOAT_ARRAY(data) ((float*)(data))
 #define CMD_TO_TYPE(data, type) (*((type*)(data)))
 
-#endif	/* COMMANDS_H */
+#endif /* COMMANDS_H */

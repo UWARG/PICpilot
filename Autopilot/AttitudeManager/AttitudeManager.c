@@ -198,7 +198,7 @@ char checkDMA(){
                 && gps_GroundSpeed == interchip_receive_buffer.pm_data.speed 
                 && gps_Latitude == interchip_receive_buffer.pm_data.latitude 
                 && gps_Longitude == interchip_receive_buffer.pm_data.longitude){    
-            return FALSE;		
+            return FALSE;
         }
 
         gps_Heading = interchip_receive_buffer.pm_data.heading;
@@ -464,7 +464,7 @@ static void setGains(ControlChannel channel, float* gains){
 
 void readDatalink(void){
     struct DatalinkCommand* cmd = popDatalinkCommand();
-   
+    
     //TODO: Add rudimentary input validation
     if ( cmd ) {
         resetHeartbeatTimer();
@@ -672,6 +672,9 @@ void readDatalink(void){
                 break;
             case SET_GROUND_SPEED_GAINS:
                 setGains(GSPEED, CMD_TO_FLOAT_ARRAY(cmd->data));
+                break;
+            case CALIBRATE_PWM_INPUTS:
+                calibratePWMInputs(CMD_TO_INT(cmd->data), CMD_TO_FLOAT(cmd->data + 4), CMD_TO_INT(cmd->data + 2));
                 break;
             default:
                 break;
