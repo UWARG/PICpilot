@@ -464,7 +464,7 @@ static void setGains(ControlChannel channel, float* gains){
 
 void readDatalink(void){
     struct DatalinkCommand* cmd = popDatalinkCommand();
-    
+
     //TODO: Add rudimentary input validation
     if ( cmd ) {
         resetHeartbeatTimer();
