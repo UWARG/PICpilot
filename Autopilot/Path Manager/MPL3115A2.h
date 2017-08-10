@@ -28,12 +28,14 @@ extern "C" {
 #define BAR_IN_MSB 0x14
 #define BAR_IN_LSB 0x15
 #define CONTROL_REGISTER1 0x26
+#define OFF_H 0x2D //offset register for alttitude
+#define GIVEN_PRESSURE 97913 //current pressure
 
 
 
 //TODO: ADD BETTER FORMATTING TO THIS HEADER FILE
 char initAltimeter();
-void calibrateAltimeter(float altitude);
+void calibrateAltimeter(long int pressure);
 float getAltitude();
 
 
