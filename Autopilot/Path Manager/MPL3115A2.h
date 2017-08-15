@@ -29,15 +29,16 @@ extern "C" {
 #define BAR_IN_LSB 0x15
 #define CONTROL_REGISTER1 0x26
 #define OFF_H 0x2D //offset register for alttitude
-#define GIVEN_PRESSURE 97913 //current pressure
+#define GIVEN_PRESSURE 97561 //current pressure
 
 
 
 //TODO: ADD BETTER FORMATTING TO THIS HEADER FILE
 char initAltimeter();
-void calibrateAltimeter(long int pressure);
+void calibrateAltimeter(int altitudeOffset);
 float getAltitude();
-
+void switchToBarometerMode(int toBarometer);
+float getPressure();
 
 #ifdef	__cplusplus
 }
