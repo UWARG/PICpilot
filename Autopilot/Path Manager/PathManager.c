@@ -71,10 +71,7 @@ void pathManagerInit(void) {
     
     
     if (initAltimeter()){
-        debug("altimeter init");
-        calibrateAltimeter(100);
-        
-        debugInt("altimeter value:", getAltitude());
+        calibrateAltimeter(0);
     }
     //Initialize Home Location
     home.altitude = 400;
