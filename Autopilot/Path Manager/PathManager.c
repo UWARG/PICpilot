@@ -68,10 +68,10 @@ void pathManagerInit(void) {
     initInterchip(DMA_CHIP_ID_PATH_MANAGER);
 
     //Communication with Altimeter
+    
+    
     if (initAltimeter()){
-        float initialValue = 0;
-        while (initialValue == 0) initialValue = getAltitude();
-        calibrateAltimeter(initialValue);
+        calibrateAltimeter(0);
     }
     //Initialize Home Location
     home.altitude = 400;

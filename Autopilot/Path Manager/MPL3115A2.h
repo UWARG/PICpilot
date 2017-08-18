@@ -1,6 +1,6 @@
 /* 
  * File:   MPL3115A2.h
- * Author: Chris Hajduk
+ * Author: Chris Hajduk & Rosa Chen
  *
  * Created on April 5, 2014, 7:08 PM
  */
@@ -28,14 +28,17 @@ extern "C" {
 #define BAR_IN_MSB 0x14
 #define BAR_IN_LSB 0x15
 #define CONTROL_REGISTER1 0x26
+#define OFF_H 0x2D //offset register for alttitude
+#define SWITCH_TO_BAROMETER {0x38, 0x07, 0x39}
+#define SWITCH_TO_ALTIMETER {0xB8, 0xB9, 0xB9}
 
 
 
 //TODO: ADD BETTER FORMATTING TO THIS HEADER FILE
 char initAltimeter();
-void calibrateAltimeter(float altitude);
+void calibrateAltimeter(int8_t offsetInt);
 float getAltitude();
-
+float getPressure();
 
 #ifdef	__cplusplus
 }
