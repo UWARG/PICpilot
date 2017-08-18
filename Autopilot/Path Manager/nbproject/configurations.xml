@@ -26,6 +26,7 @@
         <itemPath>../Common/Utilities/ByteQueue.h</itemPath>
         <itemPath>../Common/Utilities/LED.h</itemPath>
         <itemPath>Utilities/NMEAParser.h</itemPath>
+        <itemPath>../AttitudeManager/delay.h</itemPath>
       </logicalFolder>
       <itemPath>Dubins.h</itemPath>
       <itemPath>main.h</itemPath>
@@ -63,6 +64,7 @@
         <itemPath>../Common/Utilities/LED.c</itemPath>
         <itemPath>Utilities/NMEAParser.c</itemPath>
         <itemPath>../Common/Utilities/ErrorHandling.c</itemPath>
+        <itemPath>../AttitudeManager/delay.c</itemPath>
       </logicalFolder>
       <itemPath>Dubins.c</itemPath>
       <itemPath>main.c</itemPath>
@@ -284,6 +286,7 @@
         <property key="UART 1" value="true"/>
         <property key="UART 2" value="true"/>
         <property key="debugoptions.useswbreakpoints" value="false"/>
+        <property key="firmware.download.all" value="false"/>
         <property key="hwtoolclock.frcindebug" value="false"/>
         <property key="memories.aux" value="false"/>
         <property key="memories.bootflash" value="false"/>

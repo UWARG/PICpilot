@@ -72,7 +72,7 @@ void pathManagerInit(void) {
     
     if (initAltimeter()){
         debug("altimeter init");
-        calibrateAltimeter(0);
+        calibrateAltimeter(100);
         
         debugInt("altimeter value:", getAltitude());
     }
