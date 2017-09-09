@@ -25,6 +25,7 @@
 #include "../Common/Utilities/Logger.h"
 #include "StatusManager.h"
 #include <string.h>
+#include "ProbeDrop.c"
 
 extern int input_RC_Flap; // Flaps need to finish being refactored.
 extern int input_GS_Flap;
@@ -139,8 +140,10 @@ void attitudeInit() {
     /* Initialize Input Capture and Output Compare Modules */
 #if DEBUG
     initPWM(0b11111111, 0b11111111);
+    servoStartup();
 #else
     initPWM(0b11111111, 0b11111111);
+    servoStartup();
 #endif
     /*  *****************************************************************
      *  IMU
@@ -485,6 +488,15 @@ void readDatalink(void){
                 break;
             case SHOW_GAINS:
                 show_gains = true;
+                break;
+            case DROP_PROBE_ONE:
+                probeDrop(1,1); //First value indicates the servo number and second indicates position (1 =  open, 0 = closed)
+                break;
+            case DROP_PROBE_TWO:
+                probeDrop(2,1);
+                break;
+            case DROP_PROBE_THREE:
+                probeDrop(3,1);
                 break;
             case SET_PATH_GAIN:
                 interchip_send_buffer.am_data.pathGain = CMD_TO_FLOAT(cmd->data);
