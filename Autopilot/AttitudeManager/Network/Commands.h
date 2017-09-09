@@ -12,8 +12,12 @@
 
 typedef const enum {
     SHOW_GAINS = 1,
-            
-    //unused 17
+    
+    DROP_PROBE_ONE = 2,
+    DROP_PROBE_TWO = 3,
+    DROP_PROBE_THREE = 4,
+    
+    //unused 14
             
     SET_PATH_GAIN = 19,
     SET_ORBIT_GAIN = 20,
