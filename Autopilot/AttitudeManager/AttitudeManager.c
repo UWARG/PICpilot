@@ -25,7 +25,7 @@
 #include "../Common/Utilities/Logger.h"
 #include "StatusManager.h"
 #include <string.h>
-#include "ProbeDrop.c"
+#include "ProbeDrop.h"
 
 extern int input_RC_Flap; // Flaps need to finish being refactored.
 extern int input_GS_Flap;
