@@ -6,7 +6,6 @@
  */
 
 
-#include "PWM.c"
 #include "PWM.h"
 
 /*
