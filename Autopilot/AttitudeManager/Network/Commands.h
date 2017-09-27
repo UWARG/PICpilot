@@ -74,6 +74,7 @@ typedef const enum {
     SET_ALTITUDE_GAINS = 143,
     SET_GROUND_SPEED_GAINS = 144,
     CALIBRATE_PWM_INPUTS = 145,
+    SET_PROBE = 146,
 } CommandType;
 
 
