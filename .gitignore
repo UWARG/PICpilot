@@ -38,3 +38,6 @@ private/
 
 # Ceedling files
 coverage/
+
+# Mac OS files
+.DS_Store

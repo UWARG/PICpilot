@@ -465,6 +465,8 @@ static void setGains(ControlChannel channel, float* gains){
 void readDatalink(void){
     struct DatalinkCommand* cmd = popDatalinkCommand();
 
+    int input_PROBE = 0;
+
     //TODO: Add rudimentary input validation
     if ( cmd ) {
         resetHeartbeatTimer();
@@ -472,7 +474,7 @@ void readDatalink(void){
         if (lastCommandSentCode[lastCommandCounter]/100 == cmd->cmd){
             lastCommandSentCode[lastCommandCounter]++;
         }
-        else{
+        else {
             lastCommandCounter++;
             lastCommandCounter %= COMMAND_HISTORY_SIZE;
             lastCommandSentCode[lastCommandCounter] = cmd->cmd * 100;
@@ -550,6 +552,48 @@ void readDatalink(void){
                 interchip_send_buffer.am_data.command = PM_CALIBRATE_ALTIMETER;
                 sendInterchipData();
                 break;
+
+            // January's 
+            case SET_PROBE:
+                input_PROBE = CMD_TO_INT(cmd->data);
+
+                if (input_PROBE == 1)
+                {
+                    // Make the first one open -- drop the first one
+                    setPWM(5, MAX_PWM);
+                }
+
+                if (input_PROBE == 2)
+                {
+                    // Make the second one open -- drop the second one
+                    setPWM(6, MAX_PWM);
+                }
+
+                if (input_PROBE == 3)
+                {
+                    // Make the third one open -- drop the third one
+                    setPWM(7, MAX_PWM);
+                }
+
+                if (input_PROBE == 4)
+                {
+                    // Make the first one close
+                    setPWM(5, MIN_PWM);
+                }
+
+                if (input_PROBE == 5)
+                {
+                    // Make the second one close
+                    setPWM(6, MIN_PWM);
+                }
+
+                if (input_PROBE == 6)
+                {
+                    // Make the third one close
+                    setPWM(7, MIN_PWM);
+                }              
+                break;
+
             case CLEAR_WAYPOINTS:
                 interchip_send_buffer.am_data.waypoint.id = *cmd->data; //Dummy Data
                 interchip_send_buffer.am_data.command = PM_CLEAR_WAYPOINTS;
