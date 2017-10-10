@@ -14,7 +14,7 @@ typedef const enum {
     SHOW_GAINS = 1,
             
     //unused 17
-            
+    DROP_PROBE = 3,        
     SET_PATH_GAIN = 19,
     SET_ORBIT_GAIN = 20,
     SET_PITCH_RATE = 22,

@@ -483,6 +483,16 @@ void readDatalink(void){
                 debug( (char*) cmd->data);
 #endif
                 break;
+            
+            case DROP_PROBE: 
+                if (CMD_TO_INT(cmd->data) == 1)
+                    setPWM(5, MAX_PWM);
+                else if (CMD_TO_INT(cmd ->data) == 2)
+                    setPWM(6, MAX_PWM); 
+                else if (CMD_TO_INT(cmd ->data) == 3)
+                    setPWM(7, MAX_PWM); 
+                break; 
+            
             case SHOW_GAINS:
                 show_gains = true;
                 break;
