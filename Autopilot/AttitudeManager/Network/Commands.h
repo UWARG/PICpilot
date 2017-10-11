@@ -50,7 +50,7 @@ typedef const enum {
     ARM_VEHICLE = 50,
     DEARM_VEHICLE = 51,
     SET_FLAP = 52,
-            
+            DROP_PROBE = 54,
     //unused 6
             
     FOLLOW_PATH = 58,
@@ -73,7 +73,7 @@ typedef const enum {
     SET_HEADING_GAINS = 142,
     SET_ALTITUDE_GAINS = 143,
     SET_GROUND_SPEED_GAINS = 144,
-    CALIBRATE_PWM_INPUTS = 145,
+    CALIBRATE_PWM_INPUTS = 145
 } CommandType;
 
 

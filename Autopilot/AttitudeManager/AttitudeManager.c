@@ -49,6 +49,7 @@ static const uint16_t ctrl_mask[16] = {
 // Setpoints
 int sp_Throttle = MIN_PWM;
 
+
 int sp_RollRate = 0; // Degrees per second
 int sp_PitchRate = 0;
 int sp_YawRate = 0;
@@ -100,6 +101,7 @@ int input_RC_YawRate = 0;
 int input_RC_Aux1 = 0; //0=Roll, 1= Pitch, 2=Yaw
 int input_RC_Aux2 = 0; //0 = Saved Value, 1 = Edit Mode
 int input_RC_Switch1 = 0;
+int input_Probe = 0;
 
 //Ground Station Input Signals
 int input_GS_Roll = 0;
@@ -526,6 +528,18 @@ void readDatalink(void){
             case SET_FLAP:
                 input_GS_Flap = CMD_TO_INT(cmd->data);//(int)(((long int)(*(int*)(&cmd->data))) * MAX_PWM * 2 / 100) - MAX_PWM;
                 break;
+            case DROP_PROBE:
+                input_Probe= CMD_TO_INT(cmd->data);
+                if(input_Probe==1){
+                    setPWM(5,MAX_PWM);
+                }
+                if(input_Probe==2){
+                    setPWM(6,MAX_PWM);
+                }
+                if(input_Probe==3){
+                    setPWM(7,MAX_PWM);
+                }
+                break;        
             case SET_AUTONOMOUS_LEVEL:
                 controlLevel = CMD_TO_INT(cmd->data);
                 forceGainUpdate();
@@ -586,6 +600,7 @@ void readDatalink(void){
             case KILL_PLANE:
                 if (CMD_TO_INT(cmd->data) == 1234){
                     killPlane(TRUE);
+        
 #if DEBUG
                     debug("killing plane due to command");
 #endif
